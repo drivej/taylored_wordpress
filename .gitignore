@@ -1,0 +1,9 @@
+/wp-admin
+/wp-includes
+/wp-admin
+/wp-content/upgrade
+/wp-content/uploads
+/wp-content/plugins/woocommerce
+/wp-content/plugins/ci-store-plugin/ci-store-plugin-working/node_modules
+.htaccess
+.DS_Store

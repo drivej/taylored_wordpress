@@ -1,0 +1,79 @@
+@charset "utf-8";
+/* CSS Document */
+
+/*
+Theme Name: Taylored Power Sports
+Author: Contento Interactive Group LLC
+Author URI: https://contentointeractivegroup.com
+Description: custom ecommerce theme built, bare bones, for taylored auto. 
+Version: 1
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+*/
+
+html, body, p, li, ul, a {
+	font-family: 'Work Sans', sans-serif;
+	font-weight:400;
+}
+h1, h2, h3, h4, h5, h6 {
+	font-family: 'Montserrat', sans-serif;
+	font-weight:900;
+}
+.form-control {
+	border-radius:0px;
+}
+.bg-red {
+	background-color:#c02f1d;
+}
+#page-body {
+	grid-template-columns: auto 33%;
+	}
+.dropdown-hover:hover>.dropdown-menu {
+display: inline-block;
+}
+.dropdown-hover>.dropdown-toggle:active {
+/*Without this, clicking will make it sticky*/
+pointer-events: none;
+}
+.bg-red .menu-item a, 
+.bg-dark .menu-item a {
+	padding: 3px 5px;
+	color:#fff;
+	text-transform:uppercase;
+	font-size:14px;
+	text-decoration:none;
+}
+.bg-dark .menu-item a {
+	font-size:12px;
+}
+
+
+.bg-dark .menu-item a:hover, 
+.bg-dark .menu-item a:active
+.bg-red .menu-item a:hover, 
+.bg-red .menu-item a:active {
+	text-decoration:underline;
+}
+
+.hamburger span {
+	background-color:#fff;
+	height:2px;
+	width:100%;
+	color:#fff;
+	display: flex;
+    flex-direction: column;
+    margin: 3px 0px;
+}
+
+#top-bar .container-fluid {
+	justify-content:flex-end;
+}
+
+@media (max-width:767px){
+	#page-body{	
+		grid-template-columns: 100%;
+	}
+	#top-bar .container-fluid {
+	justify-content:space-around;
+	}
+}

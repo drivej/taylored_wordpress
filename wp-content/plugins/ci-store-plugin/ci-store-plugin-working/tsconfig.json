@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "allowJs": true,
+    // "strict": false,
+    "jsx": "react",
+    "module": "es6",
+    // "module": "CommonJS",
+    "moduleResolution": "node",
+    "target": "es6",
+    // "sourceMap": true,
+    "typeRoots": ["node_modules/@types"],
+    "types": ["node"]
+  },
+  "exclude": ["node_modules", "dist"],
+  "include": ["./src"]
+}
