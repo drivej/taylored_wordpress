@@ -38,7 +38,7 @@ add_action('admin_menu', 'create_admin_menu');
 
 function enqueue_ci_plugin_script()
 {
-    wp_register_script('admin-ui-script', plugin_dir_url(__FILE__) . 'ci-store-plugin.js', array(), '1.0', true);
+    wp_register_script('admin-ui-script', plugin_dir_url(__FILE__) . 'dist/ci-store-plugin.js', array(), '1.0', true);
     // wp_register_script('admin-ui-script', 'http://localhost:8080/ci-store-plugin.js', array(), '1.0', true);
     wp_enqueue_script('admin-ui-script');
     // wp_localize_script('admin-ui-script', 'ajax_object', [

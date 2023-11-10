@@ -97,7 +97,7 @@ module.exports = {
   output: {
     publicPath: '/',
     filename: `ci-store-plugin.js`,
-    path: path.resolve(__dirname, '../'),
+    path: path.resolve(__dirname, '../dist'),
     library: 'CIStore',
     libraryTarget: 'umd',
     umdNamedDefine: true

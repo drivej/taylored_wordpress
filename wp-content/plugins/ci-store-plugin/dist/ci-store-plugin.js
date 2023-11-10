@@ -7048,6 +7048,11 @@ var wordpress_plugin_awaiter = (undefined && undefined.__awaiter) || function (t
 // import { WordPressApp } from './wordpress/WordpressApp';
 // const root = createRoot(document.getElementById('product-root'));
 // root.render(<WordPressApp />);
+const InputField = ({ label, name, value, onChange }) => {
+    return (react.createElement(react.Fragment, null,
+        react.createElement("label", { htmlFor: `input_${name}` }, label),
+        react.createElement("input", { type: 'text', id: `input_${name}`, name: name, value: value, onChange: onChange })));
+};
 const AppInner = () => {
     var _a, _b, _c, _d, _e, _f;
     const [pageSize, setPageSize] = (0,react.useState)(100);
@@ -7066,24 +7071,18 @@ const AppInner = () => {
     });
     const [fields, setFields] = (0,react.useState)({ 'post[post_title]': 'newprodctitle' });
     const updateFields = (e) => {
-        setFields((f) => (Object.assign(Object.assign({}, f), { [e.currentTarget.name]: e.currentTarget.value })));
+        const delta = { [e.currentTarget.getAttribute('name')]: e.currentTarget.value };
+        setFields((f) => (Object.assign(Object.assign({}, f), delta)));
     };
     return (react.createElement("div", null,
         react.createElement("h1", null, "Test React AppZZ"),
         react.createElement("form", { method: 'post', action: '', onSubmit: handleSubmit },
-            react.createElement("input", { type: 'text', id: '', name: 'action', value: 'ci_woo_action' }),
-            react.createElement("div", null,
-                react.createElement("label", { htmlFor: 'product_sku' }, "Product Sku:"),
-                react.createElement("input", { type: 'text', id: 'product_sku', name: 'post[meta_input][_sku]', value: 'MASTER_9523', required: true })),
-            react.createElement("div", null,
-                react.createElement("label", { htmlFor: 'product_title' }, "Product Title:"),
-                react.createElement("input", { type: 'text', id: 'product_title', name: 'post[post_title]', value: fields['post[post_title]'], onChange: updateFields, required: true })),
-            react.createElement("div", null,
-                react.createElement("label", { htmlFor: 'product_description' }, "Product Title:"),
-                react.createElement("input", { type: 'text', id: 'product_title', name: 'post[post_content]', value: 'newprodctitle', required: true })),
-            react.createElement("div", null,
-                react.createElement("label", { htmlFor: 'product_price' }, "Product Price:"),
-                react.createElement("input", { type: 'text', id: 'product_price', name: 'post[meta_input][_price]', value: '55.6', required: true })),
+            react.createElement("input", { type: 'hidden', name: 'action', value: 'ci_woo_action' }),
+            react.createElement("div", { className: 'gap-2', style: { display: 'grid', gridTemplateColumns: 'min-content 1fr' } },
+                react.createElement(InputField, { label: 'Sku', name: 'post[meta_input][_sku]', value: fields['post[meta_input][_sku]'], onChange: updateFields }),
+                react.createElement(InputField, { label: 'Title', name: 'post[post_title]', value: fields['post[post_title]'], onChange: updateFields }),
+                react.createElement(InputField, { label: 'Description', name: 'post[post_content]', value: fields['post[post_content]'], onChange: updateFields }),
+                react.createElement(InputField, { label: 'Price', name: 'post[meta_input][_price]', value: fields['post[meta_input][_price]'], onChange: updateFields })),
             react.createElement("input", { type: 'submit', name: 'submit_product', value: 'Add Product' })),
         react.createElement("input", { type: 'number', min: 1, max: 1000, step: 10, value: pageSize, onChange: (e) => setPageSize(parseInt(e.currentTarget.value)) }),
         react.createElement("button", { className: 'btn btn-primary' }, "Go"),
@@ -7377,7 +7376,7 @@ module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("d2099661648b74311ce0")
+/******/ 		__webpack_require__.h = () => ("08b857f9d50216475023")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */

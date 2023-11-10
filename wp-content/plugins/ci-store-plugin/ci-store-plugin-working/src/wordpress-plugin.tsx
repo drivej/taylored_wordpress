@@ -11,6 +11,15 @@ import { useWesternProducts } from './views/western/useWestern';
 // const root = createRoot(document.getElementById('product-root'));
 // root.render(<WordPressApp />);
 
+const InputField = ({ label, name, value, onChange }: { label: string; name: string; value: string; onChange: React.ChangeEventHandler<HTMLInputElement> }) => {
+  return (
+    <>
+      <label htmlFor={`input_${name}`}>{label}</label>
+      <input type='text' id={`input_${name}`} name={name} value={value} onChange={onChange} />
+    </>
+  );
+};
+
 const AppInner = () => {
   const [pageSize, setPageSize] = useState(100);
   const [pageCursor, setPageCursor] = useState<string>(null);
@@ -32,7 +41,8 @@ const AppInner = () => {
   const [fields, setFields] = useState({ 'post[post_title]': 'newprodctitle' });
 
   const updateFields: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    setFields((f) => ({ ...f, [e.currentTarget.name]: e.currentTarget.value }));
+    const delta = { [e.currentTarget.getAttribute('name')]: e.currentTarget.value };
+    setFields((f) => ({ ...f, ...delta }));
   };
 
   return (
@@ -40,22 +50,12 @@ const AppInner = () => {
       <h1>Test React AppZZ</h1>
 
       <form method='post' action='' onSubmit={handleSubmit}>
-        <input type='text' id='' name='action' value='ci_woo_action' />
-        <div>
-          <label htmlFor='product_sku'>Product Sku:</label>
-          <input type='text' id='product_sku' name='post[meta_input][_sku]' value='MASTER_9523' required />
-        </div>
-        <div>
-          <label htmlFor='product_title'>Product Title:</label>
-          <input type='text' id='product_title' name='post[post_title]' value={fields['post[post_title]']} onChange={updateFields} required />
-        </div>
-        <div>
-          <label htmlFor='product_description'>Product Title:</label>
-          <input type='text' id='product_title' name='post[post_content]' value='newprodctitle' required />
-        </div>
-        <div>
-          <label htmlFor='product_price'>Product Price:</label>
-          <input type='text' id='product_price' name='post[meta_input][_price]' value='55.6' required />
+        <input type='hidden' name='action' value='ci_woo_action' />
+        <div className='gap-2' style={{display:'grid', gridTemplateColumns: 'min-content 1fr'}}>
+        <InputField label='Sku' name='post[meta_input][_sku]' value={fields['post[meta_input][_sku]']} onChange={updateFields} />
+        <InputField label='Title' name='post[post_title]' value={fields['post[post_title]']} onChange={updateFields} />
+        <InputField label='Description' name='post[post_content]' value={fields['post[post_content]']} onChange={updateFields} />
+        <InputField label='Price' name='post[meta_input][_price]' value={fields['post[meta_input][_price]']} onChange={updateFields} />
         </div>
         <input type='submit' name='submit_product' value='Add Product' />
       </form>
