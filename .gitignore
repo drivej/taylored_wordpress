@@ -4,6 +4,7 @@
 /wp-content/upgrade
 /wp-content/uploads
 /wp-content/plugins/woocommerce
-/wp-content/plugins/ci-store-plugin/ci-store-plugin-working/node_modules
+/wp-content/plugins/ci-store-plugin/ci-store-plugin-working/node_modules/
 .htaccess
 .DS_Store
+wp-content/plugins/ci-store-plugin/dist/*.hot-update.*

@@ -1613,7 +1613,7 @@ module.exports = styleTagTransform;
 
 /***/ }),
 
-/***/ 181:
+/***/ 786:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -3999,6 +3999,45 @@ var browser_ponyfill_default = /*#__PURE__*/__webpack_require__.n(browser_ponyfi
 var client = __webpack_require__(745);
 // EXTERNAL MODULE: ./src/assets/plugin.scss
 var assets_plugin = __webpack_require__(921);
+// EXTERNAL MODULE: ./node_modules/use-sync-external-store/shim/index.js
+var shim = __webpack_require__(688);
+;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/useSyncExternalStore.mjs
+'use client';
+
+
+const useSyncExternalStore = shim.useSyncExternalStore;
+
+
+//# sourceMappingURL=useSyncExternalStore.mjs.map
+
+;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/useIsFetching.mjs
+'use client';
+
+
+
+
+
+function useIsFetching(arg1, arg2, arg3) {
+  const [filters, options = {}] = parseFilterArgs(arg1, arg2, arg3);
+  const queryClient = useQueryClient({
+    context: options.context
+  });
+  const queryCache = queryClient.getQueryCache();
+  return useSyncExternalStore(react.useCallback(onStoreChange => queryCache.subscribe(notifyManager.batchCalls(onStoreChange)), [queryCache]), () => queryClient.isFetching(filters), () => queryClient.isFetching(filters));
+}
+
+
+//# sourceMappingURL=useIsFetching.mjs.map
+
+;// CONCATENATED MODULE: ./src/components/GlobalLoader.tsx
+
+
+function GlobalLoader() {
+    const isFetching = useIsFetching();
+    return isFetching ? (react.createElement("div", { style: { opacity: isFetching ? 1 : 0, display: isFetching ? null : 'none', transition: 'opacity 0.2s', position: 'fixed', zIndex: 999, bottom: 10, right: 10 } },
+        react.createElement("div", { className: 'spinner-border', role: 'status' }))) : null;
+}
+
 ;// CONCATENATED MODULE: ./src/utils/lookup.tsx
 function lookup_lookup(a, k = 'id', renderKey = (p, k) => p[k]) {
     // return a.reduce((o, e) => ({ ...o, [e?.[k] ?? '--error--']: e }), {});
@@ -5788,17 +5827,6 @@ function shouldAssignObserverCurrentProperties(observer, optimisticResult, optio
 
 //# sourceMappingURL=queryObserver.mjs.map
 
-// EXTERNAL MODULE: ./node_modules/use-sync-external-store/shim/index.js
-var shim = __webpack_require__(688);
-;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/useSyncExternalStore.mjs
-'use client';
-
-
-const useSyncExternalStore = shim.useSyncExternalStore;
-
-
-//# sourceMappingURL=useSyncExternalStore.mjs.map
-
 ;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/QueryErrorResetBoundary.mjs
 'use client';
 
@@ -7027,6 +7055,57 @@ const WesternProduct = ({ productId }) => {
     return null;
 };
 
+;// CONCATENATED MODULE: ./src/views/wp/usePost.tsx
+var usePost_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+const usePost = (sku) => {
+    const getPost = () => usePost_awaiter(void 0, void 0, void 0, function* () {
+        const res = yield browser_ponyfill_default()('/wp-admin/admin-ajax.php', { method: 'POST', body: new URLSearchParams({ action: 'ci_wp_action', sku }) });
+        return res.json();
+    });
+    return useQuery_useQuery(['getPost', sku], getPost);
+};
+
+;// CONCATENATED MODULE: ./src/wordpress/CronStatus.tsx
+var CronStatus_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+const useCronStatus = () => {
+    const getCronJobs = () => CronStatus_awaiter(void 0, void 0, void 0, function* () {
+        const res = yield fetch('/wp-admin/admin-ajax.php', { method: 'POST', body: new URLSearchParams({ action: 'ci_cron_status' }) });
+        return res.json();
+    });
+    return useQuery_useQuery(['getCronJobs'], getCronJobs, { refetchInterval: 5000 });
+};
+const CronStatus = () => {
+    var _a, _b, _c;
+    // const [data, setData] = useState({});
+    const status = useCronStatus();
+    const d = new Date(Date.parse((_c = (_b = (_a = status === null || status === void 0 ? void 0 : status.data) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.started) !== null && _c !== void 0 ? _c : '2020')).toISOString();
+    // useEffect(() => {
+    // }, [])
+    return (react.createElement("div", null,
+        react.createElement("pre", null, JSON.stringify(status.data, null, 2)),
+        d));
+};
+
 ;// CONCATENATED MODULE: ./src/wordpress-plugin.tsx
 var wordpress_plugin_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -7045,6 +7124,9 @@ var wordpress_plugin_awaiter = (undefined && undefined.__awaiter) || function (t
 
 
 
+
+
+
 // import { WordPressApp } from './wordpress/WordpressApp';
 // const root = createRoot(document.getElementById('product-root'));
 // root.render(<WordPressApp />);
@@ -7054,30 +7136,48 @@ const InputField = ({ label, name, value, onChange }) => {
         react.createElement("input", { type: 'text', id: `input_${name}`, name: name, value: value, onChange: onChange })));
 };
 const AppInner = () => {
-    var _a, _b, _c, _d, _e, _f;
+    var _a, _b, _c, _d, _e, _f, _g, _h;
     const [pageSize, setPageSize] = (0,react.useState)(100);
     const [pageCursor, setPageCursor] = (0,react.useState)(null);
     const [productId, setProductId] = (0,react.useState)(null);
     const products = useWesternProducts({ pageSize, pageCursor });
-    // const test = async () => {
-    //   const data = await fetchWesternAPI('/products', { pageSize, pageCursor });
-    //   console.log(data);
-    // };
+    const post = usePost('MASTER_952322');
+    (0,react.useEffect)(() => {
+        if (post.isSuccess) {
+            setFields({
+                'post[post_title]': post.data.post_title,
+                'post[meta_input][_sku]': post.data.meta_input._sku,
+                'post[post_content]': post.data.post_content,
+                'post[meta_input][_price]': post.data.meta_input._price
+            });
+        }
+    }, [post.isSuccess]);
     const handleSubmit = (e) => wordpress_plugin_awaiter(void 0, void 0, void 0, function* () {
         e.preventDefault();
         const data = new FormData(e.currentTarget);
         const response = yield browser_ponyfill_default()('/wp-admin/admin-ajax.php', { method: 'POST', body: data }).then((r) => r.json());
         console.log({ response });
     });
-    const [fields, setFields] = (0,react.useState)({ 'post[post_title]': 'newprodctitle' });
+    const [fields, setFields] = (0,react.useState)({
+        'post[post_title]': 'newprodctitle',
+        'post[meta_input][_sku]': 'MASTER_952322',
+        'post[post_content]': 'desc 231',
+        'post[meta_input][_price]': '99'
+    });
     const updateFields = (e) => {
         const delta = { [e.currentTarget.getAttribute('name')]: e.currentTarget.value };
         setFields((f) => (Object.assign(Object.assign({}, f), delta)));
     };
-    return (react.createElement("div", null,
+    return (react.createElement("div", { style: { position: 'relative' } },
+        react.createElement(CronStatus, null),
+        react.createElement("hr", null),
+        react.createElement("hr", null),
         react.createElement("h1", null, "Test React AppZZ"),
+        react.createElement("pre", null, JSON.stringify(post, null, 2)),
         react.createElement("form", { method: 'post', action: '', onSubmit: handleSubmit },
             react.createElement("input", { type: 'hidden', name: 'action', value: 'ci_woo_action' }),
+            react.createElement("input", { type: 'hidden', name: 'post[post_type]', value: 'product' }),
+            react.createElement("input", { type: 'hidden', name: 'post[post_status]', value: 'publish' }),
             react.createElement("div", { className: 'gap-2', style: { display: 'grid', gridTemplateColumns: 'min-content 1fr' } },
                 react.createElement(InputField, { label: 'Sku', name: 'post[meta_input][_sku]', value: fields['post[meta_input][_sku]'], onChange: updateFields }),
                 react.createElement(InputField, { label: 'Title', name: 'post[post_title]', value: fields['post[post_title]'], onChange: updateFields }),
@@ -7090,8 +7190,9 @@ const AppInner = () => {
             "Next Page ", (_f = (_e = (_d = products.data) === null || _d === void 0 ? void 0 : _d.meta) === null || _e === void 0 ? void 0 : _e.cursor) === null || _f === void 0 ? void 0 :
             _f.next),
         react.createElement("div", { className: 'd-flex' },
-            products.isSuccess ? (react.createElement("div", null, products.data.data.map((p) => (react.createElement("div", { key: `row_${p.id}`, onClick: () => setProductId(p.id) }, p.name))))) : null,
-            productId ? react.createElement(WesternProduct, { productId: productId }) : react.createElement("h1", null, "Waiting"))));
+            products.isSuccess ? (react.createElement("div", null, (_h = (_g = products === null || products === void 0 ? void 0 : products.data) === null || _g === void 0 ? void 0 : _g.data) === null || _h === void 0 ? void 0 : _h.map((p) => (react.createElement("div", { key: `row_${p.id}`, onClick: () => setProductId(p.id) }, p.name))))) : null,
+            productId ? react.createElement(WesternProduct, { productId: productId }) : react.createElement("h1", null, "Waiting")),
+        react.createElement(GlobalLoader, null)));
 };
 const App = () => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: false, retry: false } } });
@@ -7376,7 +7477,7 @@ module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("08b857f9d50216475023")
+/******/ 		__webpack_require__.h = () => ("f1d856448464abba0db8")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
@@ -8365,7 +8466,7 @@ module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%
 /******/ 	// module cache are used so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	var __webpack_exports__ = __webpack_require__(181);
+/******/ 	var __webpack_exports__ = __webpack_require__(786);
 /******/ 	
 /******/ 	return __webpack_exports__;
 /******/ })()

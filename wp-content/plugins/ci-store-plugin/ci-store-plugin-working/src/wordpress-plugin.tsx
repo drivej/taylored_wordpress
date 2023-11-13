@@ -1,11 +1,14 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import fetch from 'cross-fetch';
 import * as React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './assets/plugin.scss';
+import { GlobalLoader } from './components/GlobalLoader';
 import { WesternProduct } from './views/western/WesternProduct';
 import { useWesternProducts } from './views/western/useWestern';
+import { usePost } from './views/wp/usePost';
+import { CronStatus } from './wordpress/CronStatus';
 // import { WordPressApp } from './wordpress/WordpressApp';
 
 // const root = createRoot(document.getElementById('product-root'));
@@ -25,11 +28,18 @@ const AppInner = () => {
   const [pageCursor, setPageCursor] = useState<string>(null);
   const [productId, setProductId] = useState<number>(null);
   const products = useWesternProducts({ pageSize, pageCursor });
+  const post = usePost('MASTER_952322');
 
-  // const test = async () => {
-  //   const data = await fetchWesternAPI('/products', { pageSize, pageCursor });
-  //   console.log(data);
-  // };
+  useEffect(() => {
+    if (post.isSuccess) {
+      setFields({
+        'post[post_title]': post.data.post_title,
+        'post[meta_input][_sku]': post.data.meta_input._sku,
+        'post[post_content]': post.data.post_content,
+        'post[meta_input][_price]': post.data.meta_input._price
+      });
+    }
+  }, [post.isSuccess]);
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
@@ -38,7 +48,12 @@ const AppInner = () => {
     console.log({ response });
   };
 
-  const [fields, setFields] = useState({ 'post[post_title]': 'newprodctitle' });
+  const [fields, setFields] = useState({
+    'post[post_title]': 'newprodctitle',
+    'post[meta_input][_sku]': 'MASTER_952322',
+    'post[post_content]': 'desc 231',
+    'post[meta_input][_price]': '99'
+  });
 
   const updateFields: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const delta = { [e.currentTarget.getAttribute('name')]: e.currentTarget.value };
@@ -46,16 +61,23 @@ const AppInner = () => {
   };
 
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
+      <CronStatus />
+      <hr />
+      {/* <TestAPI /> */}
+      {/* <CronJobManager /> */}
+      <hr />
       <h1>Test React AppZZ</h1>
-
+      <pre>{JSON.stringify(post, null, 2)}</pre>
       <form method='post' action='' onSubmit={handleSubmit}>
         <input type='hidden' name='action' value='ci_woo_action' />
-        <div className='gap-2' style={{display:'grid', gridTemplateColumns: 'min-content 1fr'}}>
-        <InputField label='Sku' name='post[meta_input][_sku]' value={fields['post[meta_input][_sku]']} onChange={updateFields} />
-        <InputField label='Title' name='post[post_title]' value={fields['post[post_title]']} onChange={updateFields} />
-        <InputField label='Description' name='post[post_content]' value={fields['post[post_content]']} onChange={updateFields} />
-        <InputField label='Price' name='post[meta_input][_price]' value={fields['post[meta_input][_price]']} onChange={updateFields} />
+        <input type='hidden' name='post[post_type]' value='product' />
+        <input type='hidden' name='post[post_status]' value='publish' />
+        <div className='gap-2' style={{ display: 'grid', gridTemplateColumns: 'min-content 1fr' }}>
+          <InputField label='Sku' name='post[meta_input][_sku]' value={fields['post[meta_input][_sku]']} onChange={updateFields} />
+          <InputField label='Title' name='post[post_title]' value={fields['post[post_title]']} onChange={updateFields} />
+          <InputField label='Description' name='post[post_content]' value={fields['post[post_content]']} onChange={updateFields} />
+          <InputField label='Price' name='post[meta_input][_price]' value={fields['post[meta_input][_price]']} onChange={updateFields} />
         </div>
         <input type='submit' name='submit_product' value='Add Product' />
       </form>
@@ -68,7 +90,7 @@ const AppInner = () => {
       <div className='d-flex'>
         {products.isSuccess ? (
           <div>
-            {products.data.data.map((p) => (
+            {products?.data?.data?.map((p) => (
               <div key={`row_${p.id}`} onClick={() => setProductId(p.id)}>
                 {p.name}
               </div>
@@ -78,6 +100,8 @@ const AppInner = () => {
         {productId ? <WesternProduct productId={productId} /> : <h1>Waiting</h1>}
       </div>
       {/* <pre>{JSON.stringify(products, null, 2)}</pre> */}
+
+      <GlobalLoader />
     </div>
   );
 };

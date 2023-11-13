@@ -59,7 +59,8 @@
     "terser-webpack-plugin": "^5.3.9",
     "typescript": "^5.0.4",
     "webpack-hot-middleware": "^2.25.4",
-    "webpack-node-externals": "^3.0.0"
+    "webpack-node-externals": "^3.0.0",
+    "wp-types": "^3.64.0"
   },
   "engines": {
     "node": "18.16.1"
