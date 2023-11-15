@@ -8,7 +8,7 @@ import { GlobalLoader } from './components/GlobalLoader';
 import { WesternProduct } from './views/western/WesternProduct';
 import { useWesternProducts } from './views/western/useWestern';
 import { usePost } from './views/wp/usePost';
-import { CronStatus } from './wordpress/CronStatus';
+import { PauseCron } from './wordpress/CronJobManager';
 // import { WordPressApp } from './wordpress/WordpressApp';
 
 // const root = createRoot(document.getElementById('product-root'));
@@ -62,7 +62,8 @@ const AppInner = () => {
 
   return (
     <div style={{ position: 'relative' }}>
-      <CronStatus />
+      <PauseCron />
+      {/* <CronStatus /> */}
       <hr />
       {/* <TestAPI /> */}
       {/* <CronJobManager /> */}

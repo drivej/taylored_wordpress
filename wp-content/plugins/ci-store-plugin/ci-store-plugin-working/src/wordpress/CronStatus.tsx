@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import * as React from 'react';
 
 interface ICronStatus {
   data: {
@@ -7,8 +6,10 @@ interface ICronStatus {
     started: string;
     updated: string;
     completed: string;
+    next: string;
     cursor: string;
     products: number;
+    data: unknown;
   };
   meta: {
     next: boolean;
@@ -17,25 +18,25 @@ interface ICronStatus {
 
 export const useCronStatus = () => {
   const getCronJobs = async () => {
-    const res = await fetch('/wp-admin/admin-ajax.php', { method: 'POST', body: new URLSearchParams({ action: 'ci_cron_status' }) });
+    const res = await fetch('/wp-admin/admin-ajax.php?action=ci_store_cronjob_api');
     return res.json();
   };
-  return useQuery<ICronStatus>(['getCronJobs'], getCronJobs, { refetchInterval: 5000 });
+  return useQuery<ICronStatus>(['getCronStatus'], getCronJobs, { refetchInterval: 5000 });
 };
 
-export const CronStatus = () => {
-  // const [data, setData] = useState({});
-  const status = useCronStatus();
+// export const CronStatus = () => {
+//   // const [data, setData] = useState({});
+//   const status = useCronStatus();
 
-  const d = new Date(Date.parse(status?.data?.data?.started ?? '2020')).toISOString();
-  // useEffect(() => {
+//   const d = new Date(Date.parse(status?.data?.data?.started ?? '2020')).toISOString();
+//   // useEffect(() => {
 
-  // }, [])
+//   // }, [])
 
-  return (
-    <div>
-      <pre>{JSON.stringify(status.data, null, 2)}</pre>
-      {d}
-    </div>
-  );
-};
+//   return (
+//     <div>
+//       <pre>{JSON.stringify(status.data, null, 2)}</pre>
+//       {d}
+//     </div>
+//   );
+// };

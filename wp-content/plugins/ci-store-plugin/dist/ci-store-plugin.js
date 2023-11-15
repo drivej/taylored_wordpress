@@ -1613,7 +1613,7 @@ module.exports = styleTagTransform;
 
 /***/ }),
 
-/***/ 786:
+/***/ 605:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -3955,7 +3955,7 @@ function getQueryClientContext(context, contextSharing) {
   return defaultContext;
 }
 
-const useQueryClient = ({
+const QueryClientProvider_useQueryClient = ({
   context
 } = {}) => {
   const queryClient = react.useContext(getQueryClientContext(context, react.useContext(QueryClientSharingContext)));
@@ -4019,7 +4019,7 @@ const useSyncExternalStore = shim.useSyncExternalStore;
 
 function useIsFetching(arg1, arg2, arg3) {
   const [filters, options = {}] = parseFilterArgs(arg1, arg2, arg3);
-  const queryClient = useQueryClient({
+  const queryClient = QueryClientProvider_useQueryClient({
     context: options.context
   });
   const queryCache = queryClient.getQueryCache();
@@ -5954,7 +5954,7 @@ const fetchOptimistic = (defaultedOptions, observer, errorResetBoundary) => obse
 
 
 function useBaseQuery(options, Observer) {
-  const queryClient = useQueryClient({
+  const queryClient = QueryClientProvider_useQueryClient({
     context: options.context
   });
   const isRestoring = useIsRestoring();
@@ -7075,8 +7075,8 @@ const usePost = (sku) => {
     return useQuery_useQuery(['getPost', sku], getPost);
 };
 
-;// CONCATENATED MODULE: ./src/wordpress/CronStatus.tsx
-var CronStatus_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+;// CONCATENATED MODULE: ./src/wordpress/cronjob/useCronJobs.tsx
+var useCronJobs_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -7087,23 +7087,237 @@ var CronStatus_awaiter = (undefined && undefined.__awaiter) || function (thisArg
 };
 
 
-const useCronStatus = () => {
-    const getCronJobs = () => CronStatus_awaiter(void 0, void 0, void 0, function* () {
-        const res = yield fetch('/wp-admin/admin-ajax.php', { method: 'POST', body: new URLSearchParams({ action: 'ci_cron_status' }) });
+const useCronJobs_useCronJobs = () => {
+    const getCronJobs = () => useCronJobs_awaiter(void 0, void 0, void 0, function* () {
+        const res = yield fetch('/wp-admin/admin-ajax.php', { method: 'POST', body: new URLSearchParams({ action: 'ci_action', ci_action: 'select', 'post[post_type]': 'cronjob' }) });
         return res.json();
     });
-    return useQuery_useQuery(['getCronJobs'], getCronJobs, { refetchInterval: 5000 });
+    return useQuery(['getCronJobs'], getCronJobs);
 };
-const CronStatus = () => {
-    var _a, _b, _c;
-    // const [data, setData] = useState({});
-    const status = useCronStatus();
-    const d = new Date(Date.parse((_c = (_b = (_a = status === null || status === void 0 ? void 0 : status.data) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.started) !== null && _c !== void 0 ? _c : '2020')).toISOString();
-    // useEffect(() => {
-    // }, [])
+
+;// CONCATENATED MODULE: ./src/wordpress/CronJobManager.tsx
+var CronJobManager_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+const CronJobManager = () => {
+    const cronjobs = useCronJobs();
+    //   const [fields, setFields] = useState<{ [key: string]: string | number }>({});
+    //   const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    //     updateFields({ [e.currentTarget.getAttribute('name')]: e.currentTarget.value });
+    //     // const delta = { [e.currentTarget.getAttribute('name')]: e.currentTarget.value };
+    //     // setFields((f) => ({ ...f, ...delta }));
+    //   };
+    //   const updateFields = (delta: { [key: string]: string | number }) => {
+    //     // const delta = { [e.currentTarget.getAttribute('name')]: e.currentTarget.value };
+    //     setFields((f) => ({ ...f, ...delta }));
+    //   };
+    //   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
+    //     e.preventDefault();
+    //     const data = new FormData(e.currentTarget);
+    //     const response = await fetch('/wp-admin/admin-ajax.php', { method: 'POST', body: data }).then((r) => r.json());
+    //     console.log({ response });
+    //   };
+    //   useEffect(() => {
+    //     if (cronjobs.isSuccess) {
+    //       const job = cronjobs.data.data[0];
+    //       updateFields({ 'post[ID]': job.ID });
+    //     }
+    //   }, [cronjobs.isSuccess]);
+    if (cronjobs.isSuccess) {
+        return (React.createElement("div", null,
+            React.createElement("h1", null, "Cron Jobs"),
+            React.createElement(CreateCronJobButton, null),
+            React.createElement("div", null,
+                cronjobs.data.data.map((job) => (React.createElement(CronJobRow, { job: job }))),
+                React.createElement("pre", null, JSON.stringify(cronjobs, null, 2)))));
+        // return ;
+    }
+    return React.createElement("div", null, "loading...");
+};
+// export const CronJobRowHeader = () => {
+//   return (
+//     <thead>
+//       <tr className='d-flex gap-2'>
+//         <th>Title</th>
+//         <th>Action</th>
+//         <th className='text-nowrap'>Run Every (hrs)</th>
+//         <th>Cursor</th>
+//         <th>Started</th>
+//         <th>Completed</th>
+//       </tr>
+//     </thead>
+//   );
+// };
+const CronJobRow = ({ job }) => {
+    var _a, _b, _c, _d;
+    const queryClient = useQueryClient();
+    // const cronjobs = useCronJobs();
+    const [fields, setFields] = useState({
+        'post[ID]': job.ID,
+        'post[post_title]': job.post_title,
+        'post[meta_input][started]': job.meta.started,
+        'post[meta_input][cursor]': job.meta.cursor,
+        'post[meta_input][cadence]': (_b = (_a = job.meta) === null || _a === void 0 ? void 0 : _a.cadence) !== null && _b !== void 0 ? _b : '24',
+        'post[meta_input][completed]': (_c = job.meta) === null || _c === void 0 ? void 0 : _c.completed,
+        'post[meta_input][action]': (_d = job.meta) === null || _d === void 0 ? void 0 : _d.action
+    });
+    const handleChange = (e) => {
+        updateFields({ [e.currentTarget.getAttribute('name')]: e.currentTarget.value });
+    };
+    const updateFields = (delta) => {
+        setFields((f) => (Object.assign(Object.assign({}, f), delta)));
+    };
+    const handleSubmit = (e) => CronJobManager_awaiter(void 0, void 0, void 0, function* () {
+        e.preventDefault();
+        const data = new FormData(e.currentTarget);
+        // var object = {};
+        // data.forEach((value, key) => (object[key] = value));
+        // var json = JSON.stringify(object);
+        // console.log(json);
+        const response = yield fetch('/wp-admin/admin-ajax.php', { method: 'POST', body: data }).then((r) => r.json());
+        console.log({ response });
+    });
+    const handleSubmitDelete = (e) => CronJobManager_awaiter(void 0, void 0, void 0, function* () {
+        if (confirm('Are you sure?')) {
+            e.preventDefault();
+            const response = yield fetch('/wp-admin/admin-ajax.php', { method: 'POST', body: new FormData(e.currentTarget) }).then((r) => r.json());
+            console.log({ response });
+            queryClient.invalidateQueries(['getCronJobs']);
+        }
+    });
+    return (React.createElement("div", null,
+        React.createElement("div", { className: 'p-2 border rounded' },
+            React.createElement("form", { onSubmit: handleSubmit, className: 'd-flex flex-column gap-2' },
+                React.createElement("input", { type: 'hidden', name: 'action', value: 'ci_action' }),
+                React.createElement("input", { type: 'hidden', name: 'ci_action', value: 'update' }),
+                React.createElement("input", { type: 'hidden', name: 'post[ID]', value: job.ID }),
+                React.createElement("div", { className: 'd-grid gap-2', style: { gridTemplateColumns: '50% 50%' } },
+                    React.createElement("div", null,
+                        React.createElement("label", null, "Title"),
+                        React.createElement("input", { className: 'form-control', type: 'text', name: 'post[post_title]', value: fields['post[post_title]'], onChange: handleChange })),
+                    React.createElement("div", null,
+                        React.createElement("label", null, "Action"),
+                        React.createElement("select", { className: 'form-control', name: 'post[meta_input][action]', value: fields['post[meta_input][action]'], onChange: handleChange },
+                            React.createElement("option", { value: '' }, "None"),
+                            React.createElement("option", { value: 'action_import_wps' }, "Import Active WPS"),
+                            React.createElement("option", { value: 'action_delete_wps' }, "Delete Inactive WPS"))),
+                    React.createElement("div", null,
+                        React.createElement("label", { className: 'text-nowrap' }, "Run Every (hrs)"),
+                        React.createElement("input", { className: 'form-control', type: 'number', step: '1', min: 1, max: 24 * 365, name: 'post[meta_input][cadence]', value: fields['post[meta_input][cadence]'], onChange: handleChange })),
+                    React.createElement("div", null,
+                        React.createElement("label", null, "Cursor"),
+                        React.createElement("input", { className: 'form-control', type: 'text', name: 'post[meta_input][cursor]', value: fields['post[meta_input][cursor]'], onChange: handleChange })),
+                    React.createElement("div", null,
+                        React.createElement("label", null, "Started"),
+                        React.createElement("input", { readOnly: true, className: 'form-control', type: 'datetime-local', name: 'post[meta_input][started]', value: fields['post[meta_input][started]'], onChange: handleChange })),
+                    React.createElement("div", null,
+                        React.createElement("label", null, "Completed"),
+                        React.createElement("input", { readOnly: true, className: 'form-control', type: 'datetime-local', name: 'post[meta_input][completed]', value: fields['post[meta_input][completed]'], onChange: handleChange }))),
+                React.createElement("div", null,
+                    React.createElement("button", { className: 'btn btn-primary', type: 'submit' }, "Update"))),
+            React.createElement("form", { onSubmit: handleSubmitDelete },
+                React.createElement("input", { type: 'hidden', name: 'action', value: 'ci_action' }),
+                React.createElement("input", { type: 'hidden', name: 'ci_action', value: 'delete' }),
+                React.createElement("input", { type: 'hidden', name: 'post[ID]', value: job.ID }),
+                React.createElement("button", { className: 'btn btn-primary', type: 'submit' }, "Delete")))));
+};
+const useCronJob = () => {
+    const queryClient = QueryClientProvider_useQueryClient();
+    const getCronJobs = (cmd = '') => CronJobManager_awaiter(void 0, void 0, void 0, function* () {
+        const res = yield fetch(`/wp-admin/admin-ajax.php?action=ci_store_cronjob_api&cmd=${cmd}`);
+        return res.json();
+    });
+    const job = useQuery_useQuery(['getCronStatus'], () => getCronJobs(), {
+        initialData: { status: 'idle' },
+        refetchInterval: 5000
+    });
+    const runCmd = (cmd = '') => getCronJobs(cmd).then((d) => queryClient.setQueryData(['getCronStatus'], d));
+    const togglePause = () => { var _a; return runCmd(((_a = job.data) === null || _a === void 0 ? void 0 : _a.status) === 'paused' ? 'resume' : 'pause'); };
+    const start = () => runCmd('start');
+    const pause = () => runCmd('pause');
+    const resume = () => runCmd('resume');
+    const stop = () => runCmd('stop');
+    const refresh = () => runCmd();
+    return Object.assign(Object.assign({}, job.data), { refresh, start, pause, resume, stop, togglePause });
+};
+const PauseCron = () => {
+    var _a;
+    const cronjob = useCronJob();
+    const stopDisabled = (0,react.useMemo)(() => {
+        switch (cronjob.status) {
+            case 'idle':
+            case 'completed':
+            case 'error':
+                return true;
+            case 'running':
+            case 'paused':
+                return false;
+        }
+    }, [cronjob.status]);
+    const pauseDisabled = (0,react.useMemo)(() => {
+        switch (cronjob.status) {
+            case 'running':
+                return false;
+            case 'paused':
+            case 'error':
+            case 'completed':
+            case 'idle':
+                return true;
+        }
+    }, [cronjob.status]);
+    const resumeDisabled = (0,react.useMemo)(() => {
+        switch (cronjob.status) {
+            case 'running':
+            case 'error':
+            case 'completed':
+            case 'idle':
+                return true;
+            case 'paused':
+                return false;
+        }
+    }, [cronjob.status]);
+    const startDisabled = (0,react.useMemo)(() => {
+        switch (cronjob.status) {
+            case 'idle':
+            case 'completed':
+                return false;
+            default:
+                return true;
+        }
+    }, [cronjob.status]);
     return (react.createElement("div", null,
-        react.createElement("pre", null, JSON.stringify(status.data, null, 2)),
-        d));
+        react.createElement("p", null, (_a = cronjob.status) !== null && _a !== void 0 ? _a : 'loading...'),
+        react.createElement("button", { disabled: startDisabled, className: 'btn btn-primary', type: 'button', onClick: cronjob.start }, "Start"),
+        react.createElement("button", { disabled: pauseDisabled, className: 'btn btn-primary', type: 'button', onClick: cronjob.togglePause }, "Pause"),
+        react.createElement("button", { disabled: resumeDisabled, className: 'btn btn-primary', type: 'button', onClick: cronjob.resume }, "Resume"),
+        react.createElement("button", { disabled: stopDisabled, className: 'btn btn-primary', type: 'button', onClick: cronjob.stop }, "Stop"),
+        react.createElement("pre", null, JSON.stringify(cronjob, null, 2))));
+};
+const CreateCronJobButton = () => {
+    const queryClient = useQueryClient();
+    const handleSubmit = (e) => CronJobManager_awaiter(void 0, void 0, void 0, function* () {
+        e.preventDefault();
+        const data = new FormData(e.currentTarget);
+        const response = yield fetch('/wp-admin/admin-ajax.php', { method: 'POST', body: data }).then((r) => r.json());
+        console.log({ response });
+        queryClient.invalidateQueries(['getCronJobs']);
+    });
+    return (React.createElement("form", { onSubmit: handleSubmit },
+        React.createElement("input", { type: 'hidden', name: 'action', value: 'ci_action' }),
+        React.createElement("input", { type: 'hidden', name: 'ci_action', value: 'create' }),
+        React.createElement("input", { type: 'hidden', name: 'post[post_type]', value: 'cronjob' }),
+        React.createElement("input", { type: 'hidden', name: 'post[post_title]', value: 'New Cron Job' }),
+        React.createElement("button", { className: 'btn btn-primary', type: 'submit' }, "Create")));
 };
 
 ;// CONCATENATED MODULE: ./src/wordpress-plugin.tsx
@@ -7169,7 +7383,7 @@ const AppInner = () => {
         setFields((f) => (Object.assign(Object.assign({}, f), delta)));
     };
     return (react.createElement("div", { style: { position: 'relative' } },
-        react.createElement(CronStatus, null),
+        react.createElement(PauseCron, null),
         react.createElement("hr", null),
         react.createElement("hr", null),
         react.createElement("h1", null, "Test React AppZZ"),
@@ -7477,7 +7691,7 @@ module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("f1d856448464abba0db8")
+/******/ 		__webpack_require__.h = () => ("6fb3e64e03ca6b03ed80")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
@@ -8466,7 +8680,7 @@ module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%
 /******/ 	// module cache are used so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	var __webpack_exports__ = __webpack_require__(786);
+/******/ 	var __webpack_exports__ = __webpack_require__(605);
 /******/ 	
 /******/ 	return __webpack_exports__;
 /******/ })()

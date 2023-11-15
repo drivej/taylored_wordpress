@@ -10,6 +10,7 @@
  */
 
 include_once __DIR__ . '/ci-store-cron.php';
+include_once __DIR__ . '/ci-store-utils.php';
 
 function create_admin_menu()
 {
@@ -264,21 +265,21 @@ function ci_wp_action()
 
 add_action('wp_ajax_ci_wp_action', 'ci_wp_action');
 
-function get_var($array, $props, $default = null)
-{
-    if (is_string($props)) {
-        $props = array($props);
-    }
-    $data = $array;
-    foreach ($props as $prop) {
-        if (isset($data[$prop])) {
-            $data = $data[$prop];
-        } else {
-            return $default;
-        }
-    }
-    return $data;
-}
+// function get_var($array, $props, $default = null)
+// {
+//     if (is_string($props)) {
+//         $props = array($props);
+//     }
+//     $data = $array;
+//     foreach ($props as $prop) {
+//         if (isset($data[$prop])) {
+//             $data = $data[$prop];
+//         } else {
+//             return $default;
+//         }
+//     }
+//     return $data;
+// }
 
 function ci_action()
 {
