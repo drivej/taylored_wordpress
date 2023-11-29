@@ -6,6 +6,7 @@ include_once __DIR__ . '/ci-store-utils.php';
 $option_key = 'ci_update_products_schedule_status';
 
 $default_job = array(
+    'is_running' => false,
     'status' => 'idle', // idle, started, running, paused, completed, error
     'started' => null,
     'updated' => null,
@@ -21,7 +22,6 @@ function schedule_product_update()
     $next = wp_next_scheduled('ci_update_products');
     if (!$next) {
         wp_schedule_event(time(), 'every_minute', 'ci_update_products');
-        update_option('ci_update_products_started', 'started' . time());
     }
 }
 
@@ -36,19 +36,42 @@ function ci_store_cronjob_api()
         switch ($_GET['cmd']) {
 
             case 'start':
-                $cronjob['status'] = 'started';
+                if ($cronjob['is_running'] === false) {
+                    $cronjob = updateJob(['status' => 'started']);
+                    // $cronjob['status'] = 'started';
+                    // update_option($option_key, $cronjob);
+                    do_ci_update_products_action();
+                    // if ($next === false) {
+                    //     wp_schedule_event(time() + 10, 'every_minute', 'ci_update_products');
+                    // }
+                }
+                // schedule_product_update();
                 break;
 
             case 'pause':
-                $cronjob['status'] = 'paused';
+                if ($cronjob['is_running'] === true) {
+                    $cronjob = updateJob(['status' => 'paused']);
+                    // $cronjob['status'] = 'paused';
+                    // update_option($option_key, $cronjob);
+                    // wp_clear_scheduled_hook('ci_update_products');
+                }
                 break;
 
             case 'resume':
-                $cronjob['status'] = 'running';
+                if ($cronjob['status'] === 'paused') {
+
+                    $cronjob = updateJob(['status' => 'resume']);
+                    // $cronjob['status'] = 'resume';
+                    // update_option($option_key, $cronjob);
+                    do_ci_update_products_action();
+                    // schedule_product_update();
+                    // wp_schedule_event(time() + 10, 'every_minute', 'ci_update_products');
+                }
                 break;
 
             case 'stop':
                 $cronjob = $default_job;
+                // wp_clear_scheduled_hook('ci_update_products');
                 break;
 
             case 'test':
@@ -60,9 +83,7 @@ function ci_store_cronjob_api()
         update_option($option_key, $cronjob);
     }
     $next = wp_next_scheduled('ci_update_products');
-    if ($next !== false) {
-        $cronjob['next'] = date('c', $next);
-    }
+    $cronjob['next'] = $next !== false ? date('c', $next) : $next;
     $cronjob['now'] = current_time('mysql', 1);
     wp_send_json($cronjob, null, JSON_PRETTY_PRINT);
 }
@@ -104,9 +125,14 @@ function doTest()
 }
 // import action
 
-function mapProducts($product)
+function isValidProduct($product)
 {
-    return ['id' => $product['id'], 'isValid' => count($product['items']['data']) > 0];
+    return count($product['items']['data']) > 0;
+}
+
+function filterValidProducts($product)
+{
+    return ['id' => $product['id'], 'isValid' => isValidProduct($product)];
 }
 
 function filterNonEmptyData($item)
@@ -119,145 +145,226 @@ function extractIds($item)
     return $item['id'];
 }
 
-function ci_update_products_action()
+function getJob()
+{
+    global $default_job, $option_key;
+    return get_option($option_key, $default_job);
+}
+
+function updateJob($delta)
 {
     global $default_job, $option_key;
     $cronjob = get_option($option_key, $default_job);
+    $update = array_merge($cronjob, $delta);
+    update_option($option_key, $update);
+    return $update;
+}
 
-    switch ($cronjob['status']) {
-        case 'paused':
-        case 'idle':
-        case 'error':
-        case 'completed':
-            return;
+function ci_update_products_action()
+{
+    // cron job fires this
+    // global $default_job, $option_key;
+    $cronjob = getJob(); //get_option($option_key, $default_job);
 
-        case 'started':
-            $cronjob['products_total'] = getWesternProductsCount();
-            $cronjob['products_loaded'] = 0;
-            $cronjob['products_count'] = 0;
-            $cronjob['products_current'] = 0;
-            $cronjob['products_processed'] = 0;
-            $cronjob['status'] = 'running';
-            $cronjob['cursor'] = '';
-            $cronjob['started'] = current_time('mysql', 1);
-            $cronjob['products'] = array();
-            update_option($option_key, $cronjob);
-            break;
+    // $cronjob['attempt_auto_start_success'] = false;
 
-        case 'running':
-            if (count($cronjob['products'])) {
-                // process product on each round
-                $cronjob['products_current'] = array_pop($cronjob['products']);
-                $cronjob['products_processed'] += 1;
-            } else {
-                // load new page of products
-                $data = getWesternProductsPage($cronjob['cursor']);
-                // $cronjob['data'] = array_map('mapProducts', $data['data']);
-
-                if (isset($data['data'])) {
-                    // $cronjob['data'] = $data['data'];
-                    $products = array_map('mapProducts', $data['data']);
-                    $cronjob['products'] = $products;
-                    $cronjob['cursor'] = $data['meta']['cursor']['next'];
-                    // $cronjob['products_loaded'] += get_var($data, ['meta', 'cursor', 'count'], 0);
-                    $cronjob['products_loaded'] += count($data['data']);
-                    $cronjob['products_valid'] += count($products);
-
-                    while (count($cronjob['products'])) {
-                        // process product on each round
-                        $cronjob['products_current'] = array_pop($cronjob['products']);
-                        $cronjob['products_processed'] += 1;
-                        $cronjob['updated'] = current_time('mysql', 1);
-                        update_option($option_key, $cronjob);
-                        sleep(2);
-                    }
-
-                    // $cronjon['products'] = [1, 2, 3, 4]; //array_values(array_map('mapProducts', $data['data']));
-                    // $validProducts = array_filter($data['data'], 'filterNonEmptyData');
-                    // $values = array_values($validProducts);
-                    // $cronjob['products_valid'] = array_map('extractIds', $values);
-                    // if (isset($data['meta']['cursor']['next'])) {
-                    //     $cronjob['cursor'] = $data['meta']['cursor']['next'];
-                    // } else {
-                    //     $cronjob['cursor'] = '';
-                    // }
-                    // $cronjob['cursor'] = isset($data['meta']['cursor']['next']) ? $data['meta']['cursor']['next'] : 'DONE'; // get_var($data, ['meta', 'cursor', 'next'], 'done');
-                    // $cronjob['completed'] = current_time('mysql', 1);
-                    // $cronjob['status'] = 'completed';
-                } else {
-                    $cronjob['status'] = 'error';
-                }
-            }
-            $cronjob['updated'] = current_time('mysql', 1);
-            update_option($option_key, $cronjob);
-            break;
+    if ($cronjob['is_running'] === false) {
+        if ($cronjob['status'] === 'idle') {
+            $cronjob['attempt_auto_start_success'] = true;
+            $cronjob = updateJob(['status' => 'started', 'attempt_auto_start_success' => true]);
+            do_ci_update_products_action();
+        }
     }
-
-    // if ($cronjob['status'] === 'paused' || $cronjob['status'] === 'idle' || $cronjob['status'] === 'error') {
-    //     return;
-    // }
-    // if ($cronjob['status'] === 'started') {
-    //     $cronjob['products_total'] = getWesternProductsCount();
-    //     $cronjob['products_loaded'] = 0;
-    //     $cronjob['products_count'] = 0;
-    //     $cronjob['status'] = 'running';
-    //     $cronjob['started'] = current_time('mysql', 1);
-    // }
-    // // don't duplicate this process
-    // if ($cronjob['status'] === 'running') {
-    //     //     $cronjob['status'] = 'stacked';
-    //     //     update_option($option_key, $cronjob);
-    //     //     return;
-
-    //     // set status running
-    //     // $cronjob['status'] = 'running';
-    //     // update_option($option_key, $cronjob);
-
-    //     // try {
-
-    //     if ($cronjob['cursor'] === null) {
-    //         $cronjob['products_total'] = getWesternProductsCount();
-    //         $cronjob['products_loaded'] = 0;
-    //         $cronjob['products_count'] = 0;
-    //         // $cronjob['status'] = 'running';
-    //         $cronjob['started'] = current_time('mysql', 1);
-    //     }
-
-    //     if ($cronjob['cursor'] === null || isset($cronjob['cursor'])) {
-    //         // if ($cronjob['cursor'] === 'DONE') {
-    //         //     $cronjob['status'] = 'terminated';
-    //         // } else {
-    //         $data = getWesternProductsPage($cronjob['cursor']);
-    //         if (isset($data['data'])) {
-    //             // $cronjob['data'] = $data['data'];
-    //             $cronjob['products_loaded'] += get_var($data, ['meta', 'cursor', 'count'], 0);
-    //             // $cronjob['products_count'] += count($data['data']);
-    //             $cronjon['products'] = [1, 2, 3, 4]; //array_values(array_map('mapProducts', $data['data']));
-    //             // $validProducts = array_filter($data['data'], 'filterNonEmptyData');
-    //             // $values = array_values($validProducts);
-    //             // $cronjob['products_valid'] = array_map('extractIds', $values);
-    //             if (isset($data['meta']['cursor']['next'])) {
-    //                 $cronjob['cursor'] = $data['meta']['cursor']['next'];
-    //             } else {
-    //                 $cronjob['cursor'] = '';
-    //             }
-    //             // $cronjob['cursor'] = isset($data['meta']['cursor']['next']) ? $data['meta']['cursor']['next'] : 'DONE'; // get_var($data, ['meta', 'cursor', 'next'], 'done');
-    //             // $cronjob['completed'] = current_time('mysql', 1);
-    //             $cronjob['status'] = 'completed';
-    //         } else {
-    //             $cronjob['status'] = 'error';
-    //         }
-    //     } else {
-    //         $cronjob['status'] = 'completed';
-    //     }
-    // }
-
-    $cronjob['updated'] = current_time('mysql', 1);
-    update_option($option_key, $cronjob);
-    // } catch (Exception $e) {
-    //     $status['error'] = $e;
-    //     update_option($option_key, $cronjob);
+    $cronjob = updateJob(['attempt_auto_start_success' => false]);
+    // $cronjob['attempt_auto_start'] = current_time('mysql', 1);
+    // update_option($option_key, $cronjob);
+    // if ($cronjob['status'] === 'started' || $cronjob['status'] === 'resume') {
+    //     do_ci_update_products_action();
     // }
 }
+
+//
+//
+// Main Controller
+//
+//
+
+function do_ci_update_products_action()
+{
+    $cronjob = getJob(); //updateJob(['is_running' => true]);
+    $status = $cronjob['status'];
+
+    if ($status === 'paused') {
+        return;
+    }
+
+    // $cronjob = updateJob(['is_running' => 'true']);
+
+    if ($status === 'started') {
+        $cronjob = updateJob([
+            'is_running' => true,
+            'status' => 'running',
+            'loops' => 0,
+            'started' => current_time('mysql', 1),
+        ]);
+    }
+
+    if ($status === 'resume') {
+        $cronjob = updateJob(['is_running' => true, 'status' => 'running']);
+    }
+
+    $status = $cronjob['status'];
+
+    while ($status === 'running') {
+        sleep(1);
+        $cronjob = updateJob([
+            'loop_status' => $cronjob['status'],
+            'loops' => $cronjob['loops'] + 1,
+            'elapsed' => time() - strtotime($cronjob['started']),
+        ]);
+        $status = $cronjob['status'];
+    }
+    $cronjob = updateJob(['is_running' => false]);
+}
+
+function Xci_update_products_action()
+{
+    global $default_job, $option_key;
+    $cronjob = get_option($option_key, $default_job);
+    $cursor = $cronjob['cursor'];
+
+    if ($cronjob['status'] === 'paused') {
+        return;
+    }
+
+    if ($cronjob['status'] === 'idle') {
+        return; //$cronjob['status'] = 'started';
+    }
+
+    if ($cronjob['status'] === 'started') {
+        $cronjob['status'] = 'running';
+        if (!isset($cronjob['lastUpdate'])) {
+            $cronjob['lastUpdate'] = '2020-01-01';
+        } else {
+            $cronjob['lastUpdate'] = date('Y-m-d');
+        }
+        $cronjob['products_total'] = getWesternProductsCount($cronjob['lastUpdate']);
+        $cronjob['started'] = current_time('mysql', 1);
+        $cronjob['cursor'] = 'START';
+        $cursor = 'START';
+        $cronjob['while'] = 0;
+        update_option($option_key, $cronjob);
+    }
+
+    while (isset($cursor) && $cronjob['status'] === 'running') {
+        $cronjob = get_option($option_key, $default_job);
+        // $cronjob['status_loop1'] = $cronjob['status'];
+
+        // $cronjob['while']++;
+        $data = getWesternProductsPage($cursor === 'START' ? '' : $cursor, $cronjob['lastUpdate']);
+        $products = array_map('filterValidProducts', $data['data']);
+        $cronjob['products'] = $products;
+        $cronjob['loop_1_start_status'] = $cronjob['status'];
+        update_option($option_key, $cronjob);
+        // $count = count($data['data']);
+        // for($i=0; $i<$count; $i++){
+        while (count($products) && $cronjob['status'] === 'running') {
+            $cronjob = get_option($option_key, $default_job);
+            $cronjob['loop_2_start_status'] = $cronjob['status'];
+            update_option($option_key, $cronjob);
+            $product_info = array_pop($products);
+            if ($product_info['isValid']) {
+                // update/insert
+                $product = getWesternProduct($product_info['id']);
+                $action = 'update/insert';
+            } else {
+                // delete
+                $product = $product_info;
+                $action = 'delete';
+            }
+            $cronjob = get_option($option_key, $default_job);
+            $cronjob['current_product'] = $product;
+            $cronjob['current_action'] = $action;
+            $cronjob['products'] = $products;
+            $cronjob['loop_2_end_status'] = $cronjob['status'];
+            update_option($option_key, $cronjob);
+            sleep(1);
+            $cronjob = get_option($option_key, $default_job);
+            if ($cronjob['status'] !== 'running') {
+                break;
+            }
+        }
+        $cursor = $data['meta']['cursor']['next'];
+        // $cronjob['while_status'] = $cronjob['status'];
+        $cronjob['cursor'] = $cursor;
+        $cronjob['updated'] = current_time('mysql', 1);
+        $cronjob['loop_1_end_status'] = $cronjob['status'];
+        update_option($option_key, $cronjob);
+        sleep(1);
+        $cronjob = get_option($option_key, $default_job);
+        if ($cronjob['status'] !== 'running') {
+            break;
+        }
+    }
+}
+
+// function processPage($cursor, $lastUpdate)
+// {
+//     global $option_key;
+//     // $cronjob = get_option($option_key, $default_job);
+//     // $cursor = $cronjob['cursor'];
+//     // $cronjob['while']++;
+//     $data = getWesternProductsPage($cursor, $lastUpdate);
+//     $products = $data['data']; //array_map('filterValidProducts', $data['data']);
+//     $cronjob['products'] = $products;
+//     update_option($option_key, $cronjob);
+
+//     while (count($products) && $cronjob['status'] === 'running') {
+//         processProduct($products);
+//         //     $cronjob = get_option($option_key, $default_job);
+//         //     $product_info = array_pop($products);
+//         //     $cronjob['products'] = $products;
+//         //     $cronjob['test'] = 'mikey';
+
+//         //     if (isValidProduct($product_info)) {
+//         //         // update/insert
+//         //         $product = getWesternProduct($product_info['id']);
+//         //         $cronjob['current_product'] = $product;
+//         //         $cronjob['current_action'] = 'update/insert';
+//         //     } else {
+//         //         // delete
+//         //         $cronjob['current_product'] = $product_info;
+//         //         $cronjob['current_action'] = 'delete';
+//         //     }
+//         //     update_option($option_key, $cronjob);
+//     }
+//     $cursor = $data['meta']['cursor']['next'];
+//     $cronjob['while_status'] = $cronjob['status'];
+//     $cronjob['cursor'] = $cursor;
+//     $cronjob['updated'] = current_time('mysql', 1);
+//     update_option($option_key, $cronjob);
+//     sleep(1);
+// }
+
+// function processProduct()
+// {
+//     global $default_job, $option_key;
+//     $cronjob = get_option($option_key, $default_job);
+//     $product_info = array_pop($products);
+//     $cronjob['products'] = $products;
+//     $cronjob['test'] = 'mikey';
+
+//     if (isValidProduct($product_info)) {
+//         // update/insert
+//         $product = getWesternProduct($product_info['id']);
+//         $cronjob['current_product'] = $product;
+//         $cronjob['current_action'] = 'update/insert';
+//     } else {
+//         // delete
+//         $cronjob['current_product'] = $product_info;
+//         $cronjob['current_action'] = 'delete';
+//     }
+//     update_option($option_key, $cronjob);
+// }
 
 add_action('ci_update_products', 'ci_update_products_action');

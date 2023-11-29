@@ -172,6 +172,7 @@ interface ICronData {
   next: string;
   cursor: string;
   products: number;
+  current_product: unknown;
   data: unknown;
 }
 
@@ -185,7 +186,7 @@ export const useCronJob = () => {
 
   const job = useQuery<ICronData>(['getCronStatus'], () => getCronJobs(), {
     initialData: { status: 'idle' } as ICronData,
-    refetchInterval: 5000
+    refetchInterval: 3000
   });
 
   const runCmd = (cmd = '') => getCronJobs(cmd).then((d) => queryClient.setQueryData(['getCronStatus'], d));
@@ -263,7 +264,11 @@ export const PauseCron = () => {
       <button disabled={stopDisabled} className='btn btn-primary' type='button' onClick={cronjob.stop}>
         Stop
       </button>
-      <pre>{JSON.stringify(cronjob, null, 2)}</pre>
+      <div style={{ display: 'grid', gridTemplateColumns: '33% 33% auto' }}>
+        <pre>{JSON.stringify({ ...cronjob, products: null, current_product: null }, null, 2)}</pre>
+        <pre>{JSON.stringify({ products: cronjob.products }, null, 2)}</pre>
+        <pre>{JSON.stringify({ current_product: cronjob?.current_product }, null, 2)}</pre>
+      </div>
     </div>
   );
 };

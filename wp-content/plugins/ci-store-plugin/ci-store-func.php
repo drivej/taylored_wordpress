@@ -43,7 +43,6 @@ function getWesternProductsPage($cursor = '', $updated = '2020-01-01')
         //     'items.attributevalues',
         //     'items.taxonomyterms',
         //     'taxonomyterms',
-        // 'products:count',
         'items:filter(status_id|NLA|ne)',
     ]);
     $params['filter[updated_at][gt]'] = $updated;
@@ -76,4 +75,23 @@ function getWesternProductsPage($cursor = '', $updated = '2020-01-01')
     // $response_body = wp_remote_retrieve_body($response);
     // $response_json = json_decode($response_body); // cast as array to add props
     // wp_send_json($response_json, 200, JSON_PRETTY_PRINT);
+}
+
+function getWesternProduct($id)
+{
+    $params = [];
+    $params['include'] = implode(',', [
+        'features', //
+        'tags',
+        'attributekeys',
+        'attributevalues',
+        'items',
+        'items.images',
+        'items.inventory',
+        'items.attributevalues',
+        'items.taxonomyterms',
+        'taxonomyterms',
+        'items:filter(status_id|NLA|ne)',
+    ]);
+    return getWestern('products/' . $id, $params);
 }

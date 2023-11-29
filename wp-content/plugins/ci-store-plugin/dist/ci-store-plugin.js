@@ -7239,7 +7239,7 @@ const useCronJob = () => {
     });
     const job = useQuery_useQuery(['getCronStatus'], () => getCronJobs(), {
         initialData: { status: 'idle' },
-        refetchInterval: 5000
+        refetchInterval: 3000
     });
     const runCmd = (cmd = '') => getCronJobs(cmd).then((d) => queryClient.setQueryData(['getCronStatus'], d));
     const togglePause = () => { var _a; return runCmd(((_a = job.data) === null || _a === void 0 ? void 0 : _a.status) === 'paused' ? 'resume' : 'pause'); };
@@ -7301,7 +7301,10 @@ const PauseCron = () => {
         react.createElement("button", { disabled: pauseDisabled, className: 'btn btn-primary', type: 'button', onClick: cronjob.togglePause }, "Pause"),
         react.createElement("button", { disabled: resumeDisabled, className: 'btn btn-primary', type: 'button', onClick: cronjob.resume }, "Resume"),
         react.createElement("button", { disabled: stopDisabled, className: 'btn btn-primary', type: 'button', onClick: cronjob.stop }, "Stop"),
-        react.createElement("pre", null, JSON.stringify(cronjob, null, 2))));
+        react.createElement("div", { style: { display: 'grid', gridTemplateColumns: '33% 33% auto' } },
+            react.createElement("pre", null, JSON.stringify(Object.assign(Object.assign({}, cronjob), { products: null, current_product: null }), null, 2)),
+            react.createElement("pre", null, JSON.stringify({ products: cronjob.products }, null, 2)),
+            react.createElement("pre", null, JSON.stringify({ current_product: cronjob === null || cronjob === void 0 ? void 0 : cronjob.current_product }, null, 2)))));
 };
 const CreateCronJobButton = () => {
     const queryClient = useQueryClient();
@@ -7691,7 +7694,7 @@ module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("6fb3e64e03ca6b03ed80")
+/******/ 		__webpack_require__.h = () => ("09621f913a5e2b425142")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
