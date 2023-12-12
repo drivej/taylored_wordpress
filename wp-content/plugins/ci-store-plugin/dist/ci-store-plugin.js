@@ -7233,63 +7233,67 @@ const CronJobRow = ({ job }) => {
 };
 const useCronJob = () => {
     const queryClient = QueryClientProvider_useQueryClient();
+    const [status, setStatus] = (0,react.useState)('stopped');
     const getCronJobs = (cmd = '') => CronJobManager_awaiter(void 0, void 0, void 0, function* () {
         const res = yield fetch(`/wp-admin/admin-ajax.php?action=ci_store_cronjob_api&cmd=${cmd}`);
         return res.json();
     });
-    const job = useQuery_useQuery(['getCronStatus'], () => getCronJobs(), {
-        initialData: { status: 'idle' },
+    const job = useQuery_useQuery({
+        queryKey: ['getCronStatus'],
+        queryFn: () => getCronJobs(),
+        initialData: { status: 'stopped' },
         refetchInterval: 3000
     });
-    const runCmd = (cmd = '') => getCronJobs(cmd).then((d) => queryClient.setQueryData(['getCronStatus'], d));
-    const togglePause = () => { var _a; return runCmd(((_a = job.data) === null || _a === void 0 ? void 0 : _a.status) === 'paused' ? 'resume' : 'pause'); };
-    const start = () => runCmd('start');
-    const pause = () => runCmd('pause');
-    const resume = () => runCmd('resume');
-    const stop = () => runCmd('stop');
-    const refresh = () => runCmd();
-    return Object.assign(Object.assign({}, job.data), { refresh, start, pause, resume, stop, togglePause });
+    (0,react.useEffect)(() => {
+        setStatus(job.data.status);
+    }, [job.data.status]);
+    const runCmd = (cmd = '', newStatus) => CronJobManager_awaiter(void 0, void 0, void 0, function* () {
+        setStatus(newStatus);
+        const d = yield getCronJobs(cmd);
+        return queryClient.setQueryData(['getCronStatus'], d);
+    });
+    const start = () => runCmd('start', 'starting');
+    const pause = () => runCmd('pause', 'pausing');
+    const resume = () => runCmd('resume', 'resuming');
+    const stop = () => runCmd('stop', 'stopping');
+    const refresh = () => { };
+    return Object.assign(Object.assign({}, job.data), { status, refresh, start, pause, resume, stop });
 };
 const PauseCron = () => {
     var _a;
     const cronjob = useCronJob();
     const stopDisabled = (0,react.useMemo)(() => {
         switch (cronjob.status) {
-            case 'idle':
-            case 'completed':
-            case 'error':
-                return true;
-            case 'running':
+            case 'started':
             case 'paused':
                 return false;
+            // case 'idle':
+            // case 'stopping':
+            // case 'error':
+            default:
+                return true;
         }
     }, [cronjob.status]);
     const pauseDisabled = (0,react.useMemo)(() => {
         switch (cronjob.status) {
-            case 'running':
+            case 'started':
                 return false;
-            case 'paused':
-            case 'error':
-            case 'completed':
-            case 'idle':
+            default:
                 return true;
         }
     }, [cronjob.status]);
     const resumeDisabled = (0,react.useMemo)(() => {
         switch (cronjob.status) {
-            case 'running':
-            case 'error':
-            case 'completed':
-            case 'idle':
-                return true;
             case 'paused':
                 return false;
+            default:
+                return true;
         }
     }, [cronjob.status]);
     const startDisabled = (0,react.useMemo)(() => {
         switch (cronjob.status) {
-            case 'idle':
-            case 'completed':
+            // case 'idle':
+            case 'stopped':
                 return false;
             default:
                 return true;
@@ -7298,7 +7302,7 @@ const PauseCron = () => {
     return (react.createElement("div", null,
         react.createElement("p", null, (_a = cronjob.status) !== null && _a !== void 0 ? _a : 'loading...'),
         react.createElement("button", { disabled: startDisabled, className: 'btn btn-primary', type: 'button', onClick: cronjob.start }, "Start"),
-        react.createElement("button", { disabled: pauseDisabled, className: 'btn btn-primary', type: 'button', onClick: cronjob.togglePause }, "Pause"),
+        react.createElement("button", { disabled: pauseDisabled, className: 'btn btn-primary', type: 'button', onClick: cronjob.pause }, "Pause"),
         react.createElement("button", { disabled: resumeDisabled, className: 'btn btn-primary', type: 'button', onClick: cronjob.resume }, "Resume"),
         react.createElement("button", { disabled: stopDisabled, className: 'btn btn-primary', type: 'button', onClick: cronjob.stop }, "Stop"),
         react.createElement("div", { style: { display: 'grid', gridTemplateColumns: '33% 33% auto' } },
@@ -7694,7 +7698,7 @@ module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("09621f913a5e2b425142")
+/******/ 		__webpack_require__.h = () => ("1c64ed48db5afa9cd725")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */

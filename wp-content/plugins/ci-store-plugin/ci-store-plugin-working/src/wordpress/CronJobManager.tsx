@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { CronJobPost, useCronJobs } from './cronjob/useCronJobs';
 
 export const CronJobManager = () => {
@@ -165,7 +165,7 @@ export const CronJobRow = ({ job }: { job: CronJobPost }) => {
 };
 
 interface ICronData {
-  status: 'idle' | 'started' | 'running' | 'paused' | 'completed' | 'error';
+  status: 'starting' | 'started' | 'pausing' | 'paused' | 'resuming' | 'stopping' | 'stopped' | 'error';
   started: string;
   updated: string;
   completed: string;
@@ -178,26 +178,37 @@ interface ICronData {
 
 export const useCronJob = () => {
   const queryClient = useQueryClient();
+  const [status, setStatus] = useState<ICronData['status']>('stopped');
 
   const getCronJobs = async (cmd = '') => {
     const res = await fetch(`/wp-admin/admin-ajax.php?action=ci_store_cronjob_api&cmd=${cmd}`);
     return res.json();
   };
 
-  const job = useQuery<ICronData>(['getCronStatus'], () => getCronJobs(), {
-    initialData: { status: 'idle' } as ICronData,
+  const job = useQuery<ICronData>({
+    queryKey: ['getCronStatus'],
+    queryFn: () => getCronJobs(),
+    initialData: { status: 'stopped' } as ICronData,
     refetchInterval: 3000
   });
 
-  const runCmd = (cmd = '') => getCronJobs(cmd).then((d) => queryClient.setQueryData(['getCronStatus'], d));
-  const togglePause = () => runCmd(job.data?.status === 'paused' ? 'resume' : 'pause');
-  const start = () => runCmd('start');
-  const pause = () => runCmd('pause');
-  const resume = () => runCmd('resume');
-  const stop = () => runCmd('stop');
-  const refresh = () => runCmd();
+  useEffect(() => {
+    setStatus(job.data.status);
+  }, [job.data.status]);
 
-  return { ...job.data, refresh, start, pause, resume, stop, togglePause };
+  const runCmd = async (cmd = '', newStatus: ICronData['status']) => {
+    setStatus(newStatus);
+    const d = await getCronJobs(cmd);
+    return queryClient.setQueryData(['getCronStatus'], d);
+  };
+
+  const start = () => runCmd('start', 'starting');
+  const pause = () => runCmd('pause', 'pausing');
+  const resume = () => runCmd('resume', 'resuming');
+  const stop = () => runCmd('stop', 'stopping');
+  const refresh = () => {};
+
+  return { ...job.data, status, refresh, start, pause, resume, stop };
 };
 
 export const PauseCron = () => {
@@ -205,44 +216,39 @@ export const PauseCron = () => {
 
   const stopDisabled = useMemo(() => {
     switch (cronjob.status) {
-      case 'idle':
-      case 'completed':
-      case 'error':
-        return true;
-      case 'running':
+      case 'started':
       case 'paused':
         return false;
+      // case 'idle':
+      // case 'stopping':
+      // case 'error':
+      default:
+        return true;
     }
   }, [cronjob.status]);
 
   const pauseDisabled = useMemo(() => {
     switch (cronjob.status) {
-      case 'running':
+      case 'started':
         return false;
-      case 'paused':
-      case 'error':
-      case 'completed':
-      case 'idle':
+      default:
         return true;
     }
   }, [cronjob.status]);
 
   const resumeDisabled = useMemo(() => {
     switch (cronjob.status) {
-      case 'running':
-      case 'error':
-      case 'completed':
-      case 'idle':
-        return true;
       case 'paused':
         return false;
+      default:
+        return true;
     }
   }, [cronjob.status]);
 
   const startDisabled = useMemo(() => {
     switch (cronjob.status) {
-      case 'idle':
-      case 'completed':
+      // case 'idle':
+      case 'stopped':
         return false;
       default:
         return true;
@@ -255,7 +261,7 @@ export const PauseCron = () => {
       <button disabled={startDisabled} className='btn btn-primary' type='button' onClick={cronjob.start}>
         Start
       </button>
-      <button disabled={pauseDisabled} className='btn btn-primary' type='button' onClick={cronjob.togglePause}>
+      <button disabled={pauseDisabled} className='btn btn-primary' type='button' onClick={cronjob.pause}>
         Pause
       </button>
       <button disabled={resumeDisabled} className='btn btn-primary' type='button' onClick={cronjob.resume}>

@@ -20,11 +20,6 @@ function create_admin_menu()
 function render_ci_store_plugin_ui()
 {
     ?>
-    <!-- <div class="wrap">
-        <h2>Admin UI Page</h2>
-        <p>This is where your injected UI will appear.</p>
-        <div id='ci-store-container'></div>
-    </div> -->
     <div id='ci-store-plugin-container'></div>
     <script>
         document.addEventListener("DOMContentLoaded", () => CIStore.render('ci-store-plugin-container'));
@@ -34,49 +29,21 @@ function render_ci_store_plugin_ui()
 
 add_action('admin_menu', 'create_admin_menu');
 
-// function add_custom_rewrite_rules()
-// {
-//     add_rewrite_rule('^ws', 'http://localhost:8080/ws', 'top');
-// }
-// add_action('init', 'add_custom_rewrite_rules');
-
 function enqueue_ci_plugin_script()
 {
     wp_register_script('admin-ui-script', plugin_dir_url(__FILE__) . 'dist/ci-store-plugin.js', array(), '1.0', true);
-    // wp_register_script('admin-ui-script', 'http://localhost:8080/ci-store-plugin.js', array(), '1.0', true);
     wp_enqueue_script('admin-ui-script');
-    // wp_localize_script('admin-ui-script', 'ajax_object', [
-    //     'ajax_url' => admin_url('admin-ajax.php'),
-    //     'security' => wp_create_nonce('ajax-security-nonce'),
-    // ]);
 }
 
 add_action('admin_enqueue_scripts', 'enqueue_ci_plugin_script');
 
 include_once __DIR__.'/ci-store-settings.php';
 
-// $SUPPLIER = array(
-//     "WPS" => array(
-//         "name" => "Western Power Sports",
-//         "key" => "WPS",
-//         "supplierClass" => "WooDropship\\Suppliers\\Western",
-//         // "auth" => "Bearer aybfeye63PtdiOsxMbd5f7ZAtmjx67DWFAQMYn6R",
-//         "api" => "http://api.wps-inc.com",
-//         "allowParams" => ['page', 'include'],
-//         'headers' => [
-//             'Authorization' => "Bearer aybfeye63PtdiOsxMbd5f7ZAtmjx67DWFAQMYn6R",
-//             'Content-Type' => 'application/json',
-//         ],
-//     ),
-// );
-
 function forward_data()
 {
     // 'http://tayloredlocal.local/wp-admin/admin-ajax.php?action=forward_data&key=WPS&path=/products&include=features,tags,items,items.images,attributekeys,attributevalues,items.inventory,items.attributevalues,items.taxonomyterms,taxonomyterms&page[size]=100'
     global $SUPPLIER;
     // Get the POST parameters
-    // $key = isset($_POST['key']) ? $_POST['key'] : '';
-    // $path = isset($_POST['path']) ? $_POST['path'] : '';
     $key = isset($_GET['key']) ? $_GET['key'] : '';
     $path = isset($_GET['path']) ? $_GET['path'] : '';
     // $payload = isset($_POST['payload']) ? $_POST['payload'] : '';
