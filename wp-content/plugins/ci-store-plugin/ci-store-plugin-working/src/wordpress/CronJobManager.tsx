@@ -1,6 +1,6 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CronJobPost, useCronJobs } from './cronjob/useCronJobs';
 
 export const CronJobManager = () => {
@@ -178,10 +178,14 @@ interface ICronData {
 
 export const useCronJob = () => {
   const queryClient = useQueryClient();
-  const [status, setStatus] = useState<ICronData['status']>('stopped');
 
   const getCronJobs = async (cmd = '') => {
     const res = await fetch(`/wp-admin/admin-ajax.php?action=ci_store_cronjob_api&cmd=${cmd}`);
+    return res.json();
+  };
+
+  const getStoreAPI = async (cmd = '') => {
+    const res = await fetch(`/wp-admin/admin-ajax.php?action=ci_store_api&cmd=${cmd}`);
     return res.json();
   };
 
@@ -192,23 +196,42 @@ export const useCronJob = () => {
     refetchInterval: 3000
   });
 
-  useEffect(() => {
-    setStatus(job.data.status);
-  }, [job.data.status]);
+  const logs = useQuery<string[]>({
+    queryKey: ['getStoreLogs'],
+    queryFn: () => getStoreAPI('getlog'),
+    initialData: [],
+    refetchInterval: 3000
+  });
 
-  const runCmd = async (cmd = '', newStatus: ICronData['status']) => {
-    setStatus(newStatus);
-    const d = await getCronJobs(cmd);
-    return queryClient.setQueryData(['getCronStatus'], d);
+  const logsMutation = useMutation({
+    mutationFn: getStoreAPI,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['getStoreLogs']);
+    }
+  });
+
+  const jobMutation = useMutation({
+    mutationFn: getCronJobs,
+    onSuccess: (data) => {
+      queryClient.setQueryData(['getCronStatus'], data);
+    }
+  });
+
+  const runJobCmd = async (cmd = '', newStatus?: ICronData['status']) => {
+    const d = queryClient.getQueryData<ICronData>(['getCronStatus']);
+    queryClient.setQueryData(['getCronStatus'], { ...d, status: newStatus });
+    jobMutation.mutate(cmd);
   };
 
-  const start = () => runCmd('start', 'starting');
-  const pause = () => runCmd('pause', 'pausing');
-  const resume = () => runCmd('resume', 'resuming');
-  const stop = () => runCmd('stop', 'stopping');
+  const start = () => runJobCmd('start', 'starting');
+  const pause = () => runJobCmd('pause', 'pausing');
+  const resume = () => runJobCmd('resume', 'resuming');
+  const stop = () => runJobCmd('stop', 'stopping');
+  const upgrade = () => runJobCmd('upgrade');
+  const clearlog = () => logsMutation.mutate('clearlog');
   const refresh = () => {};
 
-  return { ...job.data, status, refresh, start, pause, resume, stop };
+  return { ...job.data, status: job.data.status, refresh, start, pause, resume, stop, logs, clearlog, upgrade };
 };
 
 export const PauseCron = () => {
@@ -255,21 +278,40 @@ export const PauseCron = () => {
     }
   }, [cronjob.status]);
 
+  const $pre = useRef<HTMLPreElement>();
+
+  useEffect(() => {
+    if (Math.abs($pre.current.scrollTop - $pre.current.scrollHeight) < 12) {
+      $pre.current.scrollTop = $pre.current.scrollHeight;
+    }
+  }, [cronjob.logs]);
+
   return (
     <div>
       <p>{cronjob.status ?? 'loading...'}</p>
-      <button disabled={startDisabled} className='btn btn-primary' type='button' onClick={cronjob.start}>
-        Start
-      </button>
-      <button disabled={pauseDisabled} className='btn btn-primary' type='button' onClick={cronjob.pause}>
-        Pause
-      </button>
-      <button disabled={resumeDisabled} className='btn btn-primary' type='button' onClick={cronjob.resume}>
-        Resume
-      </button>
-      <button disabled={stopDisabled} className='btn btn-primary' type='button' onClick={cronjob.stop}>
-        Stop
-      </button>
+      <div>
+        <button disabled={startDisabled} className='btn btn-primary' type='button' onClick={cronjob.start}>
+          Start
+        </button>
+        <button disabled={pauseDisabled} className='btn btn-primary' type='button' onClick={cronjob.pause}>
+          Pause
+        </button>
+        <button disabled={resumeDisabled} className='btn btn-primary' type='button' onClick={cronjob.resume}>
+          Resume
+        </button>
+        <button disabled={stopDisabled} className='btn btn-primary' type='button' onClick={cronjob.stop}>
+          Stop
+        </button>
+        <button className='btn btn-primary' type='button' onClick={cronjob.clearlog}>
+          Clear Log
+        </button>
+        <button className='btn btn-primary' type='button' onClick={cronjob.upgrade}>
+          Upgrade
+        </button>
+      </div>
+      <div style={{ background: 'black', padding: '0.5em' }}>
+        <pre ref={$pre} style={{ color: 'orange', margin: 0, padding: 0, fontSize: '12px', fontFamily: 'monospace', lineHeight: 1.5, maxHeight: 1.5 * 12 * 20 }} dangerouslySetInnerHTML={{ __html: cronjob.logs.data.join('\n') }}></pre>
+      </div>
       <div style={{ display: 'grid', gridTemplateColumns: '33% 33% auto' }}>
         <pre>{JSON.stringify({ ...cronjob, products: null, current_product: null }, null, 2)}</pre>
         <pre>{JSON.stringify({ products: cronjob.products }, null, 2)}</pre>
