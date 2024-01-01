@@ -1613,7 +1613,7 @@ module.exports = styleTagTransform;
 
 /***/ }),
 
-/***/ 618:
+/***/ 234:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -3955,7 +3955,7 @@ function getQueryClientContext(context, contextSharing) {
   return defaultContext;
 }
 
-const QueryClientProvider_useQueryClient = ({
+const useQueryClient = ({
   context
 } = {}) => {
   const queryClient = react.useContext(getQueryClientContext(context, react.useContext(QueryClientSharingContext)));
@@ -3992,1263 +3992,15 @@ const QueryClientProvider = ({
 
 //# sourceMappingURL=QueryClientProvider.mjs.map
 
-// EXTERNAL MODULE: ./node_modules/cross-fetch/dist/browser-ponyfill.js
-var browser_ponyfill = __webpack_require__(98);
-var browser_ponyfill_default = /*#__PURE__*/__webpack_require__.n(browser_ponyfill);
 // EXTERNAL MODULE: ./node_modules/react-dom/client.js
 var client = __webpack_require__(745);
 // EXTERNAL MODULE: ./src/assets/plugin.scss
 var assets_plugin = __webpack_require__(921);
-// EXTERNAL MODULE: ./node_modules/use-sync-external-store/shim/index.js
-var shim = __webpack_require__(688);
-;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/useSyncExternalStore.mjs
-'use client';
+;// CONCATENATED MODULE: ./src/views/home/Home.tsx
 
-
-const useSyncExternalStore = shim.useSyncExternalStore;
-
-
-//# sourceMappingURL=useSyncExternalStore.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/useIsFetching.mjs
-'use client';
-
-
-
-
-
-function useIsFetching(arg1, arg2, arg3) {
-  const [filters, options = {}] = parseFilterArgs(arg1, arg2, arg3);
-  const queryClient = QueryClientProvider_useQueryClient({
-    context: options.context
-  });
-  const queryCache = queryClient.getQueryCache();
-  return useSyncExternalStore(react.useCallback(onStoreChange => queryCache.subscribe(notifyManager.batchCalls(onStoreChange)), [queryCache]), () => queryClient.isFetching(filters), () => queryClient.isFetching(filters));
-}
-
-
-//# sourceMappingURL=useIsFetching.mjs.map
-
-;// CONCATENATED MODULE: ./src/components/GlobalLoader.tsx
-
-
-function GlobalLoader() {
-    const isFetching = useIsFetching();
-    return isFetching ? (react.createElement("div", { style: { opacity: isFetching ? 1 : 0, display: isFetching ? null : 'none', transition: 'opacity 0.2s', position: 'fixed', zIndex: 999, bottom: 10, right: 10 } },
-        react.createElement("div", { className: 'spinner-border', role: 'status' }))) : null;
-}
-
-;// CONCATENATED MODULE: ./src/utils/lookup.tsx
-function lookup_lookup(a, k = 'id', renderKey = (p, k) => p[k]) {
-    // return a.reduce((o, e) => ({ ...o, [e?.[k] ?? '--error--']: e }), {});
-    const lookup = {};
-    let i = a.length;
-    let p;
-    while (i--) {
-        p = a[i];
-        lookup[renderKey(p, k)] = p;
-    }
-    return lookup;
-}
-
-;// CONCATENATED MODULE: ./src/utils/SUPPLIER_INFO.ts
-
-var SupplierKey;
-(function (SupplierKey) {
-    SupplierKey["WPS"] = "WPS";
-})(SupplierKey || (SupplierKey = {}));
-const SUPPLIER = {
-    [SupplierKey.WPS]: {
-        name: 'Western Power Sports',
-        key: SupplierKey.WPS,
-        supplierClass: 'WooDropship\\Suppliers\\Western',
-        auth: 'Bearer aybfeye63PtdiOsxMbd5f7ZAtmjx67DWFAQMYn6R',
-        api: 'http://api.wps-inc.com'
-    }
-};
-const lookupSupplierClass = lookup_lookup(Object.keys(SUPPLIER).map((k) => SUPPLIER[k]), 'supplierClass');
-
-;// CONCATENATED MODULE: ./src/views/western/IWestern.tsx
-// https://www.wps-inc.com/data-depot/v4/api/introduction
-var IWestern_IWesternItemStatus;
-(function (IWesternItemStatus) {
-    IWesternItemStatus["DIR"] = "DIR";
-    IWesternItemStatus["DSC"] = "DSC";
-    IWesternItemStatus["CLO"] = "CLO";
-    IWesternItemStatus["NA"] = "NA";
-    IWesternItemStatus["NEW"] = "NEW";
-    IWesternItemStatus["NLA"] = "NLA";
-    IWesternItemStatus["PRE"] = "PRE";
-    IWesternItemStatus["SPEC"] = "SPEC";
-    IWesternItemStatus["STK"] = "STK"; //'STANDARD STOCKING ITEM' // available
-})(IWestern_IWesternItemStatus || (IWestern_IWesternItemStatus = {}));
-const stockStatusMap = {
-    [IWestern_IWesternItemStatus.DIR]: 'instock',
-    [IWestern_IWesternItemStatus.DSC]: 'outofstock',
-    [IWestern_IWesternItemStatus.CLO]: 'instock',
-    [IWestern_IWesternItemStatus.NA]: 'outofstock',
-    [IWestern_IWesternItemStatus.NEW]: 'instock',
-    [IWestern_IWesternItemStatus.NLA]: 'outofstock',
-    [IWestern_IWesternItemStatus.PRE]: 'outofstock',
-    [IWestern_IWesternItemStatus.SPEC]: 'instock',
-    [IWestern_IWesternItemStatus.STK]: 'instock'
-};
-
-;// CONCATENATED MODULE: ./node_modules/url-join/lib/url-join.js
-function normalize (strArray) {
-  var resultArray = [];
-  if (strArray.length === 0) { return ''; }
-
-  if (typeof strArray[0] !== 'string') {
-    throw new TypeError('Url must be a string. Received ' + strArray[0]);
-  }
-
-  // If the first part is a plain protocol, we combine it with the next part.
-  if (strArray[0].match(/^[^/:]+:\/*$/) && strArray.length > 1) {
-    var first = strArray.shift();
-    strArray[0] = first + strArray[0];
-  }
-
-  // There must be two or three slashes in the file protocol, two slashes in anything else.
-  if (strArray[0].match(/^file:\/\/\//)) {
-    strArray[0] = strArray[0].replace(/^([^/:]+):\/*/, '$1:///');
-  } else {
-    strArray[0] = strArray[0].replace(/^([^/:]+):\/*/, '$1://');
-  }
-
-  for (var i = 0; i < strArray.length; i++) {
-    var component = strArray[i];
-
-    if (typeof component !== 'string') {
-      throw new TypeError('Url must be a string. Received ' + component);
-    }
-
-    if (component === '') { continue; }
-
-    if (i > 0) {
-      // Removing the starting slashes for each component but the first.
-      component = component.replace(/^[\/]+/, '');
-    }
-    if (i < strArray.length - 1) {
-      // Removing the ending slashes for each component but the last.
-      component = component.replace(/[\/]+$/, '');
-    } else {
-      // For the last component we will combine multiple slashes to a single one.
-      component = component.replace(/[\/]+$/, '/');
-    }
-
-    resultArray.push(component);
-
-  }
-
-  var str = resultArray.join('/');
-  // Each input component is now separated by a single slash except the possible first plain protocol part.
-
-  // remove trailing slash before parameters or hash
-  str = str.replace(/\/(\?|&|#[^!])/g, '$1');
-
-  // replace ? in parameters with &
-  var parts = str.split('?');
-  str = parts.shift() + (parts.length > 0 ? '?': '') + parts.join('&');
-
-  return str;
-}
-
-function urlJoin() {
-  var input;
-
-  if (typeof arguments[0] === 'object') {
-    input = arguments[0];
-  } else {
-    input = [].slice.call(arguments);
-  }
-
-  return normalize(input);
-}
-
-;// CONCATENATED MODULE: ./src/views/western/WesternUtils.tsx
-
-
-const buildWesternImage = (img, size = 200) => {
-    if (!img)
-        return '';
-    return urlJoin('http://', img.domain, img.path, `${size}_max`, img.filename);
-};
-// const convertWesternItemToWooProduct = (item: IWesternItemExt): IWooProduct => {
-//   const smallImgs = item?.images?.data.map((img) => buildWesternImage(img, 200)) ?? [];
-//   const largeImgs = item?.images?.data.map((img) => buildWesternImage(img, 500)) ?? [];
-//   return {
-//     ...WooProductDefault,
-//     ...WesternWooProductDefaults,
-//     SKU: item.sku,
-//     'Regular price': parseFloat(item.list_price),
-//     Name: item.name,
-//     Images: smallImgs[0],
-//     'Meta: _ci_additional_images': largeImgs.join(', '),
-//     'Meta: _ci_data': JSON.stringify({
-//       created: new Date().toISOString(), //
-//       id: item.id,
-//       status_id: item.status_id
-//     }),
-//     // 'Meta: _wc_additional_variation_images': smallImgs.slice(1).join(', '),
-//     'In stock?': item.status_id === IWesternItemStatus.DSC || item.status_id === IWesternItemStatus.NA || item.status_id === IWesternItemStatus.NLA || item.status_id === IWesternItemStatus.PRE ? 0 : 1,
-//     Stock: item?.inventory?.data?.total ?? 0,
-//     'Weight (lbs)': item.weight,
-//     'Length (in)': item.length,
-//     'Width (in)': item.width,
-//     'Height (in)': item.height
-//   };
-// };
-const getWesterItemDescription = (input) => {
-    var _a, _b;
-    const featuresHTML = ((_b = (_a = input === null || input === void 0 ? void 0 : input.features) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.length)
-        ? `<ul>${input.features.data
-            .sort((a, b) => (a.sort < b.sort ? -1 : a.sort > b.sort ? 1 : 0))
-            .map((f) => `<li>${f.name}</li>`)
-            .join('')}</ul>`
-        : '';
-    const DescriptionHTML = (input === null || input === void 0 ? void 0 : input.description) ? `<p>${input.description}</p>` : '';
-    return DescriptionHTML + featuresHTML;
-};
-const isItemAvailable = (item) => item.status_id !== IWesternItemStatus.NLA;
-const isProductAvailable = (product) => { var _a; return ((_a = product === null || product === void 0 ? void 0 : product.items) === null || _a === void 0 ? void 0 : _a.data.length) > 0 && product.items.data.filter(isItemAvailable).length > 0; };
-// export const convertWesternProductToWooProduct = (input: IWesternProductExt): IWooProduct[] => {
-//   let p: IWooProduct;
-//   const products: IWooProduct[] = [];
-//   if (input) {
-//     // stub attributes if they dont exist
-//     if (!input?.attributekeys?.data) input.attributekeys = { data: [] };
-//     input.items.data?.forEach((item) => {
-//       if (!item?.attributevalues?.data) item.attributevalues = { data: [] };
-//       if (!item?.images?.data) item.images = { data: [] };
-//     });
-//     const MasterSku = `MASTER_${input.id}`;
-//     if (input.items?.data?.length > 0) {
-//       //
-//       // START: build attributes object
-//       //
-//       const attrKeyLookup: Record<number, IWesternAttributeKey & { values: string[] }> = input.attributekeys.data.reduce((o, a) => ({ ...o, [a.id]: { ...a, values: [] } }), {});
-//       input.items.data[0].attributevalues.data.forEach((av) => {
-//         if (attrKeyLookup[av.attributekey_id]) {
-//           attrKeyLookup[av.attributekey_id].sort = av.sort;
-//         }
-//       });
-//       // clean sort values - just in case
-//       Object.values(attrKeyLookup)
-//         .sort((a, b) => (a.sort < b.sort ? -1 : a.sort > b.sort ? 1 : 0))
-//         .forEach((e, i) => (e.sort = i));
-//       // get unique values from each attribute
-//       // product variations
-//       input.items.data.forEach((item) => {
-//         item?.attributevalues?.data?.forEach((attr) => {
-//           const attrKey = attrKeyLookup[attr.attributekey_id];
-//           if (attrKey) {
-//             if (!attrKey.values.includes(attr.name)) attrKey.values.push(attr.name);
-//           }
-//         });
-//       });
-//       // remove attributes that have <1 value for this item - i.e. it should not be a selector in the UI
-//       Object.values(attrKeyLookup).forEach((e, i) => {
-//         if (e.values.length <= 1) {
-//           delete attrKeyLookup[e.id];
-//         }
-//       });
-//       // renumber attributes
-//       Object.values(attrKeyLookup)
-//         .sort((a, b) => (a.sort < b.sort ? -1 : a.sort > b.sort ? 1 : 0))
-//         .forEach((e, i) => (e.sort = i + 1));
-//       //
-//       // END: build attributes object
-//       //
-//       const masterImages = new Set<string>();
-//       // master product
-//       const master: IWooProduct = {
-//         ...WooProductDefault,
-//         Name: input.name,
-//         Description: getWesterItemDescription(input),
-//         SKU: MasterSku,
-//         Type: 'variable',
-//         'Meta: _ci_data': JSON.stringify({ created: new Date().toISOString(), id: input.id }),
-//         ...(isProductAvailable(input) ? {} : WooProductDeleteDefaults)
-//       };
-//       // product variations
-//       input.items.data.forEach((item) => {
-//         p = {
-//           ...convertWesternItemToWooProduct(item),
-//           Description: getWesterItemDescription(input),
-//           Type: 'variation',
-//           Parent: MasterSku
-//         };
-//         item.attributevalues.data.forEach((attr) => {
-//           const attrKey = attrKeyLookup[attr.attributekey_id];
-//           if (attrKey) {
-//             p[`Attribute ${attrKey.sort} name`] = attrKey.name;
-//             p[`Attribute ${attrKey.sort} value(s)`] = attr.name;
-//             p[`Attribute ${attrKey.sort} global`] = 1;
-//           }
-//         });
-//         if (!isItemAvailable(item)) {
-//           Object.assign(p, WooProductDeleteDefaults);
-//         }
-//         products.push(p);
-//       });
-//       // master attribute defs
-//       Object.values(attrKeyLookup).map((attrKey) => {
-//         master[`Attribute ${attrKey.sort} name`] = attrKey.name;
-//         master[`Attribute ${attrKey.sort} value(s)`] = attrKey.values.join(', ');
-//         master[`Attribute ${attrKey.sort} visible`] = 1;
-//         master[`Attribute ${attrKey.sort} global`] = 1;
-//         master[`Attribute ${attrKey.sort} default`] = attrKey.values[0];
-//       });
-//       // add all items first image to master
-//       input.items.data.forEach((item) => masterImages.add(buildWesternImage(item.images.data[0])));
-//       // don't pollute WP with a million images
-//       master.Images = Array.from(masterImages)[0];
-//       // actual variation images are here
-//       master['Meta: _ci_additional_images'] = Array.from(masterImages).join(', ');
-//       products.push(master);
-//     } else if (input.items?.data?.length === 1 && isProductAvailable(input)) {
-//       // export simple
-//       const item = { ...input, ...(input?.items?.data?.[0] ?? {}) } as IWesternItemExt;
-//       p = {
-//         ...convertWesternItemToWooProduct(item),
-//         Description: getWesterItemDescription(input),
-//         Type: 'simple'
-//         // Images: input.items.data.forEach((item) => masterImages.add(buildWesternImage(item.images.data[0])));
-//       };
-//       products.push(p);
-//     } else {
-//       // this product has no valid items so it should be deleted
-//       p = {
-//         ...WooProductDefault,
-//         ...WesternWooProductDefaults,
-//         ...WooProductDeleteDefaults,
-//         Type: 'simple',
-//         Name: input.name,
-//         SKU: MasterSku,
-//         'Meta: _ci_data': JSON.stringify({ id: input.id })
-//       };
-//       products.push(p);
-//     }
-//     return products;
-//   }
-//   return products;
-// };
-
-;// CONCATENATED MODULE: ./src/views/western/IWoo.tsx
-const CATEGORY_DELETE = 'DELETE';
-const WooProductDefault = {
-    // ID: '0',
-    Type: 'simple',
-    SKU: '0',
-    Name: 'Product Name',
-    Published: 1,
-    'Is featured?': 0,
-    'Visibility in catalog': 'visible',
-    'Short description': '',
-    Description: '',
-    'Date sale price starts': '',
-    'Date sale price ends': '',
-    'Tax status': 'taxable',
-    'Tax class': 'parent',
-    'In stock?': 1,
-    Stock: 10,
-    'Low stock amount': 0,
-    'Backorders allowed?': 0,
-    'Sold individually?': 1,
-    'Weight (lbs)': null,
-    'Length (in)': null,
-    'Width (in)': null,
-    'Height (in)': null,
-    'Allow customer reviews?': 1,
-    'Purchase note': null,
-    'Sale price': null,
-    'Regular price': 0,
-    Categories: '',
-    Tags: '',
-    'Shipping class': null,
-    Images: '',
-    'Download limit': null,
-    'Download expiry days': null,
-    Parent: '',
-    'Grouped products': '',
-    Upsells: null,
-    'Cross-sells': null,
-    'External URL': null,
-    'Button text': null,
-    Position: 0,
-    'Attribute 1 name': '',
-    'Attribute 1 value(s)': '',
-    'Attribute 1 visible': null,
-    'Attribute 1 global': null,
-    'Attribute 1 default': '',
-    'Attribute 2 name': '',
-    'Attribute 2 value(s)': '',
-    'Attribute 2 visible': null,
-    'Attribute 2 global': null,
-    'Attribute 2 default': '',
-    'Attribute 3 name': '',
-    'Attribute 3 value(s)': '',
-    'Attribute 3 visible': null,
-    'Attribute 3 global': null,
-    'Attribute 3 default': '',
-    'Attribute 4 name': '',
-    'Attribute 4 value(s)': '',
-    'Attribute 4 visible': null,
-    'Attribute 4 global': null,
-    'Attribute 4 default': '',
-    'Attribute 5 name': '',
-    'Attribute 5 value(s)': '',
-    'Attribute 5 visible': null,
-    'Attribute 5 global': null,
-    'Attribute 5 default': '',
-    'Attribute 6 name': '',
-    'Attribute 6 value(s)': '',
-    'Attribute 6 visible': null,
-    'Attribute 6 global': null,
-    'Attribute 6 default': '',
-    'Meta: _supplier_class': 'WooDropshipSuppliersWestern',
-    'Meta: _wc_additional_variation_images': null,
-    'Meta: _ci_additional_images': '',
-    'Meta: _ci_data': ''
-};
-const WooProductDeleteDefaults = {
-    Published: 0,
-    'Is featured?': 0,
-    'Visibility in catalog': 'hidden',
-    Categories: CATEGORY_DELETE,
-    'In stock?': 0,
-    Stock: 0
-};
-
-;// CONCATENATED MODULE: ./src/views/western/WooUtils.tsx
-
-const WooColumnKeys = Object.keys(WooProductDefault);
-const convertWooProductToCSVRow = (data, columnKeys) => {
-    return columnKeys
-        .map((k) => {
-        if (Object.prototype.hasOwnProperty.call(data, k)) {
-            if (typeof data[k] === 'string') {
-                return `"${data[k].replace(/"/g, '""')}"`;
-            }
-            if (data[k] === null) {
-                return '';
-            }
-            return data[k];
-        }
-        return '';
-    })
-        .join();
-};
-const sortProductType = (a, b) => {
-    const av = a.Type === 'variable';
-    const bv = b.Type === 'variable';
-    return av && !bv ? -1 : !av && bv ? 1 : 0;
-};
-const convertWooProductsToCSV = (data, columnKeys = WooColumnKeys) => {
-    return [columnKeys.map((k) => `"${k}"`).join(','), ...data.sort(sortProductType).map((r) => convertWooProductToCSVRow(r, columnKeys))].join('\n');
-};
-const getWooMetaValue = (product, key) => {
-    var _a;
-    return (_a = product === null || product === void 0 ? void 0 : product.meta_data.find((m) => m.key === key)) === null || _a === void 0 ? void 0 : _a.value;
-};
-
-;// CONCATENATED MODULE: ./src/views/woo/useWoo.tsx
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-// const AUTH = { headers: { Authorization: 'Bearer aybfeye63PtdiOsxMbd5f7ZAtmjx67DWFAQMYn6R' } };
-
-
-function useWoo_fetchWooAPI(path, delta = null, method = 'get') {
-    var _a, _b, _c, _d, _e, _f;
-    return __awaiter(this, void 0, void 0, function* () {
-        // console.log('fetchWooAPI', { path, method });
-        const url = new URL(location.origin);
-        url.pathname = urlJoin('wooapi', path);
-        let body = {};
-        // console.log('fetchWooAPI', { path, delta, method });
-        if (delta) {
-            if (method === 'get') {
-                url.search = new URLSearchParams(delta).toString();
-            }
-            else {
-                body = { body: JSON.stringify(delta) };
-            }
-        }
-        // console.log('fetchWooAPI', url.href);
-        const res = yield browser_ponyfill_default()(url, Object.assign({ method, headers: { 'content-type': 'application/json' } }, body));
-        if (!res.ok) {
-            const info = { code: res.status, message: 'ERROR', description: 'There was a problem' };
-            try {
-                const err = yield res.json();
-                info.code = res.status;
-                info.message = (_a = err === null || err === void 0 ? void 0 : err.message) !== null && _a !== void 0 ? _a : '';
-                info.description = (_b = err === null || err === void 0 ? void 0 : err.description) !== null && _b !== void 0 ? _b : '';
-            }
-            catch (e) { }
-            return Promise.reject(info);
-        }
-        const data = yield res.json();
-        if (data === null || data === void 0 ? void 0 : data.error) {
-            return Promise.reject({ code: (_d = (_c = data === null || data === void 0 ? void 0 : data.error) === null || _c === void 0 ? void 0 : _c.code) !== null && _d !== void 0 ? _d : res.status, message: 'xERROR', description: (_f = (_e = data === null || data === void 0 ? void 0 : data.error) === null || _e === void 0 ? void 0 : _e.message) !== null && _f !== void 0 ? _f : 'unknown' });
-        }
-        const total = res.headers.has('X-Wp-Total') ? parseInt(res.headers.get('X-Wp-Total')) : 0;
-        const totalPages = res.headers.has('X-Wp-Totalpages') ? parseInt(res.headers.get('X-Wp-Totalpages')) : 0;
-        const meta = { total, totalPages, page: delta === null || delta === void 0 ? void 0 : delta.page, per_page: delta === null || delta === void 0 ? void 0 : delta.per_page };
-        return { meta, data };
-    });
-}
-const useWooProducts = (params = {}) => {
-    return useQuery({
-        queryKey: ['woo-api', JSON.stringify(params)],
-        queryFn: () => __awaiter(void 0, void 0, void 0, function* () { return yield fetchWooProducts(params); })
-    });
-};
-const useWooProduct = (id) => {
-    return useQuery({
-        queryKey: ['woo-api', 'products', id],
-        enabled: !!id,
-        queryFn: () => __awaiter(void 0, void 0, void 0, function* () {
-            return yield useWoo_fetchWooAPI(`/products/${id}`);
-        })
-    });
-};
-const useWooProductBySku = (sku) => {
-    return useQuery({
-        queryKey: ['woo-api', 'product-by-sku', sku],
-        enabled: !!sku,
-        queryFn: () => __awaiter(void 0, void 0, void 0, function* () {
-            return yield useWoo_fetchWooProductBySku(sku);
-        })
-    });
-};
-function fetchWooProducts(params = {}) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return useWoo_fetchWooAPI(`/products`, Object.assign({ _fields: 'id,sku,name' }, params), 'get');
-    });
-}
-function useWoo_fetchWooProductBySku(sku, params = {}) {
-    var _a;
-    return __awaiter(this, void 0, void 0, function* () {
-        const p = yield useWoo_fetchWooAPI(`products`, Object.assign({ sku }, params));
-        return (_a = p.data) === null || _a === void 0 ? void 0 : _a[0];
-    });
-}
-function useWoo_fetchWooProduct(id, params = null) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return yield useWoo_fetchWooAPI(`products/${id}`, params);
-    });
-}
-function useWoo_fetchWooProductVariations(id, params = null) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return yield useWoo_fetchWooAPI(`products/${id}/variations`, params);
-    });
-}
-function fetchWooProductVariation(productId, variationId, params = null) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return yield useWoo_fetchWooAPI(`products/${productId}/variations/${variationId}`, params);
-    });
-}
-function useWoo_fetchWooProductExists(sku, params = null) {
-    var _a, _b;
-    return __awaiter(this, void 0, void 0, function* () {
-        const p = yield useWoo_fetchWooAPI(`products`, Object.assign({ sku, _fields: 'sku' }, params));
-        return !!((_b = (_a = p.data) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.sku);
-    });
-}
-function useWoo_fetchIsWooProductVariationBySku(productId, sku, params = null) {
-    var _a, _b;
-    return __awaiter(this, void 0, void 0, function* () {
-        const p = yield useWoo_fetchWooAPI(`products/${productId}/variations`, Object.assign({ sku, _fields: 'sku' }, params));
-        return ((_b = (_a = p.data) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.sku) === sku;
-    });
-}
-function useWoo_fetchWooProductsBySku(_skus, _fields = 'id,sku,date_modified,type,variations') {
-    return __awaiter(this, void 0, void 0, function* () {
-        const maxChars = 2048 - 200; //  200 is a healthy buffer for url
-        // need to separate masters from variations due to wp limitation
-        const skus = Array.from(new Set(_skus));
-        const masters = skus.filter((sku) => sku.indexOf('MASTER') === 0);
-        const others = skus.filter((sku) => sku.indexOf('MASTER') !== 0);
-        // use set to make sure sku's don't repeat
-        const masterPages = masters.reduce((a, sku) => {
-            if (a.length > 0 && a[a.length - 1].length + sku.length < maxChars) {
-                a[a.length - 1] += `,${sku}`;
-            }
-            else {
-                a.push(sku);
-            }
-            return a;
-        }, []);
-        const otherPages = others.reduce((a, sku) => {
-            if (a.length > 0 && a[a.length - 1].length + sku.length < maxChars) {
-                a[a.length - 1] += `,${sku}`;
-            }
-            else {
-                a.push(sku);
-            }
-            return a;
-        }, []);
-        // const pages = [...masterPages, ...otherPages];
-        // console.log('fetchWooProductsBySku', { pages });
-        // console.log({ skus });
-        const results = yield Promise.all(skus.map((p) => useWoo_fetchWooAPI(`/products`, { sku: p, _fields })));
-        // const results = await Promise.all(pages.map((p) => fetchWooAPI<IWooVariation[]>(`/products`, { sku: p, _fields })));
-        const all = results.reduce((a, p) => [...a, ...p.data], []);
-        // const l1 = lookup(all, 'sku');
-        // skus.forEach((sku) => {
-        //   console.log('look for:', sku, 'found', !!l1?.[sku]);
-        // });
-        // console.log({ all });
-        return all;
-    });
-}
-
-;// CONCATENATED MODULE: ./src/components/store/slugify.ts
-function slugify(input, id, defaultSlug = 'swell') {
-    const removeStopWords = input.split(/\s+/g).length > MAX_SLUG_WORDS; // if source string has few words, don't replace stop words
-    const output = input
-        .toString()
-        .toLowerCase()
-        .replace(/\s+/g, '-') // Replace spaces with -
-        .replace(specialCharsRegEx, (c) => specialCharsTo.charAt(specialCharsFrom.indexOf(c))) // Replace special characters
-        .replace(/[^\w-]+/g, '') // Remove all non-word characters
-        .replace(removeStopWords ? stopWordsReg : /^\?/, '') // remove stop words (english only)
-        .replace(/--+/g, '-') // Replace multiple - with single -
-        .replace(/^-+/, '') // Trim - from start of text
-        .replace(/-+$/, '') // Trim - from end of text
-        .split('-')
-        .slice(0, MAX_SLUG_WORDS) // grab 5 words (optimal 3-5 words)
-        .join('-')
-        .replace(/$/, id != undefined ? `-${id}` : ''); // optionally add id into slug
-    return encodeURIComponent(output || defaultSlug);
-}
-const MAX_SLUG_WORDS = 5;
-const specialCharsFrom = 'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;';
-const specialCharsTo = 'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz------';
-const specialCharsRegEx = new RegExp(specialCharsFrom.split('').join('|'), 'g');
-const stopWordsReg = /\b(a|about|above|actually|after|again|against|all|almost|also|although|always|am|an|and|any|are|as|at|be|became|become|because|been|before|being|below|between|both|but|by|can|could|did|do|does|doing|down|during|each|either|else|few|for|from|further|had|has|have|having|he|hed|hell|hence|hes|her|here|heres|hers|herself|him|himself|his|how|hows|i|id|ill|im|ive|if|in|into|is|it|its|its|itself|just|lets|may|maybe|me|might|mine|more|most|must|my|myself|neither|nor|not|of|oh|on|once|only|ok|or|other|ought|our|ours|ourselves|out|over|own|same|she|shed|shell|shes|should|so|some|such|than|that|thats|the|their|theirs|them|themselves|then|there|theres|these|they|theyd|theyll|theyre|theyve|this|those|through|to|too|under|until|up|very|was|we|wed|well|were|weve|were|what|whats|when|whenever|whens|where|whereas|wherever|wheres|whether|which|while|who|whoever|whos|whose|whom|why|whys|will|with|within|would|yes|yet|you|youd|youll|youre|youve|your|yours|yourself|yourselves)\b/g;
-
-;// CONCATENATED MODULE: ./src/components/woo/Product.tsx
-var Product_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-
-
-
-
-
-
-class Price {
-    constructor(config = {}) {
-        this.currency = 'USD';
-        this.wholesale = { min: 0, max: 0 }; //number = -1;
-        this.regular = { min: 0, max: 0 }; //number = -1;
-        this.sale = { min: 0, max: 0 }; //number = -1;
-        Object.assign(this, config);
-    }
-    toJSON() {
-        return {
-            currency: this.currency,
-            wholesale: Object.assign({}, this.wholesale),
-            regular: Object.assign({}, this.regular),
-            sale: Object.assign({}, this.sale)
-        };
-    }
-}
-class Product_Product {
-    constructor(config = {}) {
-        this.supplier = 'UNKNOWN';
-        this.updated = new Date(0);
-        this.woo = {};
-        this.id = null;
-        this.sku = '';
-        this.name = '';
-        this.description = '';
-        this.price = new Price();
-        this.images = [];
-        this.attributes = [];
-        this.attributeLookup = {};
-        this.variations = [];
-        this.variationsLookup = {};
-        this.useSkuAttribute = false;
-        this._haystack = null;
-        this._slug = null;
-        Object.assign(this, config);
-    }
-    attribute(name) {
-        var _a;
-        let attr = (_a = this.attributeLookup) === null || _a === void 0 ? void 0 : _a[name];
-        if (!attr) {
-            attr = new ProductAttribute({ name, values: [], sort: 0 });
-            this.attributeLookup[name] = attr;
-            this.attributes.push(attr);
-        }
-        return attr;
-    }
-    hasVariation(sku) {
-        var _a;
-        return !!((_a = this.variationsLookup) === null || _a === void 0 ? void 0 : _a[sku]);
-    }
-    deleteAttribute(name) {
-        delete this.attributeLookup[name];
-        const i = this.attributes.findIndex((a) => a.name === name);
-        this.attributes.splice(i, 1);
-        this.variations.forEach((v) => v.deleteAttribute(name));
-    }
-    variation(sku, insertOnNoExist = true) {
-        var _a;
-        let v = (_a = this.variationsLookup) === null || _a === void 0 ? void 0 : _a[sku];
-        if (insertOnNoExist && !v) {
-            v = new ProductVariation({ sku, master: this });
-            this.variations.push(v);
-            this.variationsLookup[sku] = v;
-            if (this.useSkuAttribute)
-                v.attribute('sku', v.sku);
-        }
-        return v;
-    }
-    filterVariations(filters) {
-        const filterKeys = Object.keys(filters);
-        const matches = this.variations.filter((v) => {
-            return filterKeys.filter((k) => filters[k] === WILDCARD_ATTRIBUTE_VALUE || v.attributes[k] === filters[k]).length === filterKeys.length;
-        });
-        return matches;
-    }
-    buildSkuAttribute() {
-        this.variations.forEach((v) => v.attribute('sku', v.sku));
-    }
-    renderPriceFromVariation(price, variations) {
-        var _a, _b, _c, _d, _e, _f;
-        const wholesale = [];
-        const regular = [];
-        const sale = [];
-        variations.forEach((v) => {
-            if (v.price.wholesale.min)
-                wholesale.push(v.price.wholesale.min);
-            if (v.price.regular.min)
-                regular.push(v.price.regular.min);
-            if (v.price.sale.min)
-                sale.push(v.price.sale.min);
-        });
-        wholesale.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
-        regular.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
-        sale.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
-        price.wholesale.min = (_a = wholesale === null || wholesale === void 0 ? void 0 : wholesale[0]) !== null && _a !== void 0 ? _a : 0;
-        price.wholesale.max = (_b = wholesale === null || wholesale === void 0 ? void 0 : wholesale[wholesale.length - 1]) !== null && _b !== void 0 ? _b : 0;
-        price.regular.min = (_c = regular === null || regular === void 0 ? void 0 : regular[0]) !== null && _c !== void 0 ? _c : 0;
-        price.regular.max = (_d = regular === null || regular === void 0 ? void 0 : regular[regular.length - 1]) !== null && _d !== void 0 ? _d : 0;
-        price.sale.min = (_e = sale === null || sale === void 0 ? void 0 : sale[0]) !== null && _e !== void 0 ? _e : 0;
-        price.sale.max = (_f = sale === null || sale === void 0 ? void 0 : sale[sale.length - 1]) !== null && _f !== void 0 ? _f : 0;
-        return price;
-    }
-    renderPrices() {
-        this.renderPriceFromVariation(this.price, this.variations);
-    }
-    get haystack() {
-        if (this._haystack === null) {
-            this._haystack = [this.name, this.description, this.sku, ...this.attributes.map((a) => a.name), ...this.attributes.map((a) => a.values)].join(' ').toLowerCase();
-        }
-        return this._haystack;
-    }
-    get slug() {
-        if (this._slug === null) {
-            this._slug = slugify(this.name, this.sku);
-        }
-        return this._slug;
-    }
-    toJSON() {
-        return {
-            sku: this.sku,
-            name: this.name,
-            description: this.description,
-            images: this.images,
-            attributes: this.attributes.map((a) => ({ [a.name]: a.values })),
-            variations: this.variations.map((v) => v.toJSON()),
-            price: this.price.toJSON()
-        };
-    }
-    static fromWooRows(products) {
-        var _a;
-        const master = products.length === 1 ? products[0] : (_a = products.filter((p) => p.Type === 'variable')) === null || _a === void 0 ? void 0 : _a[0];
-        const variations = products.filter((p) => p.Type === 'variation' || p.Type === 'simple');
-        const product = new Product_Product({ name: master.Name, sku: master.SKU, description: master.Description });
-        const masterImages = new Set();
-        parseWooImages(master.Images).map((img) => masterImages.add(img));
-        variations.forEach((item) => {
-            var _a;
-            const attr = parseWooAttributes(item);
-            const v = product.variation(item.SKU);
-            v.name = item.Name;
-            v.description = item.Description;
-            v.images = parseWooImages(item['Meta: _ci_additional_images']); // item.Images
-            if ((_a = v.images) === null || _a === void 0 ? void 0 : _a[0])
-                masterImages.add(v.images[0]);
-            v.price.regular.min = item['Regular price'] || 0;
-            v.price.sale.min = item['Sale price'] || 0;
-            Object.keys(attr).forEach((name) => {
-                v.attribute(name, attr === null || attr === void 0 ? void 0 : attr[name]);
-            });
-        });
-        product.images = Array.from(masterImages);
-        product.renderPrices();
-        return product;
-    }
-    static fromWooId(wooId) {
-        var _a, _b;
-        return Product_awaiter(this, void 0, void 0, function* () {
-            // wooProduct:IWooVariable | IWooSimpleProduct
-            const wooProduct = (_a = (yield useWoo_fetchWooAPI(`/products/${wooId}`))) === null || _a === void 0 ? void 0 : _a.data;
-            const wooVariations = (_b = (yield useWoo_fetchWooAPI(`/products/${wooId}/variations`))) === null || _b === void 0 ? void 0 : _b.data;
-            console.log({ wooProduct, wooVariations });
-            const p = new Product_Product({
-                supplier: 'WPS',
-                id: wooProduct.id,
-                sku: wooProduct.sku,
-                name: wooProduct.name,
-                description: wooProduct.description,
-                updated: new Date(Date.parse(wooProduct.date_modified))
-            });
-            wooVariations.forEach((item) => {
-                const v = p.variation(item.sku, true);
-                item.attributes.filter((a) => a.name !== 'sku').forEach((a) => v.attribute(a.name, a.option));
-                const additionalImages = getWooMetaValue(item, '_ci_additional_images');
-                v.images = additionalImages.split(','); //[...(item?.images?.map(img => img.src) ?? []), item?.image?.src];
-                v.price = new Price({ regular: { min: parseFloat('' + item.regular_price), max: -1 } }); // TODO: need wholesale price data
-                v.stock_quantity = item.stock_quantity;
-                v.stock_status = item.stock_status;
-                v.size = {
-                    weight: { value: parseFloat(item.weight), units: 'lbs' },
-                    width: { value: parseFloat(item.dimensions.width), units: 'in' },
-                    height: { value: parseFloat(item.dimensions.height), units: 'in' },
-                    length: { value: parseFloat(item.dimensions.length), units: 'in' }
-                };
-                p.images.push(v.images[0]);
-            });
-            return p;
-        });
-    }
-    cleanVariations() {
-        // remove variations that don't affect to selection of products
-        this.attributes.forEach((a) => {
-            if (a.values.length === 1) {
-                if (this.filterVariations({ [a.name]: a.values[0].value }).length === this.variations.length) {
-                    this.deleteAttribute(a.name);
-                }
-            }
-        });
-    }
-    static fromWesternProduct(product, config = {}) {
-        var _a, _b;
-        // console.log('fromWesternProduct', product);
-        const p = new Product_Product(Object.assign({ supplier: 'WPS', id: product.id, sku: `MASTER_WPS_${product.id}`, name: product.name, description: getWesterItemDescription(product), updated: new Date(Date.parse(product.updated_at)) }, config));
-        // strange case of the missing attribute - cause by the api returning an array OR and object depending on it's mood
-        const lookupAttr = lookup_lookup((_b = (_a = product === null || product === void 0 ? void 0 : product.attributekeys) === null || _a === void 0 ? void 0 : _a.data) !== null && _b !== void 0 ? _b : [], 'id');
-        product.items.data.forEach((item) => {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j;
-            const v = p.variation(item.sku);
-            const smallImgs = (_b = (_a = item === null || item === void 0 ? void 0 : item.images) === null || _a === void 0 ? void 0 : _a.data.map((img) => buildWesternImage(img, 200))) !== null && _b !== void 0 ? _b : [];
-            const largeImgs = (_d = (_c = item === null || item === void 0 ? void 0 : item.images) === null || _c === void 0 ? void 0 : _c.data.map((img) => buildWesternImage(img, 500))) !== null && _d !== void 0 ? _d : [];
-            v.updated = new Date(Date.parse(item.updated_at));
-            v.id = item.id;
-            v.sku = item.sku;
-            v.price = new Price({
-                regular: { min: parseFloat(item.list_price), max: -1 },
-                wholesale: { min: parseFloat(item.standard_dealer_price), max: -1 }
-            });
-            v.name = item.name;
-            v.thumbnail = smallImgs[0];
-            v.images = largeImgs;
-            v.size = {
-                weight: { value: item.weight, units: 'lbs' },
-                width: { value: item.width, units: 'in' },
-                height: { value: item.height, units: 'in' },
-                length: { value: item.length, units: 'in' }
-            };
-            v.stock_status = stockStatusMap[item.status_id];
-            v.stock_quantity = (_g = (_f = (_e = item === null || item === void 0 ? void 0 : item.inventory) === null || _e === void 0 ? void 0 : _e.data) === null || _f === void 0 ? void 0 : _f.total) !== null && _g !== void 0 ? _g : 0;
-            (_j = (_h = item === null || item === void 0 ? void 0 : item.attributevalues) === null || _h === void 0 ? void 0 : _h.data) === null || _j === void 0 ? void 0 : _j.forEach((a) => {
-                const attr = lookupAttr === null || lookupAttr === void 0 ? void 0 : lookupAttr[a.attributekey_id];
-                if (attr)
-                    v.attribute(attr.name, a.name, a.sort);
-            });
-            p.images.push(v.images[0]);
-        });
-        p.cleanVariations();
-        p.images = Array.from(new Set(p.images));
-        p.renderPrices();
-        return p;
-    }
-    toWoo() {
-        var _a, _b, _c, _d;
-        let res = {
-            type: 'simple',
-            sku: this.sku,
-            name: this.name,
-            description: this.description,
-            meta_data: [
-                { key: '_ci_additional_images', value: this.images.join('|') },
-                { key: '_ci_data', value: JSON.stringify({ id: this.id, supplier: this.supplier }) },
-                { key: '_supplier_class', value: SUPPLIER.WPS.supplierClass }
-            ]
-        };
-        if (this.variations.length === 0) {
-            // simple product
-            console.log('ALERT!!! Simple product', this);
-            return res;
-        }
-        else if (this.variations.length === 1) {
-            // simple product
-            const item = this.variations[0];
-            Object.assign(res, {
-                regular_price: item.price.regular.min.toString(),
-                // images: item.images.map((src) => ({ name: '', src } as IWooImage)),
-                stock_quantity: item.stock_quantity,
-                stock_status: item.stock_status
-            });
-            if ((_b = (_a = item.price) === null || _a === void 0 ? void 0 : _a.sale) === null || _b === void 0 ? void 0 : _b.min) {
-                res.sale_price = (_d = (_c = item.price) === null || _c === void 0 ? void 0 : _c.sale) === null || _d === void 0 ? void 0 : _d.min;
-            }
-        }
-        else {
-            // variable
-            Object.assign(res, {
-                type: 'variable',
-                attributes: this.attributes.map((a, i) => (Object.assign({}, a.toWoo())))
-            });
-        }
-        return res;
-    }
-}
-class ProductAttribute {
-    constructor(config) {
-        this.id = null;
-        this.name = '';
-        this.values = [];
-        this.sort = 0;
-        Object.assign(this, config);
-    }
-    addValue(value, sort = 1) {
-        if (this.values.findIndex((a) => a.value === value) === -1) {
-            this.values.push(new ProductAttributeValue({ value, sort }));
-            // sort by sort value and then string value
-            this.values.sort((a, b) => (a.sort < b.sort ? -1 : a.sort > b.sort ? 1 : a.value < b.value ? -1 : a.value > b.value ? 1 : 0));
-        }
-        return this;
-    }
-    toWoo() {
-        return {
-            name: this.name,
-            slug: slugify(this.name),
-            options: this.values.map((v) => v.value),
-            position: this.sort,
-            visible: true,
-            variation: true
-        };
-    }
-}
-class ProductAttributeValue {
-    constructor(config) {
-        this.sort = 0;
-        this.disabled = false;
-        Object.assign(this, config);
-    }
-}
-class ProductVariation {
-    constructor(config = {}) {
-        this.master = null;
-        this.updated = new Date(0);
-        this.woo = {};
-        this.id = null;
-        this.sku = '';
-        this.name = '';
-        this.description = '';
-        this.price = new Price();
-        this.images = [];
-        this.attributes = {};
-        this.size = {};
-        this.stock_status = 'instock';
-        this.stock_quantity = 10;
-        Object.assign(this, config);
-    }
-    attribute(name, value, sort = 0) {
-        this.attributes[name] = value;
-        this.master.attribute(name).addValue(value, sort);
-    }
-    hasAttribute(name) {
-        var _a;
-        return !!((_a = this.attributes) === null || _a === void 0 ? void 0 : _a[name]);
-    }
-    deleteAttribute(name) {
-        delete this.attributes[name];
-    }
-    toJSON() {
-        return {
-            sku: this.sku,
-            name: this.name,
-            description: this.description,
-            images: this.images,
-            attributes: this.attributes,
-            price: this.price.toJSON()
-        };
-    }
-    toWoo() {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
-        const result = {
-            // id: this.id,
-            // sku: this.sku,
-            sku: `MASTER_${this.master.supplier}_${this.master.id}_VARIATION_${this.id}`,
-            name: this.name,
-            stock_status: this.stock_status,
-            stock_quantity: this.stock_quantity,
-            regular_price: ((_b = (_a = this.price) === null || _a === void 0 ? void 0 : _a.regular) === null || _b === void 0 ? void 0 : _b.min) || ((_d = (_c = this.price) === null || _c === void 0 ? void 0 : _c.regular) === null || _d === void 0 ? void 0 : _d.max),
-            sale_price: ((_f = (_e = this.price) === null || _e === void 0 ? void 0 : _e.sale) === null || _f === void 0 ? void 0 : _f.min) || ((_h = (_g = this.price) === null || _g === void 0 ? void 0 : _g.sale) === null || _h === void 0 ? void 0 : _h.max),
-            description: this.description,
-            image: null,
-            meta_data: [
-                { key: '_ci_additional_images', value: this.images.join('|') },
-                { key: '_ci_data', value: JSON.stringify({ id: this.id }) }
-            ],
-            attributes: Object.keys(this.attributes).map((name) => ({
-                // id: this.master.attributeLookup[name].id,
-                name,
-                option: this.attributes[name]
-            }))
-        };
-        if (result.sale_price === 0)
-            delete result.sale_price;
-        return result;
-    }
-}
-const WILDCARD_ATTRIBUTE_VALUE = '*any';
-function parseWooAttributes(product) {
-    return [1, 2, 3, 4, 5, 6]
-        .filter((n) => !!(product === null || product === void 0 ? void 0 : product[`Attribute ${n} name`]))
-        .reduce((o, n) => {
-        const value = product[`Attribute ${n} value(s)`].trim();
-        const name = product[`Attribute ${n} name`];
-        return Object.assign(Object.assign({}, o), { [name]: value });
-    }, {});
-}
-function parseWooImages(Images) {
-    return Images.split(',').map((i) => i.trim());
-}
-
-;// CONCATENATED MODULE: ./src/components/woo/ProductDetails.tsx
-
-
-
-// export const WooProductDetails = ({ products }: { products: IWooProduct[] }) => {
-//   if (!products || products?.length === 0) return null;
-//   const product = Product.fromWooRows(products);
-//   return <ProductDetails key={product.sku} product={product} />;
-// };
-const ProductDetails = ({ product }) => {
-    var _a, _b;
-    const [sku, setSku] = (0,react.useState)(product.sku);
-    const item = (0,react.useMemo)(() => (product.hasVariation(sku) ? product.variation(sku) : product), [sku]);
-    const [attributeValues, setAttributeValues] = (0,react.useState)({});
-    const [attributeUI, setAttributeUI] = (0,react.useState)([...product.attributes]);
-    const masterSelected = (item === null || item === void 0 ? void 0 : item.sku) === (product === null || product === void 0 ? void 0 : product.sku);
-    const [variations, setVariations] = (0,react.useState)([]);
-    const [price, setPrice] = (0,react.useState)(product.price);
-    const itemAttributeValues = (0,react.useMemo)(() => {
-        if (masterSelected)
-            return {};
-        return Object.assign({}, item.attributes);
-    }, [item, masterSelected]);
-    const description = (0,react.useMemo)(() => (item === null || item === void 0 ? void 0 : item.description) || product.description || null, [item]);
-    const selectAttr = (e) => {
-        var _a;
-        if ((_a = e === null || e === void 0 ? void 0 : e.currentTarget) === null || _a === void 0 ? void 0 : _a.name) {
-            const name = e.currentTarget.name;
-            const value = e.currentTarget.value;
-            const delta = { [name]: value };
-            setAttributeValues((a) => (Object.assign(Object.assign({}, a), delta)));
-        }
-    };
-    const clearChoices = () => {
-        setAttributeValues({});
-        setSku(product.sku);
-    };
-    const selectSku = (e) => {
-        // console.log('selectSku', e.currentTarget.value);
-        setSku(e.currentTarget.value);
-        // Do I want the selected sku to auto select attributes?
-        // setAttributeValues(product.variation(e.currentTarget.value, false).attributes);
-    };
-    (0,react.useEffect)(() => {
-        // console.log('useEffect[attributeValues]');
-        const items = product.filterVariations(attributeValues);
-        setVariations(items);
-        if (items.length > 1) {
-            if (items.find((e) => e.sku === sku)) {
-                // do nothing - current sku is valid
-            }
-            else {
-                setSku(null);
-            }
-            // && items.filter((e) => e.sku === sku).length > -1) {
-            // setSku(product.sku);
-        }
-        else if (items.length === 1) {
-            setSku(items[0].sku);
-        }
-        else {
-            setSku(product.sku);
-        }
-        setAttributeUI((input) => {
-            const a = [...input];
-            a.forEach((a, i) => {
-                a.values.forEach((v) => {
-                    v.disabled = product.filterVariations(Object.assign(Object.assign({}, attributeValues), { [a.name]: v.value })).length === 0;
-                });
-            });
-            return a;
-        });
-    }, [attributeValues]);
-    (0,react.useEffect)(() => {
-        // console.log('useEffect[sku, variations, attributeValues]');
-        if (sku && !masterSelected) {
-            setPrice(product.variation(sku).price);
-        }
-        else {
-            setPrice(product.renderPriceFromVariation(new Price(), variations));
-        }
-    }, [variations, sku]);
-    const images = (0,react.useMemo)(() => {
-        var _a;
-        console.log({ sku, variations, masterSelected });
-        if (!masterSelected && sku) {
-            console.log({ variation: product.variation(sku) });
-            return product.variation(sku).images;
-        }
-        if (variations.length < product.variations.length) {
-            const imgs = new Set();
-            if (sku && !masterSelected) {
-                console.log({ variation: product.variation(sku) });
-                return product.variation(sku).images;
-            }
-            else {
-                variations.forEach((v) => v.images.map((src) => imgs.add(src)));
-            }
-            return Array.from(imgs);
-        }
-        return (_a = product === null || product === void 0 ? void 0 : product.images) !== null && _a !== void 0 ? _a : [];
-    }, [sku, variations, attributeValues]);
-    return (react.createElement("div", { className: 'bg-white p-4' },
-        ((_a = product === null || product === void 0 ? void 0 : product.variations) === null || _a === void 0 ? void 0 : _a.length) === 0 ? react.createElement("h2", { className: 'alert alert-danger' }, "This product is invalid") : null,
-        react.createElement("div", { className: 'd-grid gap-4 mx-auto', style: { gridTemplateColumns: 'min(50%,300px) 50%', maxWidth: 1200 } },
-            react.createElement("div", null,
-                react.createElement("div", { className: 'bg-light d-flex flex-wrap gap-3 p-3 rounded' },
-                    react.createElement("img", { style: { width: '100%', aspectRatio: '1/1', objectFit: 'contain', objectPosition: 'center' }, className: 'bg-white rounded', src: images[0] }),
-                    images.slice(1).map((src, i) => (react.createElement("img", { key: `img1-${i}`, style: { width: 120, height: 120, objectFit: 'contain', objectPosition: 'center' }, className: 'bg-white rounded', src: src }))))),
-            react.createElement("div", { className: 'd-flex flex-column gap-3 p-3' },
-                product.name.toLowerCase() !== ((_b = item === null || item === void 0 ? void 0 : item.name) !== null && _b !== void 0 ? _b : '').toLowerCase() ? react.createElement("h3", null, product.name) : null,
-                react.createElement("h1", { className: 'm-0' }, item === null || item === void 0 ? void 0 : item.name),
-                description ? react.createElement("p", { className: 'm-0', dangerouslySetInnerHTML: { __html: description } }) : null,
-                react.createElement(MasterPrices, { price: price }),
-                react.createElement("p", { className: 'm-0' }, sku),
-                react.createElement("div", { className: 'd-flex flex-column gap-3' },
-                    product.variations.length > 1 ? (react.createElement("div", { className: 'd-flex flex-column gap-2 bg-light p-3 border rounded' },
-                        react.createElement("label", { className: 'd-flex align-items-center' }, variations.length === 1 ? 'Selected...' : react.createElement(react.Fragment, null,
-                            "Quick Select (",
-                            variations.length,
-                            " items)")),
-                        react.createElement("select", { className: 'form-select', disabled: variations.length === 1, value: sku || '', onChange: selectSku },
-                            masterSelected ? react.createElement("option", { value: product.sku }, "Select item...") : null,
-                            variations.map((p, i) => (react.createElement("option", { key: `options-${p.sku}-${i}`, value: p.sku },
-                                p.sku,
-                                " ",
-                                p.name)))))) : null,
-                    attributeUI
-                        .filter((a) => a.values.length > 1)
-                        .map((attr) => {
-                        var _a;
-                        const name = attr.name;
-                        const values = attr.values.filter((attrValue, i) => !attrValue.disabled);
-                        const value = values.length === 1 ? values[0].value : (_a = attributeValues === null || attributeValues === void 0 ? void 0 : attributeValues[name]) !== null && _a !== void 0 ? _a : '';
-                        const selectDisabled = values.length === 1;
-                        const itemValue = itemAttributeValues === null || itemAttributeValues === void 0 ? void 0 : itemAttributeValues[name];
-                        return (react.createElement("div", { className: 'd-flex flex-column gap-2', key: `attr-${name}` },
-                            react.createElement("div", { className: 'd-flex justify-content-between align-items-center', key: `attr-${name}` },
-                                react.createElement("label", { className: 'text-bold text-capitalize' },
-                                    name,
-                                    " ",
-                                    values.length > 1 ? react.createElement("small", null,
-                                        "(",
-                                        values.length,
-                                        ")") : null),
-                                react.createElement("div", { style: { display: value && !selectDisabled ? '' : 'none' } },
-                                    react.createElement("button", { className: 'btn btn-sm btn-light rounded-pill px-3', onClick: () => {
-                                            setAttributeValues((a) => {
-                                                const d = Object.assign({}, a);
-                                                delete d[name];
-                                                return d;
-                                            });
-                                        } }, "clear"))),
-                            values.length === 0 ? (react.createElement("select", { className: 'form-select', disabled: true, value: 0 },
-                                react.createElement("option", { value: 0 }, "N/A"))) : (react.createElement(react.Fragment, null,
-                                react.createElement("select", { className: `form-select ${!sku && !value}`, name: name, size: Math.min(7, values.length > 1 ? values.length : null), value: value, onChange: selectAttr, disabled: selectDisabled },
-                                    values.length > 0 ? (react.createElement("option", { className: 'd-none', value: '' },
-                                        "Select ",
-                                        name,
-                                        "...")) : null,
-                                    values.map((attrValue, i) => (react.createElement("option", { key: `attr-${name}-value-${i}`, value: attrValue.value, className: itemValue === attrValue.value ? 'checked' : '' }, attrValue.value))))))));
-                    }),
-                    react.createElement("div", { style: { height: 32 } }),
-                    react.createElement("div", { className: 'p-3 bg-white shadow rounded-top', style: { transition: 'opacity 0.3s', position: 'sticky', bottom: 0, opacity: Object.keys(attributeValues).length > 0 || sku ? 1 : 0 } },
-                        react.createElement("div", { className: 'd-flex justify-content-stretch gap-3 w-100' },
-                            react.createElement("button", { className: 'btn btn-lg btn-primary', style: { flex: '0 0 66%' }, disabled: !sku }, "Add to Cart"),
-                            product.variations.length > 0 ? (react.createElement("button", { className: 'btn btn-lg btn-outline-secondary', style: { flex: '1 1 auto' }, disabled: Object.keys(attributeValues).length === 0 && !sku, onClick: clearChoices }, "clear choices")) : null)))))));
-};
-function formatPriceRange(range, currency = 'USD') {
-    const formatter = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD'
-    });
-    const eq = range.min === range.max;
-    const min = range.min > 0;
-    const max = range.max > 0;
-    if (eq && min) {
-        return formatter.format(range.min);
-    }
-    if (min && max) {
-        return [formatter.format(range.min), formatter.format(range.max)].join('-');
-    }
-    if (min) {
-        return formatter.format(range.min);
-    }
-    if (max) {
-        return formatter.format(range.max);
-    }
-    return '';
-}
-const MasterPrices = ({ price }) => {
-    const sale = formatPriceRange(price.sale);
-    const reg = formatPriceRange(price.regular);
-    return (react.createElement(react.Fragment, null,
-        sale ? react.createElement("h3", null,
-            "Sale: ",
-            sale) : null,
-        reg ? react.createElement("h3", null,
-            "Reg: ",
-            reg) : null));
+const HomePage = () => {
+    return (react.createElement("div", null,
+        react.createElement("h1", null, "Home Page")));
 };
 
 ;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/queryObserver.mjs
@@ -5827,6 +4579,17 @@ function shouldAssignObserverCurrentProperties(observer, optimisticResult, optio
 
 //# sourceMappingURL=queryObserver.mjs.map
 
+// EXTERNAL MODULE: ./node_modules/use-sync-external-store/shim/index.js
+var shim = __webpack_require__(688);
+;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/useSyncExternalStore.mjs
+'use client';
+
+
+const useSyncExternalStore = shim.useSyncExternalStore;
+
+
+//# sourceMappingURL=useSyncExternalStore.mjs.map
+
 ;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/QueryErrorResetBoundary.mjs
 'use client';
 
@@ -5954,7 +4717,7 @@ const fetchOptimistic = (defaultedOptions, observer, errorResetBoundary) => obse
 
 
 function useBaseQuery(options, Observer) {
-  const queryClient = QueryClientProvider_useQueryClient({
+  const queryClient = useQueryClient({
     context: options.context
   });
   const isRestoring = useIsRestoring();
@@ -6021,1059 +4784,13 @@ function useBaseQuery(options, Observer) {
 
 
 
-function useQuery_useQuery(arg1, arg2, arg3) {
+function useQuery(arg1, arg2, arg3) {
   const parsedOptions = parseQueryArgs(arg1, arg2, arg3);
   return useBaseQuery(parsedOptions, QueryObserver);
 }
 
 
 //# sourceMappingURL=useQuery.mjs.map
-
-;// CONCATENATED MODULE: ./src/utils/isset.tsx
-function isset(o, k) {
-    return Object.prototype.hasOwnProperty.call(o, k) && o[k] !== null && o[k] !== undefined && o[k] !== 'undefined';
-}
-
-;// CONCATENATED MODULE: ./src/utils/useStats.tsx
-
-
-const StatsContext = react.createContext(null);
-function useStats_StatsProvider({ children }) {
-    const [stats, setStats] = useState({});
-    const update = (delta) => {
-        setStats((s) => Object.keys(delta).reduce((o, k) => {
-            if (!o[k])
-                o[k] = 0;
-            if (delta[k])
-                o[k] += delta[k];
-            return o;
-        }, Object.assign({}, s)));
-    };
-    return React.createElement(StatsContext.Provider, { value: { stats, update } }, children);
-}
-function useStats_useStats() {
-    return useContext(StatsContext);
-}
-
-;// CONCATENATED MODULE: ./src/views/western/ProductContextProvider.tsx
-var ProductContextProvider_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-
-
-
-
-
-
-const ProductContext = react.createContext(null);
-const ProductContextProvider_ProductContextProvider = ({ productId, supplier = 'western', children }) => {
-    const [info, setInfo] = useState({ isReady: false, supplier, srcProduct: null, srcVariationLookup: null, wooParent: null, wooVariations: null, wooVariationsLookup: null, uniProduct: null });
-    useEffect(() => {
-        let mounted = true;
-        const go = () => ProductContextProvider_awaiter(void 0, void 0, void 0, function* () {
-            const srcProduct = yield fetchWesternProduct(productId);
-            const uniProduct = Product.fromWesternProduct(srcProduct);
-            const wooSku = uniProduct.sku; // `MASTER_${productId}`;//srcProduct.items.data.length===1 ? srcProduct.items.data[0].sku : `MASTER_${productId}`;
-            const wooParent = yield fetchWooProductBySku(wooSku, Object.assign({ includes: westernProductIncludes }, cacheBust()));
-            const srcVariationLookup = lookup(srcProduct.items.data, 'sku');
-            const wooVariations = (wooParent === null || wooParent === void 0 ? void 0 : wooParent.id) ? (yield fetchWooProductVariations(wooParent.id, cacheBust())).data : [];
-            const wooVariationsLookup = wooVariations ? lookup(wooVariations, 'sku') : null;
-            uniProduct.variations.forEach((v) => v.attribute('sku', v.sku));
-            if (mounted) {
-                setInfo((o) => (Object.assign(Object.assign({}, o), { isReady: true, srcProduct, srcVariationLookup, wooParent, wooVariations, wooVariationsLookup, uniProduct })));
-            }
-        });
-        go();
-        return () => {
-            mounted = false;
-        };
-    }, []);
-    return React.createElement(ProductContext.Provider, { value: Object.assign({}, info) }, children);
-};
-const ProductContextProvider_useProductContext = () => {
-    return React.useContext(ProductContext);
-};
-
-;// CONCATENATED MODULE: ./src/views/western/WesternProducts.tsx
-var WesternProducts_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-
-
-
-
-
-
-
-
-
-const WesternProducts_isValidProduct = (p) => {
-    var _a, _b, _c;
-    if (!((_a = p === null || p === void 0 ? void 0 : p.items) === null || _a === void 0 ? void 0 : _a.data))
-        return false;
-    if (((_c = (_b = p.items) === null || _b === void 0 ? void 0 : _b.data) === null || _c === void 0 ? void 0 : _c.length) === 0)
-        return false;
-    if (p.items.data.filter(WesternProducts_isValidItem).length === 0)
-        return false;
-    return true;
-};
-const WesternProducts_isValidItem = (item) => {
-    return item.status_id !== IWesternItemStatus.NLA;
-};
-function useProductStats() {
-    return useStats();
-}
-const ProductStatsInfo = () => {
-    var _a, _b, _c, _d;
-    const { stats } = useProductStats();
-    return (React.createElement(React.Fragment, null, (_b = (_a = stats === null || stats === void 0 ? void 0 : stats.products) === null || _a === void 0 ? void 0 : _a.toLocaleString()) !== null && _b !== void 0 ? _b : 0,
-        " products / ", (_d = (_c = stats === null || stats === void 0 ? void 0 : stats.items) === null || _c === void 0 ? void 0 : _c.toLocaleString()) !== null && _d !== void 0 ? _d : 0,
-        " items"));
-};
-const WesternProducts = () => {
-    return (React.createElement(StatsProvider, null,
-        React.createElement("div", { className: 'card' },
-            React.createElement("div", { className: 'card-body' },
-                React.createElement("p", null,
-                    React.createElement(ProductStatsInfo, null)),
-                React.createElement("table", { className: 'table table-sm' },
-                    React.createElement("thead", null,
-                        React.createElement("tr", null,
-                            React.createElement("th", null, "#"),
-                            React.createElement("th", null, "ID"),
-                            React.createElement("th", null, "Woo"),
-                            React.createElement("th", null, "Status"),
-                            React.createElement("th", null, "Name"),
-                            React.createElement("th", null, "Items (new/woo)"),
-                            React.createElement("th", null, "Woo ID"),
-                            React.createElement("th", null, "Action"))),
-                    React.createElement("tbody", null,
-                        React.createElement(WesternProductsPage, null)))))));
-};
-const WesternProductsPage = ({ cursor, startIndex = 0 }) => {
-    const stats = useProductStats();
-    const [statInfo, setStatInfo] = useState(null);
-    // const [products, setProducts] = useState<IWesternProductExt[]>([]);
-    const [products, setProducts] = useState([]);
-    const [submitStats, setSubmitStats] = useState(false);
-    const [nextCursor, setNextCursor] = useState('');
-    const [nextStartIndex, setNextStartIndex] = useState(0);
-    useEffect(() => {
-        let mounted = true;
-        const go = () => WesternProducts_awaiter(void 0, void 0, void 0, function* () {
-            const _products = yield fetchWesternProductsPage(cursor, 3);
-            if (!mounted)
-                return;
-            // setProducts(_products.data);
-            const itemsCount = _products.data.reduce((a, p) => a + p.items.data.length, 0);
-            // const ids = _products.data.reduce((a, p) => [...a, `MASTER_${p.id}`, ...p.items.data.map((e) => e.sku)], []);
-            const uniProducts = _products.data.map((p) => Product.fromWesternProduct(p));
-            const ids = uniProducts.map((p) => p.sku);
-            console.log({ ids });
-            console.log({ uniProducts });
-            const check = yield fetchWooProductsBySku(ids);
-            if (!mounted)
-                return;
-            const checkLookup = lookup(check, 'sku'); // check.reduce((o, p) => ({ ...o, [p.sku]: p }), {});
-            uniProducts.forEach((p) => {
-                if (checkLookup === null || checkLookup === void 0 ? void 0 : checkLookup[p.sku]) {
-                    p.woo = checkLookup[p.sku];
-                }
-                // p.woo = checkLookup?.[p.sku] ?? { sku: null, date_modified: null };
-                // p.items.data.map((e) => (e.woo = checkLookup?.[e.sku] ?? null));
-            });
-            setProducts(uniProducts);
-            setStatInfo({ products: _products.data.length, items: itemsCount });
-            setSubmitStats(true);
-            setNextStartIndex(startIndex + _products.data.length);
-            setNextCursor(_products.meta.cursor.next);
-        });
-        go();
-        () => {
-            mounted = false;
-        };
-    }, []);
-    useEffect(() => {
-        if (submitStats) {
-            stats.update(statInfo);
-        }
-    }, [submitStats]);
-    return (React.createElement(React.Fragment, null,
-        products.map((p, i) => (React.createElement(ProductContextProvider, { key: `row_${p.id}`, productId: p.id },
-            React.createElement(ProductsPageRow, { product: p, index: startIndex + i })))),
-        nextCursor && nextStartIndex < 3 ? (React.createElement(WesternProductsPage, { cursor: nextCursor, startIndex: nextStartIndex })) : (React.createElement("tr", null,
-            React.createElement("td", { colSpan: 5 }, "complete")))));
-    // }
-};
-const itemNeedsUpdate = (p) => {
-    var _a;
-    if ((_a = p.woo) === null || _a === void 0 ? void 0 : _a.sku) {
-        const d1 = new Date(Date.parse(p.updated_at));
-        const d2 = new Date(Date.parse(p.woo.date_modified));
-        return d1 > d2;
-    }
-    return false;
-};
-const itemNeedsInsert = (p) => {
-    var _a;
-    return !((_a = p === null || p === void 0 ? void 0 : p.woo) === null || _a === void 0 ? void 0 : _a.sku);
-};
-function WesternProducts_cacheBust() {
-    const array = new Uint32Array(1);
-    self.crypto.getRandomValues(array);
-    return { cachebust: array[0] };
-}
-var ProductProblem;
-(function (ProductProblem) {
-    ProductProblem["VARIATIONS_NOT_SYNCED"] = "variation counts do not match";
-})(ProductProblem || (ProductProblem = {}));
-function productVariationToWooVariation(item, masterAttributes) {
-    return {
-        sku: item.sku,
-        name: item.name,
-        stock_status: 'in_stock',
-        stock_quantity: 10,
-        regular_price: item.price.toString(),
-        description: item.description,
-        image: { name: '', src: item.images[0] },
-        _ci_additional_images: item.images,
-        _ci_data: JSON.stringify({ id: item.id })
-        // attributes: [{ id: skuAttrId, name: 'sku', option: item.sku }]
-    };
-}
-const ProductsPageRow = ({ product: product, index }) => {
-    var _a, _b, _c, _d, _e, _f;
-    const nav = useNavigate();
-    const productContext = useProductContext();
-    const inWoo = (_a = product.woo) === null || _a === void 0 ? void 0 : _a.id;
-    const doAction = (e) => WesternProducts_awaiter(void 0, void 0, void 0, function* () {
-        var _g, _h, _j, _k;
-        e.stopPropagation();
-        let result;
-        console.log({ srcProduct: productContext.srcProduct });
-        console.log({ wooParent: productContext.wooParent });
-        console.log({ wooVariations: productContext.wooVariations });
-        console.log({ uniProduct: productContext.uniProduct });
-        const rows = [];
-        if (productContext.uniProduct.variations.length === 1) {
-            const wooUpdate = new Date(Date.parse((_h = (_g = productContext.uniProduct.woo) === null || _g === void 0 ? void 0 : _g.date_modified) !== null && _h !== void 0 ? _h : '1970'));
-            if ((_j = productContext.wooParent) === null || _j === void 0 ? void 0 : _j.id) {
-                if (productContext.uniProduct.updated > wooUpdate) {
-                    rows.push({ action: 'update', type: 'simple', srcId: productContext.srcProduct.id, srcSku: productContext.srcProduct.items.data[0].sku, wooSku: productContext.uniProduct.sku });
-                }
-            }
-            else {
-                rows.push({ action: 'insert', type: 'simple', srcId: productContext.srcProduct.id, srcSku: productContext.srcProduct.items.data[0].sku, wooSku: productContext.uniProduct.sku });
-            }
-            //   if (productContext.wooParent?.id) {
-            //     // const exists = await fetchWooProductExists(productContext.uniProduct.sku);
-            //     // console.log('simple', { exists });
-            //     const srcItem = productContext.srcProduct;
-            //     const wooItem = productContext.wooParent;
-            //     const srcUpdated = srcItem?.updated_at ? new Date(Date.parse(srcItem.updated_at)) : null;
-            //     const wooUpdate = wooItem?.date_modified ? new Date(Date.parse(wooItem?.date_modified)) : null;
-            //     if (srcUpdated > wooUpdate) {
-            //       const payload = productContext.uniProduct.toWoo();
-            //       delete payload.sale_price;
-            //       delete payload.description;
-            //       console.log({ payload });
-            //       result = await fetchWooAPI(`/products/${productContext.wooParent.id}`, { regular_price: payload.regular_price }, 'put');
-            //       console.log('update', result);
-            //     }
-            //   } else {
-            //     result = await fetchWooAPI(`/products`, productContext.uniProduct.toWoo(), 'post');
-            //     console.log('insert', result);
-            //   }
-        }
-        else {
-            // create parent prodiuct if not exist
-            if (!((_k = productContext.wooParent) === null || _k === void 0 ? void 0 : _k.id)) {
-                rows.push({ action: 'insert', type: 'variable', srcId: productContext.srcProduct.id });
-            }
-            // find variations to delete in woo
-            const deleteWooVariations = productContext.wooVariations.filter((v) => { var _a, _b; return ((_b = (_a = productContext.srcVariationLookup) === null || _a === void 0 ? void 0 : _a[v.sku]) === null || _b === void 0 ? void 0 : _b.sku) !== v.sku; });
-            console.log({ deleteWooVariations });
-            for (var i = 0; i < deleteWooVariations.length; i++) {
-                rows.push({ action: 'delete', type: 'variation', wooId: deleteWooVariations[i].id, wooSku: deleteWooVariations[i].sku });
-                // result = await fetchWooAPI(`/products/${productContext.wooParent.id}/variations/${deleteWooVariations[i].id}`, null, 'delete');
-                // console.log('delete', result);
-            }
-            // find variations to insert from src
-            const insertWooVariations = productContext.srcProduct.items.data.filter((v) => { var _a, _b; return ((_b = (_a = productContext.wooVariationsLookup) === null || _a === void 0 ? void 0 : _a[v.sku]) === null || _b === void 0 ? void 0 : _b.sku) !== v.sku; });
-            console.log({ insertWooVariations });
-            for (let i = 0; i < insertWooVariations.length; i++) {
-                rows.push({ action: 'insert', type: 'variation', srcId: insertWooVariations[i].id, srcSku: insertWooVariations[i].sku });
-                // const exists = await fetchWooProductExists(insertWooVariations[i].sku);
-                // if (!exists) {
-                //   console.log(insertWooVariations[i].sku, { exists });
-                //   const payload = productContext.uniProduct.variation(insertWooVariations[i].sku).toWoo();
-                //   payload.parent_id = productContext.wooParent.id;
-                //   console.log({ payload });
-                //   result = await fetchWooAPI(`/products/${productContext.wooParent.id}/variations`, [payload], 'post');
-                //   console.log('insert', result);
-                //   console.log({ payload: { sku: payload.sku } });
-                //   console.log({ result: { sku: result.sku } });
-                //   if (payload.sku !== result.sku) {
-                //     result = await fetchWooAPI(`/products/${productContext.wooParent.id}/variations/${result.id}`, { sku: insertWooVariations[i].sku }, 'put');
-                //     console.log('update insert', result);
-                //   }
-                // } else {
-                //   console.error('Product already exists in Woo - this should be an updated');
-                // }
-            }
-            const updateWooVariations = productContext.wooVariations
-                .filter((v) => { var _a, _b; return ((_b = (_a = productContext.srcVariationLookup) === null || _a === void 0 ? void 0 : _a[v.sku]) === null || _b === void 0 ? void 0 : _b.sku) === v.sku; })
-                .filter((v) => {
-                const sku = v.sku;
-                const srcItem = productContext.srcProduct.items.data.find((e) => e.sku === sku);
-                const wooItem = productContext.wooVariations.find((e) => e.sku === sku);
-                const srcUpdated = (srcItem === null || srcItem === void 0 ? void 0 : srcItem.updated_at) ? new Date(Date.parse(srcItem.updated_at)) : null;
-                const wooUpdate = (wooItem === null || wooItem === void 0 ? void 0 : wooItem.date_modified) ? new Date(Date.parse(wooItem === null || wooItem === void 0 ? void 0 : wooItem.date_modified)) : null;
-                return srcUpdated > wooUpdate;
-            });
-            for (let i = 0; i < updateWooVariations.length; i++) {
-                rows.push({ action: 'update', type: 'variation', wooProductId: productContext.wooParent.id, wooId: updateWooVariations[i].id, wooSku: updateWooVariations[i].sku });
-            }
-            // update parent product attribute values
-            if (deleteWooVariations.length > 0 || insertWooVariations.length > 0) {
-                const attributes = productContext.uniProduct.attributes.filter((a) => a.values.length > 1).map((a) => a.toWoo());
-                console.log({ attributes });
-                rows.push({ action: 'update', type: 'variable', wooProductId: productContext.uniProduct.sku });
-                // result = await fetchWooAPI(`/products/${productContext.wooParent.id}`, { id: productContext.wooParent.id, attributes }, 'put');
-                // console.log({ result });
-            }
-        }
-        // console.log({ updateWooVariations });
-        rows.forEach((r) => {
-            var _a, _b;
-            r.wooProductId = (_b = (_a = productContext.wooParent) === null || _a === void 0 ? void 0 : _a.id) !== null && _b !== void 0 ? _b : '';
-            r.wooProductSku = productContext.uniProduct.sku;
-        });
-        console.table(rows, ['action', 'type', 'wooProductId', 'wooProductSku', 'wooId', 'wooSku', 'srcId', 'srcSku']);
-        return;
-    });
-    return (React.createElement("tr", { key: product.id, className: 'pointer', onClick: () => nav(`/western/product/${product.id}`) },
-        React.createElement("td", null, index),
-        React.createElement("td", null, product.id),
-        React.createElement("td", null, inWoo ? '✓' : '×'),
-        React.createElement("td", null, product.updated.toISOString()),
-        React.createElement("td", null, product.name),
-        React.createElement("td", null,
-            product.variations.length,
-            " /", (_d = (_c = (_b = product.woo) === null || _b === void 0 ? void 0 : _b.variations) === null || _c === void 0 ? void 0 : _c.length) !== null && _d !== void 0 ? _d : '?'),
-        React.createElement("td", null,
-            React.createElement("a", { href: `https://tayloredblank4dev.kinsta.cloud?p=${(_e = product === null || product === void 0 ? void 0 : product.woo) === null || _e === void 0 ? void 0 : _e.id}`, className: 'link', target: '_blank', onClick: (e) => e.stopPropagation() }, (_f = product === null || product === void 0 ? void 0 : product.woo) === null || _f === void 0 ? void 0 : _f.id)),
-        React.createElement("td", null,
-            React.createElement("button", { className: 'btn badge text-bg-secondary', onClick: doAction }, "Update"))));
-};
-const WesternProductsPageRow = ({ product: product, index }) => {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j;
-    const productContext = useProductContext();
-    const nav = useNavigate();
-    const needsUpdate = itemNeedsUpdate(product);
-    const hasWoo = !!(product === null || product === void 0 ? void 0 : product.woo);
-    const inWoo = !!((_a = product.woo) === null || _a === void 0 ? void 0 : _a.sku);
-    const [liveWooVariations, setLiveWooVariations] = useState([]);
-    const [problems, setProblems] = useState([]);
-    const addProblem = (issue) => {
-        setProblems((probs) => (probs.indexOf(issue) === -1 ? [...probs, issue] : probs));
-    };
-    useEffect(() => {
-        var _a;
-        if ((_a = product.woo) === null || _a === void 0 ? void 0 : _a.id) {
-            // fetchWooProductVariations(product.woo.id, cacheBust()).then(setLiveWooVariations);
-        }
-    }, [product.woo]);
-    useEffect(() => {
-        if (liveWooVariations.length !== product.items.data.length) {
-            addProblem(ProductProblem.VARIATIONS_NOT_SYNCED);
-        }
-    }, [liveWooVariations]);
-    useEffect(() => {
-        if (productContext.isReady) {
-        }
-    }, [productContext.isReady]);
-    const doAction = (e) => WesternProducts_awaiter(void 0, void 0, void 0, function* () {
-        var _k, _l, _m, _o, _p, _q, _r;
-        e.stopPropagation();
-        let result;
-        console.log({ srcProduct: productContext.srcProduct });
-        console.log({ wooParent: productContext.wooParent });
-        console.log({ wooVariations: productContext.wooVariations });
-        console.log({ uniProduct: productContext.uniProduct });
-        if (productContext.uniProduct.variations.length === 1) {
-            if ((_k = productContext.wooParent) === null || _k === void 0 ? void 0 : _k.id) {
-                // const exists = await fetchWooProductExists(productContext.uniProduct.sku);
-                // console.log('simple', { exists });
-                const srcItem = productContext.srcProduct;
-                const wooItem = productContext.wooParent;
-                const srcUpdated = (srcItem === null || srcItem === void 0 ? void 0 : srcItem.updated_at) ? new Date(Date.parse(srcItem.updated_at)) : null;
-                const wooUpdate = (wooItem === null || wooItem === void 0 ? void 0 : wooItem.date_modified) ? new Date(Date.parse(wooItem === null || wooItem === void 0 ? void 0 : wooItem.date_modified)) : null;
-                if (srcUpdated > wooUpdate) {
-                    const payload = productContext.uniProduct.toWoo();
-                    delete payload.sale_price;
-                    delete payload.description;
-                    console.log({ payload });
-                    result = yield fetchWooAPI(`/products/${productContext.wooParent.id}`, { regular_price: payload.regular_price }, 'put');
-                    console.log('update', result);
-                }
-            }
-            else {
-                result = yield fetchWooAPI(`/products`, productContext.uniProduct.toWoo(), 'post');
-                console.log('insert', result);
-            }
-            return;
-        }
-        // result = await fetchWooAPI(`/products/${productContext.wooParent.id}/variations/88375`, { sku: '015-01001' }, 'put');
-        // console.log('test', result);
-        // return;
-        const rows = [];
-        // find variations to delete in woo
-        const deleteWooVariations = productContext.wooVariations.filter((v) => { var _a, _b; return ((_b = (_a = productContext.srcVariationLookup) === null || _a === void 0 ? void 0 : _a[v.sku]) === null || _b === void 0 ? void 0 : _b.sku) !== v.sku; });
-        console.log({ deleteWooVariations });
-        for (var i = 0; i < deleteWooVariations.length; i++) {
-            rows.push({ action: 'delete', wooProductId: productContext.wooParent.id, wooVariationId: deleteWooVariations[i].id, wooVariationSku: deleteWooVariations[i].sku });
-            result = yield fetchWooAPI(`/products/${productContext.wooParent.id}/variations/${deleteWooVariations[i].id}`, null, 'delete');
-            console.log('delete', result);
-        }
-        // find variations to insert from src
-        const insertWooVariations = productContext.srcProduct.items.data.filter((v) => { var _a, _b; return ((_b = (_a = productContext.wooVariationsLookup) === null || _a === void 0 ? void 0 : _a[v.sku]) === null || _b === void 0 ? void 0 : _b.sku) !== v.sku; });
-        console.log({ insertWooVariations });
-        for (let i = 0; i < insertWooVariations.length; i++) {
-            rows.push({ action: 'insert', wooProductId: productContext.wooParent.id, wooVariationId: null, wooVariationSku: insertWooVariations[i].sku });
-            const exists = yield fetchWooProductExists(insertWooVariations[i].sku);
-            if (!exists) {
-                console.log(insertWooVariations[i].sku, { exists });
-                const payload = productContext.uniProduct.variation(insertWooVariations[i].sku).toWoo();
-                payload.parent_id = productContext.wooParent.id;
-                console.log({ payload });
-                result = yield fetchWooAPI(`/products/${productContext.wooParent.id}/variations`, [payload], 'post');
-                console.log('insert', result);
-                console.log({ payload: { sku: payload.sku } });
-                console.log({ result: { sku: result.sku } });
-                if (payload.sku !== result.sku) {
-                    result = yield fetchWooAPI(`/products/${productContext.wooParent.id}/variations/${result.id}`, { sku: insertWooVariations[i].sku }, 'put');
-                    console.log('update insert', result);
-                }
-            }
-            else {
-                console.error('Product already exists in Woo - this should be an updated');
-            }
-        }
-        const updateWooVariations = productContext.wooVariations
-            .filter((v) => { var _a, _b; return ((_b = (_a = productContext.srcVariationLookup) === null || _a === void 0 ? void 0 : _a[v.sku]) === null || _b === void 0 ? void 0 : _b.sku) === v.sku; })
-            .filter((v) => {
-            const sku = v.sku;
-            const srcItem = productContext.srcProduct.items.data.find((e) => e.sku === sku);
-            const wooItem = productContext.wooVariations.find((e) => e.sku === sku);
-            const srcUpdated = (srcItem === null || srcItem === void 0 ? void 0 : srcItem.updated_at) ? new Date(Date.parse(srcItem.updated_at)) : null;
-            const wooUpdate = (wooItem === null || wooItem === void 0 ? void 0 : wooItem.date_modified) ? new Date(Date.parse(wooItem === null || wooItem === void 0 ? void 0 : wooItem.date_modified)) : null;
-            return srcUpdated > wooUpdate;
-        });
-        for (let i = 0; i < updateWooVariations.length; i++) {
-            rows.push({ action: 'update', wooProductId: productContext.wooParent.id, wooVariationId: updateWooVariations[i].id, wooVariationSku: updateWooVariations[i].sku });
-        }
-        console.log({ updateWooVariations });
-        console.table(rows);
-        if (deleteWooVariations.length > 0 || insertWooVariations.length > 0) {
-            // update parent product attribute values
-            const attributes = productContext.uniProduct.attributes.filter((a) => a.values.length > 1).map((a) => a.toWoo());
-            console.log({ attributes });
-            result = yield fetchWooAPI(`/products/${productContext.wooParent.id}`, { id: productContext.wooParent.id, attributes }, 'put');
-            console.log({ result });
-        }
-        return;
-        const uniqueSkus = Array.from(new Set([...productContext.wooVariations.map((v) => v.sku), ...productContext.srcProduct.items.data.map((e) => e.sku)])).sort();
-        if (productContext.isReady) {
-            const deleteSkus = productContext.wooVariations.filter((v) => { var _a; return !((_a = productContext.srcVariationLookup) === null || _a === void 0 ? void 0 : _a[v.sku]); });
-            const rows = [];
-            for (let i = 0; i < uniqueSkus.length; i++) {
-                const sku = uniqueSkus[i];
-                const srcItem = productContext.srcProduct.items.data.find((e) => e.sku === sku);
-                const wooItem = productContext.wooVariations.find((e) => e.sku === sku);
-                const src = productContext.srcProduct.items.data[i];
-                // const isVariation = await fetchIsWooProductVariationBySku(product.woo.id, src.sku, cacheBust());
-                const exists = yield fetchWooProductExists(sku);
-                const srcUpdated = (srcItem === null || srcItem === void 0 ? void 0 : srcItem.updated_at) ? new Date(Date.parse(srcItem.updated_at)) : null;
-                const wooUpdate = (wooItem === null || wooItem === void 0 ? void 0 : wooItem.date_modified) ? new Date(Date.parse(wooItem === null || wooItem === void 0 ? void 0 : wooItem.date_modified)) : null;
-                let action = 'none';
-                if ((wooItem === null || wooItem === void 0 ? void 0 : wooItem.id) && !(srcItem === null || srcItem === void 0 ? void 0 : srcItem.id)) {
-                    action = 'delete';
-                }
-                else if (!(wooItem === null || wooItem === void 0 ? void 0 : wooItem.id) && (srcItem === null || srcItem === void 0 ? void 0 : srcItem.id)) {
-                    action = 'insert';
-                }
-                else if ((wooItem === null || wooItem === void 0 ? void 0 : wooItem.id) && (srcItem === null || srcItem === void 0 ? void 0 : srcItem.id)) {
-                    if (srcUpdated > wooUpdate) {
-                        action = 'update';
-                    }
-                }
-                rows.push({
-                    src_id: srcItem === null || srcItem === void 0 ? void 0 : srcItem.id,
-                    src_sku: srcItem === null || srcItem === void 0 ? void 0 : srcItem.sku,
-                    woo_id: wooItem === null || wooItem === void 0 ? void 0 : wooItem.id,
-                    woo_sku: wooItem === null || wooItem === void 0 ? void 0 : wooItem.sku,
-                    src_updated: srcUpdated,
-                    woo_updated: wooUpdate,
-                    woo_exists: exists,
-                    // isVariation: isVariation,
-                    action //: !exists && !isVariation ? 'insert' : productContext.wooVariationsLookup[src.sku]?.sku === src.sku ? 'none' : 'update'
-                });
-            }
-            console.table(rows);
-            let result;
-            let path;
-            let payload;
-            for (let i = 0; i < rows.length; i++) {
-                const row = rows[i];
-                switch (row.action) {
-                    case 'delete':
-                        path = `/products/${productContext.wooParent.id}/variations/${row.woo_id}`;
-                        console.log('delete', path);
-                        result = yield fetchWooAPI(path, null, 'delete');
-                        console.log(row.action, result);
-                        break;
-                    case 'insert':
-                        path = `/products/${productContext.wooParent.id}/variations`;
-                        payload = productContext.uniProduct.variation(row.src_sku).toWoo();
-                        delete payload.id;
-                        console.log('insert', { path, payload });
-                        // result = await fetchWooAPI(path, [item], 'post');
-                        // console.log(row.action, result);
-                        break;
-                    case 'update':
-                        break;
-                }
-            }
-            return;
-            // const insertSkus = wooVariations.filter((v) => !masterVariationLookup?.[v.sku]);
-            const updateSkus = [];
-            const insertSkus = productContext.srcProduct.items.data
-                .filter((v) => { var _a; return !((_a = productContext.wooVariationsLookup) === null || _a === void 0 ? void 0 : _a[v.sku]); })
-                .filter((item) => WesternProducts_awaiter(void 0, void 0, void 0, function* () {
-                const exists = fetchWooProductExists(item.sku);
-                if (exists) {
-                    updateSkus.push(item);
-                    return false;
-                }
-                return !exists;
-            }));
-            deleteSkus.forEach((e, i) => console.log('delete', e.sku, e.id));
-            insertSkus.forEach((e, i) => console.log('insert', e.sku, e.id));
-            updateSkus.forEach((e, i) => console.log('update', e.sku, e.id));
-        }
-        return;
-        // const r = await fetchWooAPI(`/products/19580/variations/88356`, null, 'delete');
-        // console.log({ r });
-        // // return;
-        if (inWoo) {
-            const srcProduct = yield fetchWesternProduct(product.id);
-            // const itemUpdates = masterProduct.items.data.filter(itemNeedsUpdate);
-            // const itemInserts = masterProduct.items.data.filter(itemNeedsInsert);
-            const srcVariationLookup = lookup(srcProduct.items.data, 'sku');
-            const wooParent = (yield fetchWooProduct(product.woo.id, WesternProducts_cacheBust())).data;
-            const wooVariations = (yield fetchWooProductVariations(product.woo.id, WesternProducts_cacheBust())).data;
-            const wooVariationsLookup = lookup(wooVariations, 'sku');
-            const skuAttrId = (_o = (_m = (_l = wooParent.attributes.filter((a) => a.name === 'sku')) === null || _l === void 0 ? void 0 : _l[0]) === null || _m === void 0 ? void 0 : _m.id) !== null && _o !== void 0 ? _o : -1;
-            const uniProduct = Product.fromWesternProduct(srcProduct);
-            uniProduct.variations.forEach((v) => v.attribute('sku', v.sku));
-            // console.log({ product });
-            console.log({ srcProduct });
-            console.log({ srcVariationLookup });
-            console.log({ skuAttrId });
-            // console.log({ itemUpdates, itemInserts, items: masterProduct.items });
-            console.log({ wooParent });
-            console.log({ wooVariations });
-            console.log({ wooVariationsLookup });
-            // srcProduct.items.data.forEach((i, e) => console.log('master --> item', e, i.sku, '=>', wooVariationsLookup[i.sku]?.id));
-            const rows = [];
-            for (let i = 0; i < srcProduct.items.data.length; i++) {
-                const src = srcProduct.items.data[i];
-                const isVariation = yield fetchIsWooProductVariationBySku(product.woo.id, src.sku, WesternProducts_cacheBust());
-                const exists = yield fetchWooProductExists(src.sku);
-                rows.push({
-                    'src.id': src.id,
-                    'src.sku': src.sku,
-                    'woo.id': (_p = wooVariationsLookup[src.sku]) === null || _p === void 0 ? void 0 : _p.id,
-                    'woo.sku': (_q = wooVariationsLookup[src.sku]) === null || _q === void 0 ? void 0 : _q.sku,
-                    'woo.exists': exists,
-                    isVariation: isVariation,
-                    action: !exists && !isVariation ? 'insert' : ((_r = wooVariationsLookup[src.sku]) === null || _r === void 0 ? void 0 : _r.sku) === src.sku ? 'none' : 'update'
-                });
-            }
-            console.table(rows);
-            return;
-            // const inserts = rows.filter((r) => r.action === 'insert').map((r) => srcProduct.items.data.filter((item) => item.sku === r.sku));
-            const inserts = rows.filter((r) => r.action === 'insert').map((r) => uniProduct.variation(r.sku).toWoo());
-            // console.log({ insert:inserts[0] });
-            // delete inserts[0].id;
-            const z = yield fetchWooAPI(`/products/${product.woo.id}/variations`, inserts, 'post');
-            console.log({ z });
-            return;
-            console.log('wooVariations:');
-            wooVariations.forEach((e, i) => { var _a; return console.log('woo --> variation', i, e.sku, '=>', (_a = srcVariationLookup[e.sku]) === null || _a === void 0 ? void 0 : _a.id); });
-            //
-            // DELETE VARIATIONS - check for orphaned veriations that are no longer needed
-            //
-            const deleteSkus = wooVariations.filter((v) => !(srcVariationLookup === null || srcVariationLookup === void 0 ? void 0 : srcVariationLookup[v.sku]));
-            // const insertSkus = wooVariations.filter((v) => !masterVariationLookup?.[v.sku]);
-            const updateSkus = [];
-            const insertSkus = srcProduct.items.data
-                .filter((v) => !(wooVariationsLookup === null || wooVariationsLookup === void 0 ? void 0 : wooVariationsLookup[v.sku]))
-                .filter((item) => WesternProducts_awaiter(void 0, void 0, void 0, function* () {
-                const exists = fetchWooProductExists(item.sku);
-                if (exists)
-                    updateSkus.push(item);
-                return !exists;
-            }));
-            deleteSkus.forEach((e, i) => console.log('delete', e.sku, e.id));
-            insertSkus.forEach((e, i) => console.log('insert', e.sku, e.id));
-            updateSkus.forEach((e, i) => console.log('update', e.sku, e.id));
-            const xxx = yield fetchWooAPI(`/products/19580/variations/387`, { sale_price: '99.99' }, 'put');
-            console.log({ xxx });
-            return;
-            insertSkus.slice(0, 1).forEach((e) => WesternProducts_awaiter(void 0, void 0, void 0, function* () {
-                const variation = uniProduct.variation(e.sku);
-                const wooVariation = variation.toWoo();
-                const exists = yield fetchWooProductExists(e.sku);
-                const test = (yield fetchWooAPI(`/products/${wooParent.id}/variations/${e.id}`, null, 'get')).data;
-                console.log({ test });
-                if ((test === null || test === void 0 ? void 0 : test.id) === e.id) {
-                    console.log(e.id, e.sku, 'this exists under this product');
-                    const delta = { attributes: wooVariation.attributes.map((a) => ({ id: a.id, option: a.option })) };
-                    console.log({ delta });
-                    const insertResult = yield fetchWooAPI(`/products/${wooParent.id}/variations/${e.id}`, delta, 'put');
-                    console.log({ exists });
-                    console.log({ wooVariation });
-                    console.log({ insertResult });
-                }
-                else {
-                    console.log({ exists, wooVariation });
-                    const insertResult = yield fetchWooAPI(`/products/${wooParent.id}/variations`, wooVariation, 'post');
-                    console.log({ insertResult });
-                }
-            }));
-            // const variations = universalProduct.variations.map<Partial<IWooVariation>>((item) => {
-            // })
-            return;
-            console.log({ deleteSkus });
-            deleteSkus.forEach((v) => WesternProducts_awaiter(void 0, void 0, void 0, function* () {
-                const deleteResult = yield fetchWooAPI(`/products/${wooParent.id}/variations/${v.id}`, null, 'delete');
-                console.log({ deleteResult });
-            }));
-            //
-            //
-            //
-            // const variations = universalProduct.variations.map<Partial<IWooVariation>>((item) => {
-            //   return {
-            //     sku: item.sku,
-            //     name: item.name,
-            //     stock_status: 'in_stock',
-            //     stock_quantity: 10,
-            //     regular_price: item.price,
-            //     description: item.description,
-            //     image: { name: '', src: item.thumbnail } as IWooImage,
-            //     _ci_additional_images: item.images,
-            //     _ci_data: JSON.stringify({ id: item.id }),
-            //     attributes: [{ id: skuAttrId, name: 'sku', option: item.sku }]
-            //   };
-            // });
-            // console.log({ variations });
-            // const updateResult = await fetchWooAPI(`products/${wooParent.id}/variations`, variations, 'post');
-            // console.log({ updateResult });
-            // return;
-            //
-            // INSERT NEW VARIATIONS - find new variations
-            //
-            const _insertVariations = srcProduct.items.data.filter((v) => !(wooVariationsLookup === null || wooVariationsLookup === void 0 ? void 0 : wooVariationsLookup[v.sku]));
-            // remove variations that already exist from post and update them with put
-            const insertVariations = _insertVariations.filter((p) => WesternProducts_awaiter(void 0, void 0, void 0, function* () {
-                const exists = fetchWooProductExists(p.sku);
-                console.log('insert variation exists!', p.sku);
-                if (exists) {
-                    const wooVariation = yield fetchWooProductBySku(p.sku);
-                    console.log({ wooVariation });
-                    return true;
-                    const updateDelta = {
-                        name: p.name,
-                        regular_price: p.list_price,
-                        attributes: [{ id: skuAttrId, name: 'sku', option: p.sku }]
-                    };
-                    const updateResult = yield fetchWooAPI(`products/${wooParent.id}/variations/${2}`, updateDelta, 'put');
-                    console.log({ updateDelta });
-                    console.log({ updateResult });
-                    return false;
-                }
-                return true;
-            }));
-            return;
-            console.log({ insertVariations });
-            const insertDelta = insertVariations.map((item) => ({
-                name: item.name,
-                // type: 'variation',
-                regular_price: item.list_price,
-                attributes: [{ id: skuAttrId, name: 'sku', option: item.sku }]
-            }));
-            const insertResult = yield fetchWooAPI(`products/${wooParent.id}/variations`, insertDelta, 'post');
-            console.log({ insertDelta });
-            console.log({ insertResult });
-            //
-            // UPDATE PARENT WITH NEW VARIATION ATTRIBUTES
-            //
-            if (deleteSkus.length > 0 || insertVariations.length > 0) {
-                const skuAttributeOptions = srcProduct.items.data.map((item) => item.sku);
-                const parentDelta = {
-                    attributes: wooParent.attributes.map((a) => {
-                        if (a.name === 'sku') {
-                            a.options = skuAttributeOptions;
-                        }
-                        return a;
-                    })
-                };
-                if (skuAttrId === -1) {
-                    parentDelta.attributes.push({
-                        id: 0,
-                        name: 'sku',
-                        position: 0,
-                        visible: true,
-                        variation: true,
-                        options: skuAttributeOptions
-                    });
-                }
-                const result1 = yield fetchWooAPI(`products/${wooParent.id}`, parentDelta, 'put');
-                console.log('updated parent', result1);
-            }
-            // itemInserts.forEach(async (item) => {
-            //   const exists = await fetchWooProductExists(item.sku);
-            //   console.log({ [item.sku]: { exists } });
-            //   if (exists) {
-            //     const wooVariation = await fetchWooProductBySku(item.sku);
-            //     console.log({ wooVariation });
-            //     const variationDelta: Partial<IWooVariation> = {
-            //       name: item.name,
-            //       type: 'variation',
-            //       attributes: [{ id: skuAttrId, name: 'sku', option: item.sku }]
-            //     };
-            //     const result2 = await fetchWooAPI(`products/${wooParent.id}/variations/${wooVariation.id}`, variationDelta, 'put');
-            //     console.log({ result1, result2 });
-            //   } else {
-            //     const delta: Partial<IWooVariation> = {
-            //       sku: item.sku,
-            //       // parent_id: p.woo.id,
-            //       name: item.name,
-            //       regular_price: item.list_price
-            //       // description: getWesterItemDescription(p),
-            //       // type: 'variation',
-            //       // attributes: [{ id: 'color', option: 'Red' }]
-            //     };
-            //     console.log({ delta });
-            //     // const result = await fetchWooAPI(`products/${p.woo.id}/variations`, delta, 'post');
-            //     // console.log({ result });
-            //   }
-            //   // const result2 = await pos tWooAPI(`products/${p.woo.id}/variations`, delta);
-            //   // console.log({ result2 });
-            // });
-        }
-        else {
-            console.log('add product as new');
-            console.log({ product });
-            const universalProduct = Product.fromWesternProduct(product);
-            console.log({ universalProduct });
-            const wooProduct = universalProduct.toWoo();
-            console.log({ wooProduct });
-            const exists = yield fetchWooProductExists(universalProduct.sku);
-            console.log({ exists });
-            if (exists) {
-                const wooRemoteProduct = yield fetchWooProductBySku(universalProduct.sku);
-                console.log({ wooRemoteProduct });
-            }
-            // product.att
-        }
-    });
-    return (React.createElement("tr", { key: product.id, className: 'pointer', onClick: () => nav(`/western/product/${product.id}`) },
-        React.createElement("td", null, index),
-        React.createElement("td", null, product.id),
-        React.createElement("td", null, inWoo ? '✓' : '×'),
-        React.createElement("td", { title: problems.join('&#013;') },
-            problems.length > 0 ? React.createElement("span", { className: 'badge text-bg-danger' },
-                problems.length,
-                " Problems") : '',
-            " ",
-            !hasWoo ? React.createElement(SpinnerSmall, null) : needsUpdate ? React.createElement("span", { className: 'badge text-bg-warning' }, "Update") : inWoo ? 'ok' : React.createElement("span", { className: 'badge text-bg-danger' }, "Missing")),
-        React.createElement("td", null, product.name),
-        React.createElement("td", null, (_e = (_d = (_c = (_b = productContext === null || productContext === void 0 ? void 0 : productContext.srcProduct) === null || _b === void 0 ? void 0 : _b.items) === null || _c === void 0 ? void 0 : _c.data) === null || _d === void 0 ? void 0 : _d.length) !== null && _e !== void 0 ? _e : 0,
-            " /",
-            ' ',
-            React.createElement("a", { className: 'link', target: '_blank', onClick: (e) => e.stopPropagation(), href: `/wooapi/products/${(_f = productContext === null || productContext === void 0 ? void 0 : productContext.wooParent) === null || _f === void 0 ? void 0 : _f.id}/variations?_fields=id,sku,name` }, (_g = productContext === null || productContext === void 0 ? void 0 : productContext.wooVariations) === null || _g === void 0 ? void 0 : _g.length)),
-        React.createElement("td", null,
-            React.createElement("a", { href: `https://tayloredblank4dev.kinsta.cloud?p=${(_h = product === null || product === void 0 ? void 0 : product.woo) === null || _h === void 0 ? void 0 : _h.id}`, className: 'link', target: '_blank', onClick: (e) => e.stopPropagation() }, (_j = product === null || product === void 0 ? void 0 : product.woo) === null || _j === void 0 ? void 0 : _j.id)),
-        React.createElement("td", null,
-            React.createElement("button", { className: 'btn badge text-bg-secondary', onClick: doAction }, "Update"))));
-};
-const SpinnerSmall = () => {
-    return (React.createElement("div", { className: 'spinner-border spinner-border-sm', role: 'status' },
-        React.createElement("span", { className: 'visually-hidden' }, "Loading...")));
-};
-
-;// CONCATENATED MODULE: ./src/views/western/useWestern.tsx
-var useWestern_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __rest = (undefined && undefined.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
-};
-
-
-
-const WESTERN_API_URL = 'http://api.wps-inc.com';
-
-
-
-function fetchWesternAPI(path, params = {}) {
-    var _a, _b;
-    return useWestern_awaiter(this, void 0, void 0, function* () {
-        const url = new URL(location.origin);
-        // url.pathname = urlJoin('/proxy/western', path);
-        url.pathname = '/wp-admin/admin-ajax.php';
-        url.searchParams.set('action', 'forward_data');
-        url.searchParams.set('key', 'WPS');
-        url.searchParams.set('path', path);
-        // url.searchParams.set('cachebust', datestamp()); // let's bust this cache each day
-        Object.keys(params)
-            .filter((p) => params[p] !== null && params[p] !== '' && params[p] !== undefined)
-            .map((p) => { var _a, _b; return url.searchParams.set(p, (_b = (_a = params === null || params === void 0 ? void 0 : params[p]) === null || _a === void 0 ? void 0 : _a.toString()) !== null && _b !== void 0 ? _b : ''); });
-        // console.log('fetchWesternAPI', url.href);
-        // return fetch(url).catch(err => {error: err})
-        console.log('fetchWesternAPI', decodeURIComponent(url.href));
-        const res = yield browser_ponyfill_default()(url);
-        if (!res.ok) {
-            const info = { message: 'ERROR', description: 'There was a problem' };
-            try {
-                const err = yield res.json();
-                info.message = (_a = err === null || err === void 0 ? void 0 : err.message) !== null && _a !== void 0 ? _a : '';
-                info.description = (_b = err === null || err === void 0 ? void 0 : err.description) !== null && _b !== void 0 ? _b : '';
-            }
-            catch (e) { }
-            return Promise.reject({ error: info });
-        }
-        const data = yield res.json();
-        if ((data === null || data === void 0 ? void 0 : data.status_code) === 404) {
-            data.error = { message: data === null || data === void 0 ? void 0 : data.message, status_code: data.status_code };
-        }
-        return data;
-    });
-}
-const useWestern_fetchWesternProductsPage = (cursor, pageSize = 1000, params = {}) => useWestern_awaiter(void 0, void 0, void 0, function* () {
-    const data = yield fetchWesternAPI('/products', Object.assign({ 'page[cursor]': cursor, 'page[size]': pageSize, include: 'items:filter(status_id|NLA|ne)' }, params));
-    data.data = data.data.filter(isValidProduct);
-    data.data.forEach((p) => (p.items.data = p.items.data.filter(isValidItem)));
-    return data;
-});
-function useWestern(props = {}, enabled = true) {
-    return useQuery_useQuery({
-        queryKey: ['western-api', props.service, props],
-        enabled: (!!(props === null || props === void 0 ? void 0 : props.path) || !!props.service) && enabled,
-        queryFn: () => useWestern_awaiter(this, void 0, void 0, function* () {
-            var _a, _b, _c, _d;
-            const url = new URL(WESTERN_API_URL);
-            url.pathname = (_a = props === null || props === void 0 ? void 0 : props.path) !== null && _a !== void 0 ? _a : urlJoin(props.service, (_c = (_b = props === null || props === void 0 ? void 0 : props.ids) === null || _b === void 0 ? void 0 : _b.join()) !== null && _c !== void 0 ? _c : '', (_d = props === null || props === void 0 ? void 0 : props.route) !== null && _d !== void 0 ? _d : '');
-            Object.keys(props)
-                .filter((k) => isset(props, k))
-                .forEach((k) => {
-                switch (k) {
-                    case 'pageSize':
-                        url.searchParams.set('page[size]', props.pageSize.toString());
-                        break;
-                    case 'pageCursor':
-                        url.searchParams.set('page[cursor]', props.pageCursor);
-                        break;
-                    case 'path':
-                    case 'service':
-                        break;
-                    default:
-                        url.searchParams.set(k, props[k]);
-                }
-            });
-            const params = Object.fromEntries(url.searchParams);
-            const data = yield fetchWesternAPI(url.pathname, params);
-            const query = Object.assign(Object.assign({}, props), { url: url.href });
-            return Object.assign(Object.assign({}, data), { query });
-        })
-    });
-}
-const _productIncludes = [
-    'features',
-    'tags',
-    'items',
-    'items.images',
-    'attributekeys',
-    'attributevalues',
-    'items.inventory',
-    'items.attributevalues',
-    'items.taxonomyterms',
-    'taxonomyterms'
-];
-const useWestern_westernProductIncludes = _productIncludes.join();
-const westernProductIncludes_ExcludeNLA = _productIncludes
-    .map((i) => {
-    if (i === 'items') {
-        return 'items:filter(status_id|NLA|ne)';
-    }
-    return i;
-})
-    .join();
-const AttrCache = {};
-function useWesternProduct(productId, enabled = true) {
-    return useQuery_useQuery({
-        queryKey: ['western-product', productId],
-        enabled: enabled && !!productId,
-        queryFn: () => useWestern_fetchWesternProduct(productId)
-    });
-}
-const useWestern_fetchWesternProduct = (productId) => useWestern_awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
-    const product = yield fetchWesternAPI(`/products/${productId}`, { include: useWestern_westernProductIncludes });
-    console.log('fetchWesternProduct', { product });
-    product.data.attributekeys = { data: [] };
-    product.data.items.data = product.data.items.data.filter((item) => item.status_id !== IWestern_IWesternItemStatus.NLA);
-    const attrIds = product.data.items.data.reduce((attrIds, item) => { var _a, _b, _c; return [...attrIds, ...((_c = (_b = (_a = item.attributevalues) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.map((attr) => attr.attributekey_id)) !== null && _c !== void 0 ? _c : [])]; }, []).filter((a) => !!a);
-    const uniqueAttrIds = Array.from(new Set(attrIds));
-    const newIds = uniqueAttrIds.filter((id) => !Object.prototype.hasOwnProperty.call(AttrCache, id));
-    if (newIds.length > 0) {
-        // must attribute paginate request
-        const attributes = { meta: {}, data: [], query: null };
-        let r = yield fetchWesternAPI(`/attributekeys/${newIds.join()}`, { 'page[size]': 50 });
-        console.log({ r });
-        attributes.data.push(...((r === null || r === void 0 ? void 0 : r.data) ? (Array.isArray(r.data) ? r.data : [r.data]) : []));
-        while ((_b = (_a = r === null || r === void 0 ? void 0 : r.meta) === null || _a === void 0 ? void 0 : _a.cursor) === null || _b === void 0 ? void 0 : _b.next) {
-            r = yield fetchWesternAPI(`/attributekeys/${newIds.join()}`, { 'page[size]': 50, 'page[cursor]': r.meta.cursor.next });
-            console.log({ r });
-            attributes.data.push(...((r === null || r === void 0 ? void 0 : r.data) ? (Array.isArray(r.data) ? r.data : [r.data]) : []));
-        }
-        const a = Array.isArray(attributes.data) ? attributes.data : [attributes.data];
-        a.forEach((attr) => (AttrCache[attr.id] = attr));
-    }
-    if (uniqueAttrIds.length) {
-        product.data.attributekeys = { data: uniqueAttrIds.map((id) => AttrCache[id]) };
-    }
-    return product.data;
-});
-function useWesternProducts(_a = {}, enabled) {
-    var props = __rest(_a, []);
-    if (enabled === void 0) { enabled = true; }
-    return useWestern(Object.assign(Object.assign({ include: useWestern_westernProductIncludes }, props), { service: 'products' }), enabled);
-}
-function useWesternItems(_a = {}, enabled) {
-    var props = __rest(_a, []);
-    if (enabled === void 0) { enabled = true; }
-    return useWestern(Object.assign(Object.assign({}, props), { service: 'items' }), enabled);
-}
-function useWesternImages(_a = {}, enabled) {
-    var props = __rest(_a, []);
-    if (enabled === void 0) { enabled = true; }
-    return useWestern(Object.assign(Object.assign({}, props), { service: 'images' }), enabled);
-}
-const useWesternProductsPage = (cursor = null, pageSize = 1000) => {
-    return useQuery({
-        queryKey: ['western-products-page-api', cursor, pageSize],
-        queryFn: () => useWestern_awaiter(void 0, void 0, void 0, function* () { return yield useWestern_fetchWesternProductsPage(cursor, pageSize); })
-    });
-};
-
-;// CONCATENATED MODULE: ./src/views/western/WesternProduct.tsx
-
-
-
-
-
-
-const WesternProductPage = () => {
-    const params = useParams();
-    // const westernProduct = useWesternProduct(parseInt(params.productId));
-    // const product = useMemo<Product>(() => (westernProduct.data ? Product.fromWesternProduct(westernProduct.data) : null), [westernProduct.data]);
-    // if (westernProduct.isLoading) {
-    //   return <div className='bg-white p-2'>loading...</div>;
-    // }
-    // if (westernProduct.isError) {
-    //   return (
-    //     <div className='bg-white p-2'>
-    //       <h2>{westernProduct.failureReason.message}</h2>
-    //     </div>
-    //   );
-    // }
-    // if (westernProduct.data?.id) {
-    return (React.createElement("div", null,
-        React.createElement("div", { className: 'bg-white p-2 d-flex flex-wrap gap-2' }, [378376, 25526, 6252].map((id, i) => (React.createElement(Link, { key: id, to: `/western/product/${id}` }, id)))),
-        React.createElement(WesternProduct, { productId: params.productId })));
-    // }
-    // return <pre>{JSON.stringify(westernProduct.data, null, 2)}</pre>;
-};
-const WesternProduct = ({ productId }) => {
-    var _a;
-    const westernProduct = useWesternProduct(parseInt('' + productId));
-    const product = (0,react.useMemo)(() => (westernProduct.data ? Product_Product.fromWesternProduct(westernProduct.data) : null), [westernProduct.data]);
-    // return <pre>{JSON.stringify(westernProduct,null,2)}</pre>
-    if (westernProduct.isLoading || !productId) {
-        return react.createElement("div", null, "loading...");
-    }
-    if (westernProduct.isError) {
-        return react.createElement("div", null,
-            "WP: ",
-            westernProduct.failureReason.message);
-    }
-    if ((_a = westernProduct.data) === null || _a === void 0 ? void 0 : _a.id) {
-        return react.createElement(ProductDetails, { product: product });
-    }
-    return null;
-};
-
-;// CONCATENATED MODULE: ./src/views/wp/usePost.tsx
-var usePost_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-
-const usePost = (sku) => {
-    const getPost = () => usePost_awaiter(void 0, void 0, void 0, function* () {
-        const res = yield browser_ponyfill_default()('/wp-admin/admin-ajax.php', { method: 'POST', body: new URLSearchParams({ action: 'ci_wp_action', sku }) });
-        return res.json();
-    });
-    return useQuery_useQuery(['getPost', sku], getPost);
-};
 
 ;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/mutationObserver.mjs
 
@@ -7219,7 +4936,7 @@ class MutationObserver extends Subscribable {
 
 function useMutation(arg1, arg2, arg3) {
   const options = parseMutationArgs(arg1, arg2, arg3);
-  const queryClient = QueryClientProvider_useQueryClient({
+  const queryClient = useQueryClient({
     context: options.context
   });
   const [observer] = react.useState(() => new MutationObserver(queryClient, options));
@@ -7246,8 +4963,42 @@ function useMutation_noop() {}
 
 //# sourceMappingURL=useMutation.mjs.map
 
-;// CONCATENATED MODULE: ./src/wordpress/cronjob/useCronJobs.tsx
-var useCronJobs_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+;// CONCATENATED MODULE: ./src/utils/formatDuration.ts
+function formatDuration(seconds) {
+    var date = new Date(0);
+    if (seconds)
+        date.setSeconds(seconds); // specify value for SECONDS here
+    return date.toISOString().substring(11, 19);
+    //   if (isNaN(seconds)) return '';
+    //   seconds = Math.round(seconds);
+    //   const m = Math.floor(seconds / 60);
+    //   const s = seconds % 60;
+    //   return `${m}:${('0' + s).slice(-2)}`;
+}
+
+;// CONCATENATED MODULE: ./src/utils/datestamp.ts
+
+function datestamp() {
+    let dateObj = new Date();
+    let month = dateObj.getUTCMonth() + 1; //months from 1-12
+    let day = dateObj.getUTCDate();
+    let year = dateObj.getUTCFullYear();
+    return [year, month, day].join('-');
+}
+function parseDate(s) {
+    return new Date(Date.parse(s));
+}
+function since(s) {
+    const d = new Date(Date.parse(s));
+    const dif = Date.now() - d.getTime();
+    return formatDuration(dif / 1000);
+}
+
+// EXTERNAL MODULE: ./node_modules/cross-fetch/dist/browser-ponyfill.js
+var browser_ponyfill = __webpack_require__(98);
+var browser_ponyfill_default = /*#__PURE__*/__webpack_require__.n(browser_ponyfill);
+;// CONCATENATED MODULE: ./src/utils/fetchWordpressAjax.tsx
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -7257,292 +5008,244 @@ var useCronJobs_awaiter = (undefined && undefined.__awaiter) || function (thisAr
     });
 };
 
-
-const useCronJobs_useCronJobs = () => {
-    const getCronJobs = () => useCronJobs_awaiter(void 0, void 0, void 0, function* () {
-        const res = yield fetch('/wp-admin/admin-ajax.php', { method: 'POST', body: new URLSearchParams({ action: 'ci_action', ci_action: 'select', 'post[post_type]': 'cronjob' }) });
-        return res.json();
+function fetchWordpressAjax(params = { action: '' }) {
+    var _a, _b;
+    return __awaiter(this, void 0, void 0, function* () {
+        const url = new URL(location.origin);
+        url.pathname = '/wp-admin/admin-ajax.php';
+        Object.keys(params).forEach((k) => url.searchParams.set(k, params[k]));
+        const res = yield browser_ponyfill_default()(url);
+        if (!res.ok) {
+            const info = { message: 'ERROR', description: 'There was a problem' };
+            try {
+                const err = yield res.json();
+                info.message = (_a = err === null || err === void 0 ? void 0 : err.message) !== null && _a !== void 0 ? _a : '';
+                info.description = (_b = err === null || err === void 0 ? void 0 : err.description) !== null && _b !== void 0 ? _b : '';
+            }
+            catch (e) { }
+            return Promise.reject({ error: info });
+        }
+        const data = yield res.json();
+        return data;
     });
-    return useQuery(['getCronJobs'], getCronJobs);
-};
+}
 
-;// CONCATENATED MODULE: ./src/wordpress/CronJobManager.tsx
-var CronJobManager_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
+;// CONCATENATED MODULE: ./src/views/jobs/Jobs.tsx
+
+
+
+
+var JobStatus;
+(function (JobStatus) {
+    JobStatus["NONE"] = "none";
+    JobStatus["STARTING"] = "starting";
+    JobStatus["STARTED"] = "started";
+    JobStatus["STOPPING"] = "stopping";
+    JobStatus["STOPPED"] = "stopped";
+    JobStatus["COMPLETING"] = "completing";
+    JobStatus["COMPLETED"] = "completed";
+    JobStatus["DELETING"] = "deleting";
+    JobStatus["ERROR"] = "error";
+})(JobStatus || (JobStatus = {}));
+var JobProcess;
+(function (JobProcess) {
+    JobProcess["IDLE"] = "idle";
+    JobProcess["RUNNING"] = "running";
+})(JobProcess || (JobProcess = {}));
+const useJobs = () => {
+    return useQuery({
+        queryKey: ['jobs'],
+        queryFn: () => {
+            return fetchWordpressAjax({ action: 'cronjob_do_cmd', cmd: 'get_jobs' });
+        },
+        // keepPreviousData: true,
+        initialData: [],
+        placeholderData: [],
+        refetchInterval: 5000
     });
 };
-
-
-
-
-const CronJobManager = () => {
-    const cronjobs = useCronJobs();
-    //   const [fields, setFields] = useState<{ [key: string]: string | number }>({});
-    //   const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    //     updateFields({ [e.currentTarget.getAttribute('name')]: e.currentTarget.value });
-    //     // const delta = { [e.currentTarget.getAttribute('name')]: e.currentTarget.value };
-    //     // setFields((f) => ({ ...f, ...delta }));
-    //   };
-    //   const updateFields = (delta: { [key: string]: string | number }) => {
-    //     // const delta = { [e.currentTarget.getAttribute('name')]: e.currentTarget.value };
-    //     setFields((f) => ({ ...f, ...delta }));
-    //   };
-    //   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
-    //     e.preventDefault();
-    //     const data = new FormData(e.currentTarget);
-    //     const response = await fetch('/wp-admin/admin-ajax.php', { method: 'POST', body: data }).then((r) => r.json());
-    //     console.log({ response });
-    //   };
-    //   useEffect(() => {
-    //     if (cronjobs.isSuccess) {
-    //       const job = cronjobs.data.data[0];
-    //       updateFields({ 'post[ID]': job.ID });
-    //     }
-    //   }, [cronjobs.isSuccess]);
-    if (cronjobs.isSuccess) {
-        return (React.createElement("div", null,
-            React.createElement("h1", null, "Cron Jobs"),
-            React.createElement(CreateCronJobButton, null),
-            React.createElement("div", null,
-                cronjobs.data.data.map((job) => (React.createElement(CronJobRow, { job: job }))),
-                React.createElement("pre", null, JSON.stringify(cronjobs, null, 2)))));
-        // return ;
+const ICON_PLAY = String.fromCharCode(9654);
+const ICON_PAUSE = '⏸︎';
+const ICON_REFRESH = '↺';
+const ICON_WAITING = react.createElement("div", { className: 'spinner-grow spinner-grow-sm', role: 'status' });
+const iCON_DELETE = react.createElement(react.Fragment, null, "\u00D7");
+const ICON_ERROR = '!';
+const JobIcon = ({ job }) => {
+    switch (job.status) {
+        case JobStatus.STARTED:
+            return ICON_PAUSE;
+        case JobStatus.STOPPING:
+        case JobStatus.COMPLETING:
+        case JobStatus.STARTING:
+        case JobStatus.DELETING:
+            return ICON_WAITING;
+        case JobStatus.COMPLETED:
+            return iCON_DELETE;
+        case JobStatus.STOPPED:
+            return iCON_DELETE;
+        case JobStatus.ERROR:
+            return ICON_ERROR;
+        case JobStatus.NONE:
+        default:
+            return ICON_PLAY;
     }
-    return React.createElement("div", null, "loading...");
 };
-// export const CronJobRowHeader = () => {
-//   return (
-//     <thead>
-//       <tr className='d-flex gap-2'>
-//         <th>Title</th>
-//         <th>Action</th>
-//         <th className='text-nowrap'>Run Every (hrs)</th>
-//         <th>Cursor</th>
-//         <th>Started</th>
-//         <th>Completed</th>
-//       </tr>
-//     </thead>
-//   );
-// };
-const CronJobRow = ({ job }) => {
+const Jobs = () => {
+    var _a;
+    const jobs = useJobs();
+    const queryClient = useQueryClient();
+    const updateJobs = () => {
+        queryClient.invalidateQueries(['jobs']);
+    };
+    const mutationJob = useMutation({
+        mutationFn: (options) => fetchWordpressAjax(Object.assign({ action: 'cronjob_do_cmd' }, options)),
+        onSuccess: (data) => queryClient.setQueryData(['jobs'], data)
+    });
+    const cleanJobs = () => {
+        mutationJob.mutate({ cmd: 'clean_jobs' });
+    };
+    const createJob = () => {
+        const action = prompt('Action?', 'import_western_product');
+        if (action) {
+            mutationJob.mutate({ cmd: 'create_job', job_args: JSON.stringify({ action, product_id: 6 }) });
+        }
+    };
+    const deleteJob = (job) => {
+        if (job.status === JobStatus.DELETING) {
+            if (confirm('Are you sure you want to force delete this job?')) {
+                mutationJob.mutate({ cmd: 'force_delete_job', job_id: job.id });
+            }
+        }
+        else {
+            if (confirm('Are you sure you want to delete this job?')) {
+                mutationJob.mutate({ cmd: 'delete_job', job_id: job.id });
+            }
+        }
+    };
+    const startJob = (job) => {
+        mutationJob.mutate({ cmd: 'start_job', job_id: job.id });
+    };
+    const stopJob = (job) => {
+        mutationJob.mutate({ cmd: 'stop_job', job_id: job.id });
+    };
+    const toggleJob = (job) => {
+        switch (job.status) {
+            case JobStatus.NONE:
+                startJob(job);
+                break;
+            case JobStatus.STARTING:
+                alert('Starting...');
+                break;
+            case JobStatus.STARTED:
+                stopJob(job);
+                break;
+            case JobStatus.COMPLETING:
+                alert('Completing...');
+            case JobStatus.COMPLETED:
+                deleteJob(job);
+                break;
+            case JobStatus.STOPPING:
+                alert('Stopping...');
+            case JobStatus.STOPPED:
+                deleteJob(job);
+                break;
+            case JobStatus.DELETING:
+                alert('Deleting...');
+            case JobStatus.ERROR:
+                alert('There was a problem running this job.');
+        }
+    };
+    return (react.createElement("div", { className: 'd-flex flex-column gap-3 p-3' },
+        react.createElement("div", { className: 'd-flex gap-3' },
+            react.createElement("button", { className: 'btn btn-primary', onClick: cleanJobs }, "Clean Jobs"),
+            react.createElement("button", { className: 'btn btn-primary', onClick: createJob }, "Create Job")),
+        react.createElement("div", { className: 'position-relative' },
+            react.createElement("div", { className: 'bg-primary', style: { opacity: jobs.isFetching || mutationJob.isLoading ? 1 : 0, transition: 'opacity 0.3s', width: '100%', height: 5 } }),
+            ((_a = jobs.data) === null || _a === void 0 ? void 0 : _a.length) > 0 ? (react.createElement("table", { className: 'table table-sm table-bordered align-middle' },
+                react.createElement("thead", null,
+                    react.createElement("tr", null,
+                        react.createElement("th", { style: { width: 1 } }),
+                        react.createElement("th", null, "id"),
+                        react.createElement("th", null, "process"),
+                        react.createElement("th", null, "status"),
+                        react.createElement("th", null, "action"),
+                        react.createElement("th", null, "created"),
+                        react.createElement("th", null, "updated"),
+                        react.createElement("th", null, "args"),
+                        react.createElement("th", { style: { width: 1 } },
+                            react.createElement("button", { className: 'btn btn-primary', onClick: updateJobs }, ICON_REFRESH)))),
+                react.createElement("tbody", { className: 'table-group-divider' }, jobs.data.map((job) => {
+                    var _a;
+                    return (react.createElement("tr", null,
+                        react.createElement("td", null,
+                            react.createElement("button", { className: 'btn btn-primary', style: { fontFamily: 'initial' }, onClick: () => toggleJob(job) },
+                                react.createElement(JobIcon, { job: job }))),
+                        react.createElement("td", null, job.id),
+                        react.createElement("td", null, (_a = job === null || job === void 0 ? void 0 : job.process) !== null && _a !== void 0 ? _a : 'unknown'),
+                        react.createElement("td", null, job.status),
+                        react.createElement("td", null, job.action),
+                        react.createElement("td", { title: job.created }, since(job.created)),
+                        react.createElement("td", { title: job.updated }, since(job.updated)),
+                        react.createElement("td", null, Object.keys(job.args).map((k) => (react.createElement("span", null,
+                            k,
+                            ": ",
+                            job.args[k],
+                            ",",
+                            ' ')))),
+                        react.createElement("td", null,
+                            react.createElement("button", { className: 'btn btn-primary', onClick: () => deleteJob(job), title: 'delete' }, "\u00D7"))));
+                })))) : (react.createElement("div", null, jobs.isLoading ? react.createElement("h4", null, "Loadiung...") : react.createElement("h4", null, "Currently, there are no jobs in progress."))))));
+};
+
+;// CONCATENATED MODULE: ./src/views/logs/Logs.tsx
+
+
+
+const useLogs = () => {
+    return useQuery({
+        queryKey: ['logs'],
+        queryFn: () => {
+            return fetchWordpressAjax({ action: 'logs_do_cmd', cmd: 'get_logs' });
+        },
+        keepPreviousData: true,
+        initialData: [],
+        refetchInterval: 5000
+    });
+};
+const Logs = () => {
     var _a, _b, _c, _d;
     const queryClient = useQueryClient();
-    // const cronjobs = useCronJobs();
-    const [fields, setFields] = useState({
-        'post[ID]': job.ID,
-        'post[post_title]': job.post_title,
-        'post[meta_input][started]': job.meta.started,
-        'post[meta_input][cursor]': job.meta.cursor,
-        'post[meta_input][cadence]': (_b = (_a = job.meta) === null || _a === void 0 ? void 0 : _a.cadence) !== null && _b !== void 0 ? _b : '24',
-        'post[meta_input][completed]': (_c = job.meta) === null || _c === void 0 ? void 0 : _c.completed,
-        'post[meta_input][action]': (_d = job.meta) === null || _d === void 0 ? void 0 : _d.action
+    const logs = useLogs();
+    const $pre = react.useRef();
+    const mutationLog = useMutation({
+        mutationFn: (options) => fetchWordpressAjax(Object.assign({ action: 'logs_do_cmd' }, options)),
+        onSuccess: (data) => queryClient.setQueryData(['logs'], data)
     });
-    const handleChange = (e) => {
-        updateFields({ [e.currentTarget.getAttribute('name')]: e.currentTarget.value });
+    const refresh = () => {
+        queryClient.invalidateQueries(['logs']);
     };
-    const updateFields = (delta) => {
-        setFields((f) => (Object.assign(Object.assign({}, f), delta)));
+    const clear = () => {
+        mutationLog.mutate({ cmd: 'clear_logs' });
     };
-    const handleSubmit = (e) => CronJobManager_awaiter(void 0, void 0, void 0, function* () {
-        e.preventDefault();
-        const data = new FormData(e.currentTarget);
-        // var object = {};
-        // data.forEach((value, key) => (object[key] = value));
-        // var json = JSON.stringify(object);
-        // console.log(json);
-        const response = yield fetch('/wp-admin/admin-ajax.php', { method: 'POST', body: data }).then((r) => r.json());
-        console.log({ response });
-    });
-    const handleSubmitDelete = (e) => CronJobManager_awaiter(void 0, void 0, void 0, function* () {
-        if (confirm('Are you sure?')) {
-            e.preventDefault();
-            const response = yield fetch('/wp-admin/admin-ajax.php', { method: 'POST', body: new FormData(e.currentTarget) }).then((r) => r.json());
-            console.log({ response });
-            queryClient.invalidateQueries(['getCronJobs']);
-        }
-    });
-    return (React.createElement("div", null,
-        React.createElement("div", { className: 'p-2 border rounded' },
-            React.createElement("form", { onSubmit: handleSubmit, className: 'd-flex flex-column gap-2' },
-                React.createElement("input", { type: 'hidden', name: 'action', value: 'ci_action' }),
-                React.createElement("input", { type: 'hidden', name: 'ci_action', value: 'update' }),
-                React.createElement("input", { type: 'hidden', name: 'post[ID]', value: job.ID }),
-                React.createElement("div", { className: 'd-grid gap-2', style: { gridTemplateColumns: '50% 50%' } },
-                    React.createElement("div", null,
-                        React.createElement("label", null, "Title"),
-                        React.createElement("input", { className: 'form-control', type: 'text', name: 'post[post_title]', value: fields['post[post_title]'], onChange: handleChange })),
-                    React.createElement("div", null,
-                        React.createElement("label", null, "Action"),
-                        React.createElement("select", { className: 'form-control', name: 'post[meta_input][action]', value: fields['post[meta_input][action]'], onChange: handleChange },
-                            React.createElement("option", { value: '' }, "None"),
-                            React.createElement("option", { value: 'action_import_wps' }, "Import Active WPS"),
-                            React.createElement("option", { value: 'action_delete_wps' }, "Delete Inactive WPS"))),
-                    React.createElement("div", null,
-                        React.createElement("label", { className: 'text-nowrap' }, "Run Every (hrs)"),
-                        React.createElement("input", { className: 'form-control', type: 'number', step: '1', min: 1, max: 24 * 365, name: 'post[meta_input][cadence]', value: fields['post[meta_input][cadence]'], onChange: handleChange })),
-                    React.createElement("div", null,
-                        React.createElement("label", null, "Cursor"),
-                        React.createElement("input", { className: 'form-control', type: 'text', name: 'post[meta_input][cursor]', value: fields['post[meta_input][cursor]'], onChange: handleChange })),
-                    React.createElement("div", null,
-                        React.createElement("label", null, "Started"),
-                        React.createElement("input", { readOnly: true, className: 'form-control', type: 'datetime-local', name: 'post[meta_input][started]', value: fields['post[meta_input][started]'], onChange: handleChange })),
-                    React.createElement("div", null,
-                        React.createElement("label", null, "Completed"),
-                        React.createElement("input", { readOnly: true, className: 'form-control', type: 'datetime-local', name: 'post[meta_input][completed]', value: fields['post[meta_input][completed]'], onChange: handleChange }))),
-                React.createElement("div", null,
-                    React.createElement("button", { className: 'btn btn-primary', type: 'submit' }, "Update"))),
-            React.createElement("form", { onSubmit: handleSubmitDelete },
-                React.createElement("input", { type: 'hidden', name: 'action', value: 'ci_action' }),
-                React.createElement("input", { type: 'hidden', name: 'ci_action', value: 'delete' }),
-                React.createElement("input", { type: 'hidden', name: 'post[ID]', value: job.ID }),
-                React.createElement("button", { className: 'btn btn-primary', type: 'submit' }, "Delete")))));
-};
-const useCronJob = () => {
-    const queryClient = QueryClientProvider_useQueryClient();
-    const getCronJobs = (cmd = '') => CronJobManager_awaiter(void 0, void 0, void 0, function* () {
-        const res = yield fetch(`/wp-admin/admin-ajax.php?action=ci_store_cronjob_api&cmd=${cmd}`);
-        return res.json();
-    });
-    const getStoreAPI = (cmd = '') => CronJobManager_awaiter(void 0, void 0, void 0, function* () {
-        const res = yield fetch(`/wp-admin/admin-ajax.php?action=ci_store_api&cmd=${cmd}`);
-        return res.json();
-    });
-    const job = useQuery_useQuery({
-        queryKey: ['getCronStatus'],
-        queryFn: () => getCronJobs(),
-        initialData: { status: 'stopped' },
-        refetchInterval: 3000
-    });
-    const logs = useQuery_useQuery({
-        queryKey: ['getStoreLogs'],
-        queryFn: () => getStoreAPI('getlog'),
-        initialData: [],
-        refetchInterval: 3000
-    });
-    const logsMutation = useMutation({
-        mutationFn: getStoreAPI,
-        onSuccess: () => {
-            queryClient.invalidateQueries(['getStoreLogs']);
-        }
-    });
-    const jobMutation = useMutation({
-        mutationFn: getCronJobs,
-        onSuccess: (data) => {
-            queryClient.setQueryData(['getCronStatus'], data);
-        }
-    });
-    const runJobCmd = (cmd = '', newStatus) => CronJobManager_awaiter(void 0, void 0, void 0, function* () {
-        const d = queryClient.getQueryData(['getCronStatus']);
-        queryClient.setQueryData(['getCronStatus'], Object.assign(Object.assign({}, d), { status: newStatus }));
-        jobMutation.mutate(cmd);
-    });
-    const start = () => runJobCmd('start', 'starting');
-    const pause = () => runJobCmd('pause', 'pausing');
-    const resume = () => runJobCmd('resume', 'resuming');
-    const stop = () => runJobCmd('stop', 'stopping');
-    const upgrade = () => runJobCmd('upgrade');
-    const clearlog = () => logsMutation.mutate('clearlog');
-    const refresh = () => { };
-    return Object.assign(Object.assign({}, job.data), { status: job.data.status, refresh, start, pause, resume, stop, logs, clearlog, upgrade });
-};
-const PauseCron = () => {
-    var _a;
-    const cronjob = useCronJob();
-    const stopDisabled = (0,react.useMemo)(() => {
-        switch (cronjob.status) {
-            case 'started':
-            case 'paused':
-                return false;
-            // case 'idle':
-            // case 'stopping':
-            // case 'error':
-            default:
-                return true;
-        }
-    }, [cronjob.status]);
-    const pauseDisabled = (0,react.useMemo)(() => {
-        switch (cronjob.status) {
-            case 'started':
-                return false;
-            default:
-                return true;
-        }
-    }, [cronjob.status]);
-    const resumeDisabled = (0,react.useMemo)(() => {
-        switch (cronjob.status) {
-            case 'paused':
-                return false;
-            default:
-                return true;
-        }
-    }, [cronjob.status]);
-    const startDisabled = (0,react.useMemo)(() => {
-        switch (cronjob.status) {
-            // case 'idle':
-            case 'stopped':
-                return false;
-            default:
-                return true;
-        }
-    }, [cronjob.status]);
-    const $pre = (0,react.useRef)();
-    (0,react.useEffect)(() => {
-        if (Math.abs($pre.current.scrollTop - $pre.current.scrollHeight) < 12) {
-            $pre.current.scrollTop = $pre.current.scrollHeight;
-        }
-    }, [cronjob.logs]);
-    return (react.createElement("div", null,
-        react.createElement("p", null, (_a = cronjob.status) !== null && _a !== void 0 ? _a : 'loading...'),
-        react.createElement("div", null,
-            react.createElement("button", { disabled: startDisabled, className: 'btn btn-primary', type: 'button', onClick: cronjob.start }, "Start"),
-            react.createElement("button", { disabled: pauseDisabled, className: 'btn btn-primary', type: 'button', onClick: cronjob.pause }, "Pause"),
-            react.createElement("button", { disabled: resumeDisabled, className: 'btn btn-primary', type: 'button', onClick: cronjob.resume }, "Resume"),
-            react.createElement("button", { disabled: stopDisabled, className: 'btn btn-primary', type: 'button', onClick: cronjob.stop }, "Stop"),
-            react.createElement("button", { className: 'btn btn-primary', type: 'button', onClick: cronjob.clearlog }, "Clear Log"),
-            react.createElement("button", { className: 'btn btn-primary', type: 'button', onClick: cronjob.upgrade }, "Upgrade")),
-        react.createElement("div", { style: { background: 'black', padding: '0.5em' } },
-            react.createElement("pre", { ref: $pre, style: { color: 'orange', margin: 0, padding: 0, fontSize: '12px', fontFamily: 'monospace', lineHeight: 1.5, maxHeight: 1.5 * 12 * 20 }, dangerouslySetInnerHTML: { __html: cronjob.logs.data.join('\n') } })),
-        react.createElement("div", { style: { display: 'grid', gridTemplateColumns: '33% 33% auto' } },
-            react.createElement("pre", null, JSON.stringify(Object.assign(Object.assign({}, cronjob), { products: null, current_product: null }), null, 2)),
-            react.createElement("pre", null, JSON.stringify({ products: cronjob.products }, null, 2)),
-            react.createElement("pre", null, JSON.stringify({ current_product: cronjob === null || cronjob === void 0 ? void 0 : cronjob.current_product }, null, 2)))));
-};
-const CreateCronJobButton = () => {
-    const queryClient = useQueryClient();
-    const handleSubmit = (e) => CronJobManager_awaiter(void 0, void 0, void 0, function* () {
-        e.preventDefault();
-        const data = new FormData(e.currentTarget);
-        const response = yield fetch('/wp-admin/admin-ajax.php', { method: 'POST', body: data }).then((r) => r.json());
-        console.log({ response });
-        queryClient.invalidateQueries(['getCronJobs']);
-    });
-    return (React.createElement("form", { onSubmit: handleSubmit },
-        React.createElement("input", { type: 'hidden', name: 'action', value: 'ci_action' }),
-        React.createElement("input", { type: 'hidden', name: 'ci_action', value: 'create' }),
-        React.createElement("input", { type: 'hidden', name: 'post[post_type]', value: 'cronjob' }),
-        React.createElement("input", { type: 'hidden', name: 'post[post_title]', value: 'New Cron Job' }),
-        React.createElement("button", { className: 'btn btn-primary', type: 'submit' }, "Create")));
+    return (react.createElement("div", { className: 'd-flex flex-column gap-3 p-3' },
+        react.createElement("div", { className: 'd-flex gap-3' },
+            react.createElement("button", { className: 'btn btn-primary', onClick: clear }, "Clear Logs"),
+            react.createElement("button", { className: 'btn btn-primary', onClick: refresh }, "\u21BA")),
+        react.createElement("div", { className: 'position-relative' },
+            react.createElement("div", { style: { background: 'black', padding: '0.5em' } },
+                react.createElement("pre", { ref: $pre, style: {
+                        color: 'orange',
+                        margin: 0,
+                        padding: 0,
+                        fontSize: '12px',
+                        fontFamily: 'monospace',
+                        lineHeight: 1.5,
+                        maxHeight: 1.5 * 12 * 50,
+                        minHeight: 300
+                    }, dangerouslySetInnerHTML: { __html: (_d = (_c = (_b = (_a = logs === null || logs === void 0 ? void 0 : logs.data) === null || _a === void 0 ? void 0 : _a.splice) === null || _b === void 0 ? void 0 : _b.call(_a, 0)) === null || _c === void 0 ? void 0 : _c.reverse().join('\n')) !== null && _d !== void 0 ? _d : '' } })))));
 };
 
 ;// CONCATENATED MODULE: ./src/wordpress-plugin.tsx
-var wordpress_plugin_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-
-
-
 
 
 
@@ -7553,79 +5256,114 @@ var wordpress_plugin_awaiter = (undefined && undefined.__awaiter) || function (t
 // import { WordPressApp } from './wordpress/WordpressApp';
 // const root = createRoot(document.getElementById('product-root'));
 // root.render(<WordPressApp />);
-const InputField = ({ label, name, value, onChange }) => {
-    return (react.createElement(react.Fragment, null,
-        react.createElement("label", { htmlFor: `input_${name}` }, label),
-        react.createElement("input", { type: 'text', id: `input_${name}`, name: name, value: value, onChange: onChange })));
-};
-const AppInner = () => {
-    var _a, _b, _c, _d, _e, _f, _g, _h;
-    const [pageSize, setPageSize] = (0,react.useState)(100);
-    const [pageCursor, setPageCursor] = (0,react.useState)(null);
-    const [productId, setProductId] = (0,react.useState)(null);
-    const products = useWesternProducts({ pageSize, pageCursor });
-    const post = usePost('MASTER_952322');
-    (0,react.useEffect)(() => {
-        if (post.isSuccess) {
-            setFields({
-                'post[post_title]': post.data.post_title,
-                'post[meta_input][_sku]': post.data.meta_input._sku,
-                'post[post_content]': post.data.post_content,
-                'post[meta_input][_price]': post.data.meta_input._price
-            });
-        }
-    }, [post.isSuccess]);
-    const handleSubmit = (e) => wordpress_plugin_awaiter(void 0, void 0, void 0, function* () {
-        e.preventDefault();
-        const data = new FormData(e.currentTarget);
-        const response = yield browser_ponyfill_default()('/wp-admin/admin-ajax.php', { method: 'POST', body: data }).then((r) => r.json());
-        console.log({ response });
-    });
-    const [fields, setFields] = (0,react.useState)({
-        'post[post_title]': 'newprodctitle',
-        'post[meta_input][_sku]': 'MASTER_952322',
-        'post[post_content]': 'desc 231',
-        'post[meta_input][_price]': '99'
-    });
-    const updateFields = (e) => {
-        const delta = { [e.currentTarget.getAttribute('name')]: e.currentTarget.value };
-        setFields((f) => (Object.assign(Object.assign({}, f), delta)));
-    };
-    return (react.createElement("div", { style: { position: 'relative' } },
-        react.createElement(PauseCron, null),
-        react.createElement("hr", null),
-        react.createElement("hr", null),
-        react.createElement("h1", null, "Test React AppZZ"),
-        react.createElement("pre", null, JSON.stringify(post, null, 2)),
-        react.createElement("form", { method: 'post', action: '', onSubmit: handleSubmit },
-            react.createElement("input", { type: 'hidden', name: 'action', value: 'ci_woo_action' }),
-            react.createElement("input", { type: 'hidden', name: 'post[post_type]', value: 'product' }),
-            react.createElement("input", { type: 'hidden', name: 'post[post_status]', value: 'publish' }),
-            react.createElement("div", { className: 'gap-2', style: { display: 'grid', gridTemplateColumns: 'min-content 1fr' } },
-                react.createElement(InputField, { label: 'Sku', name: 'post[meta_input][_sku]', value: fields['post[meta_input][_sku]'], onChange: updateFields }),
-                react.createElement(InputField, { label: 'Title', name: 'post[post_title]', value: fields['post[post_title]'], onChange: updateFields }),
-                react.createElement(InputField, { label: 'Description', name: 'post[post_content]', value: fields['post[post_content]'], onChange: updateFields }),
-                react.createElement(InputField, { label: 'Price', name: 'post[meta_input][_price]', value: fields['post[meta_input][_price]'], onChange: updateFields })),
-            react.createElement("input", { type: 'submit', name: 'submit_product', value: 'Add Product' })),
-        react.createElement("input", { type: 'number', min: 1, max: 1000, step: 10, value: pageSize, onChange: (e) => setPageSize(parseInt(e.currentTarget.value)) }),
-        react.createElement("button", { className: 'btn btn-primary' }, "Go"),
-        react.createElement("button", { className: 'btn btn-primary', disabled: !((_c = (_b = (_a = products.data) === null || _a === void 0 ? void 0 : _a.meta) === null || _b === void 0 ? void 0 : _b.cursor) === null || _c === void 0 ? void 0 : _c.next), onClick: () => { var _a, _b, _c; return setPageCursor((_c = (_b = (_a = products.data) === null || _a === void 0 ? void 0 : _a.meta) === null || _b === void 0 ? void 0 : _b.cursor) === null || _c === void 0 ? void 0 : _c.next); } },
-            "Next Page ", (_f = (_e = (_d = products.data) === null || _d === void 0 ? void 0 : _d.meta) === null || _e === void 0 ? void 0 : _e.cursor) === null || _f === void 0 ? void 0 :
-            _f.next),
-        react.createElement("div", { className: 'd-flex' },
-            products.isSuccess ? (react.createElement("div", null, (_h = (_g = products === null || products === void 0 ? void 0 : products.data) === null || _g === void 0 ? void 0 : _g.data) === null || _h === void 0 ? void 0 : _h.map((p) => (react.createElement("div", { key: `row_${p.id}`, onClick: () => setProductId(p.id) }, p.name))))) : null,
-            productId ? react.createElement(WesternProduct, { productId: productId }) : react.createElement("h1", null, "Waiting")),
-        react.createElement(GlobalLoader, null)));
-};
-const App = () => {
+// const InputField = ({ label, name, value, onChange }: { label: string; name: string; value: string; onChange: React.ChangeEventHandler<HTMLInputElement> }) => {
+//   return (
+//     <>
+//       <label htmlFor={`input_${name}`}>{label}</label>
+//       <input type='text' id={`input_${name}`} name={name} value={value} onChange={onChange} />
+//     </>
+//   );
+// };
+// const AppInner = () => {
+//   return <div>Main</div>;
+// };
+// const xAppInner = () => {
+//   const [pageSize, setPageSize] = useState(100);
+//   const [pageCursor, setPageCursor] = useState<string>(null);
+//   const [productId, setProductId] = useState<number>(null);
+//   const products = useWesternProducts({ pageSize, pageCursor });
+//   const post = usePost('MASTER_952322');
+//   useEffect(() => {
+//     if (post.isSuccess) {
+//       setFields({
+//         'post[post_title]': post.data.post_title,
+//         'post[meta_input][_sku]': post.data.meta_input._sku,
+//         'post[post_content]': post.data.post_content,
+//         'post[meta_input][_price]': post.data.meta_input._price
+//       });
+//     }
+//   }, [post.isSuccess]);
+//   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
+//     e.preventDefault();
+//     const data = new FormData(e.currentTarget);
+//     const response = await fetch('/wp-admin/admin-ajax.php', { method: 'POST', body: data }).then((r) => r.json());
+//     console.log({ response });
+//   };
+//   const [fields, setFields] = useState({
+//     'post[post_title]': 'newprodctitle',
+//     'post[meta_input][_sku]': 'MASTER_952322',
+//     'post[post_content]': 'desc 231',
+//     'post[meta_input][_price]': '99'
+//   });
+//   const updateFields: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+//     const delta = { [e.currentTarget.getAttribute('name')]: e.currentTarget.value };
+//     setFields((f) => ({ ...f, ...delta }));
+//   };
+//   return (
+//     <div style={{ position: 'relative' }}>
+//       <PauseCron />
+//       {/* <CronStatus /> */}
+//       <hr />
+//       {/* <TestAPI /> */}
+//       {/* <CronJobManager /> */}
+//       <hr />
+//       <h1>Test React AppZZ</h1>
+//       <pre>{JSON.stringify(post, null, 2)}</pre>
+//       <form method='post' action='' onSubmit={handleSubmit}>
+//         <input type='hidden' name='action' value='ci_woo_action' />
+//         <input type='hidden' name='post[post_type]' value='product' />
+//         <input type='hidden' name='post[post_status]' value='publish' />
+//         <div className='gap-2' style={{ display: 'grid', gridTemplateColumns: 'min-content 1fr' }}>
+//           <InputField label='Sku' name='post[meta_input][_sku]' value={fields['post[meta_input][_sku]']} onChange={updateFields} />
+//           <InputField label='Title' name='post[post_title]' value={fields['post[post_title]']} onChange={updateFields} />
+//           <InputField label='Description' name='post[post_content]' value={fields['post[post_content]']} onChange={updateFields} />
+//           <InputField label='Price' name='post[meta_input][_price]' value={fields['post[meta_input][_price]']} onChange={updateFields} />
+//         </div>
+//         <input type='submit' name='submit_product' value='Add Product' />
+//       </form>
+//       <input type='number' min={1} max={1000} step={10} value={pageSize} onChange={(e) => setPageSize(parseInt(e.currentTarget.value))} />
+//       <button className='btn btn-primary'>Go</button>
+//       <button className='btn btn-primary' disabled={!products.data?.meta?.cursor?.next} onClick={() => setPageCursor(products.data?.meta?.cursor?.next)}>
+//         Next Page {products.data?.meta?.cursor?.next}
+//       </button>
+//       <div className='d-flex'>
+//         {products.isSuccess ? (
+//           <div>
+//             {products?.data?.data?.map((p) => (
+//               <div key={`row_${p.id}`} onClick={() => setProductId(p.id)}>
+//                 {p.name}
+//               </div>
+//             ))}
+//           </div>
+//         ) : null}
+//         {productId ? <WesternProduct productId={productId} /> : <h1>Waiting</h1>}
+//       </div>
+//       {/* <pre>{JSON.stringify(products, null, 2)}</pre> */}
+//       <GlobalLoader />
+//     </div>
+//   );
+// };
+const App = ({ children }) => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: false, retry: false } } });
     return (react.createElement(react.StrictMode, null,
-        react.createElement(QueryClientProvider, { client: queryClient },
-            react.createElement(AppInner, null))));
+        react.createElement(QueryClientProvider, { client: queryClient }, children)));
 };
-const render = (id) => {
+const render = (id, page = null) => {
     const root = (0,client/* createRoot */.s)(document.getElementById(id));
-    root.render(react.createElement(App, null));
+    switch (page) {
+        case 'jobs':
+            root.render(react.createElement(App, null,
+                react.createElement(Jobs, null),
+                react.createElement(Logs, null)));
+            break;
+        case 'logs':
+            root.render(react.createElement(App, null,
+                react.createElement(Logs, null)));
+            break;
+        default:
+            root.render(react.createElement(App, null,
+                react.createElement(HomePage, null)));
+    }
 };
 
 
@@ -7900,7 +5638,7 @@ module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("b43645da5a1757d8baf6")
+/******/ 		__webpack_require__.h = () => ("e58f3054b96a69fdc0fe")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
@@ -8889,7 +6627,7 @@ module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%
 /******/ 	// module cache are used so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	var __webpack_exports__ = __webpack_require__(618);
+/******/ 	var __webpack_exports__ = __webpack_require__(234);
 /******/ 	
 /******/ 	return __webpack_exports__;
 /******/ })()

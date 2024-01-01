@@ -9,12 +9,17 @@
  * License: GPL2
  */
 
-include_once __DIR__ . '/ci-store-cron.php';
-include_once __DIR__ . '/ci-store-utils.php';
+// include_once __DIR__ . '/ci-store-cron.php';
+// include_once __DIR__ . '/ci-store-utils.php';
+// include_once __DIR__ . '/ci-store-settings.php';
+include_once __DIR__ . '/cronjob/index.php';
+include_once __DIR__ . '/log/index.php';
+include_once __DIR__ . '/test.php';
 
 function create_admin_menu()
 {
     add_menu_page('CI Store Plugin', 'CI Store', 'manage_options', 'ci-store-plugin-page', 'render_ci_store_plugin_ui');
+    // add_submenu_page('ci-store-plugin-page', 'Jobs', 'Jobs', 'manage_options', 'ci-store-plugin-page-jobs', 'render_ci_store_plugin_jobs');
 }
 
 function render_ci_store_plugin_ui()
@@ -29,6 +34,7 @@ function render_ci_store_plugin_ui()
 
 add_action('admin_menu', 'create_admin_menu');
 
+
 function enqueue_ci_plugin_script()
 {
     wp_register_script('admin-ui-script', plugin_dir_url(__FILE__) . 'dist/ci-store-plugin.js', array(), '1.0', true);
@@ -36,8 +42,6 @@ function enqueue_ci_plugin_script()
 }
 
 add_action('admin_enqueue_scripts', 'enqueue_ci_plugin_script');
-
-include_once __DIR__.'/ci-store-settings.php';
 
 function forward_data()
 {
@@ -62,7 +66,7 @@ function forward_data()
         wp_send_json(['error' => 'Missing path']);
     }
 
-    // get approved params for WPS
+    // filter approved query params for supplier
     $filteredProperties = [];
     $allowParams = $SUPPLIER[$key]['allowParams'];
 

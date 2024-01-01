@@ -1,11 +1,24 @@
 <?php
 
-require_once __DIR__ . '/ci-store-func.php';
-include_once __DIR__ . '/ci-store-utils.php';
-include_once __DIR__ . '/ci-store-log.php';
+// require_once __DIR__ . '/western/index.php';
+// require_once __DIR__ . '/ci-store-func.php';
+// require_once __DIR__ . '/western/index.php';
+// include_once __DIR__ . '/ci-store-utils.php';
+// include_once __DIR__ . '/ci-store-log.php';
+// include_once __DIR__ . '/log/index.php';
+// include_once __DIR__ . '/log/read_log_file.php';
+// include_once __DIR__ . '/log/write_to_log_file.php';
+include_once __DIR__ . '/cronjob/index.php';
+include_once __DIR__ . '/actions/index.php';
+/*
+function updateJob()
+{}
+
+function getJob()
+{}
 
 $option_key = 'ci_update_products_schedule_status';
-/*
+
 starting
 started
 pausing
@@ -13,7 +26,7 @@ paused
 resuming -> started
 stopping
 stopped -> starting
- */
+
 $default_job = array(
     'is_running' => false,
     'status' => 'stopped', // Xidle, starting, started, running, paused, completed, error
@@ -30,7 +43,7 @@ $default_job = array(
 function schedule_product_update()
 {
     $next = wp_next_scheduled('ci_handle_schedule_event');
-    write_to_log_file("schedule_product_update() next=" . date('c', $next));
+    // write_to_log_file("schedule_product_update() next=" . date('c', $next));
     if (!$next) {
         wp_schedule_event(time(), 'every_minute', 'ci_handle_schedule_event');
     }
@@ -41,7 +54,7 @@ add_action('wp', 'schedule_product_update');
 function ci_handle_schedule_event()
 {
     $cronjob = getJob();
-    write_to_log_file("ci_handle_schedule_event() status:" . $cronjob['status']);
+    // write_to_log_file("ci_handle_schedule_event() status:" . $cronjob['status']);
     if ($cronjob['status'] === 'stopped') {
         ci_cronjob_do_cmd('start');
     }
@@ -53,7 +66,7 @@ function ci_cronjob_do_cmd($cmd)
 {
     global $default_job;
     $cronjob = getJob();
-    write_to_log_file("ci_cronjob_do_cmd(" . $cmd . ")" . " status:" . $cronjob['status']);
+    // write_to_log_file("ci_cronjob_do_cmd(" . $cmd . ")" . " status:" . $cronjob['status']);
 
     switch ($cmd) {
 
@@ -100,7 +113,7 @@ function ci_cronjob_do_cmd($cmd)
             if (($cronjob['status'] === 'stopped' || $cronjob['status'] === 'idle') && (!isset($cronjob['version']) || $cronjob['version'] < $default_job['version'])) {
                 $oldVersion = $cronjob['version'];
                 $cronjob = updateJob($default_job, true);
-                write_to_log_file('Job Upgraded to ' . $oldVersion . ' => ' . $cronjob['version']);
+                // write_to_log_file('Job Upgraded to ' . $oldVersion . ' => ' . $cronjob['version']);
             }
             break;
     }
@@ -131,10 +144,10 @@ function ci_store_api()
     if (!empty($_GET['cmd'])) {
         switch ($_GET['cmd']) {
             case 'getlog':
-                $log = read_log_file();
-                return wp_send_json($log, null, JSON_PRETTY_PRINT);
+            // $log = read_log_file();
+            // return wp_send_json($log, null, JSON_PRETTY_PRINT);
             case 'clearlog':
-                clear_log_file();
+                // clear_log_file();
         }
     }
     return null;
@@ -144,7 +157,7 @@ add_action('wp_ajax_ci_store_api', 'ci_store_api');
 
 function XXdoTest()
 {
-    write_to_log_file("doTest()");
+    // write_to_log_file("doTest()");
     global $default_job, $option_key;
     $cronjob = get_option($option_key, $default_job);
 
@@ -198,33 +211,33 @@ function extractIds($item)
     return $item['id'];
 }
 
-function getJob()
-{
-    global $default_job, $option_key;
-    return get_option($option_key, $default_job);
-}
+// function getJob()
+// {
+//     global $default_job, $option_key;
+//     return get_option($option_key, $default_job);
+// }
 
-function updateJob($delta, $replace = false)
-{
-    global $default_job, $option_key;
-    if ($replace) {
-        update_option($option_key, $delta);
-        $update = $delta;
-    } else {
-        $cronjob = get_option($option_key, $default_job);
-        $update = array_merge($cronjob, $delta);
-        update_option($option_key, $update);
-    }
-    write_to_log_file("updateJob() " . json_encode($delta));
-    return $update;
-}
+// function updateJob($delta, $replace = false)
+// {
+//     global $default_job, $option_key;
+//     if ($replace) {
+//         update_option($option_key, $delta);
+//         $update = $delta;
+//     } else {
+//         $cronjob = get_option($option_key, $default_job);
+//         $update = array_merge($cronjob, $delta);
+//         update_option($option_key, $update);
+//     }
+//     write_to_log_file("updateJob() " . json_encode($delta));
+//     return $update;
+// }
 
 // main function fired by the cron action
 // if the job isn't running
 function ci_update_products_action()
 {
     $cronjob = getJob();
-    write_to_log_file("ci_update_products_action() status:" . $cronjob['status']);
+    // write_to_log_file("ci_update_products_action() status:" . $cronjob['status']);
 
     switch ($cronjob['status']) {
         case 'starting':
@@ -239,7 +252,7 @@ function ci_update_products_action()
 
         case 'pausing':
             if ($cronjob['is_running']) {
-                write_to_log_file("pause attempt failed - is_running:" . $cronjob['is_running']);
+                // write_to_log_file("pause attempt failed - is_running:" . $cronjob['is_running']);
                 sleep(3);
                 do_action('ci_update_products_action');
                 // ci_update_products_action();
@@ -260,7 +273,7 @@ function ci_update_products_action()
 
         case 'stopping':
             if ($cronjob['is_running']) {
-                write_to_log_file("try to stop - sleep 5s");
+                // write_to_log_file("try to stop - sleep 5s");
                 sleep(5);
                 ci_update_products_action();
             } else {
@@ -291,17 +304,17 @@ function do_loop()
     // $loopRunning = true;
     $cronjob = getJob();
     if ($cronjob['is_running']) {
-        write_to_log_file("do_loop() skip already running");
+        // write_to_log_file("do_loop() skip already running");
         return;
     }
-    write_to_log_file("do_loop() START status:" . $cronjob['status']);
+    // write_to_log_file("do_loop() START status:" . $cronjob['status']);
     $cronjob = updateJob(['is_running' => true]);
     // $cronjob = updateJob(['status' => 'paused']);
     // $status = $cronjob['status'];
     sleep(10);
     $cronjob = getJob();
     $cronjob = updateJob(['is_running' => false, 'loops' => $cronjob['loops'] + 1]);
-    write_to_log_file("do_loop() END 1 status:" . $cronjob['status']);
+    // write_to_log_file("do_loop() END 1 status:" . $cronjob['status']);
     // write_to_log_file("do_loop() status:" . $status . " is_running:" . $cronjob['is_running']);
     // $cronjob = updateJob(['loops' => $cronjob['loops'] + 1]);
 
@@ -318,12 +331,12 @@ function XXci_update_products_action()
     // cron job fires this
     // global $default_job, $option_key;
     $cronjob = getJob(); //get_option($option_key, $default_job);
-    write_to_log_file("ci_update_products_action() is_running=" . $cronjob['is_running'] . " status:" . $cronjob['status']);
+    // write_to_log_file("ci_update_products_action() is_running=" . $cronjob['is_running'] . " status:" . $cronjob['status']);
 
     // $cronjob['attempt_auto_start_success'] = false;
 
     if ($cronjob['is_running'] === false) {
-        write_to_log_file("ci_update_products_action()");
+        // write_to_log_file("ci_update_products_action()");
         if ($cronjob['status'] === 'idle') {
             $cronjob['attempt_auto_start_success'] = true;
             $cronjob = updateJob(['status' => 'started', 'attempt_auto_start_success' => true]);
@@ -346,7 +359,7 @@ function XXci_update_products_action()
 
 function do_ci_update_products_action()
 {
-    write_to_log_file("do_ci_update_products_action()");
+    // write_to_log_file("do_ci_update_products_action()");
     $cronjob = getJob(); //updateJob(['is_running' => true]);
     $status = $cronjob['status'];
 
@@ -383,10 +396,10 @@ function do_ci_update_products_action()
             'loops' => $cronjob['loops'] + 1,
             'elapsed' => time() - strtotime($cronjob['started']),
         ]);
-        write_to_log_file("while loop");
+        // write_to_log_file("while loop");
         $status = $cronjob['status'];
     }
-    write_to_log_file("escaped while");
+    // write_to_log_file("escaped while");
     $cronjob = updateJob(['is_running' => false]);
 }
 
@@ -531,3 +544,4 @@ function Xci_update_products_action()
 // }
 
 add_action('ci_update_products', 'ci_update_products_action');
+*/

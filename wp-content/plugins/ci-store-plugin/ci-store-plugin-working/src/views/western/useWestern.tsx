@@ -1,4 +1,4 @@
-import { QueryKey, UseQueryResult, useQuery } from '@tanstack/react-query';
+import { QueryKey, UseQueryOptions, UseQueryResult, useQuery } from '@tanstack/react-query';
 import { default as urljoin } from 'url-join';
 import { IWesternAPIQuery, IWesternAttributeKey, IWesternError, IWesternImage, IWesternItem, IWesternItemStatus, IWesternParams, IWesternProductExt, IWesternResponse } from './IWestern';
 
@@ -16,14 +16,13 @@ export async function fetchWesternAPI<T>(path: string, params: IWesternParams = 
   url.searchParams.set('key', 'WPS');
   url.searchParams.set('path', path);
 
-
   // url.searchParams.set('cachebust', datestamp()); // let's bust this cache each day
   Object.keys(params)
     .filter((p) => params[p] !== null && params[p] !== '' && params[p] !== undefined)
     .map((p) => url.searchParams.set(p, params?.[p]?.toString() ?? ''));
   // console.log('fetchWesternAPI', url.href);
   // return fetch(url).catch(err => {error: err})
-  console.log('fetchWesternAPI',decodeURIComponent(url.href));
+  console.log('fetchWesternAPI', decodeURIComponent(url.href));
   const res = await fetch(url);
   if (!res.ok) {
     const info = { message: 'ERROR', description: 'There was a problem' };
@@ -49,10 +48,14 @@ export const fetchWesternProductsPage = async (cursor: string, pageSize = 1000, 
   return data;
 };
 
-export function useWestern<T = unknown>(props: Partial<IWesternAPIQuery> = {}, enabled = true): UseQueryResult<IWesternResponse<T> & { query: IWesternAPIQuery }, IWesternError> {
+type QueryOptions = Omit<UseQueryOptions<unknown, unknown, unknown, QueryKey>, 'initialData'> & {
+  initialData?: () => undefined;
+};
+
+export function useWestern<T = unknown>(props: Partial<IWesternAPIQuery> = {}, options: Record<string, unknown> = {}): UseQueryResult<IWesternResponse<T> & { query: IWesternAPIQuery }, IWesternError> {
   return useQuery<unknown, IWesternError, IWesternResponse<T> & { query: IWesternAPIQuery }, QueryKey>({
+    ...options,
     queryKey: ['western-api', props.service, props] as unknown as QueryKey,
-    enabled: (!!props?.path || !!props.service) && enabled,
     queryFn: async () => {
       const url = new URL(WESTERN_API_URL);
       url.pathname = props?.path ?? urljoin(props.service, props?.ids?.join() ?? '', props?.route ?? '');
@@ -146,15 +149,15 @@ export const fetchWesternProduct = async (productId: number | string) => {
 };
 
 export function useWesternProducts({ ...props }: Partial<IWesternAPIQuery> = {}, enabled = true) {
-  return useWestern<IWesternProductExt[]>({ include: westernProductIncludes, ...props, service: 'products' }, enabled);
+  return useWestern<IWesternProductExt[]>({ include: westernProductIncludes, ...props, service: 'products' }, { enabled });
 }
 
 export function useWesternItems({ ...props }: Partial<IWesternAPIQuery> = {}, enabled = true) {
-  return useWestern<IWesternItem[]>({ ...props, service: 'items' }, enabled);
+  return useWestern<IWesternItem[]>({ ...props, service: 'items' }, { enabled });
 }
 
 export function useWesternImages({ ...props }: Partial<IWesternAPIQuery> = {}, enabled = true) {
-  return useWestern<IWesternImage[]>({ ...props, service: 'images' }, enabled);
+  return useWestern<IWesternImage[]>({ ...props, service: 'images' }, { enabled });
 }
 
 export const useWesternProductsPage = (cursor: string = null, pageSize = 1000) => {
