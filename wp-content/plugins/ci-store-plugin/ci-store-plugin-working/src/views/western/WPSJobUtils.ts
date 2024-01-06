@@ -28,7 +28,7 @@ export async function getTotalWPSProducts(lastUpdate: string = '') {
   return countResponse.data.count;
 }
 
-export async function getWesternProductsPage(lastUpdate: string, cursor: string, pageSize = 100, params: IWesternParams = {}) {
+export async function get_western_products_page(lastUpdate: string, cursor: string, pageSize = 100, params: IWesternParams = {}) {
   const data = await fetchWesternAPI<IWesternProductExt[]>('/products', {
     ...(cursor ? { 'page[cursor]': cursor } : {}), //
     'page[size]': pageSize,

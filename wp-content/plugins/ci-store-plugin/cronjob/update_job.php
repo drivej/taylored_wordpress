@@ -13,13 +13,13 @@ function update_job($id, $delta, $fn = null)
                 $should = $fn($job);
             }
             if ($should) {
-                $delta['updated'] = current_time('mysql', 1);
+                $delta['updated'] = gmdate("c");//current_time('mysql', 1);
                 $jobs[$key] = array_merge($job, $delta);
             }
         }
     }
     if ($should) {
-        write_to_log_file("update_job() " . $id . " " . json_encode($delta));
+        // write_to_log_file("update_job() " . $id . " " . json_encode($delta));
         update_option('ci_store_jobs', $jobs);
     }
     return $jobs;

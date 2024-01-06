@@ -8,8 +8,8 @@
 // include_once __DIR__ . '/log/index.php';
 // include_once __DIR__ . '/log/read_log_file.php';
 // include_once __DIR__ . '/log/write_to_log_file.php';
-include_once __DIR__ . '/cronjob/index.php';
-include_once __DIR__ . '/actions/index.php';
+// include_once __DIR__ . '/cronjob/index.php';
+// include_once __DIR__ . '/actions/index.php';
 /*
 function updateJob()
 {}
@@ -165,7 +165,7 @@ function XXdoTest()
         $cronjob['products_current'] = array_pop($cronjob['products']);
     } else {
         // if(isset($cronjob['cursor']){
-        $data = getWesternProductsPage($cronjob['cursor']);
+        $data = get_western_products_page($cronjob['cursor']);
 
         if (isset($data['data'])) {
             $products = array_map('mapProducts', $data['data']);
@@ -424,7 +424,7 @@ function Xci_update_products_action()
         } else {
             $cronjob['lastUpdate'] = date('Y-m-d');
         }
-        $cronjob['products_total'] = getWesternProductsCount($cronjob['lastUpdate']);
+        $cronjob['products_total'] = get_western_products_count($cronjob['lastUpdate']);
         $cronjob['started'] = current_time('mysql', 1);
         $cronjob['cursor'] = 'START';
         $cursor = 'START';
@@ -437,7 +437,7 @@ function Xci_update_products_action()
         // $cronjob['status_loop1'] = $cronjob['status'];
 
         // $cronjob['while']++;
-        $data = getWesternProductsPage($cursor === 'START' ? '' : $cursor, $cronjob['lastUpdate']);
+        $data = get_western_products_page($cursor === 'START' ? '' : $cursor, $cronjob['lastUpdate']);
         $products = array_map('filterValidProducts', $data['data']);
         $cronjob['products'] = $products;
         $cronjob['loop_1_start_status'] = $cronjob['status'];
@@ -451,7 +451,7 @@ function Xci_update_products_action()
             $product_info = array_pop($products);
             if ($product_info['isValid']) {
                 // update/insert
-                $product = getWesternProduct($product_info['id']);
+                $product = get_western_product($product_info['id']);
                 $action = 'update/insert';
             } else {
                 // delete
@@ -490,7 +490,7 @@ function Xci_update_products_action()
 //     // $cronjob = get_option($option_key, $default_job);
 //     // $cursor = $cronjob['cursor'];
 //     // $cronjob['while']++;
-//     $data = getWesternProductsPage($cursor, $lastUpdate);
+//     $data = get_western_products_page($cursor, $lastUpdate);
 //     $products = $data['data']; //array_map('filterValidProducts', $data['data']);
 //     $cronjob['products'] = $products;
 //     update_option($option_key, $cronjob);
@@ -504,7 +504,7 @@ function Xci_update_products_action()
 
 //         //     if (isValidProduct($product_info)) {
 //         //         // update/insert
-//         //         $product = getWesternProduct($product_info['id']);
+//         //         $product = get_western_product($product_info['id']);
 //         //         $cronjob['current_product'] = $product;
 //         //         $cronjob['current_action'] = 'update/insert';
 //         //     } else {
@@ -532,7 +532,7 @@ function Xci_update_products_action()
 
 //     if (isValidProduct($product_info)) {
 //         // update/insert
-//         $product = getWesternProduct($product_info['id']);
+//         $product = get_western_product($product_info['id']);
 //         $cronjob['current_product'] = $product;
 //         $cronjob['current_action'] = 'update/insert';
 //     } else {

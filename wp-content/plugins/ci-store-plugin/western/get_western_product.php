@@ -1,9 +1,8 @@
 <?php
 
-require_once __DIR__ . '../../ci-store-settings.php';
-require_once __DIR__ . '/getWestern.php';
+require_once __DIR__ . '/get_western.php';
 
-function getWesternProduct($id)
+function get_western_product($id)
 {
     $params = [];
     $params['include'] = implode(',', [
@@ -19,5 +18,5 @@ function getWesternProduct($id)
         'taxonomyterms',
         'items:filter(status_id|NLA|ne)',
     ]);
-    return getWestern('products/' . $id, $params);
+    return get_western('products/' . $id, $params);
 }

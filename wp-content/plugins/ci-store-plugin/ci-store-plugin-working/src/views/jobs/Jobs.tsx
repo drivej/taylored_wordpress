@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
+import { useState } from 'react';
 import { since } from '../../utils/datestamp';
 import { fetchWordpressAjax } from '../../utils/fetchWordpressAjax';
 
@@ -9,8 +10,8 @@ export interface IWordpressAjaxParams {
 }
 
 export interface ICronJobParams {
-//   supplier?: string;
-//   product?: number;
+  //   supplier?: string;
+  //   product?: number;
   job_id?: string;
   job_action?: string;
   job_args?: string;
@@ -40,6 +41,8 @@ interface ICronJob {
   action: string;
   created: string;
   updated: string;
+  started: string;
+  completed: string;
   args: Record<string, string | number>;
 }
 
@@ -53,6 +56,15 @@ const useJobs = () => {
     initialData: [],
     placeholderData: [],
     refetchInterval: 5000
+  });
+};
+
+const useJobsStatus = (cmd: string) => {
+  return useQuery({
+    queryKey: ['jobs_status', cmd],
+    queryFn: () => {
+      return fetchWordpressAjax<{ active: boolean }>({ action: 'cronjob_do_cmd', cmd });
+    }
   });
 };
 
@@ -91,6 +103,8 @@ const JobIcon = ({ job }: { job: ICronJob }) => {
 
 export const Jobs = () => {
   const jobs = useJobs();
+  const [statusCmd, setStatusCmd] = useState('pause_jobs');
+  const jobsStatus = useJobsStatus(statusCmd);
   const queryClient = useQueryClient();
 
   const updateJobs = () => {
@@ -102,15 +116,34 @@ export const Jobs = () => {
     onSuccess: (data) => queryClient.setQueryData(['jobs'], data)
   });
 
+  const mutationJobStatus = useMutation({
+    mutationFn: (options: Partial<ICronJobParams & IWordpressAjaxParams>) => fetchWordpressAjax<ICronJob[]>({ action: 'cronjob_do_cmd', ...options }),
+    onSuccess: (data) => {
+      console.log('success', data);
+      queryClient.setQueryData(['jobs_status'], data);
+    }
+  });
+
   const cleanJobs = () => {
     mutationJob.mutate({ cmd: 'clean_jobs' });
   };
 
   const createJob = () => {
-    const action = prompt('Action?', 'import_western_product');
+    const action = prompt('Action?', 'import_western_page');
     if (action) {
-      mutationJob.mutate({ cmd: 'create_job', job_args: JSON.stringify({ action, product_id:6 }) });
+      mutationJob.mutate({ cmd: 'create_job', job_args: JSON.stringify({ action, product_id: 6 }) });
     }
+  };
+
+  const importWPS = () => {
+    const product_id = prompt('Product ID?');
+    if (product_id) {
+      mutationJob.mutate({ cmd: 'create_job', job_args: JSON.stringify({ action: 'import_western_product', product_id }) });
+    }
+  };
+
+  const resetJob = (job: ICronJob) => {
+    mutationJob.mutate({ cmd: 'reset_job', job_id: job.id });
   };
 
   const deleteJob = (job: ICronJob) => {
@@ -131,6 +164,16 @@ export const Jobs = () => {
 
   const stopJob = (job: ICronJob) => {
     mutationJob.mutate({ cmd: 'stop_job', job_id: job.id });
+  };
+
+  const processJobs = () => {
+    mutationJob.mutate({ cmd: 'process_jobs' });
+  };
+
+  const toggleJobsStatus = () => {
+    console.log(statusCmd === 'resume_jobs' ? 'pause_jobs' : 'resume_jobs');
+    setStatusCmd((cmd) => (cmd === 'resume_jobs' ? 'pause_jobs' : 'resume_jobs'));
+    // mutationJobStatus.mutate({ cmd: jobsStatus.data.active ? 'pause_jobs' : 'resume_jobs' });
   };
 
   const toggleJob = (job: ICronJob) => {
@@ -170,6 +213,16 @@ export const Jobs = () => {
         <button className='btn btn-primary' onClick={createJob}>
           Create Job
         </button>
+        <button className='btn btn-primary' onClick={processJobs}>
+          Process Jobs
+        </button>
+
+        <button className='btn btn-primary' onClick={importWPS}>
+          Import WPS
+        </button>
+        <button className='btn btn-primary btn-icon' onClick={toggleJobsStatus}>
+          {jobsStatus?.data?.active ? ICON_PAUSE : ICON_PLAY}
+        </button>
       </div>
       <div className='position-relative'>
         <div className='bg-primary' style={{ opacity: jobs.isFetching || mutationJob.isLoading ? 1 : 0, transition: 'opacity 0.3s', width: '100%', height: 5 }} />
@@ -184,6 +237,8 @@ export const Jobs = () => {
                 <th>action</th>
                 <th>created</th>
                 <th>updated</th>
+                <th>started</th>
+                <th>completed</th>
                 <th>args</th>
                 <th style={{ width: 1 }}>
                   <button className='btn btn-primary' onClick={updateJobs}>
@@ -194,31 +249,43 @@ export const Jobs = () => {
             </thead>
             <tbody className='table-group-divider'>
               {jobs.data.map((job) => (
-                <tr>
-                  <td>
-                    <button className='btn btn-primary' style={{ fontFamily: 'initial' }} onClick={() => toggleJob(job)}>
-                      <JobIcon job={job} />
-                    </button>
-                  </td>
-                  <td>{job.id}</td>
-                  <td>{job?.process ?? 'unknown'}</td>
-                  <td>{job.status}</td>
-                  <td>{job.action}</td>
-                  <td title={job.created}>{since(job.created)}</td>
-                  <td title={job.updated}>{since(job.updated)}</td>
-                  <td>
-                    {Object.keys(job.args).map((k) => (
-                      <span>
-                        {k}: {job.args[k]},{' '}
-                      </span>
-                    ))}
-                  </td>
-                  <td>
-                    <button className='btn btn-primary' onClick={() => deleteJob(job)} title='delete'>
-                      &times;
-                    </button>
-                  </td>
-                </tr>
+                <>
+                  <tr>
+                    <td>
+                      <button className='btn btn-primary btn-icon' style={{ fontFamily: 'initial' }} onClick={() => toggleJob(job)}>
+                        <JobIcon job={job} />
+                      </button>
+                    </td>
+                    <td>{job.id}</td>
+                    <td>{job?.process ?? 'unknown'}</td>
+                    <td>{job.status}</td>
+                    <td>{job.action}</td>
+                    <td title={job.created}>{since(job.created)}</td>
+                    <td title={job.updated}>{since(job.updated)}</td>
+                    <td title={job.started}>{since(job.started)}</td>
+                    <td title={job.completed}>{since(job.completed)}</td>
+                    <td>
+                      {Object.keys(job.args).map((k) => (
+                        <span>
+                          {k}: {job.args[k]},{' '}
+                        </span>
+                      ))}
+                    </td>
+                    <td className='d-flex gap-2'>
+                      <button className='btn btn-primary' onClick={() => resetJob(job)} title='reset'>
+                        reset
+                      </button>
+                      <button className='btn btn-primary' onClick={() => deleteJob(job)} title='delete'>
+                        &times;
+                      </button>
+                    </td>
+                  </tr>
+                  {/* <tr>
+                    <td colSpan={10}>
+                      <pre>{JSON.stringify(job, null, 2)}</pre>
+                    </td>
+                  </tr> */}
+                </>
               ))}
             </tbody>
           </table>

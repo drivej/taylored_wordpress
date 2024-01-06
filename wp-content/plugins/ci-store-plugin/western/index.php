@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/getWestern.php';
-require_once __DIR__ . '/getWesternProduct.php';
-require_once __DIR__ . '/getWesternProductsCount.php';
-require_once __DIR__ . '/getWesternProductsPage.php';
+require_once __DIR__ . '/get_western.php';
+require_once __DIR__ . '/get_western_product.php';
+require_once __DIR__ . '/get_western_products_count.php';
+require_once __DIR__ . '/get_western_products_page.php';

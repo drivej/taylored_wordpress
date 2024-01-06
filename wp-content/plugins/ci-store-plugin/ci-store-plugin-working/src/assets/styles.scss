@@ -76,3 +76,11 @@ select option.checked::after {
 tr.pointer:hover {
   background-color: #eee;
 }
+/*
+
+fix html entity icons in bootstrap button
+
+*/
+.btn {
+  font-family: initial;
+}

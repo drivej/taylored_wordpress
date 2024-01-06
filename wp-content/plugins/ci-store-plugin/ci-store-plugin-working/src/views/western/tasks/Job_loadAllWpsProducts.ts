@@ -1,7 +1,7 @@
 import { JobRunner } from '../../../jobs/JobRunner';
 import { IWesternProductExt, IWesternResponse } from '../IWestern';
 import { IndexedDBHandler } from '../IndexedDatabase';
-import { getWesternProductsPage } from '../WPSJobUtils';
+import { get_western_products_page } from '../WPSJobUtils';
 import { fetchWesternAPI } from '../useWestern';
 
 const wpsListDb = new IndexedDBHandler<{ cursor: string; result: IWesternResponse<IWesternProductExt[]> }>('wpsListProducts', { version: 1, primary: 'cursor' });
@@ -39,7 +39,7 @@ export class Job_loadAllWpsProducts extends JobRunner<Job_loadAllWpsProducts_pay
       }
 
       if (!result) {
-        result = await getWesternProductsPage(this.input?.lastUpdate, cursor, 500);
+        result = await get_western_products_page(this.input?.lastUpdate, cursor, 500);
         if (cursor) await wpsListDb.addRow({ cursor, result });
       }
       products.push(...result.data);

@@ -11,7 +11,7 @@ const useLogs = () => {
     },
     keepPreviousData: true,
     initialData: [],
-    refetchInterval: 5000
+    refetchInterval: 10000
   });
 };
 

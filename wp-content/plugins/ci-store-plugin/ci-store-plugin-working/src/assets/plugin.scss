@@ -1,1 +1,9 @@
 @import '~bootstrap/scss/bootstrap';
+/*
+
+fix html entity icons in bootstrap button
+
+*/
+.btn-icon {
+  font-family: initial;
+}

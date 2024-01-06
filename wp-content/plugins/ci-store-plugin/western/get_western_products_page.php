@@ -1,11 +1,10 @@
 <?php
 
-require_once __DIR__ . '../../ci-store-settings.php';
-require_once __DIR__ . '/getWestern.php';
-// require_once __DIR__ . '../getWestern.php';
+// require_once __DIR__ . '../../ci-store-settings.php';
+require_once __DIR__ . '/get_western.php';
 // require_once __DIR__ . '/ci-store-utils.php';
 
-function getWesternProductsPage($cursor = '', $updated = '2020-01-01')
+function get_western_products_page($cursor = '', $updated = '2020-01-01', $size = 10)
 {
     // global $SUPPLIER;
     // $key = 'WPS';
@@ -29,9 +28,9 @@ function getWesternProductsPage($cursor = '', $updated = '2020-01-01')
         $params['page[cursor]'] = $cursor;
     }
     //
-    $params['page[size]'] = 10;
+    $params['page[size]'] = $size;
     $params['fields[items]'] = 'id,updated_at';
-    $params['fields[products]'] = 'id,updated_at';
+    $params['fields[products]'] = 'id,name,updated_at';
 
     // foreach ($_GET as $propertyName => $propertyValue) {
     //     foreach ($allowParams as $testName) {
@@ -41,7 +40,7 @@ function getWesternProductsPage($cursor = '', $updated = '2020-01-01')
     //         }
     //     }
     // }
-    return getWestern('products', $params);
+    return get_western('products', $params);
 
     // $query_string = http_build_query($params);
     // $remote_url = implode("/", [$SUPPLIER[$key]['api'], trim($path, '/')]) . '?' . $query_string;

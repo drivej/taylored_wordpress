@@ -3,7 +3,7 @@ import { JobRunner } from '../../jobs/JobRunner';
 import { formatDuration } from '../../utils/formatDuration';
 import { lookup } from '../../utils/lookup';
 import { IWesternProductExt } from './IWestern';
-import { getTotalWPSProducts, getWPSProduct, getWesternProductsPage, importWesternProduct, syncWooProduct, wooIsOutdated } from './WPSJobUtils';
+import { getTotalWPSProducts, getWPSProduct, get_western_products_page, importWesternProduct, syncWooProduct, wooIsOutdated } from './WPSJobUtils';
 import { isValidProduct } from './WesternProducts';
 import { Job_loadAllWooProducts, Job_loadAllWooProducts_payload } from './tasks/Job_loadAllWooProducts';
 import { Job_loadAllWpsProducts, Job_loadAllWpsProducts_payload } from './tasks/Job_loadAllWpsProducts';
@@ -200,7 +200,7 @@ class Job_importWPSProducts extends JobRunner<IWesternBigImportPayload> {
         return;
       }
       // most unavailable products are weeded out in the get page phase
-      const page = await getWesternProductsPage(this.input?.lastUpdate, cursor, 10);
+      const page = await get_western_products_page(this.input?.lastUpdate, cursor, 10);
       importInfo.cursor = cursor;
       window.localStorage.setItem('importInfo', JSON.stringify(importInfo));
       console.log({ page });

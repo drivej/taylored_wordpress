@@ -18,6 +18,10 @@ function create_job($action, $args = [])
             'action' => $action,
             'created' => gmdate("c"),
             'updated' => gmdate("c"),
+            'started' => 0,
+            'completed' => 0,
+            'timeout' => 60,
+            'retry' => 2,
             'args' => $args,
         ];
         array_push($jobs, $job);

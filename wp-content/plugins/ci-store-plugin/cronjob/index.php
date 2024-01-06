@@ -32,14 +32,19 @@ add_action('admin_menu', 'admin_menu_cistore_jobs', 12);
 // initialize schedule a check to run periodically
 function schedule_job_update()
 {
-    $next = wp_next_scheduled('schedule_job_event');
+    $next = wp_next_scheduled('ci_handle_schedule_event');
     if ($next === false) {
+        wp_clear_scheduled_hook('ci_handle_schedule_event');
         write_to_log_file("schedule_job_update() next=" . $next . " " . date('c', $next));
         wp_schedule_event(time(), 'every_minute', 'ci_handle_schedule_event');
+        // } else {
+        //     write_to_log_file("SKIP schedule_job_update() next=" . $next . " " . date('c', $next));
     }
 }
 
 add_action('wp', 'schedule_job_update');
 
+add_option('ci_jobs_process_active', false);
+
 // periodic check triggers this function
-add_action('ci_handle_schedule_event', 'process_jobs');
+// add_action('ci_handle_schedule_event', 'process_jobs');
