@@ -5,69 +5,89 @@ require_once __DIR__ . './../western/get_western_products_page.php';
 require_once __DIR__ . './../western/get_western_product.php';
 require_once __DIR__ . './../western/western_utils.php';
 require_once __DIR__ . './../western/wps_settings.php';
+require_once __DIR__ . '/update_product_attributes.php';
+require_once __DIR__ . './../utils/Report.php';
 
-function import_western_product($wps_product_id, $force_update = false)
+/**
+ *
+ * @param int    $wps_product_id
+ * @param bool   $force_update
+ * @param Report $report
+ */
+function import_western_product($wps_product_id, $force_update = false, $report = new Report())
 {
-    write_to_log_file('START import_western_product()' . json_encode(['wps_product_id' => $wps_product_id]));
+    $start_time = microtime(true);
     $action = '';
     $product_id = '';
     $sku = '';
 
-    try {
-        $wps_product = get_western_product($wps_product_id);
+    // try {
+    $wps_product = get_western_product($wps_product_id);
+    $report->addData('wps_product_id', $wps_product_id);
 
-        if (isset($wps_product['error'])) {
-            $action = 'error';
-        } else {
-            $sku = get_western_sku($wps_product);
-            $product_id = wc_get_product_id_by_sku($sku);
-            $is_valid = isValidProduct($wps_product['data']);
+    if (isset($wps_product['error'])) {
+        $action = 'error';
+    } else {
+        $sku = get_western_sku($wps_product);
+        $product_id = wc_get_product_id_by_sku($sku);
+        $report->addData('product_sku', $sku);
+        $report->addData('product_id', $product_id);
+        $is_valid = isValidProduct($wps_product['data']);
 
-            if ($is_valid) {
-                if ($product_id) {
-                    $product = wc_get_product_object('product', $product_id);
-                    $needs_update = $force_update === true || product_needs_update($product, $wps_product);
-                    if ($needs_update) {
-                        $action = 'update';
-                    } else {
-                        $action = 'ignore';
-                    }
-                } else {
-                    $action = 'insert';
-                }
-            } else {
-                if ($product_id) {
-                    $action = 'delete';
+        if ($is_valid) {
+            if ($product_id) {
+                $product = wc_get_product_object('product', $product_id);
+                $needs_update = $force_update === true || product_needs_update($product, $wps_product);
+                if ($needs_update) {
+                    $action = 'update';
                 } else {
                     $action = 'ignore';
                 }
+            } else {
+                $action = 'insert';
+            }
+        } else {
+            if ($product_id) {
+                $action = 'delete';
+            } else {
+                $action = 'ignore';
             }
         }
-
-        // write_to_log_file("import_western_product() " . json_encode(['action' => $action, "wps_product_id" => $wps_product_id, "product_id" => $product_id]));
-
-        switch ($action) {
-            case 'insert':
-                $product_id = insert_western_product($wps_product);
-                break;
-            case 'update':
-                update_western_product($wps_product, $product_id);
-                break;
-            case 'delete':
-                delete_product($product_id);
-                break;
-            case 'ignore':
-            case 'error':
-            default:
-        }
-
-    } catch (Exception $e) {
-        write_to_log_file("ERROR! import_western_product() " . json_encode(["wps_product_id" => $wps_product_id]));
     }
-    write_to_log_file('END import_western_product()' . json_encode(['wps_product_id' => $wps_product_id, 'action' => $action]));
-    return ['wps_product_id' => $wps_product_id, 'product_id' => $product_id, 'action' => $action, 'sku' => $sku];
-}
 
+    // write_to_log_file("import_western_product() " . json_encode(['action' => $action, "wps_product_id" => $wps_product_id, "product_id" => $product_id]));
+
+    switch ($action) {
+        case 'insert':
+            $product_id = insert_western_product($wps_product, $report);
+            break;
+        case 'update':
+            update_western_product($wps_product, $product_id, $report);
+            break;
+        case 'delete':
+            delete_product($product_id, $report);
+            break;
+        case 'ignore':
+        case 'error':
+        default:
+    }
+
+    $report->addData('action', $action);
+    $report->addData('product_id', $product_id);
+
+    // } catch (Exception $e) {
+    //     write_to_log_file("ERROR! import_western_product() " . json_encode(["wps_product_id" => $wps_product_id, 'e'=>$e]));
+    // }
+    $end_time = microtime(true);
+    $time_taken = $end_time - $start_time;
+    write_to_log_file('import_western_product()' . json_encode(['wps_product_id' => $wps_product_id, 'action' => $action, 'time' => $time_taken]));
+    // return $report; //['wps_product_id' => $wps_product_id, 'product_id' => $product_id, 'action' => $action, 'sku' => $sku];
+}
+/**
+ *
+ * @param WC_Product   $woo_product
+ * @param array    $wps_product
+ */
 function product_needs_update($woo_product, $wps_product)
 {
     global $WPS_SETTINGS;
@@ -87,17 +107,21 @@ function product_needs_update($woo_product, $wps_product)
     }
     return $needs_update;
 }
-
-function insert_western_product($wps_product)
+/**
+ *
+ * @param array    $wps_product
+ * @param Report   $report
+ */
+function insert_western_product($wps_product, $report = new Report())
 {
     global $WPS_SETTINGS;
-    write_to_log_file('START insert_western_product()' . json_encode(['wps_product' => $wps_product['data']['id']]));
     $product = new WC_Product_Variable();
+    $item = $wps_product['data']['items']['data'][0];
     $sku = get_western_sku($wps_product);
     $product->set_sku($sku);
     $product->set_name($wps_product['data']['name']);
     $product->set_status('publish');
-    $product->set_regular_price($wps_product['data']['items']['data'][0]['list_price']);
+    $product->set_regular_price($item['list_price']);
     $product->update_meta_data('_stock_status', wc_clean('instock'));
     $product->update_meta_data('_ci_supplier_key', 'wps');
     $product->update_meta_data('_ci_product_id', $wps_product['data']['id']);
@@ -106,84 +130,144 @@ function insert_western_product($wps_product)
     $product->update_meta_data('_ci_import_version', $WPS_SETTINGS['import_version']);
     $product->update_meta_data('_ci_import_timestamp', gmdate("c"));
     $product_id = $product->save();
-    update_western_product($wps_product, $product_id);
-    write_to_log_file('END insert_western_product()' . json_encode(['wps_product' => $wps_product['data']['id'], 'product_id' => $product_id]));
+    update_product_attributes($product, $wps_product, $report);
+    if ($report->getData('attribute_changes')) {
+        $product->save();
+    }
+    update_product_variations($product, $wps_product, $report);
+    // update_western_product($wps_product, $product_id, $report);
+    $report->addLog('insert_western_product() sku:' . $sku . ' id: ' . $product_id);
     return $product_id;
 }
 
-function update_western_product($wps_product, $product_id)
+function update_western_product($wps_product, $product_id, $report = new Report())
+{
+    $report->addLog('update_western_product()');
+    $product = wc_get_product_object('product', $product_id);
+    $has_variations = count($wps_product['data']['items']['data']) > 0;
+    $is_variable = $product->is_type('variable');
+    $report->addData('type', $product->get_type());
+
+    // if ($has_variations && !$is_variable) {
+    // $report->addLog('failed');
+    // delete_product($product_id);
+    // insert_western_product($wps_product, $report);
+    // } else {
+    update_product_attributes($product, $wps_product, $report);
+    update_product_variations($product, $wps_product, $report);
+    // }
+    return $product_id;
+}
+
+function variation_needs_update($woo_variation, $wps_item)
 {
     global $WPS_SETTINGS;
+    $needs_update = false;
+    $import_version = $woo_variation->get_meta('_ci_import_version');
+    // update if import version changes
+    if ($import_version != $WPS_SETTINGS['import_version']) {
+        $needs_update = true;
+    }
+    $imported = $woo_variation->get_meta('_ci_import_timestamp');
+    $date_imported = new DateTime($imported ? $imported : '2000-01-01 12:00:00');
+    $updated = $wps_item['updated_at'];
+    $date_updated = new DateTime($updated);
+    // update if imported before last remote update
+    if ($date_imported < $date_updated) {
+        $needs_update = true;
+    }
+    return $needs_update;
+}
+/**
+ *
+ * @param WC_Product    $product
+ * @param array    $wps_product
+ * @param Report   $report
+ */
+function update_product_variations($product, $wps_product, $report)
+{
+    $report->addLog('update_product_variations()');
+    global $WPS_SETTINGS;
+    $product_id = $product->get_id();
+    $product_attributes = $product->get_attributes();
+    $product_attribute_lookup = array_reduce(array_keys($product_attributes), fn($c, $v) => [$product_attributes[$v]->get_name() => [...$product_attributes[$v]->get_data(), 'key' => $v], ...$c], []);
+    $product_children = $product->get_children();
+    $lookup_variation_by_sku = array_reduce($product_children, function ($c, $variation_id) {
+        $variation = wc_get_product($variation_id);
+        $c[$variation->get_sku()] = $variation;
+        return $c;
+    }, []);
 
-    write_to_log_file('START update_western_product()' . json_encode(['wps_product' => $wps_product['data']['id'], 'product_id' => $product_id]));
-    $product = wc_get_product_object('product', $product_id);
+    $product_type = $product->get_type();
+    $report->addData('product_type', $product_type);
 
-    $variations = new WC_Product_Variable($product);
-    $product_variations = $variations->get_available_variations();
-    $lookup = array_reduce($product_variations, fn($c, $v) => [$v['sku'] => $v, ...$c], []);
-    write_to_log_file(json_encode(['product_variations' => $product_variations]));
+    // $av = $product->get_available_variations();
 
-    $wps_attributes = get_western_attributes_from_product($wps_product);
-    write_to_log_file(json_encode(['wps_attributes' => $wps_attributes]));
+    $lookup_item_by_sku = array_reduce($wps_product['data']['items']['data'], fn($c, $item) => [...$c, get_western_variation_sku($wps_product, $item) => $item], []);
+    $current_skus = array_keys($lookup_variation_by_sku);
+    $allow_skus = array_keys($lookup_item_by_sku);
+    $report->addData('current_skus', $current_skus);
+    $report->addData('allow_skus', $allow_skus);
+    $report->addData('product_children', $product_children);
+    // $report->addData('av', $av);
 
-    foreach ($wps_product['data']['items']['data'] as $item) {
-        foreach ($item['attributevalues']['data'] as $attr) {
-            $attr_id = $attr['attributekey_id'];
-            if (!isset($wps_attributes[$attr_id]['options'])) {
-                $wps_attributes[$attr_id]['options'] = [];
-            }
-            if (!in_array($attr['name'], $wps_attributes[$attr_id]['options'])) {
-                $wps_attributes[$attr_id]['options'][] = $attr['name'];
-            }
-        }
+    $deletes = array_diff($current_skus, $allow_skus);
+    $inserts = array_diff($allow_skus, $current_skus);
+    $updates = array_intersect($allow_skus, $current_skus);
+
+    foreach ($updates as $variation_sku) {
+        $item = $lookup_item_by_sku[$variation_sku];
+        $report->addLog($variation_sku);
+        $variation = $lookup_variation_by_sku[$variation_sku];
+        $report->addData($variation_sku, $variation);
+        $_ci_import_version = $variation->get_meta('_ci_import_version');
+        $report->addData($_ci_import_version, $_ci_import_version);
+        $needs_update = variation_needs_update($variation, $item);
+        $report->addLog($variation->get_sku() . ' needs update ' . $needs_update);
     }
 
-    $attributes = $product->get_attributes();
-    write_to_log_file(json_encode(['attributes' => $attributes]));
-
-    foreach ($wps_attributes as $attr) {
-        // $attr_slug = sanitize_title($attr['name'] . " " . $attr['id']);
-        // $has_attr = $product->get_attribute($attr_slug);
-        write_to_log_file(json_encode(['attr'=> $attr]));
-        write_to_log_file(json_encode(['attributes'=> $attributes]));
-        $exists = array_key_exists($attr['slug'], $attributes);// isset($attributes[$attr['slug']]);
-        write_to_log_file(json_encode(['exists'=> $exists]));
-
-        if (!$exists && count($attr['options'])) {
-            write_to_log_file('create new attribute ' . json_encode($attr));
-            $attribute = new WC_Product_Attribute();
-            $attribute->set_id(0);
-            $attribute->set_name($attr['name']);
-            $attribute->set_options($attr['options']);
-            $attribute->set_position(0);
-            $attribute->set_visible(1);
-            $attribute->set_variation(1);
-            $attributes[$attr['slug']] = $attribute;
-        } else {
-            $attributes[$attr['slug']]->set_options($attr['options']);
-            write_to_log_file('attribute exists - update options only');
-        }
-        // $attribute = $product->get_attribute($attr_slug);
-        // $attribute->get_id();
-        // write_to_log_file(json_encode(['slug' => $attr_slug]));
+    // delete invalid variations
+    foreach ($deletes as $variation_sku) {
+        $variation = $lookup_variation_by_sku[$variation_sku];
+        $variation->delete(true);
     }
-    $product->set_attributes($attributes);
-    $product->save();
 
-    write_to_log_file(json_encode($wps_attributes));
+    // insert new variations
+    foreach ($inserts as $variation_sku) {
+        $item = $lookup_item_by_sku[$variation_sku];
+        // maybe orphaned variation exists
+        $variation_id = wc_get_product_id_by_sku($variation_sku);
+        $variation = $variation_id ? wc_get_product($variation_id) : new WC_Product_Variation();
+        $variation->set_parent_id($product_id);
+        $variation->set_sku($variation_sku);
+        $variation->set_name($item['name']);
+        $variation->set_status('publish');
+        $variation->set_regular_price($item['list_price']);
+        $variation->update_meta_data('_stock_status', wc_clean('instock'));
+        $variation->update_meta_data('_ci_supplier_key', 'wps');
+        $variation->update_meta_data('_ci_product_id', $item['id']);
+        $variation->update_meta_data('_ci_supplier_key', 'wps');
+        $variation->update_meta_data('_ci_additional_images', get_item_images($item));
+        $variation->update_meta_data('_ci_import_version', $WPS_SETTINGS['import_version']);
+        $variation->update_meta_data('_ci_import_timestamp', gmdate("c"));
+        $variation_attributes = [];
+        foreach ($item['attributevalues']['data'] as $attr_value) {
+            $attr_key_id = $attr_value['attributekey_id'];
+            $attr_name = $wps_product['data']['attributekeys']['data'][$attr_key_id]['name'];
+            $attr_val = $attr_value['name'];
+            $attr_key = $product_attribute_lookup[$attr_name]['key'];
+            $variation_attributes[$attr_key] = $attr_val;
+        }
+        $variation->set_attributes($variation_attributes);
+        $variation->save();
+    }
 
-    // return;
-
-    foreach ($wps_product['data']['items']['data'] as $item) {
-        $variation_sku = get_western_variation_sku($wps_product, $item);
-        $exists = array_key_exists($variation_sku, $lookup);
-        write_to_log_file($product_id . ": " . $variation_sku . ' exists: ' . ($exists ? 'true' : 'false'));
-
-        if ($exists) {
-        } else {
-            $variation = new WC_Product_Variation();
-            $variation->set_parent_id($product_id);
-            $variation->set_sku($variation_sku);
+    // update existing variations
+    foreach ($updates as $key => $variation_sku) {
+        $item = $lookup_item_by_sku[$variation_sku];
+        $variation = $lookup_variation_by_sku[$variation_sku];
+        $needs_update = variation_needs_update($variation, $item);
+        if ($needs_update) {
             $variation->set_name($item['name']);
             $variation->set_status('publish');
             $variation->set_regular_price($item['list_price']);
@@ -194,68 +278,25 @@ function update_western_product($wps_product, $product_id)
             $variation->update_meta_data('_ci_additional_images', get_item_images($item));
             $variation->update_meta_data('_ci_import_version', $WPS_SETTINGS['import_version']);
             $variation->update_meta_data('_ci_import_timestamp', gmdate("c"));
-            $variation_attributes = array_reduce($item['attributevalues']['data'], fn($s, $av) => [...$s, $wps_attributes[$av['attributekey_id']]['slug'] => $av['name']], []);
+            $variation_attributes = [];
+            foreach ($item['attributevalues']['data'] as $attr_value) {
+                $attr_key_id = $attr_value['attributekey_id'];
+                $attr_name = $wps_product['data']['attributekeys']['data'][$attr_key_id]['name'];
+                $attr_val = $attr_value['name'];
+                $attr_key = $product_attribute_lookup[$attr_name]['key'];
+                $variation_attributes[$attr_key] = $attr_val;
+            }
             $variation->set_attributes($variation_attributes);
             $variation->save();
+        } else {
+            unset($updates[$key]);
         }
-
-        //     $product->set_name('Variable Product Example'); // Replace with the product name
-        //     $product->set_status('publish');
-        //     $product->set_regular_price(0); // Setting initial price to zero
-
-        // // Set product type to 'variable'
-        //     $product->set_type('variable');
-
-        // // Save the product
-        //     $product_id = $product->save();
-        //     $variation_id = wc_get_product_id_by_sku($variation_sku);
-        //     printLine('variation_sku: ' . $variation_sku);
-
-        //     // create variation
-        //     if (!$variation_id) {
-        //         printLine('variation not found');
-        //         $variation = new WC_Product_Variation();
-        //         $variation->set_parent_id($product_id);
-        //         $attrs = get_western_attributes_from_product($wps_product);
-        //         $variation->set_attributes(array('attribute_color' => 'Red'));
-        //         $variation->set_regular_price(50);
-        //         $variation->set_props([
-        //             'name' => $item['name'],
-        //             'regular_price' => floatval($item['list_price']),
-        //         ]);
-        //         $variation->save();
-        //         $variation_id = $variation->get_id();
-        //     } else {
-        //         printLine('variation exists');
-        //         $variation = wc_get_product($variation_id);
-        //         $variation_id = $variation->get_id();
-        //     }
-        //     printData(['variation_id' => $variation_id]);
     }
 
-    write_to_log_file('END update_western_product()' . json_encode(['wps_product' => $wps_product['data']['id'], 'product_id' => $product_id]));
-
-    return $product_id;
+    $report->addData('variation_inserts', $inserts);
+    $report->addData('variation_updates', $updates);
+    $report->addData('variation_deletes', $deletes);
 }
-
-// function merge_western_product($wps_product, $product)
-// {
-//     global $WPS_SETTINGS;
-//     // product changes common to insert and update
-//     $product->set_name($wps_product['data']['name']);
-//     $product->set_status('publish');
-//     $product->set_regular_price($wps_product['data']['items']['data'][0]['list_price']);
-//     $product->update_meta_data('_stock_status', wc_clean('instock'));
-//     $product->update_meta_data('_ci_supplier_key', 'wps');
-//     $product->update_meta_data('_ci_product_id', $wps_product['data']['id']);
-//     $product->update_meta_data('_ci_supplier_key', 'wps');
-//     $product->update_meta_data('_ci_additional_images', get_additional_images($wps_product));
-//     $product->update_meta_data('_ci_import_version', $WPS_SETTINGS['import_version']);
-//     $product->update_meta_data('_ci_import_timestamp', gmdate("c"));
-//     $props = [];
-//     $attrs = get_western_attributes_from_product($wps_product);
-//     $product->set_props($props);
-// }
 
 function delete_product($product_id)
 {

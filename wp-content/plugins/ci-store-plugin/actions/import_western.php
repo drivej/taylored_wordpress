@@ -19,7 +19,7 @@ function import_western_page($job)
 
     $next_cursor = $data['meta']['cursor']['next'];
     if (isset($next_cursor)) {
-        // create_job('import_western_page', ['cursor' => $next_cursor]);
+        create_job('import_western_page', ['cursor' => $next_cursor]);
     }
 }
 

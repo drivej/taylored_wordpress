@@ -10,5 +10,5 @@ $WPS_SETTINGS = array(
         'Authorization' => "Bearer aybfeye63PtdiOsxMbd5f7ZAtmjx67DWFAQMYn6R",
         'Content-Type' => 'application/json',
     ],
-    'import_version' => 1.24,
+    'import_version' => 1.25,
 );
