@@ -113,19 +113,51 @@ function woo_repair_action($wps_product_id)
     $woo_product_id = wc_get_product_id_by_sku($sku);
     $woo_product = wc_get_product($woo_product_id);
 
-    printData(['sku'=>$sku, 'woo_product_id'=>$woo_product_id, 'woo_product' => $woo_product]);
+    $images = get_additional_images($wps_product);
+    $serialized_images = serialize($images);
+    printData(['images' => $images, 'serialized_images' => $serialized_images]);
+    $woo_product->update_meta_data('_ci_additional_images', $serialized_images);
+    $woo_product->save();
+
+    $woo_product = wc_get_product($woo_product_id);
+    $serialized_data = get_post_meta($woo_product_id, '_ci_additional_images', true);
+    $additional_images = unserialize($serialized_data);
+    printData(['type' => gettype($additional_images), 'additional_images' => $additional_images, 'is_array' => is_array($additional_images), 'empty' => !empty($additional_images)]);
+    
+    if (!empty($additional_images) && is_array($additional_images)) {
+        $src = reset($additional_images); // Get the first image from the array
+        print_r(['src'=>$src]);
+        // return '<img title="custom_modify_cart_item_thumbnail" src="' . esc_url($src) . '" class="attachment-shop_thumbnail wp-post-image">';
+    }
+    return;
+
+    printData(['sku' => $sku, 'woo_product_id' => $woo_product_id, 'woo_product' => $woo_product]);
 
     // import_western_product($wps_product_id, false, $report);
 
-    update_product_taxonomy($woo_product, $wps_product, $report);
-    // update_product_attributes($woo_product, $wps_product, $report);
+    // update_product_taxonomy($woo_product, $wps_product, $report);
+
+    update_product_attributes($woo_product, $wps_product, $report);
+    $woo_product->save();
+
+    $woo_product = wc_get_product($woo_product_id);
+
+    $additional_images = get_post_meta($woo_product_id, '_ci_additional_images', false);
+    print_r(['type' => gettype($additional_images), 'additional_images' => $additional_images, 'is_array' => is_array($additional_images), 'empty' => !empty($additional_images)]);
+    // Use the first additional image as the thumbnail
+    if (!empty($additional_images) && is_array($additional_images)) {
+        $src = $additional_images[0]; //reset($additional_images); // Get the first image from the array
+        print_r(['src' => $src]);
+        // return '<img title="custom_modify_cart_item_thumbnail" src="' . esc_url($src) . '" class="attachment-shop_thumbnail wp-post-image">';
+    }
+    // $src = '';
+
     printData($report);
 
     // if($report->getData('attribute_changes')){
     //     $woo_product->save();
     // }
     return;
-
 
     // $new_attributes = get_wps_attributes($wps_product);
     // $new_attributes_names = array_map(fn($a) => $a['name'], $new_attributes);
@@ -288,4 +320,4 @@ function woo_repair_action($wps_product_id)
 
 //     default :
 
-    // }
+// }

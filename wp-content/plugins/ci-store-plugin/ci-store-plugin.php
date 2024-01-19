@@ -16,6 +16,7 @@ include_once __DIR__ . '/cronjob/index.php';
 include_once __DIR__ . '/log/index.php';
 include_once __DIR__ . '/test.php';
 include_once __DIR__ . '/western/wps_ajax_handler.php';
+include_once __DIR__ . '/hooks/index.php';
 
 function create_admin_menu()
 {

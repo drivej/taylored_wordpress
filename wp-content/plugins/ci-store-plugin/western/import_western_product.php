@@ -6,6 +6,8 @@ require_once __DIR__ . './../western/get_western_product.php';
 require_once __DIR__ . './../western/western_utils.php';
 require_once __DIR__ . './../western/wps_settings.php';
 require_once __DIR__ . '/update_product_attributes.php';
+require_once __DIR__ . '/update_product_taxonomy.php';
+require_once __DIR__ . '/update_product_variations.php';
 require_once __DIR__ . './../utils/Report.php';
 
 /**
@@ -16,6 +18,7 @@ require_once __DIR__ . './../utils/Report.php';
  */
 function import_western_product($wps_product_id, $force_update = false, $report = new Report())
 {
+    $report->addLog('import_western_product()');
     $start_time = microtime(true);
     $action = '';
     $product_id = '';
@@ -43,7 +46,6 @@ function import_western_product($wps_product_id, $force_update = false, $report 
         $report->addData('product_sku', $sku);
         $report->addData('product_id', $product_id);
         $is_valid = isValidProduct($wps_product);
-        $report->addLog('is_valid=' . $is_valid ? 'true' : 'false');
 
         if ($is_valid) {
             if ($product_id) {
@@ -137,7 +139,7 @@ function insert_western_product($wps_product, $report = new Report())
     $product->update_meta_data('_ci_supplier_key', 'wps');
     $product->update_meta_data('_ci_product_id', $wps_product['data']['id']);
     $product->update_meta_data('_ci_supplier_key', 'wps');
-    $product->update_meta_data('_ci_additional_images', get_additional_images($wps_product));
+    // $product->update_meta_data('_ci_additional_images', serialize(get_additional_images($wps_product)));
     $product->update_meta_data('_ci_import_version', $WPS_SETTINGS['import_version']);
     $product->update_meta_data('_ci_import_timestamp', gmdate("c"));
     $product_id = $product->save();
@@ -145,8 +147,10 @@ function insert_western_product($wps_product, $report = new Report())
     if ($report->getData('attribute_changes')) {
         $product->save();
     }
-    update_product_variations($product, $wps_product, $report);
-    // update_western_product($wps_product, $product_id, $report);
+    // update_product_variations($product, $wps_product, $report);
+    update_western_product($wps_product, $product_id, $report);
+    $product->save();
+    $report->addLog('save()');
     $report->addLog('insert_western_product() sku:' . $sku . ' id: ' . $product_id);
     return $product_id;
 }
@@ -154,222 +158,236 @@ function insert_western_product($wps_product, $report = new Report())
 function update_western_product($wps_product, $product_id, $report = new Report())
 {
     $report->addLog('update_western_product()');
-    $product = wc_get_product_object('product', $product_id);
+    $woo_product = wc_get_product_object('product', $product_id);
     // $has_variations = count($wps_product['data']['items']['data']) > 0;
     // $is_variable = $product->is_type('variable');
-    $report->addData('type', $product->get_type());
+    $report->addData('type', $woo_product->get_type());
+
+    $images = get_additional_images($wps_product);
+    $serialized_images = serialize($images);
+    $woo_product->update_meta_data('_ci_additional_images', $serialized_images);
 
     // if ($has_variations && !$is_variable) {
     // $report->addLog('failed');
     // delete_product($product_id);
     // insert_western_product($wps_product, $report);
     // } else {
-    update_product_taxonomy($product, $wps_product, $report);
-    update_product_attributes($product, $wps_product, $report);
-    update_product_variations($product, $wps_product, $report);
+    update_product_images($woo_product, $wps_product, $report);
+    update_product_taxonomy($woo_product, $wps_product, $report);
+    update_product_attributes($woo_product, $wps_product, $report);
+    update_product_variations($woo_product, $wps_product, $report);
     // }
     return $product_id;
 }
 
-function variation_needs_update($woo_variation, $wps_item)
+function update_product_images($woo_product, $wps_product, $report)
 {
-    global $WPS_SETTINGS;
-    $needs_update = false;
-    $import_version = $woo_variation->get_meta('_ci_import_version');
-    // update if import version changes
-    if ($import_version != $WPS_SETTINGS['import_version']) {
-        $needs_update = true;
-    }
-    $imported = $woo_variation->get_meta('_ci_import_timestamp');
-    $date_imported = new DateTime($imported ? $imported : '2000-01-01 12:00:00');
-    $updated = $wps_item['updated_at'];
-    $date_updated = new DateTime($updated);
-    // update if imported before last remote update
-    if ($date_imported < $date_updated) {
-        $needs_update = true;
-    }
-    return $needs_update;
+    $report->addLog('update_product_images()');
+    $images = get_additional_images($wps_product);
+    $serialized_images = serialize($images);
+    $woo_product->update_meta_data('_ci_additional_images', $serialized_images);
 }
+
+// function variation_needs_update($woo_variation, $wps_item)
+// {
+//     global $WPS_SETTINGS;
+//     $needs_update = false;
+//     $import_version = $woo_variation->get_meta('_ci_import_version');
+//     // update if import version changes
+//     if ($import_version != $WPS_SETTINGS['import_version']) {
+//         $needs_update = true;
+//     }
+//     $imported = $woo_variation->get_meta('_ci_import_timestamp');
+//     $date_imported = new DateTime($imported ? $imported : '2000-01-01 12:00:00');
+//     $updated = $wps_item['updated_at'];
+//     $date_updated = new DateTime($updated);
+//     // update if imported before last remote update
+//     if ($date_imported < $date_updated) {
+//         $needs_update = true;
+//     }
+//     return $needs_update;
+// }
+// /**
+//  *
+//  * @param WC_Product    $product
+//  * @param array    $wps_product
+//  * @param Report   $report
+//  */
+// function update_product_variations($product, $wps_product, $report)
+// {
+//     $report->addLog('update_product_variations()');
+//     global $WPS_SETTINGS;
+//     $product_id = $product->get_id();
+//     $product_attributes = $product->get_attributes();
+//     $product_attribute_lookup = array_reduce(array_keys($product_attributes), fn($c, $v) => [$product_attributes[$v]->get_name() => [...$product_attributes[$v]->get_data(), 'key' => $v], ...$c], []);
+//     $product_children = $product->get_children();
+//     $lookup_variation_by_sku = array_reduce($product_children, function ($c, $variation_id) {
+//         $variation = wc_get_product($variation_id);
+//         $c[$variation->get_sku()] = $variation;
+//         return $c;
+//     }, []);
+
+//     $product_type = $product->get_type();
+//     $report->addData('product_type', $product_type);
+
+//     $valid_items = array_filter($wps_product['data']['items']['data'], 'isValidItem');
+//     $lookup_item_by_sku = array_reduce($valid_items, fn($c, $item) => [...$c, get_western_variation_sku($wps_product, $item) => $item], []);
+//     $current_skus = array_keys($lookup_variation_by_sku);
+//     $allow_skus = array_keys($lookup_item_by_sku);
+//     $report->addData('current_skus', $current_skus);
+//     $report->addData('allow_skus', $allow_skus);
+//     $report->addData('product_children', $product_children);
+
+//     $deletes = array_diff($current_skus, $allow_skus);
+//     $inserts = array_diff($allow_skus, $current_skus);
+//     $updates = array_intersect($allow_skus, $current_skus);
+
+//     // foreach ($updates as $variation_sku) {
+//     //     $item = $lookup_item_by_sku[$variation_sku];
+//     //     $report->addLog($variation_sku);
+//     //     $variation = $lookup_variation_by_sku[$variation_sku];
+//     //     $report->addData($variation_sku, $variation);
+//     //     $_ci_import_version = $variation->get_meta('_ci_import_version');
+//     //     $report->addData($_ci_import_version, $_ci_import_version);
+//     //     $needs_update = variation_needs_update($variation, $item);
+//     //     $report->addLog($variation->get_sku() . ' needs update ' . $needs_update);
+//     // }
+
+//     // delete invalid variations
+//     foreach ($deletes as $variation_sku) {
+//         $variation = $lookup_variation_by_sku[$variation_sku];
+//         $variation->delete(true);
+//         $report->addLog('delete variations ' . $variation_sku);
+//     }
+
+//     // insert new variations
+//     foreach ($inserts as $variation_sku) {
+//         $item = $lookup_item_by_sku[$variation_sku];
+//         // maybe orphaned variation exists
+//         $variation_id = wc_get_product_id_by_sku($variation_sku);
+//         $variation = $variation_id ? wc_get_product($variation_id) : new WC_Product_Variation();
+//         $variation->set_parent_id($product_id);
+//         $variation->set_sku($variation_sku);
+//         $variation->set_name($item['name']);
+//         $variation->set_status('publish');
+//         $variation->set_regular_price($item['list_price']);
+//         $variation->update_meta_data('_stock_status', wc_clean('instock'));
+//         $variation->update_meta_data('_ci_supplier_key', 'wps');
+//         $variation->update_meta_data('_ci_product_id', $item['id']);
+//         $variation->update_meta_data('_ci_supplier_key', 'wps');
+//         $variation->update_meta_data('_ci_additional_images', serialize(get_item_images($item)));
+//         $variation->update_meta_data('_ci_import_version', $WPS_SETTINGS['import_version']);
+//         $variation->update_meta_data('_ci_import_timestamp', gmdate("c"));
+//         $variation_attributes = [];
+//         foreach ($item['attributevalues']['data'] as $attr_value) {
+//             $attr_key_id = $attr_value['attributekey_id'];
+//             $attr_name = $wps_product['data']['attributekeys']['data'][$attr_key_id]['name'];
+//             $attr_val = $attr_value['name'];
+//             $attr_key = $product_attribute_lookup[$attr_name]['key'];
+//             $variation_attributes[$attr_key] = $attr_val;
+//         }
+//         $variation->set_attributes($variation_attributes);
+//         $variation->save();
+//         $report->addLog('insert variations ' . $variation_sku);
+//     }
+
+//     // update existing variations
+//     foreach ($updates as $key => $variation_sku) {
+//         $item = $lookup_item_by_sku[$variation_sku];
+//         $variation = $lookup_variation_by_sku[$variation_sku];
+//         $needs_update = variation_needs_update($variation, $item);
+//         if ($needs_update) {
+//             $variation->set_name($item['name']);
+//             $variation->set_status('publish');
+//             $variation->set_regular_price($item['list_price']);
+//             $variation->update_meta_data('_stock_status', wc_clean('instock'));
+//             $variation->update_meta_data('_ci_supplier_key', 'wps');
+//             $variation->update_meta_data('_ci_product_id', $item['id']);
+//             $variation->update_meta_data('_ci_supplier_key', 'wps');
+//             $variation->update_meta_data('_ci_additional_images', serialize(get_item_images($item)));
+//             $variation->update_meta_data('_ci_import_version', $WPS_SETTINGS['import_version']);
+//             $variation->update_meta_data('_ci_import_timestamp', gmdate("c"));
+//             $variation_attributes = [];
+//             foreach ($item['attributevalues']['data'] as $attr_value) {
+//                 $attr_key_id = $attr_value['attributekey_id'];
+//                 $attr_name = $wps_product['data']['attributekeys']['data'][$attr_key_id]['name'];
+//                 $attr_val = $attr_value['name'];
+//                 $attr_key = $product_attribute_lookup[$attr_name]['key'];
+//                 $variation_attributes[$attr_key] = $attr_val;
+//             }
+//             $variation->set_attributes($variation_attributes);
+//             $variation->save();
+//             $report->addLog('update variations ' . $variation_sku);
+//         } else {
+//             unset($updates[$key]);
+//         }
+//     }
+
+//     $report->addData('variation_inserts', $inserts);
+//     $report->addData('variation_updates', $updates);
+//     $report->addData('variation_deletes', $deletes);
+// }
 /**
  *
  * @param WC_Product    $product
  * @param array    $wps_product
  * @param Report   $report
  */
-function update_product_variations($product, $wps_product, $report)
-{
-    $report->addLog('update_product_variations()');
-    global $WPS_SETTINGS;
-    $product_id = $product->get_id();
-    $product_attributes = $product->get_attributes();
-    $product_attribute_lookup = array_reduce(array_keys($product_attributes), fn($c, $v) => [$product_attributes[$v]->get_name() => [...$product_attributes[$v]->get_data(), 'key' => $v], ...$c], []);
-    $product_children = $product->get_children();
-    $lookup_variation_by_sku = array_reduce($product_children, function ($c, $variation_id) {
-        $variation = wc_get_product($variation_id);
-        $c[$variation->get_sku()] = $variation;
-        return $c;
-    }, []);
+// function update_product_taxonomy($product, $wps_product, $report)
+// {
 
-    $product_type = $product->get_type();
-    $report->addData('product_type', $product_type);
+//     $taxonomy_terms = [];
+//     $items = $wps_product['data']['items']['data'];
 
-    // $av = $product->get_available_variations();
+//     // collect taxonomy fro each WPS item
+//     if (isset($items)) {
+//         foreach ($items as $item) {
+//             $terms = $item['taxonomyterms']['data'];
+//             if (isset($terms) && count($terms)) {
+//                 foreach ($terms as $term) {
+//                     $taxonomy_terms[$term['name']] = $term;
+//                     $taxonomy_terms[$term['name']]['slug'] = sanitize_title($term['slug']);
+//                 }
+//             }
+//         }
+//     } else {
+//         // $report->addLog('taxonomy skipped - no items');
+//         return;
+//     }
 
-    $lookup_item_by_sku = array_reduce($wps_product['data']['items']['data'], fn($c, $item) => [...$c, get_western_variation_sku($wps_product, $item) => $item], []);
-    $current_skus = array_keys($lookup_variation_by_sku);
-    $allow_skus = array_keys($lookup_item_by_sku);
-    $report->addData('current_skus', $current_skus);
-    $report->addData('allow_skus', $allow_skus);
-    $report->addData('product_children', $product_children);
-    // $report->addData('av', $av);
+//     // $report->addData('taxonomy_terms', $taxonomy_terms);
 
-    $deletes = array_diff($current_skus, $allow_skus);
-    $inserts = array_diff($allow_skus, $current_skus);
-    $updates = array_intersect($allow_skus, $current_skus);
+//     // add any categories that don't exist yet
+//     foreach ($taxonomy_terms as $term) {
+//         if ($term['parent_id']) {
+//             $report->addLog('category has parent' . $term['name'] . ' WPS ' . $wps_product['data']['id']);
+//         }
+//         $term_exists = term_exists($term['name'], 'product_cat');
+//         if (!$term_exists) {
+//             $report->addLog('insert category ' . $term['name']);
+//             wp_insert_category([
+//                 'cat_name' => $term['name'],
+//                 'category_nicename' => $term['slug'],
+//                 'taxonomy' => 'product_cat',
+//             ]);
+//         } else {
+//             $report->addLog('exists category ' . $term['name']);
+//         }
+//     }
 
-    foreach ($updates as $variation_sku) {
-        $item = $lookup_item_by_sku[$variation_sku];
-        $report->addLog($variation_sku);
-        $variation = $lookup_variation_by_sku[$variation_sku];
-        $report->addData($variation_sku, $variation);
-        $_ci_import_version = $variation->get_meta('_ci_import_version');
-        $report->addData($_ci_import_version, $_ci_import_version);
-        $needs_update = variation_needs_update($variation, $item);
-        $report->addLog($variation->get_sku() . ' needs update ' . $needs_update);
-    }
+//     // verify product belongs to all necessary categories
+//     $woo_id = $product->get_id();
 
-    // delete invalid variations
-    foreach ($deletes as $variation_sku) {
-        $variation = $lookup_variation_by_sku[$variation_sku];
-        $variation->delete(true);
-    }
-
-    // insert new variations
-    foreach ($inserts as $variation_sku) {
-        $item = $lookup_item_by_sku[$variation_sku];
-        // maybe orphaned variation exists
-        $variation_id = wc_get_product_id_by_sku($variation_sku);
-        $variation = $variation_id ? wc_get_product($variation_id) : new WC_Product_Variation();
-        $variation->set_parent_id($product_id);
-        $variation->set_sku($variation_sku);
-        $variation->set_name($item['name']);
-        $variation->set_status('publish');
-        $variation->set_regular_price($item['list_price']);
-        $variation->update_meta_data('_stock_status', wc_clean('instock'));
-        $variation->update_meta_data('_ci_supplier_key', 'wps');
-        $variation->update_meta_data('_ci_product_id', $item['id']);
-        $variation->update_meta_data('_ci_supplier_key', 'wps');
-        $variation->update_meta_data('_ci_additional_images', get_item_images($item));
-        $variation->update_meta_data('_ci_import_version', $WPS_SETTINGS['import_version']);
-        $variation->update_meta_data('_ci_import_timestamp', gmdate("c"));
-        $variation_attributes = [];
-        foreach ($item['attributevalues']['data'] as $attr_value) {
-            $attr_key_id = $attr_value['attributekey_id'];
-            $attr_name = $wps_product['data']['attributekeys']['data'][$attr_key_id]['name'];
-            $attr_val = $attr_value['name'];
-            $attr_key = $product_attribute_lookup[$attr_name]['key'];
-            $variation_attributes[$attr_key] = $attr_val;
-        }
-        $variation->set_attributes($variation_attributes);
-        $variation->save();
-    }
-
-    // update existing variations
-    foreach ($updates as $key => $variation_sku) {
-        $item = $lookup_item_by_sku[$variation_sku];
-        $variation = $lookup_variation_by_sku[$variation_sku];
-        $needs_update = variation_needs_update($variation, $item);
-        if ($needs_update) {
-            $variation->set_name($item['name']);
-            $variation->set_status('publish');
-            $variation->set_regular_price($item['list_price']);
-            $variation->update_meta_data('_stock_status', wc_clean('instock'));
-            $variation->update_meta_data('_ci_supplier_key', 'wps');
-            $variation->update_meta_data('_ci_product_id', $item['id']);
-            $variation->update_meta_data('_ci_supplier_key', 'wps');
-            $variation->update_meta_data('_ci_additional_images', get_item_images($item));
-            $variation->update_meta_data('_ci_import_version', $WPS_SETTINGS['import_version']);
-            $variation->update_meta_data('_ci_import_timestamp', gmdate("c"));
-            $variation_attributes = [];
-            foreach ($item['attributevalues']['data'] as $attr_value) {
-                $attr_key_id = $attr_value['attributekey_id'];
-                $attr_name = $wps_product['data']['attributekeys']['data'][$attr_key_id]['name'];
-                $attr_val = $attr_value['name'];
-                $attr_key = $product_attribute_lookup[$attr_name]['key'];
-                $variation_attributes[$attr_key] = $attr_val;
-            }
-            $variation->set_attributes($variation_attributes);
-            $variation->save();
-        } else {
-            unset($updates[$key]);
-        }
-    }
-
-    $report->addData('variation_inserts', $inserts);
-    $report->addData('variation_updates', $updates);
-    $report->addData('variation_deletes', $deletes);
-}
-/**
- *
- * @param WC_Product    $product
- * @param array    $wps_product
- * @param Report   $report
- */
-function update_product_taxonomy($product, $wps_product, $report)
-{
-
-    $taxonomy_terms = [];
-    $items = $wps_product['data']['items']['data'];
-
-    // collect taxonomy fro each WPS item
-    if (isset($items)) {
-        foreach ($items as $item) {
-            $terms = $item['taxonomyterms']['data'];
-            if (isset($terms) && count($terms)) {
-                foreach ($terms as $term) {
-                    $taxonomy_terms[$term['name']] = $term;
-                    $taxonomy_terms[$term['name']]['slug'] = sanitize_title($term['slug']);
-                }
-            }
-        }
-    } else {
-        // $report->addLog('taxonomy skipped - no items');
-        return;
-    }
-
-    // $report->addData('taxonomy_terms', $taxonomy_terms);
-
-    // add any categories that don't exist yet
-    foreach ($taxonomy_terms as $term) {
-        if ($term['parent_id']) {
-            $report->addLog('category has parent' . $term['name'] . ' WPS ' . $wps_product['data']['id']);
-        }
-        $term_exists = term_exists($term['name'], 'product_cat');
-        if (!$term_exists) {
-            $report->addLog('insert category ' . $term['name']);
-            wp_insert_category([
-                'cat_name' => $term['name'],
-                'category_nicename' => $term['slug'],
-                'taxonomy' => 'product_cat',
-            ]);
-        } else {
-            $report->addLog('exists category ' . $term['name']);
-        }
-    }
-
-    // verify product belongs to all necessary categories
-    $woo_id = $product->get_id();
-
-    foreach ($taxonomy_terms as $term) {
-        $has_term = has_term($term['slug'], 'product_cat', $woo_id);
-        if ($has_term) {
-            $report->addLog('product has term ' . $term['name']);
-        } else {
-            $report->addLog('update product with term ' . $term['name']);
-            wp_set_object_terms($woo_id, $term['slug'], 'product_cat', true);
-        }
-    }
-}
+//     foreach ($taxonomy_terms as $term) {
+//         $has_term = has_term($term['slug'], 'product_cat', $woo_id);
+//         if ($has_term) {
+//             $report->addLog('product has term ' . $term['name']);
+//         } else {
+//             $report->addLog('update product with term ' . $term['name']);
+//             wp_set_object_terms($woo_id, $term['slug'], 'product_cat', true);
+//         }
+//     }
+// }
 
 function delete_product($product_id)
 {
@@ -391,7 +409,7 @@ function get_additional_images($wps_product)
 {
     $images = array_map('process_images', $wps_product['data']['items']['data']);
     $images = array_filter($images, 'filter_images');
-    return implode(',', $images);
+    return $images; //implode(',', $images);
 }
 
 function process_images($item)

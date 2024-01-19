@@ -7,14 +7,18 @@
  */
 function get_product_image($product)
 {
-    $img = $product->get_meta('_ci_additional_images');
-    $images = explode(',', $img);
+    // print('<div>get_product_image()</div>');
     $src = null;
+    if (isset($product)) {
+        $serialized_data = $product->get_meta('_ci_additional_images', true);
+        $additional_images = unserialize($serialized_data);
 
-    if (count($images) && isset($images[0])) {
-        $src = $images[0];
-    }
-    if (!$src) {
+        if (!empty($additional_images) && is_array($additional_images)) {
+            $src = reset($additional_images);
+        } else {
+            $src = wc_placeholder_img_src();
+        }
+    } else {
         $src = wc_placeholder_img_src();
     }
     return $src;

@@ -4,7 +4,7 @@ include_once __DIR__ . './../western/get_western_products_page.php';
 include_once __DIR__ . './../western/western_utils.php';
 
 function wps_page_action($item_id)
-{   
+{
     $products = get_western_products_page($item_id);
     echo '<table class="table"><tbody>';
     foreach ($products['data'] as $product) {
@@ -13,10 +13,12 @@ function wps_page_action($item_id)
         $details_url = '?cmd=wps_product&page=ci-store-plugin-page-test&item_id=' . $product['id'];
         $import_url = '?cmd=wps_import&page=ci-store-plugin-page-test&item_id=' . $product['id'];
         $repair_url = '?cmd=woo_repair&page=ci-store-plugin-page-test&item_id=' . $product['id'];
+        $total_items = count($product['items']['data']);
+        $valid_items = count(array_filter($product['items']['data'], 'isValidItem'));
         echo '<tr>
                 <td>' . $product['id'] . '</td>
                 <td>' . $product['name'] . '</td>
-                <td>' . count($product['items']['data']) . ' items</td>
+                <td>' . $valid_items . '/' . $total_items . ' items</td>
                 <td>' . $sku . '</td>
                 <td>' . $product_id . '</td>
                 <td><a href="' . $details_url . '">details</a></td>

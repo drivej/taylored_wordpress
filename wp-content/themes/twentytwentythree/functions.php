@@ -1,6 +1,6 @@
 <?php
 
-include_once __DIR__ . '/ci_store/index.php';
+// include_once __DIR__ . '/ci_store/index.php';
 /**
  * Taylored Power Sports - Ecomm 4 Theme functions and definitions
  *
@@ -118,9 +118,9 @@ add_action('wp_enqueue_scripts', 'child_enqueue_styles', 15);
 
 // add_action('woocommerce_single_product_image', 'custom_modify_single_product_image', 10);
 
-// function custom_modify_product_thumbnails()
+// function custom_modixfy_product_thumbnails()
 // {
-//     print('custom_modify_product_thumbnails');
+//     print('custom_modifxy_product_thumbnails');
 //     // global $post;
 //     // print_r(json_encode($post));
 //     // return '<div>hello</div>';
@@ -154,7 +154,7 @@ add_action('wp_enqueue_scripts', 'child_enqueue_styles', 15);
 //     }
 // }
 
-// add_action('woocommerce_product_thumbnails', 'custom_modify_product_thumbnails', 10);
+// add_action('woocommerce_product_thumbnails', 'custom_modxify_product_thumbnails', 10);
 
 function custom_modify_variation_image($html, $attachment_id, $variation_id, $variation)
 {
@@ -176,9 +176,9 @@ function custom_modify_variation_image($html, $attachment_id, $variation_id, $va
     return $html;
 }
 
-// function custom_display_first_variation_image()
+// function custom_xdisplay_first_variation_image()
 // {
-//     print('custom_display_first_variation_image');
+//     print('custom_xdisplay_first_variation_image');
 //     global $product;
 //     if ($product->is_type('variable')) {
 //         $variations = $product->get_available_variations();
@@ -198,7 +198,7 @@ function custom_modify_variation_image($html, $attachment_id, $variation_id, $va
 //     }
 // }
 
-// add_action('woocommerce_before_single_product', 'custom_display_first_variation_image');
+// add_action('woocommerce_before_single_product', 'custom_dxisplay_first_variation_image');
 
 // function custom_before_shop_loop_item()
 // {

@@ -53,7 +53,7 @@ function upsert_attribute($attributes, $attr, $report)
     $attr_key = get_attribute_key_by_name($attributes, $attr['name']);
     if (isset($attr_key)) {
         $needs_update = attribute_options_needs_update($attributes, $attr);
-        $report->addLog('update attribute ' . $attr['name']. ' needs_update='.($needs_update ? 'true' : 'false'));
+        $report->addLog('update attribute ' . $attr['name'] . ' needs_update=' . ($needs_update ? 'true' : 'false'));
         if ($needs_update) {
             $report->tick('attribute_changes');
             $attributes[$attr_key]->set_options($attr['options']);
@@ -115,6 +115,7 @@ function update_product_attributes($woo_product, $wps_product, $report)
     $current_attribute_names = array_map(fn($a) => $a->get_name(), array_values($attributes));
     $deletes = array_values(array_diff($current_attribute_names, $new_attributes_names));
     $attributes = delete_attributes($attributes, $deletes, $report);
+    $woo_product->update_meta_data('_ci_additional_images', serialize(get_additional_images($wps_product)));
 
     foreach ($new_attributes as $new_attr) {
         $attributes = upsert_attribute($attributes, $new_attr, $report);
