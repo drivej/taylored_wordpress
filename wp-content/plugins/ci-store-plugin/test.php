@@ -13,6 +13,7 @@ include_once __DIR__ . '/test/wps_post_action.php';
 include_once __DIR__ . '/test/woo_repair_action.php';
 include_once __DIR__ . '/test/woo_product_action.php';
 include_once __DIR__ . '/test/wps_import_action.php';
+include_once __DIR__ . '/test/wps_product_action.php';
 // render html for page
 
 // function product_exists_by_meta($meta)
@@ -123,10 +124,10 @@ include_once __DIR__ . '/test/wps_import_action.php';
 //     update_option($option_key, $cronjob);
 // }
 
-if ( ! function_exists( 'woocommerce' ) ) {
-    include_once( ABSPATH . 'wp-content/plugins/woocommerce/woocommerce.php' );
-    include_once( ABSPATH . 'wp-content/plugins/woocommerce/includes/wc-template-functions.php' );
-}
+// if ( ! function_exists( 'woocommerce' ) ) {
+//     include_once( ABSPATH . 'wp-content/plugins/woocommerce/woocommerce.php' );
+//     include_once( ABSPATH . 'wp-content/plugins/woocommerce/includes/wc-template-functions.php' );
+// }
 
 // function printLine($msg){
 //     echo "<p>&middot; ".$msg."</p>";
@@ -144,16 +145,7 @@ $action_handlers = [
     "woo_repair",
     "wps_import",
     "wps_page",
-    "wps_import",
 ];
-
-// "wc_api",
-// "wp_post",
-// "woo_product",
-// "wps_product" ,
-// "wps_repair",
-// "wps_import",
-
 
 function render_ci_store_plugin_test()
 {

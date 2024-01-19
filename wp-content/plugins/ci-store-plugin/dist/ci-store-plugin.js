@@ -5207,10 +5207,7 @@ const Jobs = () => {
                         react.createElement("th", null, "process"),
                         react.createElement("th", null, "status"),
                         react.createElement("th", null, "action"),
-                        react.createElement("th", null, "created"),
-                        react.createElement("th", null, "updated"),
-                        react.createElement("th", null, "started"),
-                        react.createElement("th", null, "completed"),
+                        react.createElement("th", null, "timer"),
                         react.createElement("th", null, "args"),
                         react.createElement("th", { style: { width: 1 } },
                             react.createElement("button", { className: 'btn btn-primary', onClick: updateJobs }, ICON_REFRESH)))),
@@ -5225,10 +5222,7 @@ const Jobs = () => {
                             react.createElement("td", null, (_a = job === null || job === void 0 ? void 0 : job.process) !== null && _a !== void 0 ? _a : 'unknown'),
                             react.createElement("td", null, job.status),
                             react.createElement("td", null, job.action),
-                            react.createElement("td", { title: job.created }, since(job.created)),
-                            react.createElement("td", { title: job.updated }, since(job.updated)),
-                            react.createElement("td", { title: job.started }, since(job.started)),
-                            react.createElement("td", { title: job.completed }, since(job.completed)),
+                            react.createElement("td", { title: job.created }, job.completed ? since(job.completed) : job.started ? react.createElement("b", null, since(job.started)) : '-'),
                             react.createElement("td", null, Object.keys(job.args).map((k) => (react.createElement("span", null,
                                 k,
                                 ": ",
@@ -5682,7 +5676,7 @@ module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("18a211a9c5912f2266bd")
+/******/ 		__webpack_require__.h = () => ("9603ceab6f7049fcb657")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */

@@ -235,10 +235,11 @@ export const Jobs = () => {
                 <th>process</th>
                 <th>status</th>
                 <th>action</th>
-                <th>created</th>
+                <th>timer</th>
+                {/* <th>created</th>
                 <th>updated</th>
                 <th>started</th>
-                <th>completed</th>
+                <th>completed</th> */}
                 <th>args</th>
                 <th style={{ width: 1 }}>
                   <button className='btn btn-primary' onClick={updateJobs}>
@@ -260,10 +261,11 @@ export const Jobs = () => {
                     <td>{job?.process ?? 'unknown'}</td>
                     <td>{job.status}</td>
                     <td>{job.action}</td>
-                    <td title={job.created}>{since(job.created)}</td>
+                    <td title={job.created}>{job.completed ? since(job.completed) : job.started ? <b>{since(job.started)}</b> : '-'}</td>
+                    {/* <td title={job.created}>{since(job.created)}</td>
                     <td title={job.updated}>{since(job.updated)}</td>
-                    <td title={job.started}>{since(job.started)}</td>
-                    <td title={job.completed}>{since(job.completed)}</td>
+                    <td title={job.started}>{job.started ? since(job.started) : '-'}</td>
+                    <td title={job.completed}>{job.completed ? since(job.completed) : '-'}</td> */}
                     <td>
                       {Object.keys(job.args).map((k) => (
                         <span>

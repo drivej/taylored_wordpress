@@ -1,8 +1,74 @@
 <?php
+/*
+DIR = 'DIR', //'DIRECT SHIP FROM VENDOR', // available
+DSC = 'DSC', //'DISCONTINUED ITEM', // NOT available
+CLO = 'CLO', //'CLOSEOUT ITEM', // available
+NA = 'NA', //'NOT AVAILABLE AT THIS TIME', // NOT available
+NEW = 'NEW', //'NEW ITEM', // available
+NLA = 'NLA', //'NO LONGER AVAILABLE', // NOT available
+PRE = 'PRE', //'PRE -RELEASE ITEM (CONTACT REP TO ORDER)', // NOT available
+SPEC = 'SPEC', //'SPECIAL ORDER', // available
+STK = 'STK' //'STANDARD STOCKING ITEM' // available
+ */
 
 function isValidProduct($product)
 {
-    return !isset($product['error']) && count($product['items']['data']) > 0;
+    $reasons = isInvalidReasons($product);
+    return !count($reasons); //!isset($product['error']) && isset($product['data']['items']['data']) && count($product['data']['items']['data']) > 0 && count(array_filter($product['data']['items']['data'], 'isValidItem'));
+}
+
+function isInvalidReasons($product)
+{
+    $reasons = [];
+    if (isset($product['error'])) {
+        $reasons[] = 'Product error';
+    } else {
+        $items = $product['data']['items']['data'];
+        if (isset($items)) {
+            if (count($items)) {
+                $validItems = array_filter($items, 'isValidItem');
+                if (count($validItems)) {
+                    if (!wps_product_has_images($product)) {
+                        $reasons[] = 'No images found';
+                    }
+                } else {
+                    $reasons[] = (bool)count($validItems) . ' of ' . count($items) . ' valid items';
+                }
+            } else {
+                $reasons[] = 'Empty items';
+            }
+        } else {
+            $reasons[] = 'No items data';
+        }
+    }
+    return $reasons;
+}
+
+function wps_product_has_items($product)
+{
+    $items = $product['data']['items']['data'];
+    return isset($items);
+}
+
+function wps_product_has_images($product)
+{
+    if (wps_product_has_items($product)) {
+        $items = $product['data']['items']['data'];
+        $itemsWithImages = array_filter($items, 'wps_item_has_images');
+        return (bool) count($itemsWithImages);
+    }
+    return false;
+}
+
+function wps_item_has_images($item)
+{
+    return count($item['images']['data']);
+}
+
+function isValidItem($item)
+{
+    $valid_status = ['DIR', 'NEW', 'STK'];
+    return in_array($item['status_id'], $valid_status);
 }
 
 function getValidProductIds($products)
@@ -38,9 +104,8 @@ function resize_western_image($src, $size = 200)
     return str_replace('200_max', $size . '_max', $src);
 }
 
-function get_western_sku($product)
+function get_western_sku($product_id)
 {
-    $product_id = $product['data']['id'];
     return implode('_', ['MASTER', 'WPS', $product_id]);
 }
 

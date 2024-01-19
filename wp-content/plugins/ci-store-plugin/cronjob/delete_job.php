@@ -25,9 +25,11 @@ function can_delete($job)
 function delete_job($id)
 {
     $job = get_job($id);
-    if (can_delete($job)) {
+    $active = (bool) get_option('ci_jobs_process_active');
+    if (!$active || can_delete($job)) {
         return force_delete_job($id);
     } else {
         return update_job($id, ['status' => 'deleting'], 'can_delete');
     }
+
 }

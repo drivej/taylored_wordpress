@@ -109,7 +109,7 @@ function woo_repair_action($wps_product_id)
     $report = new Report();
 
     $wps_product = get_western_product($wps_product_id);
-    $sku = get_western_sku($wps_product);
+    $sku = get_western_sku($wps_product['data']['id']);
     $woo_product_id = wc_get_product_id_by_sku($sku);
     $woo_product = wc_get_product($woo_product_id);
 
@@ -117,12 +117,13 @@ function woo_repair_action($wps_product_id)
 
     // import_western_product($wps_product_id, false, $report);
 
-    update_product_attributes($woo_product, $wps_product, $report);
+    update_product_taxonomy($woo_product, $wps_product, $report);
+    // update_product_attributes($woo_product, $wps_product, $report);
     printData($report);
 
-    if($report->getData('attribute_changes')){
-        $woo_product->save();
-    }
+    // if($report->getData('attribute_changes')){
+    //     $woo_product->save();
+    // }
     return;
 
 

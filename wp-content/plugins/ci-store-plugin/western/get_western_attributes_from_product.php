@@ -47,7 +47,9 @@ function get_western_attributes_from_product($product) // wps_product
                 $attr['slug'] = sanitize_title($attr['name']);
                 $WESTERN_ATTRIBUTES_CACHE[$attr['id']] = $attr;
             }
-            array_push($data, ...$res['data']);
+            if (is_array($res['data'])) {
+                array_push($data, ...$res['data']);
+            }
             if (isset($res['meta']['cursor']['next'])) {
                 $cursor = $res['meta']['cursor']['next'];
             } else {

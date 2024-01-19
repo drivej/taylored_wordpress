@@ -13,17 +13,18 @@ function custom_modify_product_thumbnails()
     if ($product->is_type('variable')) {
         // Get the variations
         $variations = $product->get_available_variations();
-        echo '<pre>'.json_encode($variations, JSON_PRETTY_PRINT).'</pre>';
-        return;
+        // echo '<pre>'.json_encode($variations, JSON_PRETTY_PRINT).'</pre>';
+        // return;
 
         // Display the variations
         if (!empty($variations)) {
             echo '<div class="product-variations d-flex flex-wrap">';
             foreach ($variations as $variation) {
                 $variation_id = $variation['variation_id'];
-                $img = get_post_meta($variation_id, '_ci_additional_images', false);
+                $img = get_post_meta($variation_id, '_ci_additional_images', true);
                 $src = $img[0];
-                // print_r($meta);
+                // print_r($src);
+                // continue;
                 $variation_attributes = $variation['attributes'];
 
                 // Customize the display of each variation

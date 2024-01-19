@@ -19,20 +19,31 @@ function import_western_product($wps_product_id, $force_update = false, $report 
     $start_time = microtime(true);
     $action = '';
     $product_id = '';
-    $sku = '';
+    $sku = get_western_sku($wps_product_id);
 
     // try {
     $wps_product = get_western_product($wps_product_id);
     $report->addData('wps_product_id', $wps_product_id);
 
     if (isset($wps_product['error'])) {
-        $action = 'error';
+        if ($wps_product['status_code'] === 404) {
+            $product_id = wc_get_product_id_by_sku($sku);
+            if ($product_id) {
+                $report->addLog('404 ' . $wps_product_id);
+                $action = 'delete';
+            } else {
+                $report->addLog('not found ' . $wps_product_id);
+                $action = 'ignore';
+            }
+        } else {
+            $action = 'error';
+        }
     } else {
-        $sku = get_western_sku($wps_product);
         $product_id = wc_get_product_id_by_sku($sku);
         $report->addData('product_sku', $sku);
         $report->addData('product_id', $product_id);
-        $is_valid = isValidProduct($wps_product['data']);
+        $is_valid = isValidProduct($wps_product);
+        $report->addLog('is_valid=' . $is_valid ? 'true' : 'false');
 
         if ($is_valid) {
             if ($product_id) {
@@ -117,7 +128,7 @@ function insert_western_product($wps_product, $report = new Report())
     global $WPS_SETTINGS;
     $product = new WC_Product_Variable();
     $item = $wps_product['data']['items']['data'][0];
-    $sku = get_western_sku($wps_product);
+    $sku = get_western_sku($wps_product['data']['id']);
     $product->set_sku($sku);
     $product->set_name($wps_product['data']['name']);
     $product->set_status('publish');
@@ -144,8 +155,8 @@ function update_western_product($wps_product, $product_id, $report = new Report(
 {
     $report->addLog('update_western_product()');
     $product = wc_get_product_object('product', $product_id);
-    $has_variations = count($wps_product['data']['items']['data']) > 0;
-    $is_variable = $product->is_type('variable');
+    // $has_variations = count($wps_product['data']['items']['data']) > 0;
+    // $is_variable = $product->is_type('variable');
     $report->addData('type', $product->get_type());
 
     // if ($has_variations && !$is_variable) {
@@ -153,6 +164,7 @@ function update_western_product($wps_product, $product_id, $report = new Report(
     // delete_product($product_id);
     // insert_western_product($wps_product, $report);
     // } else {
+    update_product_taxonomy($product, $wps_product, $report);
     update_product_attributes($product, $wps_product, $report);
     update_product_variations($product, $wps_product, $report);
     // }
@@ -296,6 +308,67 @@ function update_product_variations($product, $wps_product, $report)
     $report->addData('variation_inserts', $inserts);
     $report->addData('variation_updates', $updates);
     $report->addData('variation_deletes', $deletes);
+}
+/**
+ *
+ * @param WC_Product    $product
+ * @param array    $wps_product
+ * @param Report   $report
+ */
+function update_product_taxonomy($product, $wps_product, $report)
+{
+
+    $taxonomy_terms = [];
+    $items = $wps_product['data']['items']['data'];
+
+    // collect taxonomy fro each WPS item
+    if (isset($items)) {
+        foreach ($items as $item) {
+            $terms = $item['taxonomyterms']['data'];
+            if (isset($terms) && count($terms)) {
+                foreach ($terms as $term) {
+                    $taxonomy_terms[$term['name']] = $term;
+                    $taxonomy_terms[$term['name']]['slug'] = sanitize_title($term['slug']);
+                }
+            }
+        }
+    } else {
+        // $report->addLog('taxonomy skipped - no items');
+        return;
+    }
+
+    // $report->addData('taxonomy_terms', $taxonomy_terms);
+
+    // add any categories that don't exist yet
+    foreach ($taxonomy_terms as $term) {
+        if ($term['parent_id']) {
+            $report->addLog('category has parent' . $term['name'] . ' WPS ' . $wps_product['data']['id']);
+        }
+        $term_exists = term_exists($term['name'], 'product_cat');
+        if (!$term_exists) {
+            $report->addLog('insert category ' . $term['name']);
+            wp_insert_category([
+                'cat_name' => $term['name'],
+                'category_nicename' => $term['slug'],
+                'taxonomy' => 'product_cat',
+            ]);
+        } else {
+            $report->addLog('exists category ' . $term['name']);
+        }
+    }
+
+    // verify product belongs to all necessary categories
+    $woo_id = $product->get_id();
+
+    foreach ($taxonomy_terms as $term) {
+        $has_term = has_term($term['slug'], 'product_cat', $woo_id);
+        if ($has_term) {
+            $report->addLog('product has term ' . $term['name']);
+        } else {
+            $report->addLog('update product with term ' . $term['name']);
+            wp_set_object_terms($woo_id, $term['slug'], 'product_cat', true);
+        }
+    }
 }
 
 function delete_product($product_id)
