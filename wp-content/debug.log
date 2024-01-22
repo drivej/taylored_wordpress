@@ -1,0 +1,25 @@
+[22-Jan-2024 12:58:46 UTC] XXXXpassed run_custom_process called
+[22-Jan-2024 12:58:47 UTC] PHP Notice:  Function is_internal_meta_key was called incorrectly. Generic add/update/get meta methods should not be used for internal meta data, including "_stock_status". Use getters and setters. Backtrace: require('wp-admin/edit-form-advanced.php'), do_meta_boxes, render_custom_product_form, product_needs_update_reasons, should_update_stock_status, WC_Data-&gt;get_meta, WC_Data-&gt;is_internal_meta_key, wc_doing_it_wrong Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.2.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[22-Jan-2024 13:01:35 UTC] XXXXpassed run_custom_process called
+[22-Jan-2024 13:01:45 UTC] PHP Warning:  Undefined array key "updated_at" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/import_western_product.php on line 117
+[22-Jan-2024 13:01:45 UTC] PHP Deprecated:  DateTime::__construct(): Passing null to parameter #1 ($datetime) of type string is deprecated in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/import_western_product.php on line 118
+[22-Jan-2024 13:01:45 UTC] PHP Warning:  Undefined array key "id" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/import_western_product.php on line 228
+[22-Jan-2024 13:01:46 UTC] PHP Warning:  Undefined array key "items" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/western_utils.php on line 127
+[22-Jan-2024 13:01:46 UTC] PHP Warning:  Trying to access array offset on value of type null in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/western_utils.php on line 127
+[22-Jan-2024 13:04:43 UTC] PHP Warning:  Undefined array key "job_id" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/cronjob/job_do_cmd.php on line 17
+[22-Jan-2024 13:04:51 UTC] PHP Notice:  Function is_internal_meta_key was called incorrectly. Generic add/update/get meta methods should not be used for internal meta data, including "_stock_status". Use getters and setters. Backtrace: do_action('ci-store_page_ci-store-plugin-page-test'), WP_Hook-&gt;do_action, WP_Hook-&gt;apply_filters, render_ci_store_plugin_test, wps_product_action, WC_Data-&gt;get_meta, WC_Data-&gt;is_internal_meta_key, wc_doing_it_wrong Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.2.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[22-Jan-2024 13:04:59 UTC] PHP Warning:  Undefined array key "job_id" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/cronjob/job_do_cmd.php on line 17
+[22-Jan-2024 13:05:17 UTC] PHP Notice:  Function is_internal_meta_key was called incorrectly. Generic add/update/get meta methods should not be used for internal meta data, including "_stock_status". Use getters and setters. Backtrace: do_action('ci-store_page_ci-store-plugin-page-test'), WP_Hook-&gt;do_action, WP_Hook-&gt;apply_filters, render_ci_store_plugin_test, wps_product_action, WC_Data-&gt;get_meta, WC_Data-&gt;is_internal_meta_key, wc_doing_it_wrong Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.2.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[22-Jan-2024 13:09:04 UTC] PHP Warning:  Undefined array key "job_id" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/cronjob/job_do_cmd.php on line 17
+[22-Jan-2024 13:10:08 UTC] XXXXpassed run_custom_process called
+[22-Jan-2024 13:10:53 UTC] XXXXpassed run_custom_process called
+[22-Jan-2024 13:10:57 UTC] XXXXpassed run_custom_process called
+[22-Jan-2024 13:11:04 UTC] XXXXpassed run_custom_process called
+[22-Jan-2024 13:11:06 UTC] XXXXpassed run_custom_process called
+[22-Jan-2024 13:11:13 UTC] XXXXpassed run_custom_process called
+[22-Jan-2024 13:11:20 UTC] XXXXpassed run_custom_process called
+[22-Jan-2024 13:11:22 UTC] XXXXpassed run_custom_process called
+[22-Jan-2024 13:11:40 UTC] XXXXpassed run_custom_process called
+[22-Jan-2024 13:11:42 UTC] XXXXpassed run_custom_process called
+[22-Jan-2024 13:13:33 UTC] XXXXpassed run_custom_process called
+[22-Jan-2024 13:13:36 UTC] XXXXpassed run_custom_process called

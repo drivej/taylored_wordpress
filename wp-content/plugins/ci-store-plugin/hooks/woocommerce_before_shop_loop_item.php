@@ -1,12 +1,12 @@
 <?php
 
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/debug_hook.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/get_product_image.php';
 
 function custom_change_list_view_image()
 {
-    if (isset($_GET['debug'])) {
-        print('<div class="border">custom_change_list_view_image()</div>');
-    }
+    debug_hook('woocommerce_before_shop_loop_item_title');
+
     global $product;
 
     // Get the product ID
@@ -25,11 +25,18 @@ function custom_change_list_view_image()
 
 function custom_before_shop_loop_item()
 {
-    if (isset($_GET['debug'])) {
-        print('<div class="border">custom_before_shop_loop_item()</div>');
-    }
+    debug_action('woocommerce_before_shop_loop_item');
+    // if (isset($_GET['debug'])) {
+    //     print('<div class="border">custom_before_shop_loop_item()</div>');
+    // }
     // print('custom_before_shop_loop_item');
     global $product;
+
+    $current_stock_status = $product->get_meta('_stock_status', true);
+
+    debug_data(['current_stock_status' => $current_stock_status, 'sku'=>$product->get_sku()]);
+
+    return;
 
     // Check if it's a variable product
     // print_r(['type'=>$product->get_type()]);
@@ -70,7 +77,7 @@ function custom_before_shop_loop_item()
         //     // Modify the product image source to use the first variation's image
         //     // $product->set_image(array('url' => $src));
         // }
-    // } else {
+        // } else {
         // $product
         // $src = get_product_image($product);
         // $img = $product->get_meta('_ci_additional_images');
@@ -89,15 +96,4 @@ function custom_before_shop_loop_item()
     // print '<img title="custom_before_shop_loop_item" src="' . esc_url($src) . '">';
 }
 
-// add_action('woocommerce_before_shop_loop_item', 'custom_before_shop_loop_item');
-
-// add_filter('wp_get_attachment_image_src', 'pn_change_product_image_link', 50, 4);
-
-function pn_change_product_image_link($image, $attachment_id, $size, $icon)
-{
-    if (isset($_GET['debug'])) {
-        print('<div class="border">pn_change_product_image_link()</div>');
-    }
-    print_r($image);
-    return ''; //$image;
-}
+add_action('woocommerce_before_shop_loop_item', 'custom_before_shop_loop_item');

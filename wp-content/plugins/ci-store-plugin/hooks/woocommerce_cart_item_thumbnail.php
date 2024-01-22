@@ -1,10 +1,10 @@
 <?php
 
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/debug_hook.php';
+
 function custom_modify_cart_item_thumbnail($product_image, $cart_item, $cart_item_key)
 {
-    if (isset($_GET['debug'])) {
-        print('<div class="border">custom_modify_cart_item_thumbnail()</div>');
-    }
+    debug_hook('woocommerce_cart_item_thumbnail');
     // print('<div class="border">custom_modify_cart_item_thumbnail()</div>');
     $woo_product_id = $cart_item['product_id'];
     $serialized_data = get_post_meta($woo_product_id, '_ci_additional_images', true);

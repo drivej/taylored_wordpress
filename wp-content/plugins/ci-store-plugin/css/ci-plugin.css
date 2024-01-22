@@ -1,0 +1,19 @@
+.debug-hook {
+  font-size: 10px;
+  background: #6666b2;
+  display: inline-block;
+  border-radius: 0.5em;
+  padding: 0.25em 0.5em;
+  color: #fff;
+  cursor: pointer;
+}
+.debug-hook.type-filter {
+  background: #66b269;
+}
+pre.debug-data {
+  border-radius: 0.5em;
+  padding: 0.25em;
+  font-size: 10px;
+  background-color: #ccc;
+  color: #000;
+}

@@ -32,7 +32,7 @@ function isInvalidReasons($product)
                         $reasons[] = 'No images found';
                     }
                 } else {
-                    $reasons[] = (bool)count($validItems) . ' of ' . count($items) . ' valid items';
+                    $reasons[] = (bool) count($validItems) . ' of ' . count($items) . ' valid items';
                 }
             } else {
                 $reasons[] = 'Empty items';
@@ -114,4 +114,28 @@ function get_western_variation_sku($product, $item)
     $product_id = $product['data']['id'];
     $item_id = $item['id'];
     return implode('_', ['MASTER', 'WPS', $product_id, 'VARIATION', $item_id]);
+}
+
+function get_western_stock($wps_product_id)
+{
+    $params = [];
+    $params['include'] = implode(',', [
+        'items',
+        'items.inventory',
+    ]);
+    $product = get_western('products/' . $wps_product_id, $params);
+    $items = $product['data']['items']['data'];
+    if (isset($items)) {
+        $valid_items = array_filter($items, 'isValidItem');
+        if (count($valid_items)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function get_western_stock_status($wps_product_id)
+{
+    $in_stock = get_western_stock($wps_product_id);
+    return $in_stock ? 'instock' : 'outofstock';
 }

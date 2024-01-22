@@ -1,13 +1,19 @@
 <?php
 
-include_once __DIR__ . '/before_shop_loop_item.php';
-include_once __DIR__ . '/before_single_product_summary.php';
-include_once __DIR__ . '/before_single_product.php';
-include_once __DIR__ . '/cart_item_thumbnail.php';
-include_once __DIR__ . '/image_size.php';
-include_once __DIR__ . '/placeholder_img.php';
-include_once __DIR__ . '/product_thumbnails.php';
-include_once __DIR__ . '/single_product_image.php';
+include_once __DIR__ . '/woocommerce_before_shop_loop_item.php';
+include_once __DIR__ . '/woocommerce_before_single_product_summary.php';
+include_once __DIR__ . '/woocommerce_before_single_product.php';
+include_once __DIR__ . '/woocommerce_before_single_variation.php';
+include_once __DIR__ . '/woocommerce_cart_item_thumbnail.php';
+include_once __DIR__ . '/woocommerce_get_image_size_shop_single.php';
+include_once __DIR__ . '/woocommerce_placeholder_img.php';
+include_once __DIR__ . '/woocommerce_product_get_image.php';
+include_once __DIR__ . '/woocommerce_product_thumbnails.php';
+include_once __DIR__ . '/woocommerce_single_product_image.php';
+include_once __DIR__ . '/woocommerce_single_variation.php';
+
+include_once __DIR__ . '/wp_get_attachment_image_src.php';
+
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/log/write_to_log_file.php';
 
 function custom_product_list_column($columns)

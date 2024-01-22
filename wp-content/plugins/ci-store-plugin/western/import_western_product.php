@@ -101,14 +101,16 @@ function import_western_product($wps_product_id, $force_update = false, $report 
  * @param WC_Product   $woo_product
  * @param array    $wps_product
  */
-function product_needs_update($woo_product, $wps_product)
+function product_needs_update_reasons($woo_product, $wps_product)
 {
     global $WPS_SETTINGS;
-    $needs_update = false;
+    $reasons = [];
+    // $needs_update = false;
     $import_version = $woo_product->get_meta('_ci_import_version');
     // update if import version changes
     if ($import_version != $WPS_SETTINGS['import_version']) {
-        $needs_update = true;
+        // $needs_update = true;
+        $reasons[] = 'import version updated from ' . $import_version . ' to ' . $WPS_SETTINGS['import_version'];
     }
     $imported = $woo_product->get_meta('_ci_import_timestamp');
     $date_imported = new DateTime($imported ? $imported : '2000-01-01 12:00:00');
@@ -116,9 +118,39 @@ function product_needs_update($woo_product, $wps_product)
     $date_updated = new DateTime($updated);
     // update if imported before last remote update
     if ($date_imported < $date_updated) {
-        $needs_update = true;
+        // $needs_update = true;
+        $reasons[] = 'last import ' . $date_imported->format('Y-m-d H:i:s');
     }
-    return $needs_update;
+    if (should_update_stock_status($woo_product, $wps_product)) {
+        $reasons[] = 'stock status changed';
+    }
+    return $reasons;
+}
+/**
+ *
+ * @param WC_Product   $woo_product
+ * @param array    $wps_product
+ */
+function product_needs_update($woo_product, $wps_product)
+{
+    $reasons = product_needs_update_reasons($woo_product, $wps_product);
+    return (bool) count($reasons);
+    // global $WPS_SETTINGS;
+    // $needs_update = false;
+    // $import_version = $woo_product->get_meta('_ci_import_version');
+    // // update if import version changes
+    // if ($import_version != $WPS_SETTINGS['import_version']) {
+    //     $needs_update = true;
+    // }
+    // $imported = $woo_product->get_meta('_ci_import_timestamp');
+    // $date_imported = new DateTime($imported ? $imported : '2000-01-01 12:00:00');
+    // $updated = $wps_product['data']['updated_at'];
+    // $date_updated = new DateTime($updated);
+    // // update if imported before last remote update
+    // if ($date_imported < $date_updated) {
+    //     $needs_update = true;
+    // }
+    // return $needs_update;
 }
 /**
  *
@@ -149,8 +181,8 @@ function insert_western_product($wps_product, $report = new Report())
     }
     // update_product_variations($product, $wps_product, $report);
     update_western_product($wps_product, $product_id, $report);
-    $product->save();
-    $report->addLog('save()');
+    // $product->save();
+    // $report->addLog('save()');
     $report->addLog('insert_western_product() sku:' . $sku . ' id: ' . $product_id);
     return $product_id;
 }
@@ -163,9 +195,9 @@ function update_western_product($wps_product, $product_id, $report = new Report(
     // $is_variable = $product->is_type('variable');
     $report->addData('type', $woo_product->get_type());
 
-    $images = get_additional_images($wps_product);
-    $serialized_images = serialize($images);
-    $woo_product->update_meta_data('_ci_additional_images', $serialized_images);
+    // $images = get_additional_images($wps_product);
+    // $serialized_images = serialize($images);
+    // $woo_product->update_meta_data('_ci_additional_images', $serialized_images);
 
     // if ($has_variations && !$is_variable) {
     // $report->addLog('failed');
@@ -176,6 +208,9 @@ function update_western_product($wps_product, $product_id, $report = new Report(
     update_product_taxonomy($woo_product, $wps_product, $report);
     update_product_attributes($woo_product, $wps_product, $report);
     update_product_variations($woo_product, $wps_product, $report);
+    update_product_stock_status($woo_product, $wps_product, $report);
+
+    $woo_product->save();
     // }
     return $product_id;
 }
@@ -186,6 +221,29 @@ function update_product_images($woo_product, $wps_product, $report)
     $images = get_additional_images($wps_product);
     $serialized_images = serialize($images);
     $woo_product->update_meta_data('_ci_additional_images', $serialized_images);
+}
+
+function should_update_stock_status($woo_product, $wps_product)
+{
+    $wps_product_id = $wps_product['data']['id'];
+    $woo_stock_status = $woo_product->get_stock_status();//('_stock_status', true);
+    $wps_stock_status = get_western_stock_status($wps_product_id);
+    return $woo_stock_status !== $wps_stock_status;
+}
+
+function update_product_stock_status($woo_product, $wps_product, $report)
+{
+    $wps_product_id = $wps_product['data']['id'];
+    $woo_stock_status = $woo_product->get_stock_status();//$woo_product->get_meta('_stock_status', true);
+    $wps_stock_status = get_western_stock_status($wps_product_id);
+
+    if ($woo_stock_status !== $wps_stock_status) {
+        $product_id = $woo_product->get_id();
+        update_post_meta($product_id, '_stock_status', $wps_stock_status);
+        wp_set_post_terms($product_id, 'outofstock', 'product_visibility', true);
+        wc_delete_product_transients($product_id);
+        $report->addData('stock_status', $wps_stock_status);
+    }
 }
 
 // function variation_needs_update($woo_variation, $wps_item)

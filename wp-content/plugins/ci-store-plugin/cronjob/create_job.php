@@ -8,6 +8,9 @@ require_once __DIR__ . '/update_jobs.php';
 function create_job($action, $args = [])
 {
     $jobs = get_jobs();
+    if (isset($args['action'])) {
+        unset($args['action']);
+    }
     $id = md5(serialize(['action' => $action, 'args' => $args]));
     $job = get_job($id);
     if ($job === null) {

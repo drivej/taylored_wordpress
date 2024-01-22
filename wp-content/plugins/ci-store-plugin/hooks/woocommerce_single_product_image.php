@@ -1,12 +1,12 @@
 <?php
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/get_product_image.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/western_utils.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/debug_hook.php';
 
 function custom_modify_single_product_image($html, $post_id)
 {
-    if (isset($_GET['debug'])) {
-        print('<div>custom_modify_single_product_image</div>');
-    }
+    debug_hook('woocommerce_single_product_image');
+
     $html = '';
     return $html;
 

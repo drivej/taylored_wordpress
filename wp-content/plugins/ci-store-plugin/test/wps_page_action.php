@@ -1,11 +1,16 @@
 <?php
 
 include_once __DIR__ . './../western/get_western_products_page.php';
+include_once __DIR__ . './../western/get_western_products_count.php';
 include_once __DIR__ . './../western/western_utils.php';
 
 function wps_page_action($item_id)
 {
     $products = get_western_products_page($item_id);
+    $count = get_western_products_count();
+
+    echo '<p>'.$count.' total products</p>';
+
     echo '<table class="table"><tbody>';
     foreach ($products['data'] as $product) {
         $sku = get_western_sku($product['id']);

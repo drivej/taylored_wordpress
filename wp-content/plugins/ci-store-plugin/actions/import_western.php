@@ -14,7 +14,9 @@ function import_western_page($job)
         create_job('import_western_product', ['product_id' => $product['id']]);
     }
 
-    write_to_log_file("import_western_page() cursor=" . $cursor . " products=" . count($products));
+    $count = is_countable($products) ? count($products) : 'not countable!';
+
+    write_to_log_file("import_western_page() cursor=" . $cursor . " products=" . $count);
     // sleep(10);
 
     $next_cursor = $data['meta']['cursor']['next'];
