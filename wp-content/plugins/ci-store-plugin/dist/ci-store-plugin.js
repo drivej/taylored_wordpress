@@ -1613,7 +1613,7 @@ module.exports = styleTagTransform;
 
 /***/ }),
 
-/***/ 234:
+/***/ 227:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -3996,13 +3996,6 @@ const QueryClientProvider = ({
 var client = __webpack_require__(745);
 // EXTERNAL MODULE: ./src/assets/plugin.scss
 var assets_plugin = __webpack_require__(921);
-;// CONCATENATED MODULE: ./src/views/home/Home.tsx
-
-const HomePage = () => {
-    return (react.createElement("div", null,
-        react.createElement("h1", null, "Home Page")));
-};
-
 ;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/queryObserver.mjs
 
 
@@ -4963,37 +4956,6 @@ function useMutation_noop() {}
 
 //# sourceMappingURL=useMutation.mjs.map
 
-;// CONCATENATED MODULE: ./src/utils/formatDuration.ts
-function formatDuration(seconds) {
-    var date = new Date(0);
-    if (seconds)
-        date.setSeconds(seconds); // specify value for SECONDS here
-    return date.toISOString().substring(11, 19);
-    //   if (isNaN(seconds)) return '';
-    //   seconds = Math.round(seconds);
-    //   const m = Math.floor(seconds / 60);
-    //   const s = seconds % 60;
-    //   return `${m}:${('0' + s).slice(-2)}`;
-}
-
-;// CONCATENATED MODULE: ./src/utils/datestamp.ts
-
-function datestamp() {
-    let dateObj = new Date();
-    let month = dateObj.getUTCMonth() + 1; //months from 1-12
-    let day = dateObj.getUTCDate();
-    let year = dateObj.getUTCFullYear();
-    return [year, month, day].join('-');
-}
-function parseDate(s) {
-    return new Date(Date.parse(s));
-}
-function since(s) {
-    const d = new Date(Date.parse(s));
-    const dif = Date.now() - d.getTime();
-    return formatDuration(dif / 1000);
-}
-
 // EXTERNAL MODULE: ./node_modules/cross-fetch/dist/browser-ponyfill.js
 var browser_ponyfill = __webpack_require__(98);
 var browser_ponyfill_default = /*#__PURE__*/__webpack_require__.n(browser_ponyfill);
@@ -5028,6 +4990,88 @@ function fetchWordpressAjax(params = { action: '' }) {
         const data = yield res.json();
         return data;
     });
+}
+
+;// CONCATENATED MODULE: ./src/stock_check/StockCheck.tsx
+
+
+
+const useStockUpdate = () => {
+    return useQuery({
+        queryKey: ['stock_status'],
+        queryFn: () => {
+            return fetchWordpressAjax({ action: 'stock_check_handler', cmd: 'status' });
+        },
+        keepPreviousData: true,
+        initialData: [],
+        refetchInterval: 10000
+    });
+};
+const StockCheck = () => {
+    var _a, _b, _c, _d;
+    const queryClient = useQueryClient();
+    const logs = useStockUpdate();
+    const $pre = react.useRef();
+    const mutationLog = useMutation({
+        mutationFn: (options) => fetchWordpressAjax(Object.assign({ action: 'stock_check_handler' }, options)),
+        onSuccess: (data) => queryClient.setQueryData(['stock_status'], data)
+    });
+    const refresh = () => {
+        queryClient.invalidateQueries(['stock_status']);
+    };
+    return (react.createElement("div", { className: 'd-flex flex-column gap-3 p-3' },
+        react.createElement("div", { className: 'd-flex gap-3' },
+            react.createElement("button", { className: 'btn btn-primary', onClick: refresh }, "\u21BA")),
+        react.createElement("div", { className: 'position-relative' },
+            react.createElement("div", { style: { background: 'black', padding: '0.5em' } },
+                react.createElement("pre", { ref: $pre, style: {
+                        color: 'orange',
+                        margin: 0,
+                        padding: 0,
+                        fontSize: '12px',
+                        fontFamily: 'monospace',
+                        lineHeight: 1.5,
+                        maxHeight: 1.5 * 12 * 50,
+                        minHeight: 300
+                    }, dangerouslySetInnerHTML: { __html: (_d = (_c = (_b = (_a = logs === null || logs === void 0 ? void 0 : logs.data) === null || _a === void 0 ? void 0 : _a.splice) === null || _b === void 0 ? void 0 : _b.call(_a, 0)) === null || _c === void 0 ? void 0 : _c.reverse().join('\n')) !== null && _d !== void 0 ? _d : '' } })))));
+};
+
+;// CONCATENATED MODULE: ./src/views/home/Home.tsx
+
+const HomePage = () => {
+    return (react.createElement("div", null,
+        react.createElement("h1", null, "Home Page")));
+};
+
+;// CONCATENATED MODULE: ./src/utils/formatDuration.ts
+function formatDuration(seconds) {
+    var date = new Date(0);
+    if (seconds)
+        date.setSeconds(seconds); // specify value for SECONDS here
+    return date.toISOString().substring(11, 19);
+    //   if (isNaN(seconds)) return '';
+    //   seconds = Math.round(seconds);
+    //   const m = Math.floor(seconds / 60);
+    //   const s = seconds % 60;
+    //   return `${m}:${('0' + s).slice(-2)}`;
+}
+
+;// CONCATENATED MODULE: ./src/utils/datestamp.ts
+
+function datestamp() {
+    let dateObj = new Date();
+    let month = dateObj.getUTCMonth() + 1; //months from 1-12
+    let day = dateObj.getUTCDate();
+    let year = dateObj.getUTCFullYear();
+    return [year, month, day].join('-');
+}
+function parseDate(s) {
+    return new Date(Date.parse(s));
+}
+function since(s) {
+    const d = new Date(Date.parse(s));
+    const dif = Date.now() - d.getTime();
+    return formatDuration(dif / 1000);
 }
 
 ;// CONCATENATED MODULE: ./src/views/jobs/Jobs.tsx
@@ -5291,6 +5335,7 @@ const Logs = () => {
 
 
 
+
 // import { WordPressApp } from './wordpress/WordpressApp';
 // const root = createRoot(document.getElementById('product-root'));
 // root.render(<WordPressApp />);
@@ -5389,6 +5434,10 @@ const App = ({ children }) => {
 const render = (id, page = null) => {
     const root = (0,client/* createRoot */.s)(document.getElementById(id));
     switch (page) {
+        case 'stock_check':
+            root.render(react.createElement(App, null,
+                react.createElement(StockCheck, null)));
+            break;
         case 'jobs':
             root.render(react.createElement(App, null,
                 react.createElement(Jobs, null),
@@ -5676,7 +5725,7 @@ module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("9603ceab6f7049fcb657")
+/******/ 		__webpack_require__.h = () => ("7e72242c1ecd296ef144")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
@@ -6665,7 +6714,7 @@ module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%
 /******/ 	// module cache are used so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	var __webpack_exports__ = __webpack_require__(234);
+/******/ 	var __webpack_exports__ = __webpack_require__(227);
 /******/ 	
 /******/ 	return __webpack_exports__;
 /******/ })()

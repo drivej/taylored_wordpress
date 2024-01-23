@@ -11,17 +11,14 @@ function custom_before_single_product()
     global $product;
     $src = get_product_image($product);
     $src = resize_western_image($src, 500);
-
+    // this is duplicative of import code
     if (is_product() && $product) {
         $wps_product_id = $product->get_meta('_ci_product_id', true);
-        $woo_stock_status = $product->get_meta('_stock_status', true);
+        $woo_stock_status = $product->get_stock_status();
         $wps_stock_status = get_western_stock_status($wps_product_id);
 
         if ($woo_stock_status !== $wps_stock_status) {
-            $product_id = $product->get_id();
-            update_post_meta($product_id, '_stock_status', $wps_stock_status);
-            wp_set_post_terms($product_id, 'outofstock', 'product_visibility', true);
-            wc_delete_product_transients($product_id);
+            $product->set_stock_status($wps_stock_status);
         }
     }
 

@@ -7,7 +7,8 @@ const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
   entry: {
-    index: './src/wordpress-plugin.tsx'
+    'ci-store-plugin': './src/wordpress-plugin.tsx',
+    stock_check: './src/stock_check/index.tsx'
     // index: ['webpack-hot-middleware/client', './src/wordpress-plugin.tsx']
   },
   watch: true,
@@ -96,7 +97,7 @@ module.exports = {
   },
   output: {
     publicPath: '/',
-    filename: `ci-store-plugin.js`,
+    filename: '[name].js',
     path: path.resolve(__dirname, '../dist'),
     library: 'CIStore',
     libraryTarget: 'umd',

@@ -8,3 +8,4 @@
 .htaccess
 .DS_Store
 wp-content/plugins/ci-store-plugin/dist/*.hot-update.*
+wp-content/plugins/advanced-database-cleaner/

@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import './assets/plugin.scss';
+import { StockCheck } from './stock_check/StockCheck';
 import { HomePage } from './views/home/Home';
 import { Jobs } from './views/jobs/Jobs';
 import { Logs } from './views/logs/Logs';
@@ -119,10 +120,18 @@ const App = ({ children }: { children: React.ReactNode }) => {
 export const render = (id: string, page: string = null) => {
   const root = createRoot(document.getElementById(id));
   switch (page) {
+    case 'stock_check':
+      root.render(
+        <App>
+          <StockCheck />
+        </App>
+      );
+      break;
     case 'jobs':
       root.render(
         <App>
-          <Jobs /><Logs />
+          <Jobs />
+          <Logs />
         </App>
       );
       break;

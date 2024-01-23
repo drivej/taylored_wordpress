@@ -32,9 +32,10 @@ function custom_before_shop_loop_item()
     // print('custom_before_shop_loop_item');
     global $product;
 
-    $current_stock_status = $product->get_meta('_stock_status', true);
-
-    debug_data(['current_stock_status' => $current_stock_status, 'sku'=>$product->get_sku()]);
+    if (should_debug()) {
+        $current_stock_status = $product->get_stock_status();
+        debug_data(['current_stock_status' => $current_stock_status, 'sku' => $product->get_sku()]);
+    }
 
     return;
 

@@ -13,6 +13,8 @@ include_once __DIR__ . '/test/woo_repair_action.php';
 include_once __DIR__ . '/test/woo_product_action.php';
 include_once __DIR__ . '/test/wps_import_action.php';
 include_once __DIR__ . '/test/wps_product_action.php';
+include_once __DIR__ . '/test/clear_logs_action.php';
+include_once __DIR__ . '/test/stock_check_action.php';
 
 $action_handlers = [
     "wc_api",
@@ -22,6 +24,8 @@ $action_handlers = [
     "woo_repair",
     "wps_import",
     "wps_page",
+    "clear_logs",
+    "stock_check"
 ];
 
 function render_ci_store_plugin_test()

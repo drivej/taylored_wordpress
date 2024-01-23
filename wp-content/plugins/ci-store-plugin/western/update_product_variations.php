@@ -94,7 +94,7 @@ function update_product_variations($product, $wps_product, $report)
         $variation->set_name($item['name']);
         $variation->set_status('publish');
         $variation->set_regular_price($item['list_price']);
-        $variation->update_meta_data('_stock_status', wc_clean('instock'));
+        $variation->set_stock_status('instock');
         $variation->update_meta_data('_ci_supplier_key', 'wps');
         $variation->update_meta_data('_ci_product_id', $item['id']);
         $variation->update_meta_data('_ci_supplier_key', 'wps');
@@ -123,7 +123,7 @@ function update_product_variations($product, $wps_product, $report)
             $variation->set_name($item['name']);
             $variation->set_status('publish');
             $variation->set_regular_price($item['list_price']);
-            $variation->update_meta_data('_stock_status', wc_clean('instock'));
+            $variation->set_stock_status('instock');
             $variation->update_meta_data('_ci_supplier_key', 'wps');
             $variation->update_meta_data('_ci_product_id', $item['id']);
             $variation->update_meta_data('_ci_supplier_key', 'wps');

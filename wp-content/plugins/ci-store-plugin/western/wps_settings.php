@@ -1,5 +1,5 @@
 <?php
-
+// TODO - move refrences to general settings
 $WPS_SETTINGS = array(
     "name" => "Western Power Sports",
     "key" => "WPS",

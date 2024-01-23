@@ -21,3 +21,25 @@ function schedule_import_products()
 }
 
 add_action('import_products_event', 'import_products_trigger');
+
+function clear_completed_scheduled_actions() {
+    // Specify the hook for your scheduled actions
+    // $hook = 'woocommerce_run_product_attribute_lookup_update_callback';
+
+    // // Get all scheduled events for the specified hook
+    // $scheduled_events = wp_get_schedule($hook);
+
+    // // Loop through each scheduled event and clear it
+    // if ($scheduled_events) {
+    //     foreach ($scheduled_events as $timestamp => $event) {
+    //         // Check if the scheduled event is completed (in the past)
+    //         if ($timestamp < time()) {
+    //             // Clear the scheduled event
+    //             wp_unschedule_event($timestamp, $hook);
+    //         }
+    //     }
+    // }
+}
+
+// Call the function when needed
+// clear_completed_scheduled_actions();

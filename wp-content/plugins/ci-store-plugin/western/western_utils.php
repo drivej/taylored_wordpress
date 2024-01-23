@@ -124,7 +124,21 @@ function get_western_stock($wps_product_id)
         'items.inventory',
     ]);
     $product = get_western('products/' . $wps_product_id, $params);
-    $items = $product['data']['items']['data'];
+    // print_r($product);
+    return has_valid_items($product['data']);
+    // $items = $product['data']['items']['data'];
+    // if (isset($items)) {
+    //     $valid_items = array_filter($items, 'isValidItem');
+    //     if (count($valid_items)) {
+    //         return true;
+    //     }
+    // }
+    // return false;
+}
+
+function has_valid_items($wps_product_data)
+{
+    $items = $wps_product_data['items']['data'];
     if (isset($items)) {
         $valid_items = array_filter($items, 'isValidItem');
         if (count($valid_items)) {

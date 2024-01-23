@@ -35,7 +35,7 @@ function wps_product_action($wps_product_id)
         $res['has_images'] = wps_product_has_images($wps_product);
         $res['wps_stock_status'] = get_western_stock_status($wps_product_id);
         $woo_product = wc_get_product_object('product', $woo_product_id);
-        $res['woo_stock_status'] = $woo_product->get_meta('_stock_status', true);
+        $res['woo_stock_status'] = $woo_product->get_stock_status();
 
         $res['import_version'] = $woo_product->get_meta('_ci_import_version');
         $res['current_import_version'] = $WPS_SETTINGS['import_version'];

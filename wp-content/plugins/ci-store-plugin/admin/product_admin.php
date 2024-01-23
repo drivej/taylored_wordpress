@@ -3,6 +3,7 @@
 require_once __DIR__ . './../log/write_to_log_file.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/wps_settings.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/config.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/print_utils.php';
 
 // Callback function to render the custom meta box content
 function custom_product_meta_box()
@@ -20,10 +21,31 @@ function custom_product_meta_box()
 
 add_action('add_meta_boxes', 'custom_product_meta_box');
 
+function delete_completed_scheduled_tasks()
+{
+    $hook = 'woocommerce_run_product_attribute_lookup_update_callback';
+
+    // Get all scheduled events for the specified hook
+    $scheduled_events = _get_cron_array();
+
+    // Loop through each scheduled event and clear completed ones
+    if ($scheduled_events && isset($scheduled_events[$hook])) {
+        foreach ($scheduled_events[$hook] as $timestamp => $event) {
+            // Check if the scheduled event is completed (in the past)
+            if ($timestamp < time()) {
+                // Clear the completed scheduled event
+                wp_unschedule_event($timestamp, $hook);
+            }
+        }
+        echo "Completed scheduled tasks for '$hook' have been deleted.";
+    } else {
+        echo "No completed scheduled tasks found for '$hook'.";
+    }
+}
+
 // Callback function to render the custom form content
 function render_custom_product_form($post)
 {
-    error_log('XXXXpassed run_custom_process called');
     global $CI_CONFIG;
 
     $woo_product = wc_get_product($post);
