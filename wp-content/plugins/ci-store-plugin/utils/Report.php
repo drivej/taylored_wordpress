@@ -2,8 +2,8 @@
 
 class Report
 {
-    public $logs = [];
-    public $data = [];
+    public array $logs = [];
+    public array $data = [];
 
     public function addLog($msg)
     {

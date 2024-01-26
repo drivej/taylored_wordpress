@@ -2,11 +2,11 @@
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
 	else if(typeof define === 'function' && define.amd)
-		define("CIStore", [], factory);
+		define("CIImportProducts", [], factory);
 	else if(typeof exports === 'object')
-		exports["CIStore"] = factory();
+		exports["CIImportProducts"] = factory();
 	else
-		root["CIStore"] = factory();
+		root["CIImportProducts"] = factory();
 })(self, () => {
 return /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
@@ -1613,7 +1613,7 @@ module.exports = styleTagTransform;
 
 /***/ }),
 
-/***/ 227:
+/***/ 348:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -1625,6 +1625,8 @@ __webpack_require__.d(__webpack_exports__, {
   render: () => (/* binding */ render)
 });
 
+// EXTERNAL MODULE: ./src/assets/plugin.scss
+var assets_plugin = __webpack_require__(921);
 ;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/utils.mjs
 // TYPES
 // UTILS
@@ -3994,8 +3996,6 @@ const QueryClientProvider = ({
 
 // EXTERNAL MODULE: ./node_modules/react-dom/client.js
 var client = __webpack_require__(745);
-// EXTERNAL MODULE: ./src/assets/plugin.scss
-var assets_plugin = __webpack_require__(921);
 ;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/queryObserver.mjs
 
 
@@ -5024,524 +5024,103 @@ function formatTimeAgo(seconds) {
     return '<1 min ago';
 }
 
-;// CONCATENATED MODULE: ./src/stock_check/StockCheck.tsx
+;// CONCATENATED MODULE: ./src/import_products/ImportProducts.tsx
 
 
 
 
-
-const useStockUpdate = () => {
+const useJob = (jobKey) => {
     return useQuery({
-        queryKey: ['stock_status'],
+        queryKey: [jobKey],
         queryFn: () => {
-            return fetchWordpressAjax({ action: 'stock_check_api', cmd: 'status' });
+            return fetchWordpressAjax({ action: `${jobKey}_api`, cmd: `status` });
         },
         keepPreviousData: true,
-        refetchInterval: 5000
+        refetchInterval: 2000
     });
 };
-const StockCheck = () => {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+const ImportProducts = () => {
+    var _a, _b, _c, _d, _e, _f;
+    const jobKey = 'import_products';
+    const action = `${jobKey}_api`;
     const queryClient = useQueryClient();
-    const stockStatus = useStockUpdate();
+    const jobData = useJob(jobKey);
     const mutation = useMutation({
-        mutationFn: (options) => fetchWordpressAjax(Object.assign({ action: 'stock_check_api' }, options)),
-        onSuccess: (data) => queryClient.setQueryData(['stock_status'], data)
+        mutationFn: (options) => fetchWordpressAjax(Object.assign({ action }, options)),
+        onSuccess: (data) => queryClient.setQueryData([jobKey], data)
     });
     const refresh = () => {
-        if (!stockStatus.isLoading) {
-            queryClient.invalidateQueries(['stock_status']);
+        if (!jobData.isLoading) {
+            queryClient.invalidateQueries([jobKey]);
         }
     };
-    const startStockCheck = () => {
-        const confirmed = confirm('Start stock check?');
-        if (confirmed) {
-            mutation.mutate({ cmd: 'start_stock_check' });
-        }
+    const update = () => {
+        mutation.mutate({ cmd: `status` });
     };
-    const stopStockCheck = () => {
-        mutation.mutate({ cmd: 'stop_stock_check' });
+    const start = () => {
+        // const confirmed = confirm('Start job?');
+        // if (confirmed) {
+        mutation.mutate({ cmd: `start` });
+        // }
     };
-    const hackStockCheck = () => {
-        mutation.mutate({ cmd: 'hack_stock_check' });
+    const stop = () => {
+        mutation.mutate({ cmd: `stop` });
     };
-    const resumeStockCheck = () => {
-        mutation.mutate({ cmd: 'resume_stock_check' });
+    const resume = () => {
+        mutation.mutate({ cmd: 'resume' });
     };
-    (0,react.useEffect)(() => {
-        var _a;
-        if ((_a = stockStatus.data) === null || _a === void 0 ? void 0 : _a.is_running) {
-            const timer = setInterval(() => refresh(), 2000);
-            return () => {
-                clearInterval(timer);
-            };
-        }
-    }, [stockStatus.data]);
-    if (!stockStatus.isSuccess) {
+    const hack = () => {
+        mutation.mutate({ cmd: 'hack' });
+    };
+    //   useEffect(() => {
+    //     if (jobData.data?.is_running) {
+    //       const timer = setInterval(() => refresh(), 5000);
+    //       return () => {
+    //         clearInterval(timer);
+    //       };
+    //     }
+    //   }, [jobData.data]);
+    if (!jobData.isSuccess) {
         return react.createElement("div", null, "loading...");
     }
-    const isRunning = stockStatus.isSuccess ? stockStatus.data.is_running === true : false;
-    const isComplete = stockStatus.isSuccess ? stockStatus.data.is_complete === true : false;
+    const isRunning = ((_a = jobData.data) === null || _a === void 0 ? void 0 : _a.is_running) === true;
+    const isComplete = jobData.data.is_complete === true;
+    const canStart = ((_b = jobData.data) === null || _b === void 0 ? void 0 : _b.is_running) === false;
+    const canStop = ((_c = jobData.data) === null || _c === void 0 ? void 0 : _c.is_running) === true;
     const canResume = !isRunning && !isComplete;
-    const totalProducts = (_b = (_a = stockStatus.data) === null || _a === void 0 ? void 0 : _a.total_products) !== null && _b !== void 0 ? _b : 1;
-    const ignoreCount = (_d = (_c = stockStatus.data) === null || _c === void 0 ? void 0 : _c.ignore) !== null && _d !== void 0 ? _d : 0;
-    const updateCount = (_f = (_e = stockStatus.data) === null || _e === void 0 ? void 0 : _e.update) !== null && _f !== void 0 ? _f : 0;
-    const insertCount = (_h = (_g = stockStatus.data) === null || _g === void 0 ? void 0 : _g.insert) !== null && _h !== void 0 ? _h : 0;
-    const ignoreWidth = (100 * ignoreCount) / totalProducts;
-    const updateWidth = (100 * updateCount) / totalProducts;
-    const insertWidth = (100 * insertCount) / totalProducts;
-    const lastUpdate = ((_j = stockStatus.data) === null || _j === void 0 ? void 0 : _j.started) ? new Date(Date.parse((_k = stockStatus.data) === null || _k === void 0 ? void 0 : _k.started)) : null;
-    const ago = ((_l = stockStatus.data) === null || _l === void 0 ? void 0 : _l.started) ? formatTimeAgo((Date.now() - lastUpdate.getTime()) / 1000) : '';
+    //   const totalProducts = jobData.data?.total_products ?? 1;
+    //   const ignoreCount = jobData.data?.ignore ?? 0;
+    //   const updateCount = jobData.data?.update ?? 0;
+    //   const insertCount = jobData.data?.insert ?? 0;
+    //   const ignoreWidth = (100 * ignoreCount) / totalProducts;
+    //   const updateWidth = (100 * updateCount) / totalProducts;
+    //   const insertWidth = (100 * insertCount) / totalProducts;
+    const lastUpdate = ((_d = jobData.data) === null || _d === void 0 ? void 0 : _d.started) ? new Date(Date.parse((_e = jobData.data) === null || _e === void 0 ? void 0 : _e.started)) : null;
+    const ago = ((_f = jobData.data) === null || _f === void 0 ? void 0 : _f.started) ? formatTimeAgo((Date.now() - lastUpdate.getTime()) / 1000) : '';
     return (react.createElement("div", { className: 'd-flex flex-column gap-3 p-3' },
-        isRunning ? (react.createElement("div", null,
-            react.createElement("h5", null,
-                react.createElement("div", { className: 'spinner-border spinner-border-sm text-primary', role: 'status' }),
-                " Running..."),
-            react.createElement("p", null,
-                "Started ",
-                ago))) : (react.createElement("div", null, lastUpdate ? (react.createElement(react.Fragment, null,
-            react.createElement("h5", null, "Last Updated:"),
-            react.createElement("p", null,
-                formatDate(lastUpdate),
-                " (",
-                ago,
-                ")"))) : (react.createElement("h5", null, "Run your first stock check!")))),
         react.createElement("div", { className: 'd-flex gap-3' },
             react.createElement("div", { className: 'btn-group' },
-                react.createElement("button", { className: 'btn btn-primary', disabled: isRunning, onClick: startStockCheck }, "Start"),
-                react.createElement("button", { className: 'btn btn-primary', disabled: !canResume, onClick: resumeStockCheck }, "Resume"),
-                react.createElement("button", { className: 'btn btn-primary', disabled: !isRunning, onClick: stopStockCheck }, "Stop"))),
-        react.createElement("div", { className: 'progress-stacked' },
-            react.createElement("div", { className: 'progress', role: 'progressbar', style: { width: ignoreWidth + '%' } },
-                react.createElement("div", { className: `progress-bar ${isRunning ? 'progress-bar-striped progress-bar-animated' : ''} bg-secondary` })),
-            react.createElement("div", { className: 'progress', role: 'progressbar', style: { width: updateWidth + '%' } },
-                react.createElement("div", { className: `progress-bar ${isRunning ? 'progress-bar-striped progress-bar-animated' : ''} bg-info` })),
-            react.createElement("div", { className: 'progress', role: 'progressbar', style: { width: insertWidth + '%' } },
-                react.createElement("div", { className: `progress-bar ${isRunning ? 'progress-bar-striped progress-bar-animated' : ''} bg-success` }))),
-        react.createElement("table", { style: { width: 1 }, cellPadding: 5 },
-            react.createElement("tbody", null,
-                react.createElement("tr", null,
-                    react.createElement("td", null,
-                        react.createElement("div", { className: 'bg-secondary', style: { width: 16, height: 16 } })),
-                    react.createElement("td", null, "Ignore"),
-                    react.createElement("td", { align: 'right' }, ignoreCount.toLocaleString())),
-                react.createElement("tr", null,
-                    react.createElement("td", null,
-                        react.createElement("div", { className: 'bg-info', style: { width: 16, height: 16 } })),
-                    react.createElement("td", null, "Update"),
-                    react.createElement("td", { align: 'right' }, updateCount.toLocaleString())),
-                react.createElement("tr", null,
-                    react.createElement("td", null,
-                        react.createElement("div", { className: 'bg-success', style: { width: 16, height: 16 } })),
-                    react.createElement("td", null, "Insert"),
-                    react.createElement("td", { align: 'right' }, insertCount.toLocaleString())))),
-        react.createElement("pre", null, JSON.stringify(stockStatus.data, null, 2)),
-        react.createElement("button", { className: 'btn btn-primary', onClick: hackStockCheck }, "Hack")));
+                react.createElement("button", { className: 'btn btn-primary', disabled: !canStart, onClick: start }, "Start"),
+                react.createElement("button", { className: 'btn btn-primary', disabled: !canResume, onClick: resume }, "Resume"),
+                react.createElement("button", { className: 'btn btn-primary', disabled: !canStop, onClick: stop }, "Stop"),
+                react.createElement("button", { className: 'btn btn-primary', onClick: update }, "Refresh"),
+                react.createElement("button", { className: 'btn btn-primary', onClick: hack }, "Hack"))),
+        react.createElement("pre", null, JSON.stringify(jobData.data, null, 2))));
 };
 
-;// CONCATENATED MODULE: ./src/views/home/Home.tsx
-
-const HomePage = () => {
-    return (react.createElement("div", null,
-        react.createElement("h1", null, "Home Page")));
-};
-
-;// CONCATENATED MODULE: ./src/utils/datestamp.ts
-
-function datestamp() {
-    let dateObj = new Date();
-    let month = dateObj.getUTCMonth() + 1; //months from 1-12
-    let day = dateObj.getUTCDate();
-    let year = dateObj.getUTCFullYear();
-    return [year, month, day].join('-');
-}
-function parseDate(s) {
-    return new Date(Date.parse(s));
-}
-function since(s) {
-    const d = new Date(Date.parse(s));
-    const dif = Date.now() - d.getTime();
-    return formatDuration(dif / 1000);
-}
-
-;// CONCATENATED MODULE: ./src/views/jobs/Jobs.tsx
+;// CONCATENATED MODULE: ./src/import_products/index.tsx
 
 
 
 
 
-var JobStatus;
-(function (JobStatus) {
-    JobStatus["NONE"] = "none";
-    JobStatus["STARTING"] = "starting";
-    JobStatus["STARTED"] = "started";
-    JobStatus["STOPPING"] = "stopping";
-    JobStatus["STOPPED"] = "stopped";
-    JobStatus["COMPLETING"] = "completing";
-    JobStatus["COMPLETED"] = "completed";
-    JobStatus["DELETING"] = "deleting";
-    JobStatus["ERROR"] = "error";
-})(JobStatus || (JobStatus = {}));
-var JobProcess;
-(function (JobProcess) {
-    JobProcess["IDLE"] = "idle";
-    JobProcess["RUNNING"] = "running";
-})(JobProcess || (JobProcess = {}));
-const useJobs = () => {
-    return useQuery({
-        queryKey: ['jobs'],
-        queryFn: () => {
-            return fetchWordpressAjax({ action: 'cronjob_do_cmd', cmd: 'get_jobs' });
-        },
-        // keepPreviousData: true,
-        initialData: [],
-        placeholderData: [],
-        refetchInterval: 5000
-    });
-};
-const useJobsStatus = (cmd) => {
-    return useQuery({
-        queryKey: ['jobs_status', cmd],
-        queryFn: () => {
-            return fetchWordpressAjax({ action: 'cronjob_do_cmd', cmd });
-        }
-    });
-};
-const ICON_PLAY = String.fromCharCode(9654);
-const ICON_PAUSE = '⏸︎';
-const ICON_REFRESH = '↺';
-const ICON_WAITING = react.createElement("div", { className: 'spinner-grow spinner-grow-sm', role: 'status' });
-const iCON_DELETE = react.createElement(react.Fragment, null, "\u00D7");
-const ICON_ERROR = '!';
-const JobIcon = ({ job }) => {
-    switch (job.status) {
-        case JobStatus.STARTED:
-            return ICON_PAUSE;
-        case JobStatus.STOPPING:
-        case JobStatus.COMPLETING:
-        case JobStatus.STARTING:
-        case JobStatus.DELETING:
-            return ICON_WAITING;
-        case JobStatus.COMPLETED:
-            return iCON_DELETE;
-        case JobStatus.STOPPED:
-            return iCON_DELETE;
-        case JobStatus.ERROR:
-            return ICON_ERROR;
-        case JobStatus.NONE:
-        default:
-            return ICON_PLAY;
-    }
-};
-const Jobs = () => {
-    var _a, _b;
-    const jobs = useJobs();
-    const [statusCmd, setStatusCmd] = (0,react.useState)('pause_jobs');
-    const jobsStatus = useJobsStatus(statusCmd);
-    const queryClient = useQueryClient();
-    const updateJobs = () => {
-        queryClient.invalidateQueries(['jobs']);
-    };
-    const mutationJob = useMutation({
-        mutationFn: (options) => fetchWordpressAjax(Object.assign({ action: 'cronjob_do_cmd' }, options)),
-        onSuccess: (data) => queryClient.setQueryData(['jobs'], data)
-    });
-    const mutationJobStatus = useMutation({
-        mutationFn: (options) => fetchWordpressAjax(Object.assign({ action: 'cronjob_do_cmd' }, options)),
-        onSuccess: (data) => {
-            console.log('success', data);
-            queryClient.setQueryData(['jobs_status'], data);
-        }
-    });
-    const cleanJobs = () => {
-        mutationJob.mutate({ cmd: 'clean_jobs' });
-    };
-    const createJob = () => {
-        const action = prompt('Action?', 'import_western_page');
-        if (action) {
-            mutationJob.mutate({ cmd: 'create_job', job_args: JSON.stringify({ action, product_id: 6 }) });
-        }
-    };
-    const importWPS = () => {
-        const product_id = prompt('Product ID?');
-        if (product_id) {
-            mutationJob.mutate({ cmd: 'create_job', job_args: JSON.stringify({ action: 'import_western_product', product_id }) });
-        }
-    };
-    const resetJob = (job) => {
-        mutationJob.mutate({ cmd: 'reset_job', job_id: job.id });
-    };
-    const deleteJob = (job) => {
-        if (job.status === JobStatus.DELETING) {
-            if (confirm('Are you sure you want to force delete this job?')) {
-                mutationJob.mutate({ cmd: 'force_delete_job', job_id: job.id });
-            }
-        }
-        else {
-            if (confirm('Are you sure you want to delete this job?')) {
-                mutationJob.mutate({ cmd: 'delete_job', job_id: job.id });
-            }
-        }
-    };
-    const startJob = (job) => {
-        mutationJob.mutate({ cmd: 'start_job', job_id: job.id });
-    };
-    const stopJob = (job) => {
-        mutationJob.mutate({ cmd: 'stop_job', job_id: job.id });
-    };
-    const processJobs = () => {
-        mutationJob.mutate({ cmd: 'process_jobs' });
-    };
-    const toggleJobsStatus = () => {
-        console.log(statusCmd === 'resume_jobs' ? 'pause_jobs' : 'resume_jobs');
-        setStatusCmd((cmd) => (cmd === 'resume_jobs' ? 'pause_jobs' : 'resume_jobs'));
-        // mutationJobStatus.mutate({ cmd: jobsStatus.data.active ? 'pause_jobs' : 'resume_jobs' });
-    };
-    const toggleJob = (job) => {
-        switch (job.status) {
-            case JobStatus.NONE:
-                startJob(job);
-                break;
-            case JobStatus.STARTING:
-                alert('Starting...');
-                break;
-            case JobStatus.STARTED:
-                stopJob(job);
-                break;
-            case JobStatus.COMPLETING:
-                alert('Completing...');
-            case JobStatus.COMPLETED:
-                deleteJob(job);
-                break;
-            case JobStatus.STOPPING:
-                alert('Stopping...');
-            case JobStatus.STOPPED:
-                deleteJob(job);
-                break;
-            case JobStatus.DELETING:
-                alert('Deleting...');
-            case JobStatus.ERROR:
-                alert('There was a problem running this job.');
-        }
-    };
-    return (react.createElement("div", { className: 'd-flex flex-column gap-3 p-3' },
-        react.createElement("div", { className: 'd-flex gap-3' },
-            react.createElement("button", { className: 'btn btn-primary', onClick: cleanJobs }, "Clean Jobs"),
-            react.createElement("button", { className: 'btn btn-primary', onClick: createJob }, "Create Job"),
-            react.createElement("button", { className: 'btn btn-primary', onClick: processJobs }, "Process Jobs"),
-            react.createElement("button", { className: 'btn btn-primary', onClick: importWPS }, "Import WPS"),
-            react.createElement("button", { className: 'btn btn-primary btn-icon', onClick: toggleJobsStatus }, ((_a = jobsStatus === null || jobsStatus === void 0 ? void 0 : jobsStatus.data) === null || _a === void 0 ? void 0 : _a.active) ? ICON_PAUSE : ICON_PLAY)),
-        react.createElement("div", { className: 'position-relative' },
-            react.createElement("div", { className: 'bg-primary', style: { opacity: jobs.isFetching || mutationJob.isLoading ? 1 : 0, transition: 'opacity 0.3s', width: '100%', height: 5 } }),
-            ((_b = jobs.data) === null || _b === void 0 ? void 0 : _b.length) > 0 ? (react.createElement("table", { className: 'table table-sm table-bordered align-middle' },
-                react.createElement("thead", null,
-                    react.createElement("tr", null,
-                        react.createElement("th", { style: { width: 1 } }),
-                        react.createElement("th", null, "id"),
-                        react.createElement("th", null, "process"),
-                        react.createElement("th", null, "status"),
-                        react.createElement("th", null, "action"),
-                        react.createElement("th", null, "timer"),
-                        react.createElement("th", null, "args"),
-                        react.createElement("th", { style: { width: 1 } },
-                            react.createElement("button", { className: 'btn btn-primary', onClick: updateJobs }, ICON_REFRESH)))),
-                react.createElement("tbody", { className: 'table-group-divider' }, jobs.data.map((job) => {
-                    var _a;
-                    return (react.createElement(react.Fragment, null,
-                        react.createElement("tr", null,
-                            react.createElement("td", null,
-                                react.createElement("button", { className: 'btn btn-primary btn-icon', style: { fontFamily: 'initial' }, onClick: () => toggleJob(job) },
-                                    react.createElement(JobIcon, { job: job }))),
-                            react.createElement("td", null, job.id),
-                            react.createElement("td", null, (_a = job === null || job === void 0 ? void 0 : job.process) !== null && _a !== void 0 ? _a : 'unknown'),
-                            react.createElement("td", null, job.status),
-                            react.createElement("td", null, job.action),
-                            react.createElement("td", { title: job.created }, job.completed ? since(job.completed) : job.started ? react.createElement("b", null, since(job.started)) : '-'),
-                            react.createElement("td", null, Object.keys(job.args).map((k) => (react.createElement("span", null,
-                                k,
-                                ": ",
-                                job.args[k],
-                                ",",
-                                ' ')))),
-                            react.createElement("td", { className: 'd-flex gap-2' },
-                                react.createElement("button", { className: 'btn btn-primary', onClick: () => resetJob(job), title: 'reset' }, "reset"),
-                                react.createElement("button", { className: 'btn btn-primary', onClick: () => deleteJob(job), title: 'delete' }, "\u00D7")))));
-                })))) : (react.createElement("div", null, jobs.isLoading ? react.createElement("h4", null, "Loadiung...") : react.createElement("h4", null, "Currently, there are no jobs in progress."))))));
-};
-
-;// CONCATENATED MODULE: ./src/views/logs/Logs.tsx
-
-
-
-const useLogs = () => {
-    return useQuery({
-        queryKey: ['logs'],
-        queryFn: () => {
-            return fetchWordpressAjax({ action: 'logs_do_cmd', cmd: 'get_logs' });
-        },
-        keepPreviousData: true,
-        initialData: [],
-        refetchInterval: 10000
-    });
-};
-const Logs = () => {
-    var _a, _b, _c, _d;
-    const queryClient = useQueryClient();
-    const logs = useLogs();
-    const $pre = react.useRef();
-    const mutationLog = useMutation({
-        mutationFn: (options) => fetchWordpressAjax(Object.assign({ action: 'logs_do_cmd' }, options)),
-        onSuccess: (data) => queryClient.setQueryData(['logs'], data)
-    });
-    const refresh = () => {
-        queryClient.invalidateQueries(['logs']);
-    };
-    const clear = () => {
-        mutationLog.mutate({ cmd: 'clear_logs' });
-    };
-    return (react.createElement("div", { className: 'd-flex flex-column gap-3 p-3' },
-        react.createElement("div", { className: 'd-flex gap-3' },
-            react.createElement("button", { className: 'btn btn-primary', onClick: clear }, "Clear Logs"),
-            react.createElement("button", { className: 'btn btn-primary', onClick: refresh }, "\u21BA")),
-        react.createElement("div", { className: 'position-relative' },
-            react.createElement("div", { style: { background: 'black', padding: '0.5em' } },
-                react.createElement("pre", { ref: $pre, style: {
-                        color: 'orange',
-                        margin: 0,
-                        padding: 0,
-                        fontSize: '12px',
-                        fontFamily: 'monospace',
-                        lineHeight: 1.5,
-                        maxHeight: 1.5 * 12 * 50,
-                        minHeight: 300
-                    }, dangerouslySetInnerHTML: { __html: (_d = (_c = (_b = (_a = logs === null || logs === void 0 ? void 0 : logs.data) === null || _a === void 0 ? void 0 : _a.splice) === null || _b === void 0 ? void 0 : _b.call(_a, 0)) === null || _c === void 0 ? void 0 : _c.reverse().join('\n')) !== null && _d !== void 0 ? _d : '' } })))));
-};
-
-;// CONCATENATED MODULE: ./src/wordpress-plugin.tsx
-
-
-
-
-
-
-
-
-// import { WordPressApp } from './wordpress/WordpressApp';
-// const root = createRoot(document.getElementById('product-root'));
-// root.render(<WordPressApp />);
-// const InputField = ({ label, name, value, onChange }: { label: string; name: string; value: string; onChange: React.ChangeEventHandler<HTMLInputElement> }) => {
-//   return (
-//     <>
-//       <label htmlFor={`input_${name}`}>{label}</label>
-//       <input type='text' id={`input_${name}`} name={name} value={value} onChange={onChange} />
-//     </>
-//   );
-// };
-// const AppInner = () => {
-//   return <div>Main</div>;
-// };
-// const xAppInner = () => {
-//   const [pageSize, setPageSize] = useState(100);
-//   const [pageCursor, setPageCursor] = useState<string>(null);
-//   const [productId, setProductId] = useState<number>(null);
-//   const products = useWesternProducts({ pageSize, pageCursor });
-//   const post = usePost('MASTER_952322');
-//   useEffect(() => {
-//     if (post.isSuccess) {
-//       setFields({
-//         'post[post_title]': post.data.post_title,
-//         'post[meta_input][_sku]': post.data.meta_input._sku,
-//         'post[post_content]': post.data.post_content,
-//         'post[meta_input][_price]': post.data.meta_input._price
-//       });
-//     }
-//   }, [post.isSuccess]);
-//   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
-//     e.preventDefault();
-//     const data = new FormData(e.currentTarget);
-//     const response = await fetch('/wp-admin/admin-ajax.php', { method: 'POST', body: data }).then((r) => r.json());
-//     console.log({ response });
-//   };
-//   const [fields, setFields] = useState({
-//     'post[post_title]': 'newprodctitle',
-//     'post[meta_input][_sku]': 'MASTER_952322',
-//     'post[post_content]': 'desc 231',
-//     'post[meta_input][_price]': '99'
-//   });
-//   const updateFields: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-//     const delta = { [e.currentTarget.getAttribute('name')]: e.currentTarget.value };
-//     setFields((f) => ({ ...f, ...delta }));
-//   };
-//   return (
-//     <div style={{ position: 'relative' }}>
-//       <PauseCron />
-//       {/* <CronStatus /> */}
-//       <hr />
-//       {/* <TestAPI /> */}
-//       {/* <CronJobManager /> */}
-//       <hr />
-//       <h1>Test React AppZZ</h1>
-//       <pre>{JSON.stringify(post, null, 2)}</pre>
-//       <form method='post' action='' onSubmit={handleSubmit}>
-//         <input type='hidden' name='action' value='ci_woo_action' />
-//         <input type='hidden' name='post[post_type]' value='product' />
-//         <input type='hidden' name='post[post_status]' value='publish' />
-//         <div className='gap-2' style={{ display: 'grid', gridTemplateColumns: 'min-content 1fr' }}>
-//           <InputField label='Sku' name='post[meta_input][_sku]' value={fields['post[meta_input][_sku]']} onChange={updateFields} />
-//           <InputField label='Title' name='post[post_title]' value={fields['post[post_title]']} onChange={updateFields} />
-//           <InputField label='Description' name='post[post_content]' value={fields['post[post_content]']} onChange={updateFields} />
-//           <InputField label='Price' name='post[meta_input][_price]' value={fields['post[meta_input][_price]']} onChange={updateFields} />
-//         </div>
-//         <input type='submit' name='submit_product' value='Add Product' />
-//       </form>
-//       <input type='number' min={1} max={1000} step={10} value={pageSize} onChange={(e) => setPageSize(parseInt(e.currentTarget.value))} />
-//       <button className='btn btn-primary'>Go</button>
-//       <button className='btn btn-primary' disabled={!products.data?.meta?.cursor?.next} onClick={() => setPageCursor(products.data?.meta?.cursor?.next)}>
-//         Next Page {products.data?.meta?.cursor?.next}
-//       </button>
-//       <div className='d-flex'>
-//         {products.isSuccess ? (
-//           <div>
-//             {products?.data?.data?.map((p) => (
-//               <div key={`row_${p.id}`} onClick={() => setProductId(p.id)}>
-//                 {p.name}
-//               </div>
-//             ))}
-//           </div>
-//         ) : null}
-//         {productId ? <WesternProduct productId={productId} /> : <h1>Waiting</h1>}
-//       </div>
-//       {/* <pre>{JSON.stringify(products, null, 2)}</pre> */}
-//       <GlobalLoader />
-//     </div>
-//   );
-// };
-const App = ({ children }) => {
+const render = (id) => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: false, retry: false } } });
-    return (react.createElement(react.StrictMode, null,
-        react.createElement(QueryClientProvider, { client: queryClient }, children)));
-};
-const render = (id, page = null) => {
     const root = (0,client/* createRoot */.s)(document.getElementById(id));
-    switch (page) {
-        case 'stock_check':
-            root.render(react.createElement(App, null,
-                react.createElement(StockCheck, null)));
-            break;
-        case 'jobs':
-            root.render(react.createElement(App, null,
-                react.createElement(Jobs, null),
-                react.createElement(Logs, null)));
-            break;
-        case 'logs':
-            root.render(react.createElement(App, null,
-                react.createElement(Logs, null)));
-            break;
-        default:
-            root.render(react.createElement(App, null,
-                react.createElement(HomePage, null)));
-    }
+    root.render(react.createElement(QueryClientProvider, { client: queryClient },
+        react.createElement(ImportProducts, null)));
 };
+// render('ci-import-products-container');
 
 
 /***/ }),
@@ -5815,7 +5394,7 @@ module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("e7dff11ac9177d26f549")
+/******/ 		__webpack_require__.h = () => ("b23fad77415ff9190b43")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
@@ -5826,7 +5405,7 @@ module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%
 /******/ 	/* webpack/runtime/load script */
 /******/ 	(() => {
 /******/ 		var inProgress = {};
-/******/ 		var dataWebpackPrefix = "CIStore:";
+/******/ 		var dataWebpackPrefix = "CIImportProducts:";
 /******/ 		// loadScript function to load a script via script tag
 /******/ 		__webpack_require__.l = (url, done, key, chunkId) => {
 /******/ 			if(inProgress[url]) { inProgress[url].push(done); return; }
@@ -6322,7 +5901,7 @@ module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%
 /******/ 			});
 /******/ 		}
 /******/ 		
-/******/ 		self["webpackHotUpdateCIStore"] = (chunkId, moreModules, runtime) => {
+/******/ 		self["webpackHotUpdateCIImportProducts"] = (chunkId, moreModules, runtime) => {
 /******/ 			for(var moduleId in moreModules) {
 /******/ 				if(__webpack_require__.o(moreModules, moduleId)) {
 /******/ 					currentUpdate[moduleId] = moreModules[moduleId];
@@ -6804,10 +6383,10 @@ module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%
 /******/ 	// module cache are used so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	var __webpack_exports__ = __webpack_require__(227);
+/******/ 	var __webpack_exports__ = __webpack_require__(348);
 /******/ 	
 /******/ 	return __webpack_exports__;
 /******/ })()
 ;
 });
-//# sourceMappingURL=ci-store-plugin.js.map
+//# sourceMappingURL=ci-import-products.js.map
