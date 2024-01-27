@@ -1,4 +1,4 @@
-import { formatDuration } from '../utils/formatDuration';
+import { formatDuration } from '../../common/utils/formatDuration';
 import { EventEmitter } from './EventEmitter';
 import { JobManager } from './JobManager';
 import { JobEventType } from './JobTypes';

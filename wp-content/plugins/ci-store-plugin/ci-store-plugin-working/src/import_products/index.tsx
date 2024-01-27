@@ -15,5 +15,3 @@ export const render = (id: string) => {
     </QueryClientProvider>
   );
 };
-
-// render('ci-import-products-container');

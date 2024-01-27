@@ -1,4 +1,4 @@
-import { JobRunner } from '../../../jobs/JobRunner';
+import { JobRunner } from '../../../__old/jobs/JobRunner';
 import { fetchWooAPI } from '../../woo/useWoo';
 import { IWooCategory } from '../IWoo';
 

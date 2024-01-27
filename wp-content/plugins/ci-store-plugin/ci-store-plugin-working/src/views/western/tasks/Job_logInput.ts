@@ -1,4 +1,4 @@
-import { JobRunner } from '../../../jobs/JobRunner';
+import { JobRunner } from '../../../__old/jobs/JobRunner';
 
 export class Job_logInput extends JobRunner {
   name = 'Job_logInput';

@@ -1,5 +1,5 @@
-import { JobManager } from '../../../../jobs/JobManager';
-import { JobRunner } from '../../../../jobs/JobRunner';
+import { JobManager } from '../../../../__old/jobs/JobManager';
+import { JobRunner } from '../../../../__old/jobs/JobRunner';
 import { IWesternProduct, IWesternProductExt } from '../../IWestern';
 import { IWooProduct } from '../../IWoo';
 // import { convertWesternProductToWooProduct } from '../../WesternUtils';

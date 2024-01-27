@@ -7,7 +7,7 @@ import { createRoot } from 'react-dom/client';
 import { StockCheck } from './StockCheck';
 
 export const render = (id: string) => {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: false, retry: false } } });
+  const queryClient = new QueryClient();
   const root = createRoot(document.getElementById(id));
   root.render(
     <QueryClientProvider client={queryClient}>
@@ -15,5 +15,3 @@ export const render = (id: string) => {
     </QueryClientProvider>
   );
 };
-
-render('ci-stock-check-container');

@@ -5,7 +5,7 @@
   "license": "ISC",
   "author": "Contento Interactive",
   "scripts": {
-    "start": "webpack --config webpack.plugin.config.js --mode production"
+    "start": "webpack --config webpack.plugin.config.js --mode production --watch"
   },
   "dependencies": {
     "@tanstack/react-query": "^4.35.0",

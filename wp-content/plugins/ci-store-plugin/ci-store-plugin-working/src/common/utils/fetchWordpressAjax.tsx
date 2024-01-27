@@ -1,5 +1,5 @@
 import fetch from 'cross-fetch';
-import { ICronJobParams, IWordpressAjaxParams } from '../views/jobs/Jobs';
+import { ICronJobParams, IWordpressAjaxParams } from '../../views/jobs/Jobs';
 
 export async function fetchWordpressAjax<T>(params: IWordpressAjaxParams & ICronJobParams = { action: '' }) {
   const url = new URL(location.origin);

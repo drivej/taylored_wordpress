@@ -1,5 +1,5 @@
-import { JobManager } from '../../../jobs/JobManager';
-import { JobRunner } from '../../../jobs/JobRunner';
+import { JobManager } from '../../../__old/jobs/JobManager';
+import { JobRunner } from '../../../__old/jobs/JobRunner';
 import { SUPPLIER, SupplierKey, lookupSupplierClass } from '../../../utils/SUPPLIER_INFO';
 import { lookup } from '../../../utils/lookup';
 import { fetchWooAPI } from '../../woo/useWoo';

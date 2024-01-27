@@ -2,11 +2,11 @@
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
 	else if(typeof define === 'function' && define.amd)
-		define("CIStore", [], factory);
+		define("ci_import_products", [], factory);
 	else if(typeof exports === 'object')
-		exports["CIStore"] = factory();
+		exports["ci_import_products"] = factory();
 	else
-		root["CIStore"] = factory();
+		root["ci_import_products"] = factory();
 })(self, () => {
 return /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
@@ -576,9 +576,8 @@ module.exports = exports
 /***/ ((module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */   Z: () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(537);
 /* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
@@ -1258,106 +1257,6 @@ if (true) {
 
 /***/ }),
 
-/***/ 921:
-/***/ ((module, __unused_webpack___webpack_exports__, __webpack_require__) => {
-
-"use strict";
-/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(379);
-/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(795);
-/* harmony import */ var _node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(569);
-/* harmony import */ var _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(565);
-/* harmony import */ var _node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(216);
-/* harmony import */ var _node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(589);
-/* harmony import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _node_modules_css_loader_dist_cjs_js_node_modules_sass_loader_dist_cjs_js_plugin_scss__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(263);
-
-      
-      
-      
-      
-      
-      
-      
-      
-      
-
-var options = {};
-
-options.styleTagTransform = (_node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5___default());
-options.setAttributes = (_node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3___default());
-
-      options.insert = _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2___default().bind(null, "head");
-    
-options.domAPI = (_node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1___default());
-options.insertStyleElement = (_node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4___default());
-
-var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_node_modules_sass_loader_dist_cjs_js_plugin_scss__WEBPACK_IMPORTED_MODULE_6__["default"], options);
-
-
-if (true) {
-  if (!_node_modules_css_loader_dist_cjs_js_node_modules_sass_loader_dist_cjs_js_plugin_scss__WEBPACK_IMPORTED_MODULE_6__["default"].locals || module.hot.invalidate) {
-    var isEqualLocals = function isEqualLocals(a, b, isNamedExport) {
-  if (!a && b || a && !b) {
-    return false;
-  }
-  var p;
-  for (p in a) {
-    if (isNamedExport && p === "default") {
-      // eslint-disable-next-line no-continue
-      continue;
-    }
-    if (a[p] !== b[p]) {
-      return false;
-    }
-  }
-  for (p in b) {
-    if (isNamedExport && p === "default") {
-      // eslint-disable-next-line no-continue
-      continue;
-    }
-    if (!a[p]) {
-      return false;
-    }
-  }
-  return true;
-};
-    var isNamedExport = !_node_modules_css_loader_dist_cjs_js_node_modules_sass_loader_dist_cjs_js_plugin_scss__WEBPACK_IMPORTED_MODULE_6__["default"].locals;
-    var oldLocals = isNamedExport ? _node_modules_css_loader_dist_cjs_js_node_modules_sass_loader_dist_cjs_js_plugin_scss__WEBPACK_IMPORTED_MODULE_6__ : _node_modules_css_loader_dist_cjs_js_node_modules_sass_loader_dist_cjs_js_plugin_scss__WEBPACK_IMPORTED_MODULE_6__["default"].locals;
-
-    module.hot.accept(
-      263,
-      __WEBPACK_OUTDATED_DEPENDENCIES__ => { /* harmony import */ _node_modules_css_loader_dist_cjs_js_node_modules_sass_loader_dist_cjs_js_plugin_scss__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(263);
-(function () {
-        if (!isEqualLocals(oldLocals, isNamedExport ? _node_modules_css_loader_dist_cjs_js_node_modules_sass_loader_dist_cjs_js_plugin_scss__WEBPACK_IMPORTED_MODULE_6__ : _node_modules_css_loader_dist_cjs_js_node_modules_sass_loader_dist_cjs_js_plugin_scss__WEBPACK_IMPORTED_MODULE_6__["default"].locals, isNamedExport)) {
-                module.hot.invalidate();
-
-                return;
-              }
-
-              oldLocals = isNamedExport ? _node_modules_css_loader_dist_cjs_js_node_modules_sass_loader_dist_cjs_js_plugin_scss__WEBPACK_IMPORTED_MODULE_6__ : _node_modules_css_loader_dist_cjs_js_node_modules_sass_loader_dist_cjs_js_plugin_scss__WEBPACK_IMPORTED_MODULE_6__["default"].locals;
-
-              update(_node_modules_css_loader_dist_cjs_js_node_modules_sass_loader_dist_cjs_js_plugin_scss__WEBPACK_IMPORTED_MODULE_6__["default"]);
-      })(__WEBPACK_OUTDATED_DEPENDENCIES__); }
-    )
-  }
-
-  module.hot.dispose(function() {
-    update();
-  });
-}
-
-
-
-       /* unused harmony default export */ var __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_node_modules_sass_loader_dist_cjs_js_plugin_scss__WEBPACK_IMPORTED_MODULE_6__["default"] && _node_modules_css_loader_dist_cjs_js_node_modules_sass_loader_dist_cjs_js_plugin_scss__WEBPACK_IMPORTED_MODULE_6__["default"].locals ? _node_modules_css_loader_dist_cjs_js_node_modules_sass_loader_dist_cjs_js_plugin_scss__WEBPACK_IMPORTED_MODULE_6__["default"].locals : undefined);
-
-
-/***/ }),
-
 /***/ 379:
 /***/ ((module) => {
 
@@ -1613,9 +1512,295 @@ module.exports = styleTagTransform;
 
 /***/ }),
 
-/***/ 227:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+/***/ 250:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
+"use strict";
+/**
+ * @license React
+ * use-sync-external-store-shim.production.min.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+var e=__webpack_require__(294);function h(a,b){return a===b&&(0!==a||1/a===1/b)||a!==a&&b!==b}var k="function"===typeof Object.is?Object.is:h,l=e.useState,m=e.useEffect,n=e.useLayoutEffect,p=e.useDebugValue;function q(a,b){var d=b(),f=l({inst:{value:d,getSnapshot:b}}),c=f[0].inst,g=f[1];n(function(){c.value=d;c.getSnapshot=b;r(c)&&g({inst:c})},[a,d,b]);m(function(){r(c)&&g({inst:c});return a(function(){r(c)&&g({inst:c})})},[a]);p(d);return d}
+function r(a){var b=a.getSnapshot;a=a.value;try{var d=b();return!k(a,d)}catch(f){return!0}}function t(a,b){return b()}var u="undefined"===typeof window||"undefined"===typeof window.document||"undefined"===typeof window.document.createElement?t:q;exports.useSyncExternalStore=void 0!==e.useSyncExternalStore?e.useSyncExternalStore:u;
+
+
+/***/ }),
+
+/***/ 688:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+if (true) {
+  module.exports = __webpack_require__(250);
+} else {}
+
+
+/***/ }),
+
+/***/ 204:
+/***/ ((module) => {
+
+"use strict";
+module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-4 -4 8 8%27%3e%3ccircle r=%272%27 fill=%27%23fff%27/%3e%3c/svg%3e";
+
+/***/ }),
+
+/***/ 609:
+/***/ ((module) => {
+
+"use strict";
+module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-4 -4 8 8%27%3e%3ccircle r=%273%27 fill=%27%2386b7fe%27/%3e%3c/svg%3e";
+
+/***/ }),
+
+/***/ 469:
+/***/ ((module) => {
+
+"use strict";
+module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-4 -4 8 8%27%3e%3ccircle r=%273%27 fill=%27%23fff%27/%3e%3c/svg%3e";
+
+/***/ }),
+
+/***/ 486:
+/***/ ((module) => {
+
+"use strict";
+module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-4 -4 8 8%27%3e%3ccircle r=%273%27 fill=%27rgba%280, 0, 0, 0.25%29%27/%3e%3c/svg%3e";
+
+/***/ }),
+
+/***/ 991:
+/***/ ((module) => {
+
+"use strict";
+module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-4 -4 8 8%27%3e%3ccircle r=%273%27 fill=%27rgba%28255, 255, 255, 0.25%29%27/%3e%3c/svg%3e";
+
+/***/ }),
+
+/***/ 144:
+/***/ ((module) => {
+
+"use strict";
+module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 12 12%27 width=%2712%27 height=%2712%27 fill=%27none%27 stroke=%27%23dc3545%27%3e%3ccircle cx=%276%27 cy=%276%27 r=%274.5%27/%3e%3cpath stroke-linejoin=%27round%27 d=%27M5.8 3.6h.4L6 6.5z%27/%3e%3ccircle cx=%276%27 cy=%278.2%27 r=%27.6%27 fill=%27%23dc3545%27 stroke=%27none%27/%3e%3c/svg%3e";
+
+/***/ }),
+
+/***/ 254:
+/***/ ((module) => {
+
+"use strict";
+module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27%23000%27%3e%3cpath d=%27M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z%27/%3e%3c/svg%3e";
+
+/***/ }),
+
+/***/ 321:
+/***/ ((module) => {
+
+"use strict";
+module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27%23052c65%27%3e%3cpath fill-rule=%27evenodd%27 d=%27M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z%27/%3e%3c/svg%3e";
+
+/***/ }),
+
+/***/ 460:
+/***/ ((module) => {
+
+"use strict";
+module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27%23212529%27%3e%3cpath fill-rule=%27evenodd%27 d=%27M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z%27/%3e%3c/svg%3e";
+
+/***/ }),
+
+/***/ 281:
+/***/ ((module) => {
+
+"use strict";
+module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27%236ea8fe%27%3e%3cpath fill-rule=%27evenodd%27 d=%27M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z%27/%3e%3c/svg%3e";
+
+/***/ }),
+
+/***/ 647:
+/***/ ((module) => {
+
+"use strict";
+module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27%23fff%27%3e%3cpath d=%27M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z%27/%3e%3c/svg%3e";
+
+/***/ }),
+
+/***/ 692:
+/***/ ((module) => {
+
+"use strict";
+module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27%23fff%27%3e%3cpath d=%27M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z%27/%3e%3c/svg%3e";
+
+/***/ }),
+
+/***/ 770:
+/***/ ((module) => {
+
+"use strict";
+module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27m2 5 6 6 6-6%27/%3e%3c/svg%3e";
+
+/***/ }),
+
+/***/ 711:
+/***/ ((module) => {
+
+"use strict";
+module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27%23dee2e6%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27m2 5 6 6 6-6%27/%3e%3c/svg%3e";
+
+/***/ }),
+
+/***/ 931:
+/***/ ((module) => {
+
+"use strict";
+module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 20 20%27%3e%3cpath fill=%27none%27 stroke=%27%23fff%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%273%27 d=%27M6 10h8%27/%3e%3c/svg%3e";
+
+/***/ }),
+
+/***/ 199:
+/***/ ((module) => {
+
+"use strict";
+module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 20 20%27%3e%3cpath fill=%27none%27 stroke=%27%23fff%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%273%27 d=%27m6 10 3 3 6-6%27/%3e%3c/svg%3e";
+
+/***/ }),
+
+/***/ 956:
+/***/ ((module) => {
+
+"use strict";
+module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 30 30%27%3e%3cpath stroke=%27rgba%28255, 255, 255, 0.55%29%27 stroke-linecap=%27round%27 stroke-miterlimit=%2710%27 stroke-width=%272%27 d=%27M4 7h22M4 15h22M4 23h22%27/%3e%3c/svg%3e";
+
+/***/ }),
+
+/***/ 221:
+/***/ ((module) => {
+
+"use strict";
+module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 30 30%27%3e%3cpath stroke=%27rgba%2833, 37, 41, 0.75%29%27 stroke-linecap=%27round%27 stroke-miterlimit=%2710%27 stroke-width=%272%27 d=%27M4 7h22M4 15h22M4 23h22%27/%3e%3c/svg%3e";
+
+/***/ }),
+
+/***/ 122:
+/***/ ((module) => {
+
+"use strict";
+module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 8 8%27%3e%3cpath fill=%27%23198754%27 d=%27M2.3 6.73.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z%27/%3e%3c/svg%3e";
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			id: moduleId,
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = __webpack_modules__;
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/jsonp chunk loading */
+/******/ 	(() => {
+/******/ 		__webpack_require__.b = document.baseURI || self.location.href;
+/******/ 		
+/******/ 		// object to store loaded and loading chunks
+/******/ 		// undefined = chunk not loaded, null = chunk preloaded/prefetched
+/******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
+/******/ 		var installedChunks = {
+/******/ 			179: 0
+/******/ 		};
+/******/ 		
+/******/ 		// no chunk on demand loading
+/******/ 		
+/******/ 		// no prefetching
+/******/ 		
+/******/ 		// no preloaded
+/******/ 		
+/******/ 		// no HMR
+/******/ 		
+/******/ 		// no HMR manifest
+/******/ 		
+/******/ 		// no on chunks loaded
+/******/ 		
+/******/ 		// no jsonp function
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/nonce */
+/******/ 	(() => {
+/******/ 		__webpack_require__.nc = undefined;
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+(() => {
 "use strict";
 // ESM COMPAT FLAG
 __webpack_require__.r(__webpack_exports__);
@@ -1624,6 +1809,55 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.d(__webpack_exports__, {
   render: () => (/* binding */ render)
 });
+
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js
+var injectStylesIntoStyleTag = __webpack_require__(379);
+var injectStylesIntoStyleTag_default = /*#__PURE__*/__webpack_require__.n(injectStylesIntoStyleTag);
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/styleDomAPI.js
+var styleDomAPI = __webpack_require__(795);
+var styleDomAPI_default = /*#__PURE__*/__webpack_require__.n(styleDomAPI);
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/insertBySelector.js
+var insertBySelector = __webpack_require__(569);
+var insertBySelector_default = /*#__PURE__*/__webpack_require__.n(insertBySelector);
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js
+var setAttributesWithoutAttributes = __webpack_require__(565);
+var setAttributesWithoutAttributes_default = /*#__PURE__*/__webpack_require__.n(setAttributesWithoutAttributes);
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/insertStyleElement.js
+var insertStyleElement = __webpack_require__(216);
+var insertStyleElement_default = /*#__PURE__*/__webpack_require__.n(insertStyleElement);
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/styleTagTransform.js
+var styleTagTransform = __webpack_require__(589);
+var styleTagTransform_default = /*#__PURE__*/__webpack_require__.n(styleTagTransform);
+// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./src/assets/plugin.scss
+var assets_plugin = __webpack_require__(263);
+;// CONCATENATED MODULE: ./src/assets/plugin.scss
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+var options = {};
+
+options.styleTagTransform = (styleTagTransform_default());
+options.setAttributes = (setAttributesWithoutAttributes_default());
+
+      options.insert = insertBySelector_default().bind(null, "head");
+    
+options.domAPI = (styleDomAPI_default());
+options.insertStyleElement = (insertStyleElement_default());
+
+var update = injectStylesIntoStyleTag_default()(assets_plugin/* default */.Z, options);
+
+
+
+
+       /* harmony default export */ const src_assets_plugin = (assets_plugin/* default */.Z && assets_plugin/* default */.Z.locals ? assets_plugin/* default */.Z.locals : undefined);
 
 ;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/utils.mjs
 // TYPES
@@ -3994,8 +4228,269 @@ const QueryClientProvider = ({
 
 // EXTERNAL MODULE: ./node_modules/react-dom/client.js
 var client = __webpack_require__(745);
-// EXTERNAL MODULE: ./src/assets/plugin.scss
-var assets_plugin = __webpack_require__(921);
+;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/mutationObserver.mjs
+
+
+
+
+
+// CLASS
+class MutationObserver extends Subscribable {
+  constructor(client, options) {
+    super();
+    this.client = client;
+    this.setOptions(options);
+    this.bindMethods();
+    this.updateResult();
+  }
+
+  bindMethods() {
+    this.mutate = this.mutate.bind(this);
+    this.reset = this.reset.bind(this);
+  }
+
+  setOptions(options) {
+    var _this$currentMutation;
+
+    const prevOptions = this.options;
+    this.options = this.client.defaultMutationOptions(options);
+
+    if (!shallowEqualObjects(prevOptions, this.options)) {
+      this.client.getMutationCache().notify({
+        type: 'observerOptionsUpdated',
+        mutation: this.currentMutation,
+        observer: this
+      });
+    }
+
+    (_this$currentMutation = this.currentMutation) == null ? void 0 : _this$currentMutation.setOptions(this.options);
+  }
+
+  onUnsubscribe() {
+    if (!this.hasListeners()) {
+      var _this$currentMutation2;
+
+      (_this$currentMutation2 = this.currentMutation) == null ? void 0 : _this$currentMutation2.removeObserver(this);
+    }
+  }
+
+  onMutationUpdate(action) {
+    this.updateResult(); // Determine which callbacks to trigger
+
+    const notifyOptions = {
+      listeners: true
+    };
+
+    if (action.type === 'success') {
+      notifyOptions.onSuccess = true;
+    } else if (action.type === 'error') {
+      notifyOptions.onError = true;
+    }
+
+    this.notify(notifyOptions);
+  }
+
+  getCurrentResult() {
+    return this.currentResult;
+  }
+
+  reset() {
+    this.currentMutation = undefined;
+    this.updateResult();
+    this.notify({
+      listeners: true
+    });
+  }
+
+  mutate(variables, options) {
+    this.mutateOptions = options;
+
+    if (this.currentMutation) {
+      this.currentMutation.removeObserver(this);
+    }
+
+    this.currentMutation = this.client.getMutationCache().build(this.client, { ...this.options,
+      variables: typeof variables !== 'undefined' ? variables : this.options.variables
+    });
+    this.currentMutation.addObserver(this);
+    return this.currentMutation.execute();
+  }
+
+  updateResult() {
+    const state = this.currentMutation ? this.currentMutation.state : mutation_getDefaultState();
+    const result = { ...state,
+      isLoading: state.status === 'loading',
+      isSuccess: state.status === 'success',
+      isError: state.status === 'error',
+      isIdle: state.status === 'idle',
+      mutate: this.mutate,
+      reset: this.reset
+    };
+    this.currentResult = result;
+  }
+
+  notify(options) {
+    notifyManager.batch(() => {
+      // First trigger the mutate callbacks
+      if (this.mutateOptions && this.hasListeners()) {
+        if (options.onSuccess) {
+          var _this$mutateOptions$o, _this$mutateOptions, _this$mutateOptions$o2, _this$mutateOptions2;
+
+          (_this$mutateOptions$o = (_this$mutateOptions = this.mutateOptions).onSuccess) == null ? void 0 : _this$mutateOptions$o.call(_this$mutateOptions, this.currentResult.data, this.currentResult.variables, this.currentResult.context);
+          (_this$mutateOptions$o2 = (_this$mutateOptions2 = this.mutateOptions).onSettled) == null ? void 0 : _this$mutateOptions$o2.call(_this$mutateOptions2, this.currentResult.data, null, this.currentResult.variables, this.currentResult.context);
+        } else if (options.onError) {
+          var _this$mutateOptions$o3, _this$mutateOptions3, _this$mutateOptions$o4, _this$mutateOptions4;
+
+          (_this$mutateOptions$o3 = (_this$mutateOptions3 = this.mutateOptions).onError) == null ? void 0 : _this$mutateOptions$o3.call(_this$mutateOptions3, this.currentResult.error, this.currentResult.variables, this.currentResult.context);
+          (_this$mutateOptions$o4 = (_this$mutateOptions4 = this.mutateOptions).onSettled) == null ? void 0 : _this$mutateOptions$o4.call(_this$mutateOptions4, undefined, this.currentResult.error, this.currentResult.variables, this.currentResult.context);
+        }
+      } // Then trigger the listeners
+
+
+      if (options.listeners) {
+        this.listeners.forEach(({
+          listener
+        }) => {
+          listener(this.currentResult);
+        });
+      }
+    });
+  }
+
+}
+
+
+//# sourceMappingURL=mutationObserver.mjs.map
+
+// EXTERNAL MODULE: ./node_modules/use-sync-external-store/shim/index.js
+var shim = __webpack_require__(688);
+;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/useSyncExternalStore.mjs
+'use client';
+
+
+const useSyncExternalStore = shim.useSyncExternalStore;
+
+
+//# sourceMappingURL=useSyncExternalStore.mjs.map
+
+;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/utils.mjs
+function shouldThrowError(_useErrorBoundary, params) {
+  // Allow useErrorBoundary function to override throwing behavior on a per-error basis
+  if (typeof _useErrorBoundary === 'function') {
+    return _useErrorBoundary(...params);
+  }
+
+  return !!_useErrorBoundary;
+}
+
+
+//# sourceMappingURL=utils.mjs.map
+
+;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/useMutation.mjs
+'use client';
+
+
+
+
+
+
+function useMutation(arg1, arg2, arg3) {
+  const options = parseMutationArgs(arg1, arg2, arg3);
+  const queryClient = useQueryClient({
+    context: options.context
+  });
+  const [observer] = react.useState(() => new MutationObserver(queryClient, options));
+  react.useEffect(() => {
+    observer.setOptions(options);
+  }, [observer, options]);
+  const result = useSyncExternalStore(react.useCallback(onStoreChange => observer.subscribe(notifyManager.batchCalls(onStoreChange)), [observer]), () => observer.getCurrentResult(), () => observer.getCurrentResult());
+  const mutate = react.useCallback((variables, mutateOptions) => {
+    observer.mutate(variables, mutateOptions).catch(useMutation_noop);
+  }, [observer]);
+
+  if (result.error && shouldThrowError(observer.options.useErrorBoundary, [result.error])) {
+    throw result.error;
+  }
+
+  return { ...result,
+    mutate,
+    mutateAsync: result.mutate
+  };
+} // eslint-disable-next-line @typescript-eslint/no-empty-function
+
+function useMutation_noop() {}
+
+
+//# sourceMappingURL=useMutation.mjs.map
+
+// EXTERNAL MODULE: ./node_modules/cross-fetch/dist/browser-ponyfill.js
+var browser_ponyfill = __webpack_require__(98);
+var browser_ponyfill_default = /*#__PURE__*/__webpack_require__.n(browser_ponyfill);
+;// CONCATENATED MODULE: ./src/common/utils/fetchWordpressAjax.tsx
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+function fetchWordpressAjax(params = { action: '' }) {
+    var _a, _b;
+    return __awaiter(this, void 0, void 0, function* () {
+        const url = new URL(location.origin);
+        url.pathname = '/wp-admin/admin-ajax.php';
+        Object.keys(params).forEach((k) => url.searchParams.set(k, params[k]));
+        const res = yield browser_ponyfill_default()(url);
+        if (!res.ok) {
+            const info = { message: 'ERROR', description: 'There was a problem' };
+            try {
+                const err = yield res.json();
+                info.message = (_a = err === null || err === void 0 ? void 0 : err.message) !== null && _a !== void 0 ? _a : '';
+                info.description = (_b = err === null || err === void 0 ? void 0 : err.description) !== null && _b !== void 0 ? _b : '';
+            }
+            catch (e) { }
+            return Promise.reject({ error: info });
+        }
+        const data = yield res.json();
+        return data;
+    });
+}
+
+;// CONCATENATED MODULE: ./src/common/utils/formatDuration.ts
+function formatDuration(seconds) {
+    var date = new Date(0);
+    if (seconds)
+        date.setSeconds(seconds); // specify value for SECONDS here
+    return date.toISOString().substring(11, 19);
+    //   if (isNaN(seconds)) return '';
+    //   seconds = Math.round(seconds);
+    //   const m = Math.floor(seconds / 60);
+    //   const s = seconds % 60;
+    //   return `${m}:${('0' + s).slice(-2)}`;
+}
+function formatDate(d) {
+    return d.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+}
+function formatTimeAgo(seconds) {
+    const intervals = [
+        { label: 'year', seconds: 31536000 },
+        { label: 'month', seconds: 2592000 },
+        { label: 'day', seconds: 86400 },
+        { label: 'hour', seconds: 3600 },
+        { label: 'minute', seconds: 60 }
+    ];
+    for (const interval of intervals) {
+        const count = Math.floor(seconds / interval.seconds);
+        if (count >= 1) {
+            return count === 1 ? `${count} ${interval.label} ago` : `${count} ${interval.label}s ago`;
+        }
+    }
+    return '<1 min ago';
+}
+
 ;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/queryObserver.mjs
 
 
@@ -4572,17 +5067,6 @@ function shouldAssignObserverCurrentProperties(observer, optimisticResult, optio
 
 //# sourceMappingURL=queryObserver.mjs.map
 
-// EXTERNAL MODULE: ./node_modules/use-sync-external-store/shim/index.js
-var shim = __webpack_require__(688);
-;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/useSyncExternalStore.mjs
-'use client';
-
-
-const useSyncExternalStore = shim.useSyncExternalStore;
-
-
-//# sourceMappingURL=useSyncExternalStore.mjs.map
-
 ;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/QueryErrorResetBoundary.mjs
 'use client';
 
@@ -4628,19 +5112,6 @@ const IsRestoringProvider = IsRestoringContext.Provider;
 
 
 //# sourceMappingURL=isRestoring.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/utils.mjs
-function shouldThrowError(_useErrorBoundary, params) {
-  // Allow useErrorBoundary function to override throwing behavior on a per-error basis
-  if (typeof _useErrorBoundary === 'function') {
-    return _useErrorBoundary(...params);
-  }
-
-  return !!_useErrorBoundary;
-}
-
-
-//# sourceMappingURL=utils.mjs.map
 
 ;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/errorBoundaryUtils.mjs
 'use client';
@@ -4785,2029 +5256,116 @@ function useQuery(arg1, arg2, arg3) {
 
 //# sourceMappingURL=useQuery.mjs.map
 
-;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/mutationObserver.mjs
+;// CONCATENATED MODULE: ./src/common/job_worker/useJob.tsx
 
 
-
-
-
-// CLASS
-class MutationObserver extends Subscribable {
-  constructor(client, options) {
-    super();
-    this.client = client;
-    this.setOptions(options);
-    this.bindMethods();
-    this.updateResult();
-  }
-
-  bindMethods() {
-    this.mutate = this.mutate.bind(this);
-    this.reset = this.reset.bind(this);
-  }
-
-  setOptions(options) {
-    var _this$currentMutation;
-
-    const prevOptions = this.options;
-    this.options = this.client.defaultMutationOptions(options);
-
-    if (!shallowEqualObjects(prevOptions, this.options)) {
-      this.client.getMutationCache().notify({
-        type: 'observerOptionsUpdated',
-        mutation: this.currentMutation,
-        observer: this
-      });
-    }
-
-    (_this$currentMutation = this.currentMutation) == null ? void 0 : _this$currentMutation.setOptions(this.options);
-  }
-
-  onUnsubscribe() {
-    if (!this.hasListeners()) {
-      var _this$currentMutation2;
-
-      (_this$currentMutation2 = this.currentMutation) == null ? void 0 : _this$currentMutation2.removeObserver(this);
-    }
-  }
-
-  onMutationUpdate(action) {
-    this.updateResult(); // Determine which callbacks to trigger
-
-    const notifyOptions = {
-      listeners: true
-    };
-
-    if (action.type === 'success') {
-      notifyOptions.onSuccess = true;
-    } else if (action.type === 'error') {
-      notifyOptions.onError = true;
-    }
-
-    this.notify(notifyOptions);
-  }
-
-  getCurrentResult() {
-    return this.currentResult;
-  }
-
-  reset() {
-    this.currentMutation = undefined;
-    this.updateResult();
-    this.notify({
-      listeners: true
-    });
-  }
-
-  mutate(variables, options) {
-    this.mutateOptions = options;
-
-    if (this.currentMutation) {
-      this.currentMutation.removeObserver(this);
-    }
-
-    this.currentMutation = this.client.getMutationCache().build(this.client, { ...this.options,
-      variables: typeof variables !== 'undefined' ? variables : this.options.variables
-    });
-    this.currentMutation.addObserver(this);
-    return this.currentMutation.execute();
-  }
-
-  updateResult() {
-    const state = this.currentMutation ? this.currentMutation.state : mutation_getDefaultState();
-    const result = { ...state,
-      isLoading: state.status === 'loading',
-      isSuccess: state.status === 'success',
-      isError: state.status === 'error',
-      isIdle: state.status === 'idle',
-      mutate: this.mutate,
-      reset: this.reset
-    };
-    this.currentResult = result;
-  }
-
-  notify(options) {
-    notifyManager.batch(() => {
-      // First trigger the mutate callbacks
-      if (this.mutateOptions && this.hasListeners()) {
-        if (options.onSuccess) {
-          var _this$mutateOptions$o, _this$mutateOptions, _this$mutateOptions$o2, _this$mutateOptions2;
-
-          (_this$mutateOptions$o = (_this$mutateOptions = this.mutateOptions).onSuccess) == null ? void 0 : _this$mutateOptions$o.call(_this$mutateOptions, this.currentResult.data, this.currentResult.variables, this.currentResult.context);
-          (_this$mutateOptions$o2 = (_this$mutateOptions2 = this.mutateOptions).onSettled) == null ? void 0 : _this$mutateOptions$o2.call(_this$mutateOptions2, this.currentResult.data, null, this.currentResult.variables, this.currentResult.context);
-        } else if (options.onError) {
-          var _this$mutateOptions$o3, _this$mutateOptions3, _this$mutateOptions$o4, _this$mutateOptions4;
-
-          (_this$mutateOptions$o3 = (_this$mutateOptions3 = this.mutateOptions).onError) == null ? void 0 : _this$mutateOptions$o3.call(_this$mutateOptions3, this.currentResult.error, this.currentResult.variables, this.currentResult.context);
-          (_this$mutateOptions$o4 = (_this$mutateOptions4 = this.mutateOptions).onSettled) == null ? void 0 : _this$mutateOptions$o4.call(_this$mutateOptions4, undefined, this.currentResult.error, this.currentResult.variables, this.currentResult.context);
-        }
-      } // Then trigger the listeners
-
-
-      if (options.listeners) {
-        this.listeners.forEach(({
-          listener
-        }) => {
-          listener(this.currentResult);
-        });
-      }
-    });
-  }
-
-}
-
-
-//# sourceMappingURL=mutationObserver.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/useMutation.mjs
-'use client';
-
-
-
-
-
-
-function useMutation(arg1, arg2, arg3) {
-  const options = parseMutationArgs(arg1, arg2, arg3);
-  const queryClient = useQueryClient({
-    context: options.context
-  });
-  const [observer] = react.useState(() => new MutationObserver(queryClient, options));
-  react.useEffect(() => {
-    observer.setOptions(options);
-  }, [observer, options]);
-  const result = useSyncExternalStore(react.useCallback(onStoreChange => observer.subscribe(notifyManager.batchCalls(onStoreChange)), [observer]), () => observer.getCurrentResult(), () => observer.getCurrentResult());
-  const mutate = react.useCallback((variables, mutateOptions) => {
-    observer.mutate(variables, mutateOptions).catch(useMutation_noop);
-  }, [observer]);
-
-  if (result.error && shouldThrowError(observer.options.useErrorBoundary, [result.error])) {
-    throw result.error;
-  }
-
-  return { ...result,
-    mutate,
-    mutateAsync: result.mutate
-  };
-} // eslint-disable-next-line @typescript-eslint/no-empty-function
-
-function useMutation_noop() {}
-
-
-//# sourceMappingURL=useMutation.mjs.map
-
-// EXTERNAL MODULE: ./node_modules/cross-fetch/dist/browser-ponyfill.js
-var browser_ponyfill = __webpack_require__(98);
-var browser_ponyfill_default = /*#__PURE__*/__webpack_require__.n(browser_ponyfill);
-;// CONCATENATED MODULE: ./src/utils/fetchWordpressAjax.tsx
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-function fetchWordpressAjax(params = { action: '' }) {
-    var _a, _b;
-    return __awaiter(this, void 0, void 0, function* () {
-        const url = new URL(location.origin);
-        url.pathname = '/wp-admin/admin-ajax.php';
-        Object.keys(params).forEach((k) => url.searchParams.set(k, params[k]));
-        const res = yield browser_ponyfill_default()(url);
-        if (!res.ok) {
-            const info = { message: 'ERROR', description: 'There was a problem' };
-            try {
-                const err = yield res.json();
-                info.message = (_a = err === null || err === void 0 ? void 0 : err.message) !== null && _a !== void 0 ? _a : '';
-                info.description = (_b = err === null || err === void 0 ? void 0 : err.description) !== null && _b !== void 0 ? _b : '';
-            }
-            catch (e) { }
-            return Promise.reject({ error: info });
-        }
-        const data = yield res.json();
-        return data;
-    });
-}
-
-;// CONCATENATED MODULE: ./src/utils/formatDuration.ts
-function formatDuration(seconds) {
-    var date = new Date(0);
-    if (seconds)
-        date.setSeconds(seconds); // specify value for SECONDS here
-    return date.toISOString().substring(11, 19);
-    //   if (isNaN(seconds)) return '';
-    //   seconds = Math.round(seconds);
-    //   const m = Math.floor(seconds / 60);
-    //   const s = seconds % 60;
-    //   return `${m}:${('0' + s).slice(-2)}`;
-}
-function formatDate(d) {
-    return d.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
-}
-function formatTimeAgo(seconds) {
-    const intervals = [
-        { label: 'year', seconds: 31536000 },
-        { label: 'month', seconds: 2592000 },
-        { label: 'day', seconds: 86400 },
-        { label: 'hour', seconds: 3600 },
-        { label: 'minute', seconds: 60 }
-    ];
-    for (const interval of intervals) {
-        const count = Math.floor(seconds / interval.seconds);
-        if (count >= 1) {
-            return count === 1 ? `${count} ${interval.label} ago` : `${count} ${interval.label}s ago`;
-        }
-    }
-    return '<1 min ago';
-}
-
-;// CONCATENATED MODULE: ./src/stock_check/StockCheck.tsx
-
-
-
-
-
-const useStockUpdate = () => {
+const useJob = (jobKey) => {
     return useQuery({
-        queryKey: ['stock_status'],
+        queryKey: [jobKey],
         queryFn: () => {
-            return fetchWordpressAjax({ action: 'stock_check_api', cmd: 'status' });
+            return fetchWordpressAjax({ action: `${jobKey}_api`, cmd: `status` });
         },
         keepPreviousData: true,
-        refetchInterval: 5000
+        refetchInterval: 2000
     });
 };
-const StockCheck = () => {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+
+;// CONCATENATED MODULE: ./src/common/job_worker/JobWorker.tsx
+
+
+
+
+
+const JobWorker = ({ jobKey }) => {
+    var _a, _b, _c, _d, _e, _f, _g, _h;
+    //   const jobKey = 'import_products';
+    const action = `${jobKey}_api`;
     const queryClient = useQueryClient();
-    const stockStatus = useStockUpdate();
+    const jobData = useJob(jobKey);
     const mutation = useMutation({
-        mutationFn: (options) => fetchWordpressAjax(Object.assign({ action: 'stock_check_api' }, options)),
-        onSuccess: (data) => queryClient.setQueryData(['stock_status'], data)
+        mutationFn: (options) => fetchWordpressAjax(Object.assign({ action }, options)),
+        onSuccess: (data) => queryClient.setQueryData([jobKey], data)
     });
     const refresh = () => {
-        if (!stockStatus.isLoading) {
-            queryClient.invalidateQueries(['stock_status']);
+        if (!jobData.isLoading) {
+            queryClient.invalidateQueries([jobKey]);
         }
     };
-    const startStockCheck = () => {
-        const confirmed = confirm('Start stock check?');
+    const update = () => {
+        mutation.mutate({ cmd: `status` });
+    };
+    const start = () => {
+        const confirmed = confirm('Start job?');
         if (confirmed) {
-            mutation.mutate({ cmd: 'start_stock_check' });
+            mutation.mutate({ cmd: `start` });
         }
     };
-    const stopStockCheck = () => {
-        mutation.mutate({ cmd: 'stop_stock_check' });
+    const stop = () => {
+        mutation.mutate({ cmd: `stop` });
     };
-    const hackStockCheck = () => {
-        mutation.mutate({ cmd: 'hack_stock_check' });
+    const resume = () => {
+        mutation.mutate({ cmd: 'resume' });
     };
-    const resumeStockCheck = () => {
-        mutation.mutate({ cmd: 'resume_stock_check' });
+    const hack = () => {
+        mutation.mutate({ cmd: 'hack' });
     };
-    (0,react.useEffect)(() => {
-        var _a;
-        if ((_a = stockStatus.data) === null || _a === void 0 ? void 0 : _a.is_running) {
-            const timer = setInterval(() => refresh(), 2000);
-            return () => {
-                clearInterval(timer);
-            };
-        }
-    }, [stockStatus.data]);
-    if (!stockStatus.isSuccess) {
-        return react.createElement("div", null, "loading...");
+    //   useEffect(() => {
+    //     if (jobData.data?.is_running) {
+    //       const timer = setInterval(() => refresh(), 5000);
+    //       return () => {
+    //         clearInterval(timer);
+    //       };
+    //     }
+    //   }, [jobData.data]);
+    if (!jobData.isSuccess) {
+        return react.createElement("div", { className: 'p-3' }, "loading...");
     }
-    const isRunning = stockStatus.isSuccess ? stockStatus.data.is_running === true : false;
-    const isComplete = stockStatus.isSuccess ? stockStatus.data.is_complete === true : false;
+    const isRunning = ((_a = jobData.data) === null || _a === void 0 ? void 0 : _a.is_running) === true;
+    const isComplete = jobData.data.is_complete === true;
+    const canStart = ((_b = jobData.data) === null || _b === void 0 ? void 0 : _b.is_running) === false;
+    const canStop = ((_c = jobData.data) === null || _c === void 0 ? void 0 : _c.is_running) === true;
+    const percentComplete = ((_e = (_d = jobData.data) === null || _d === void 0 ? void 0 : _d.progress) !== null && _e !== void 0 ? _e : 0) * 100;
     const canResume = !isRunning && !isComplete;
-    const totalProducts = (_b = (_a = stockStatus.data) === null || _a === void 0 ? void 0 : _a.total_products) !== null && _b !== void 0 ? _b : 1;
-    const ignoreCount = (_d = (_c = stockStatus.data) === null || _c === void 0 ? void 0 : _c.ignore) !== null && _d !== void 0 ? _d : 0;
-    const updateCount = (_f = (_e = stockStatus.data) === null || _e === void 0 ? void 0 : _e.update) !== null && _f !== void 0 ? _f : 0;
-    const insertCount = (_h = (_g = stockStatus.data) === null || _g === void 0 ? void 0 : _g.insert) !== null && _h !== void 0 ? _h : 0;
-    const ignoreWidth = (100 * ignoreCount) / totalProducts;
-    const updateWidth = (100 * updateCount) / totalProducts;
-    const insertWidth = (100 * insertCount) / totalProducts;
-    const lastUpdate = ((_j = stockStatus.data) === null || _j === void 0 ? void 0 : _j.started) ? new Date(Date.parse((_k = stockStatus.data) === null || _k === void 0 ? void 0 : _k.started)) : null;
-    const ago = ((_l = stockStatus.data) === null || _l === void 0 ? void 0 : _l.started) ? formatTimeAgo((Date.now() - lastUpdate.getTime()) / 1000) : '';
+    const lastUpdate = ((_f = jobData.data) === null || _f === void 0 ? void 0 : _f.started) ? new Date(Date.parse((_g = jobData.data) === null || _g === void 0 ? void 0 : _g.started)) : null;
+    const ago = ((_h = jobData.data) === null || _h === void 0 ? void 0 : _h.started) ? formatTimeAgo((Date.now() - lastUpdate.getTime()) / 1000) : '';
     return (react.createElement("div", { className: 'd-flex flex-column gap-3 p-3' },
-        isRunning ? (react.createElement("div", null,
-            react.createElement("h5", null,
-                react.createElement("div", { className: 'spinner-border spinner-border-sm text-primary', role: 'status' }),
-                " Running..."),
-            react.createElement("p", null,
-                "Started ",
-                ago))) : (react.createElement("div", null, lastUpdate ? (react.createElement(react.Fragment, null,
-            react.createElement("h5", null, "Last Updated:"),
-            react.createElement("p", null,
-                formatDate(lastUpdate),
-                " (",
-                ago,
-                ")"))) : (react.createElement("h5", null, "Run your first stock check!")))),
         react.createElement("div", { className: 'd-flex gap-3' },
             react.createElement("div", { className: 'btn-group' },
-                react.createElement("button", { className: 'btn btn-primary', disabled: isRunning, onClick: startStockCheck }, "Start"),
-                react.createElement("button", { className: 'btn btn-primary', disabled: !canResume, onClick: resumeStockCheck }, "Resume"),
-                react.createElement("button", { className: 'btn btn-primary', disabled: !isRunning, onClick: stopStockCheck }, "Stop"))),
+                react.createElement("button", { className: 'btn btn-primary', disabled: !canStart, onClick: start }, "Start"),
+                react.createElement("button", { className: 'btn btn-primary', disabled: !canResume, onClick: resume }, "Resume"),
+                react.createElement("button", { className: 'btn btn-primary', disabled: !canStop, onClick: stop }, "Stop"),
+                react.createElement("button", { className: 'btn btn-primary', onClick: update }, "Refresh"),
+                react.createElement("button", { className: 'btn btn-primary', onClick: hack }, "Hack"))),
         react.createElement("div", { className: 'progress-stacked' },
-            react.createElement("div", { className: 'progress', role: 'progressbar', style: { width: ignoreWidth + '%' } },
-                react.createElement("div", { className: `progress-bar ${isRunning ? 'progress-bar-striped progress-bar-animated' : ''} bg-secondary` })),
-            react.createElement("div", { className: 'progress', role: 'progressbar', style: { width: updateWidth + '%' } },
-                react.createElement("div", { className: `progress-bar ${isRunning ? 'progress-bar-striped progress-bar-animated' : ''} bg-info` })),
-            react.createElement("div", { className: 'progress', role: 'progressbar', style: { width: insertWidth + '%' } },
-                react.createElement("div", { className: `progress-bar ${isRunning ? 'progress-bar-striped progress-bar-animated' : ''} bg-success` }))),
-        react.createElement("table", { style: { width: 1 }, cellPadding: 5 },
-            react.createElement("tbody", null,
-                react.createElement("tr", null,
-                    react.createElement("td", null,
-                        react.createElement("div", { className: 'bg-secondary', style: { width: 16, height: 16 } })),
-                    react.createElement("td", null, "Ignore"),
-                    react.createElement("td", { align: 'right' }, ignoreCount.toLocaleString())),
-                react.createElement("tr", null,
-                    react.createElement("td", null,
-                        react.createElement("div", { className: 'bg-info', style: { width: 16, height: 16 } })),
-                    react.createElement("td", null, "Update"),
-                    react.createElement("td", { align: 'right' }, updateCount.toLocaleString())),
-                react.createElement("tr", null,
-                    react.createElement("td", null,
-                        react.createElement("div", { className: 'bg-success', style: { width: 16, height: 16 } })),
-                    react.createElement("td", null, "Insert"),
-                    react.createElement("td", { align: 'right' }, insertCount.toLocaleString())))),
-        react.createElement("pre", null, JSON.stringify(stockStatus.data, null, 2)),
-        react.createElement("button", { className: 'btn btn-primary', onClick: hackStockCheck }, "Hack")));
+            react.createElement("div", { className: 'progress', role: 'progressbar', style: { width: percentComplete + '%' } },
+                react.createElement("div", { className: `progress-bar ${isRunning ? 'progress-bar-striped progress-bar-animated' : ''} bg-info` }))),
+        react.createElement("pre", null, JSON.stringify(jobData.data, null, 2))));
 };
 
-;// CONCATENATED MODULE: ./src/views/home/Home.tsx
+;// CONCATENATED MODULE: ./src/import_products/ImportProducts.tsx
 
-const HomePage = () => {
-    return (react.createElement("div", null,
-        react.createElement("h1", null, "Home Page")));
+
+const ImportProducts = () => {
+    return react.createElement(JobWorker, { jobKey: 'import_products' });
 };
 
-;// CONCATENATED MODULE: ./src/utils/datestamp.ts
-
-function datestamp() {
-    let dateObj = new Date();
-    let month = dateObj.getUTCMonth() + 1; //months from 1-12
-    let day = dateObj.getUTCDate();
-    let year = dateObj.getUTCFullYear();
-    return [year, month, day].join('-');
-}
-function parseDate(s) {
-    return new Date(Date.parse(s));
-}
-function since(s) {
-    const d = new Date(Date.parse(s));
-    const dif = Date.now() - d.getTime();
-    return formatDuration(dif / 1000);
-}
-
-;// CONCATENATED MODULE: ./src/views/jobs/Jobs.tsx
+;// CONCATENATED MODULE: ./src/import_products/index.tsx
 
 
 
 
 
-var JobStatus;
-(function (JobStatus) {
-    JobStatus["NONE"] = "none";
-    JobStatus["STARTING"] = "starting";
-    JobStatus["STARTED"] = "started";
-    JobStatus["STOPPING"] = "stopping";
-    JobStatus["STOPPED"] = "stopped";
-    JobStatus["COMPLETING"] = "completing";
-    JobStatus["COMPLETED"] = "completed";
-    JobStatus["DELETING"] = "deleting";
-    JobStatus["ERROR"] = "error";
-})(JobStatus || (JobStatus = {}));
-var JobProcess;
-(function (JobProcess) {
-    JobProcess["IDLE"] = "idle";
-    JobProcess["RUNNING"] = "running";
-})(JobProcess || (JobProcess = {}));
-const useJobs = () => {
-    return useQuery({
-        queryKey: ['jobs'],
-        queryFn: () => {
-            return fetchWordpressAjax({ action: 'cronjob_do_cmd', cmd: 'get_jobs' });
-        },
-        // keepPreviousData: true,
-        initialData: [],
-        placeholderData: [],
-        refetchInterval: 5000
-    });
-};
-const useJobsStatus = (cmd) => {
-    return useQuery({
-        queryKey: ['jobs_status', cmd],
-        queryFn: () => {
-            return fetchWordpressAjax({ action: 'cronjob_do_cmd', cmd });
-        }
-    });
-};
-const ICON_PLAY = String.fromCharCode(9654);
-const ICON_PAUSE = '⏸︎';
-const ICON_REFRESH = '↺';
-const ICON_WAITING = react.createElement("div", { className: 'spinner-grow spinner-grow-sm', role: 'status' });
-const iCON_DELETE = react.createElement(react.Fragment, null, "\u00D7");
-const ICON_ERROR = '!';
-const JobIcon = ({ job }) => {
-    switch (job.status) {
-        case JobStatus.STARTED:
-            return ICON_PAUSE;
-        case JobStatus.STOPPING:
-        case JobStatus.COMPLETING:
-        case JobStatus.STARTING:
-        case JobStatus.DELETING:
-            return ICON_WAITING;
-        case JobStatus.COMPLETED:
-            return iCON_DELETE;
-        case JobStatus.STOPPED:
-            return iCON_DELETE;
-        case JobStatus.ERROR:
-            return ICON_ERROR;
-        case JobStatus.NONE:
-        default:
-            return ICON_PLAY;
-    }
-};
-const Jobs = () => {
-    var _a, _b;
-    const jobs = useJobs();
-    const [statusCmd, setStatusCmd] = (0,react.useState)('pause_jobs');
-    const jobsStatus = useJobsStatus(statusCmd);
-    const queryClient = useQueryClient();
-    const updateJobs = () => {
-        queryClient.invalidateQueries(['jobs']);
-    };
-    const mutationJob = useMutation({
-        mutationFn: (options) => fetchWordpressAjax(Object.assign({ action: 'cronjob_do_cmd' }, options)),
-        onSuccess: (data) => queryClient.setQueryData(['jobs'], data)
-    });
-    const mutationJobStatus = useMutation({
-        mutationFn: (options) => fetchWordpressAjax(Object.assign({ action: 'cronjob_do_cmd' }, options)),
-        onSuccess: (data) => {
-            console.log('success', data);
-            queryClient.setQueryData(['jobs_status'], data);
-        }
-    });
-    const cleanJobs = () => {
-        mutationJob.mutate({ cmd: 'clean_jobs' });
-    };
-    const createJob = () => {
-        const action = prompt('Action?', 'import_western_page');
-        if (action) {
-            mutationJob.mutate({ cmd: 'create_job', job_args: JSON.stringify({ action, product_id: 6 }) });
-        }
-    };
-    const importWPS = () => {
-        const product_id = prompt('Product ID?');
-        if (product_id) {
-            mutationJob.mutate({ cmd: 'create_job', job_args: JSON.stringify({ action: 'import_western_product', product_id }) });
-        }
-    };
-    const resetJob = (job) => {
-        mutationJob.mutate({ cmd: 'reset_job', job_id: job.id });
-    };
-    const deleteJob = (job) => {
-        if (job.status === JobStatus.DELETING) {
-            if (confirm('Are you sure you want to force delete this job?')) {
-                mutationJob.mutate({ cmd: 'force_delete_job', job_id: job.id });
-            }
-        }
-        else {
-            if (confirm('Are you sure you want to delete this job?')) {
-                mutationJob.mutate({ cmd: 'delete_job', job_id: job.id });
-            }
-        }
-    };
-    const startJob = (job) => {
-        mutationJob.mutate({ cmd: 'start_job', job_id: job.id });
-    };
-    const stopJob = (job) => {
-        mutationJob.mutate({ cmd: 'stop_job', job_id: job.id });
-    };
-    const processJobs = () => {
-        mutationJob.mutate({ cmd: 'process_jobs' });
-    };
-    const toggleJobsStatus = () => {
-        console.log(statusCmd === 'resume_jobs' ? 'pause_jobs' : 'resume_jobs');
-        setStatusCmd((cmd) => (cmd === 'resume_jobs' ? 'pause_jobs' : 'resume_jobs'));
-        // mutationJobStatus.mutate({ cmd: jobsStatus.data.active ? 'pause_jobs' : 'resume_jobs' });
-    };
-    const toggleJob = (job) => {
-        switch (job.status) {
-            case JobStatus.NONE:
-                startJob(job);
-                break;
-            case JobStatus.STARTING:
-                alert('Starting...');
-                break;
-            case JobStatus.STARTED:
-                stopJob(job);
-                break;
-            case JobStatus.COMPLETING:
-                alert('Completing...');
-            case JobStatus.COMPLETED:
-                deleteJob(job);
-                break;
-            case JobStatus.STOPPING:
-                alert('Stopping...');
-            case JobStatus.STOPPED:
-                deleteJob(job);
-                break;
-            case JobStatus.DELETING:
-                alert('Deleting...');
-            case JobStatus.ERROR:
-                alert('There was a problem running this job.');
-        }
-    };
-    return (react.createElement("div", { className: 'd-flex flex-column gap-3 p-3' },
-        react.createElement("div", { className: 'd-flex gap-3' },
-            react.createElement("button", { className: 'btn btn-primary', onClick: cleanJobs }, "Clean Jobs"),
-            react.createElement("button", { className: 'btn btn-primary', onClick: createJob }, "Create Job"),
-            react.createElement("button", { className: 'btn btn-primary', onClick: processJobs }, "Process Jobs"),
-            react.createElement("button", { className: 'btn btn-primary', onClick: importWPS }, "Import WPS"),
-            react.createElement("button", { className: 'btn btn-primary btn-icon', onClick: toggleJobsStatus }, ((_a = jobsStatus === null || jobsStatus === void 0 ? void 0 : jobsStatus.data) === null || _a === void 0 ? void 0 : _a.active) ? ICON_PAUSE : ICON_PLAY)),
-        react.createElement("div", { className: 'position-relative' },
-            react.createElement("div", { className: 'bg-primary', style: { opacity: jobs.isFetching || mutationJob.isLoading ? 1 : 0, transition: 'opacity 0.3s', width: '100%', height: 5 } }),
-            ((_b = jobs.data) === null || _b === void 0 ? void 0 : _b.length) > 0 ? (react.createElement("table", { className: 'table table-sm table-bordered align-middle' },
-                react.createElement("thead", null,
-                    react.createElement("tr", null,
-                        react.createElement("th", { style: { width: 1 } }),
-                        react.createElement("th", null, "id"),
-                        react.createElement("th", null, "process"),
-                        react.createElement("th", null, "status"),
-                        react.createElement("th", null, "action"),
-                        react.createElement("th", null, "timer"),
-                        react.createElement("th", null, "args"),
-                        react.createElement("th", { style: { width: 1 } },
-                            react.createElement("button", { className: 'btn btn-primary', onClick: updateJobs }, ICON_REFRESH)))),
-                react.createElement("tbody", { className: 'table-group-divider' }, jobs.data.map((job) => {
-                    var _a;
-                    return (react.createElement(react.Fragment, null,
-                        react.createElement("tr", null,
-                            react.createElement("td", null,
-                                react.createElement("button", { className: 'btn btn-primary btn-icon', style: { fontFamily: 'initial' }, onClick: () => toggleJob(job) },
-                                    react.createElement(JobIcon, { job: job }))),
-                            react.createElement("td", null, job.id),
-                            react.createElement("td", null, (_a = job === null || job === void 0 ? void 0 : job.process) !== null && _a !== void 0 ? _a : 'unknown'),
-                            react.createElement("td", null, job.status),
-                            react.createElement("td", null, job.action),
-                            react.createElement("td", { title: job.created }, job.completed ? since(job.completed) : job.started ? react.createElement("b", null, since(job.started)) : '-'),
-                            react.createElement("td", null, Object.keys(job.args).map((k) => (react.createElement("span", null,
-                                k,
-                                ": ",
-                                job.args[k],
-                                ",",
-                                ' ')))),
-                            react.createElement("td", { className: 'd-flex gap-2' },
-                                react.createElement("button", { className: 'btn btn-primary', onClick: () => resetJob(job), title: 'reset' }, "reset"),
-                                react.createElement("button", { className: 'btn btn-primary', onClick: () => deleteJob(job), title: 'delete' }, "\u00D7")))));
-                })))) : (react.createElement("div", null, jobs.isLoading ? react.createElement("h4", null, "Loadiung...") : react.createElement("h4", null, "Currently, there are no jobs in progress."))))));
-};
-
-;// CONCATENATED MODULE: ./src/views/logs/Logs.tsx
-
-
-
-const useLogs = () => {
-    return useQuery({
-        queryKey: ['logs'],
-        queryFn: () => {
-            return fetchWordpressAjax({ action: 'logs_do_cmd', cmd: 'get_logs' });
-        },
-        keepPreviousData: true,
-        initialData: [],
-        refetchInterval: 10000
-    });
-};
-const Logs = () => {
-    var _a, _b, _c, _d;
-    const queryClient = useQueryClient();
-    const logs = useLogs();
-    const $pre = react.useRef();
-    const mutationLog = useMutation({
-        mutationFn: (options) => fetchWordpressAjax(Object.assign({ action: 'logs_do_cmd' }, options)),
-        onSuccess: (data) => queryClient.setQueryData(['logs'], data)
-    });
-    const refresh = () => {
-        queryClient.invalidateQueries(['logs']);
-    };
-    const clear = () => {
-        mutationLog.mutate({ cmd: 'clear_logs' });
-    };
-    return (react.createElement("div", { className: 'd-flex flex-column gap-3 p-3' },
-        react.createElement("div", { className: 'd-flex gap-3' },
-            react.createElement("button", { className: 'btn btn-primary', onClick: clear }, "Clear Logs"),
-            react.createElement("button", { className: 'btn btn-primary', onClick: refresh }, "\u21BA")),
-        react.createElement("div", { className: 'position-relative' },
-            react.createElement("div", { style: { background: 'black', padding: '0.5em' } },
-                react.createElement("pre", { ref: $pre, style: {
-                        color: 'orange',
-                        margin: 0,
-                        padding: 0,
-                        fontSize: '12px',
-                        fontFamily: 'monospace',
-                        lineHeight: 1.5,
-                        maxHeight: 1.5 * 12 * 50,
-                        minHeight: 300
-                    }, dangerouslySetInnerHTML: { __html: (_d = (_c = (_b = (_a = logs === null || logs === void 0 ? void 0 : logs.data) === null || _a === void 0 ? void 0 : _a.splice) === null || _b === void 0 ? void 0 : _b.call(_a, 0)) === null || _c === void 0 ? void 0 : _c.reverse().join('\n')) !== null && _d !== void 0 ? _d : '' } })))));
-};
-
-;// CONCATENATED MODULE: ./src/wordpress-plugin.tsx
-
-
-
-
-
-
-
-
-// import { WordPressApp } from './wordpress/WordpressApp';
-// const root = createRoot(document.getElementById('product-root'));
-// root.render(<WordPressApp />);
-// const InputField = ({ label, name, value, onChange }: { label: string; name: string; value: string; onChange: React.ChangeEventHandler<HTMLInputElement> }) => {
-//   return (
-//     <>
-//       <label htmlFor={`input_${name}`}>{label}</label>
-//       <input type='text' id={`input_${name}`} name={name} value={value} onChange={onChange} />
-//     </>
-//   );
-// };
-// const AppInner = () => {
-//   return <div>Main</div>;
-// };
-// const xAppInner = () => {
-//   const [pageSize, setPageSize] = useState(100);
-//   const [pageCursor, setPageCursor] = useState<string>(null);
-//   const [productId, setProductId] = useState<number>(null);
-//   const products = useWesternProducts({ pageSize, pageCursor });
-//   const post = usePost('MASTER_952322');
-//   useEffect(() => {
-//     if (post.isSuccess) {
-//       setFields({
-//         'post[post_title]': post.data.post_title,
-//         'post[meta_input][_sku]': post.data.meta_input._sku,
-//         'post[post_content]': post.data.post_content,
-//         'post[meta_input][_price]': post.data.meta_input._price
-//       });
-//     }
-//   }, [post.isSuccess]);
-//   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
-//     e.preventDefault();
-//     const data = new FormData(e.currentTarget);
-//     const response = await fetch('/wp-admin/admin-ajax.php', { method: 'POST', body: data }).then((r) => r.json());
-//     console.log({ response });
-//   };
-//   const [fields, setFields] = useState({
-//     'post[post_title]': 'newprodctitle',
-//     'post[meta_input][_sku]': 'MASTER_952322',
-//     'post[post_content]': 'desc 231',
-//     'post[meta_input][_price]': '99'
-//   });
-//   const updateFields: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-//     const delta = { [e.currentTarget.getAttribute('name')]: e.currentTarget.value };
-//     setFields((f) => ({ ...f, ...delta }));
-//   };
-//   return (
-//     <div style={{ position: 'relative' }}>
-//       <PauseCron />
-//       {/* <CronStatus /> */}
-//       <hr />
-//       {/* <TestAPI /> */}
-//       {/* <CronJobManager /> */}
-//       <hr />
-//       <h1>Test React AppZZ</h1>
-//       <pre>{JSON.stringify(post, null, 2)}</pre>
-//       <form method='post' action='' onSubmit={handleSubmit}>
-//         <input type='hidden' name='action' value='ci_woo_action' />
-//         <input type='hidden' name='post[post_type]' value='product' />
-//         <input type='hidden' name='post[post_status]' value='publish' />
-//         <div className='gap-2' style={{ display: 'grid', gridTemplateColumns: 'min-content 1fr' }}>
-//           <InputField label='Sku' name='post[meta_input][_sku]' value={fields['post[meta_input][_sku]']} onChange={updateFields} />
-//           <InputField label='Title' name='post[post_title]' value={fields['post[post_title]']} onChange={updateFields} />
-//           <InputField label='Description' name='post[post_content]' value={fields['post[post_content]']} onChange={updateFields} />
-//           <InputField label='Price' name='post[meta_input][_price]' value={fields['post[meta_input][_price]']} onChange={updateFields} />
-//         </div>
-//         <input type='submit' name='submit_product' value='Add Product' />
-//       </form>
-//       <input type='number' min={1} max={1000} step={10} value={pageSize} onChange={(e) => setPageSize(parseInt(e.currentTarget.value))} />
-//       <button className='btn btn-primary'>Go</button>
-//       <button className='btn btn-primary' disabled={!products.data?.meta?.cursor?.next} onClick={() => setPageCursor(products.data?.meta?.cursor?.next)}>
-//         Next Page {products.data?.meta?.cursor?.next}
-//       </button>
-//       <div className='d-flex'>
-//         {products.isSuccess ? (
-//           <div>
-//             {products?.data?.data?.map((p) => (
-//               <div key={`row_${p.id}`} onClick={() => setProductId(p.id)}>
-//                 {p.name}
-//               </div>
-//             ))}
-//           </div>
-//         ) : null}
-//         {productId ? <WesternProduct productId={productId} /> : <h1>Waiting</h1>}
-//       </div>
-//       {/* <pre>{JSON.stringify(products, null, 2)}</pre> */}
-//       <GlobalLoader />
-//     </div>
-//   );
-// };
-const App = ({ children }) => {
+const render = (id) => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: false, retry: false } } });
-    return (react.createElement(react.StrictMode, null,
-        react.createElement(QueryClientProvider, { client: queryClient }, children)));
-};
-const render = (id, page = null) => {
     const root = (0,client/* createRoot */.s)(document.getElementById(id));
-    switch (page) {
-        case 'stock_check':
-            root.render(react.createElement(App, null,
-                react.createElement(StockCheck, null)));
-            break;
-        case 'jobs':
-            root.render(react.createElement(App, null,
-                react.createElement(Jobs, null),
-                react.createElement(Logs, null)));
-            break;
-        case 'logs':
-            root.render(react.createElement(App, null,
-                react.createElement(Logs, null)));
-            break;
-        default:
-            root.render(react.createElement(App, null,
-                react.createElement(HomePage, null)));
-    }
+    root.render(react.createElement(QueryClientProvider, { client: queryClient },
+        react.createElement(ImportProducts, null)));
 };
 
+})();
 
-/***/ }),
-
-/***/ 250:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-/**
- * @license React
- * use-sync-external-store-shim.production.min.js
- *
- * Copyright (c) Facebook, Inc. and its affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-var e=__webpack_require__(294);function h(a,b){return a===b&&(0!==a||1/a===1/b)||a!==a&&b!==b}var k="function"===typeof Object.is?Object.is:h,l=e.useState,m=e.useEffect,n=e.useLayoutEffect,p=e.useDebugValue;function q(a,b){var d=b(),f=l({inst:{value:d,getSnapshot:b}}),c=f[0].inst,g=f[1];n(function(){c.value=d;c.getSnapshot=b;r(c)&&g({inst:c})},[a,d,b]);m(function(){r(c)&&g({inst:c});return a(function(){r(c)&&g({inst:c})})},[a]);p(d);return d}
-function r(a){var b=a.getSnapshot;a=a.value;try{var d=b();return!k(a,d)}catch(f){return!0}}function t(a,b){return b()}var u="undefined"===typeof window||"undefined"===typeof window.document||"undefined"===typeof window.document.createElement?t:q;exports.useSyncExternalStore=void 0!==e.useSyncExternalStore?e.useSyncExternalStore:u;
-
-
-/***/ }),
-
-/***/ 688:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-
-
-if (true) {
-  module.exports = __webpack_require__(250);
-} else {}
-
-
-/***/ }),
-
-/***/ 204:
-/***/ ((module) => {
-
-"use strict";
-module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-4 -4 8 8%27%3e%3ccircle r=%272%27 fill=%27%23fff%27/%3e%3c/svg%3e";
-
-/***/ }),
-
-/***/ 609:
-/***/ ((module) => {
-
-"use strict";
-module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-4 -4 8 8%27%3e%3ccircle r=%273%27 fill=%27%2386b7fe%27/%3e%3c/svg%3e";
-
-/***/ }),
-
-/***/ 469:
-/***/ ((module) => {
-
-"use strict";
-module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-4 -4 8 8%27%3e%3ccircle r=%273%27 fill=%27%23fff%27/%3e%3c/svg%3e";
-
-/***/ }),
-
-/***/ 486:
-/***/ ((module) => {
-
-"use strict";
-module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-4 -4 8 8%27%3e%3ccircle r=%273%27 fill=%27rgba%280, 0, 0, 0.25%29%27/%3e%3c/svg%3e";
-
-/***/ }),
-
-/***/ 991:
-/***/ ((module) => {
-
-"use strict";
-module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%27-4 -4 8 8%27%3e%3ccircle r=%273%27 fill=%27rgba%28255, 255, 255, 0.25%29%27/%3e%3c/svg%3e";
-
-/***/ }),
-
-/***/ 144:
-/***/ ((module) => {
-
-"use strict";
-module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 12 12%27 width=%2712%27 height=%2712%27 fill=%27none%27 stroke=%27%23dc3545%27%3e%3ccircle cx=%276%27 cy=%276%27 r=%274.5%27/%3e%3cpath stroke-linejoin=%27round%27 d=%27M5.8 3.6h.4L6 6.5z%27/%3e%3ccircle cx=%276%27 cy=%278.2%27 r=%27.6%27 fill=%27%23dc3545%27 stroke=%27none%27/%3e%3c/svg%3e";
-
-/***/ }),
-
-/***/ 254:
-/***/ ((module) => {
-
-"use strict";
-module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27%23000%27%3e%3cpath d=%27M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z%27/%3e%3c/svg%3e";
-
-/***/ }),
-
-/***/ 321:
-/***/ ((module) => {
-
-"use strict";
-module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27%23052c65%27%3e%3cpath fill-rule=%27evenodd%27 d=%27M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z%27/%3e%3c/svg%3e";
-
-/***/ }),
-
-/***/ 460:
-/***/ ((module) => {
-
-"use strict";
-module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27%23212529%27%3e%3cpath fill-rule=%27evenodd%27 d=%27M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z%27/%3e%3c/svg%3e";
-
-/***/ }),
-
-/***/ 281:
-/***/ ((module) => {
-
-"use strict";
-module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27%236ea8fe%27%3e%3cpath fill-rule=%27evenodd%27 d=%27M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z%27/%3e%3c/svg%3e";
-
-/***/ }),
-
-/***/ 647:
-/***/ ((module) => {
-
-"use strict";
-module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27%23fff%27%3e%3cpath d=%27M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z%27/%3e%3c/svg%3e";
-
-/***/ }),
-
-/***/ 692:
-/***/ ((module) => {
-
-"use strict";
-module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27%23fff%27%3e%3cpath d=%27M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z%27/%3e%3c/svg%3e";
-
-/***/ }),
-
-/***/ 770:
-/***/ ((module) => {
-
-"use strict";
-module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27m2 5 6 6 6-6%27/%3e%3c/svg%3e";
-
-/***/ }),
-
-/***/ 711:
-/***/ ((module) => {
-
-"use strict";
-module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27%23dee2e6%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27m2 5 6 6 6-6%27/%3e%3c/svg%3e";
-
-/***/ }),
-
-/***/ 931:
-/***/ ((module) => {
-
-"use strict";
-module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 20 20%27%3e%3cpath fill=%27none%27 stroke=%27%23fff%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%273%27 d=%27M6 10h8%27/%3e%3c/svg%3e";
-
-/***/ }),
-
-/***/ 199:
-/***/ ((module) => {
-
-"use strict";
-module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 20 20%27%3e%3cpath fill=%27none%27 stroke=%27%23fff%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%273%27 d=%27m6 10 3 3 6-6%27/%3e%3c/svg%3e";
-
-/***/ }),
-
-/***/ 956:
-/***/ ((module) => {
-
-"use strict";
-module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 30 30%27%3e%3cpath stroke=%27rgba%28255, 255, 255, 0.55%29%27 stroke-linecap=%27round%27 stroke-miterlimit=%2710%27 stroke-width=%272%27 d=%27M4 7h22M4 15h22M4 23h22%27/%3e%3c/svg%3e";
-
-/***/ }),
-
-/***/ 221:
-/***/ ((module) => {
-
-"use strict";
-module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 30 30%27%3e%3cpath stroke=%27rgba%2833, 37, 41, 0.75%29%27 stroke-linecap=%27round%27 stroke-miterlimit=%2710%27 stroke-width=%272%27 d=%27M4 7h22M4 15h22M4 23h22%27/%3e%3c/svg%3e";
-
-/***/ }),
-
-/***/ 122:
-/***/ ((module) => {
-
-"use strict";
-module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 8 8%27%3e%3cpath fill=%27%23198754%27 d=%27M2.3 6.73.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z%27/%3e%3c/svg%3e";
-
-/***/ })
-
-/******/ 	});
-/************************************************************************/
-/******/ 	// The module cache
-/******/ 	var __webpack_module_cache__ = {};
-/******/ 	
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/ 		// Check if module is in cache
-/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
-/******/ 		if (cachedModule !== undefined) {
-/******/ 			if (cachedModule.error !== undefined) throw cachedModule.error;
-/******/ 			return cachedModule.exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = __webpack_module_cache__[moduleId] = {
-/******/ 			id: moduleId,
-/******/ 			// no module.loaded needed
-/******/ 			exports: {}
-/******/ 		};
-/******/ 	
-/******/ 		// Execute the module function
-/******/ 		try {
-/******/ 			var execOptions = { id: moduleId, module: module, factory: __webpack_modules__[moduleId], require: __webpack_require__ };
-/******/ 			__webpack_require__.i.forEach(function(handler) { handler(execOptions); });
-/******/ 			module = execOptions.module;
-/******/ 			execOptions.factory.call(module.exports, module, module.exports, execOptions.require);
-/******/ 		} catch(e) {
-/******/ 			module.error = e;
-/******/ 			throw e;
-/******/ 		}
-/******/ 	
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/ 	
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = __webpack_modules__;
-/******/ 	
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = __webpack_module_cache__;
-/******/ 	
-/******/ 	// expose the module execution interceptor
-/******/ 	__webpack_require__.i = [];
-/******/ 	
-/************************************************************************/
-/******/ 	/* webpack/runtime/compat get default export */
-/******/ 	(() => {
-/******/ 		// getDefaultExport function for compatibility with non-harmony modules
-/******/ 		__webpack_require__.n = (module) => {
-/******/ 			var getter = module && module.__esModule ?
-/******/ 				() => (module['default']) :
-/******/ 				() => (module);
-/******/ 			__webpack_require__.d(getter, { a: getter });
-/******/ 			return getter;
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/define property getters */
-/******/ 	(() => {
-/******/ 		// define getter functions for harmony exports
-/******/ 		__webpack_require__.d = (exports, definition) => {
-/******/ 			for(var key in definition) {
-/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
-/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 				}
-/******/ 			}
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/get javascript update chunk filename */
-/******/ 	(() => {
-/******/ 		// This function allow to reference all chunks
-/******/ 		__webpack_require__.hu = (chunkId) => {
-/******/ 			// return url for filenames based on template
-/******/ 			return "" + chunkId + "." + __webpack_require__.h() + ".hot-update.js";
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/get update manifest filename */
-/******/ 	(() => {
-/******/ 		__webpack_require__.hmrF = () => ("index." + __webpack_require__.h() + ".hot-update.json");
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/getFullHash */
-/******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("e7dff11ac9177d26f549")
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
-/******/ 	(() => {
-/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/load script */
-/******/ 	(() => {
-/******/ 		var inProgress = {};
-/******/ 		var dataWebpackPrefix = "CIStore:";
-/******/ 		// loadScript function to load a script via script tag
-/******/ 		__webpack_require__.l = (url, done, key, chunkId) => {
-/******/ 			if(inProgress[url]) { inProgress[url].push(done); return; }
-/******/ 			var script, needAttach;
-/******/ 			if(key !== undefined) {
-/******/ 				var scripts = document.getElementsByTagName("script");
-/******/ 				for(var i = 0; i < scripts.length; i++) {
-/******/ 					var s = scripts[i];
-/******/ 					if(s.getAttribute("src") == url || s.getAttribute("data-webpack") == dataWebpackPrefix + key) { script = s; break; }
-/******/ 				}
-/******/ 			}
-/******/ 			if(!script) {
-/******/ 				needAttach = true;
-/******/ 				script = document.createElement('script');
-/******/ 		
-/******/ 				script.charset = 'utf-8';
-/******/ 				script.timeout = 120;
-/******/ 				if (__webpack_require__.nc) {
-/******/ 					script.setAttribute("nonce", __webpack_require__.nc);
-/******/ 				}
-/******/ 				script.setAttribute("data-webpack", dataWebpackPrefix + key);
-/******/ 		
-/******/ 				script.src = url;
-/******/ 			}
-/******/ 			inProgress[url] = [done];
-/******/ 			var onScriptComplete = (prev, event) => {
-/******/ 				// avoid mem leaks in IE.
-/******/ 				script.onerror = script.onload = null;
-/******/ 				clearTimeout(timeout);
-/******/ 				var doneFns = inProgress[url];
-/******/ 				delete inProgress[url];
-/******/ 				script.parentNode && script.parentNode.removeChild(script);
-/******/ 				doneFns && doneFns.forEach((fn) => (fn(event)));
-/******/ 				if(prev) return prev(event);
-/******/ 			}
-/******/ 			var timeout = setTimeout(onScriptComplete.bind(null, undefined, { type: 'timeout', target: script }), 120000);
-/******/ 			script.onerror = onScriptComplete.bind(null, script.onerror);
-/******/ 			script.onload = onScriptComplete.bind(null, script.onload);
-/******/ 			needAttach && document.head.appendChild(script);
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/make namespace object */
-/******/ 	(() => {
-/******/ 		// define __esModule on exports
-/******/ 		__webpack_require__.r = (exports) => {
-/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 			}
-/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/hot module replacement */
-/******/ 	(() => {
-/******/ 		var currentModuleData = {};
-/******/ 		var installedModules = __webpack_require__.c;
-/******/ 		
-/******/ 		// module and require creation
-/******/ 		var currentChildModule;
-/******/ 		var currentParents = [];
-/******/ 		
-/******/ 		// status
-/******/ 		var registeredStatusHandlers = [];
-/******/ 		var currentStatus = "idle";
-/******/ 		
-/******/ 		// while downloading
-/******/ 		var blockingPromises = 0;
-/******/ 		var blockingPromisesWaiting = [];
-/******/ 		
-/******/ 		// The update info
-/******/ 		var currentUpdateApplyHandlers;
-/******/ 		var queuedInvalidatedModules;
-/******/ 		
-/******/ 		// eslint-disable-next-line no-unused-vars
-/******/ 		__webpack_require__.hmrD = currentModuleData;
-/******/ 		
-/******/ 		__webpack_require__.i.push(function (options) {
-/******/ 			var module = options.module;
-/******/ 			var require = createRequire(options.require, options.id);
-/******/ 			module.hot = createModuleHotObject(options.id, module);
-/******/ 			module.parents = currentParents;
-/******/ 			module.children = [];
-/******/ 			currentParents = [];
-/******/ 			options.require = require;
-/******/ 		});
-/******/ 		
-/******/ 		__webpack_require__.hmrC = {};
-/******/ 		__webpack_require__.hmrI = {};
-/******/ 		
-/******/ 		function createRequire(require, moduleId) {
-/******/ 			var me = installedModules[moduleId];
-/******/ 			if (!me) return require;
-/******/ 			var fn = function (request) {
-/******/ 				if (me.hot.active) {
-/******/ 					if (installedModules[request]) {
-/******/ 						var parents = installedModules[request].parents;
-/******/ 						if (parents.indexOf(moduleId) === -1) {
-/******/ 							parents.push(moduleId);
-/******/ 						}
-/******/ 					} else {
-/******/ 						currentParents = [moduleId];
-/******/ 						currentChildModule = request;
-/******/ 					}
-/******/ 					if (me.children.indexOf(request) === -1) {
-/******/ 						me.children.push(request);
-/******/ 					}
-/******/ 				} else {
-/******/ 					console.warn(
-/******/ 						"[HMR] unexpected require(" +
-/******/ 							request +
-/******/ 							") from disposed module " +
-/******/ 							moduleId
-/******/ 					);
-/******/ 					currentParents = [];
-/******/ 				}
-/******/ 				return require(request);
-/******/ 			};
-/******/ 			var createPropertyDescriptor = function (name) {
-/******/ 				return {
-/******/ 					configurable: true,
-/******/ 					enumerable: true,
-/******/ 					get: function () {
-/******/ 						return require[name];
-/******/ 					},
-/******/ 					set: function (value) {
-/******/ 						require[name] = value;
-/******/ 					}
-/******/ 				};
-/******/ 			};
-/******/ 			for (var name in require) {
-/******/ 				if (Object.prototype.hasOwnProperty.call(require, name) && name !== "e") {
-/******/ 					Object.defineProperty(fn, name, createPropertyDescriptor(name));
-/******/ 				}
-/******/ 			}
-/******/ 			fn.e = function (chunkId) {
-/******/ 				return trackBlockingPromise(require.e(chunkId));
-/******/ 			};
-/******/ 			return fn;
-/******/ 		}
-/******/ 		
-/******/ 		function createModuleHotObject(moduleId, me) {
-/******/ 			var _main = currentChildModule !== moduleId;
-/******/ 			var hot = {
-/******/ 				// private stuff
-/******/ 				_acceptedDependencies: {},
-/******/ 				_acceptedErrorHandlers: {},
-/******/ 				_declinedDependencies: {},
-/******/ 				_selfAccepted: false,
-/******/ 				_selfDeclined: false,
-/******/ 				_selfInvalidated: false,
-/******/ 				_disposeHandlers: [],
-/******/ 				_main: _main,
-/******/ 				_requireSelf: function () {
-/******/ 					currentParents = me.parents.slice();
-/******/ 					currentChildModule = _main ? undefined : moduleId;
-/******/ 					__webpack_require__(moduleId);
-/******/ 				},
-/******/ 		
-/******/ 				// Module API
-/******/ 				active: true,
-/******/ 				accept: function (dep, callback, errorHandler) {
-/******/ 					if (dep === undefined) hot._selfAccepted = true;
-/******/ 					else if (typeof dep === "function") hot._selfAccepted = dep;
-/******/ 					else if (typeof dep === "object" && dep !== null) {
-/******/ 						for (var i = 0; i < dep.length; i++) {
-/******/ 							hot._acceptedDependencies[dep[i]] = callback || function () {};
-/******/ 							hot._acceptedErrorHandlers[dep[i]] = errorHandler;
-/******/ 						}
-/******/ 					} else {
-/******/ 						hot._acceptedDependencies[dep] = callback || function () {};
-/******/ 						hot._acceptedErrorHandlers[dep] = errorHandler;
-/******/ 					}
-/******/ 				},
-/******/ 				decline: function (dep) {
-/******/ 					if (dep === undefined) hot._selfDeclined = true;
-/******/ 					else if (typeof dep === "object" && dep !== null)
-/******/ 						for (var i = 0; i < dep.length; i++)
-/******/ 							hot._declinedDependencies[dep[i]] = true;
-/******/ 					else hot._declinedDependencies[dep] = true;
-/******/ 				},
-/******/ 				dispose: function (callback) {
-/******/ 					hot._disposeHandlers.push(callback);
-/******/ 				},
-/******/ 				addDisposeHandler: function (callback) {
-/******/ 					hot._disposeHandlers.push(callback);
-/******/ 				},
-/******/ 				removeDisposeHandler: function (callback) {
-/******/ 					var idx = hot._disposeHandlers.indexOf(callback);
-/******/ 					if (idx >= 0) hot._disposeHandlers.splice(idx, 1);
-/******/ 				},
-/******/ 				invalidate: function () {
-/******/ 					this._selfInvalidated = true;
-/******/ 					switch (currentStatus) {
-/******/ 						case "idle":
-/******/ 							currentUpdateApplyHandlers = [];
-/******/ 							Object.keys(__webpack_require__.hmrI).forEach(function (key) {
-/******/ 								__webpack_require__.hmrI[key](
-/******/ 									moduleId,
-/******/ 									currentUpdateApplyHandlers
-/******/ 								);
-/******/ 							});
-/******/ 							setStatus("ready");
-/******/ 							break;
-/******/ 						case "ready":
-/******/ 							Object.keys(__webpack_require__.hmrI).forEach(function (key) {
-/******/ 								__webpack_require__.hmrI[key](
-/******/ 									moduleId,
-/******/ 									currentUpdateApplyHandlers
-/******/ 								);
-/******/ 							});
-/******/ 							break;
-/******/ 						case "prepare":
-/******/ 						case "check":
-/******/ 						case "dispose":
-/******/ 						case "apply":
-/******/ 							(queuedInvalidatedModules = queuedInvalidatedModules || []).push(
-/******/ 								moduleId
-/******/ 							);
-/******/ 							break;
-/******/ 						default:
-/******/ 							// ignore requests in error states
-/******/ 							break;
-/******/ 					}
-/******/ 				},
-/******/ 		
-/******/ 				// Management API
-/******/ 				check: hotCheck,
-/******/ 				apply: hotApply,
-/******/ 				status: function (l) {
-/******/ 					if (!l) return currentStatus;
-/******/ 					registeredStatusHandlers.push(l);
-/******/ 				},
-/******/ 				addStatusHandler: function (l) {
-/******/ 					registeredStatusHandlers.push(l);
-/******/ 				},
-/******/ 				removeStatusHandler: function (l) {
-/******/ 					var idx = registeredStatusHandlers.indexOf(l);
-/******/ 					if (idx >= 0) registeredStatusHandlers.splice(idx, 1);
-/******/ 				},
-/******/ 		
-/******/ 				//inherit from previous dispose call
-/******/ 				data: currentModuleData[moduleId]
-/******/ 			};
-/******/ 			currentChildModule = undefined;
-/******/ 			return hot;
-/******/ 		}
-/******/ 		
-/******/ 		function setStatus(newStatus) {
-/******/ 			currentStatus = newStatus;
-/******/ 			var results = [];
-/******/ 		
-/******/ 			for (var i = 0; i < registeredStatusHandlers.length; i++)
-/******/ 				results[i] = registeredStatusHandlers[i].call(null, newStatus);
-/******/ 		
-/******/ 			return Promise.all(results);
-/******/ 		}
-/******/ 		
-/******/ 		function unblock() {
-/******/ 			if (--blockingPromises === 0) {
-/******/ 				setStatus("ready").then(function () {
-/******/ 					if (blockingPromises === 0) {
-/******/ 						var list = blockingPromisesWaiting;
-/******/ 						blockingPromisesWaiting = [];
-/******/ 						for (var i = 0; i < list.length; i++) {
-/******/ 							list[i]();
-/******/ 						}
-/******/ 					}
-/******/ 				});
-/******/ 			}
-/******/ 		}
-/******/ 		
-/******/ 		function trackBlockingPromise(promise) {
-/******/ 			switch (currentStatus) {
-/******/ 				case "ready":
-/******/ 					setStatus("prepare");
-/******/ 				/* fallthrough */
-/******/ 				case "prepare":
-/******/ 					blockingPromises++;
-/******/ 					promise.then(unblock, unblock);
-/******/ 					return promise;
-/******/ 				default:
-/******/ 					return promise;
-/******/ 			}
-/******/ 		}
-/******/ 		
-/******/ 		function waitForBlockingPromises(fn) {
-/******/ 			if (blockingPromises === 0) return fn();
-/******/ 			return new Promise(function (resolve) {
-/******/ 				blockingPromisesWaiting.push(function () {
-/******/ 					resolve(fn());
-/******/ 				});
-/******/ 			});
-/******/ 		}
-/******/ 		
-/******/ 		function hotCheck(applyOnUpdate) {
-/******/ 			if (currentStatus !== "idle") {
-/******/ 				throw new Error("check() is only allowed in idle status");
-/******/ 			}
-/******/ 			return setStatus("check")
-/******/ 				.then(__webpack_require__.hmrM)
-/******/ 				.then(function (update) {
-/******/ 					if (!update) {
-/******/ 						return setStatus(applyInvalidatedModules() ? "ready" : "idle").then(
-/******/ 							function () {
-/******/ 								return null;
-/******/ 							}
-/******/ 						);
-/******/ 					}
-/******/ 		
-/******/ 					return setStatus("prepare").then(function () {
-/******/ 						var updatedModules = [];
-/******/ 						currentUpdateApplyHandlers = [];
-/******/ 		
-/******/ 						return Promise.all(
-/******/ 							Object.keys(__webpack_require__.hmrC).reduce(function (
-/******/ 								promises,
-/******/ 								key
-/******/ 							) {
-/******/ 								__webpack_require__.hmrC[key](
-/******/ 									update.c,
-/******/ 									update.r,
-/******/ 									update.m,
-/******/ 									promises,
-/******/ 									currentUpdateApplyHandlers,
-/******/ 									updatedModules
-/******/ 								);
-/******/ 								return promises;
-/******/ 							},
-/******/ 							[])
-/******/ 						).then(function () {
-/******/ 							return waitForBlockingPromises(function () {
-/******/ 								if (applyOnUpdate) {
-/******/ 									return internalApply(applyOnUpdate);
-/******/ 								} else {
-/******/ 									return setStatus("ready").then(function () {
-/******/ 										return updatedModules;
-/******/ 									});
-/******/ 								}
-/******/ 							});
-/******/ 						});
-/******/ 					});
-/******/ 				});
-/******/ 		}
-/******/ 		
-/******/ 		function hotApply(options) {
-/******/ 			if (currentStatus !== "ready") {
-/******/ 				return Promise.resolve().then(function () {
-/******/ 					throw new Error(
-/******/ 						"apply() is only allowed in ready status (state: " +
-/******/ 							currentStatus +
-/******/ 							")"
-/******/ 					);
-/******/ 				});
-/******/ 			}
-/******/ 			return internalApply(options);
-/******/ 		}
-/******/ 		
-/******/ 		function internalApply(options) {
-/******/ 			options = options || {};
-/******/ 		
-/******/ 			applyInvalidatedModules();
-/******/ 		
-/******/ 			var results = currentUpdateApplyHandlers.map(function (handler) {
-/******/ 				return handler(options);
-/******/ 			});
-/******/ 			currentUpdateApplyHandlers = undefined;
-/******/ 		
-/******/ 			var errors = results
-/******/ 				.map(function (r) {
-/******/ 					return r.error;
-/******/ 				})
-/******/ 				.filter(Boolean);
-/******/ 		
-/******/ 			if (errors.length > 0) {
-/******/ 				return setStatus("abort").then(function () {
-/******/ 					throw errors[0];
-/******/ 				});
-/******/ 			}
-/******/ 		
-/******/ 			// Now in "dispose" phase
-/******/ 			var disposePromise = setStatus("dispose");
-/******/ 		
-/******/ 			results.forEach(function (result) {
-/******/ 				if (result.dispose) result.dispose();
-/******/ 			});
-/******/ 		
-/******/ 			// Now in "apply" phase
-/******/ 			var applyPromise = setStatus("apply");
-/******/ 		
-/******/ 			var error;
-/******/ 			var reportError = function (err) {
-/******/ 				if (!error) error = err;
-/******/ 			};
-/******/ 		
-/******/ 			var outdatedModules = [];
-/******/ 			results.forEach(function (result) {
-/******/ 				if (result.apply) {
-/******/ 					var modules = result.apply(reportError);
-/******/ 					if (modules) {
-/******/ 						for (var i = 0; i < modules.length; i++) {
-/******/ 							outdatedModules.push(modules[i]);
-/******/ 						}
-/******/ 					}
-/******/ 				}
-/******/ 			});
-/******/ 		
-/******/ 			return Promise.all([disposePromise, applyPromise]).then(function () {
-/******/ 				// handle errors in accept handlers and self accepted module load
-/******/ 				if (error) {
-/******/ 					return setStatus("fail").then(function () {
-/******/ 						throw error;
-/******/ 					});
-/******/ 				}
-/******/ 		
-/******/ 				if (queuedInvalidatedModules) {
-/******/ 					return internalApply(options).then(function (list) {
-/******/ 						outdatedModules.forEach(function (moduleId) {
-/******/ 							if (list.indexOf(moduleId) < 0) list.push(moduleId);
-/******/ 						});
-/******/ 						return list;
-/******/ 					});
-/******/ 				}
-/******/ 		
-/******/ 				return setStatus("idle").then(function () {
-/******/ 					return outdatedModules;
-/******/ 				});
-/******/ 			});
-/******/ 		}
-/******/ 		
-/******/ 		function applyInvalidatedModules() {
-/******/ 			if (queuedInvalidatedModules) {
-/******/ 				if (!currentUpdateApplyHandlers) currentUpdateApplyHandlers = [];
-/******/ 				Object.keys(__webpack_require__.hmrI).forEach(function (key) {
-/******/ 					queuedInvalidatedModules.forEach(function (moduleId) {
-/******/ 						__webpack_require__.hmrI[key](
-/******/ 							moduleId,
-/******/ 							currentUpdateApplyHandlers
-/******/ 						);
-/******/ 					});
-/******/ 				});
-/******/ 				queuedInvalidatedModules = undefined;
-/******/ 				return true;
-/******/ 			}
-/******/ 		}
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/publicPath */
-/******/ 	(() => {
-/******/ 		__webpack_require__.p = "/";
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/jsonp chunk loading */
-/******/ 	(() => {
-/******/ 		__webpack_require__.b = document.baseURI || self.location.href;
-/******/ 		
-/******/ 		// object to store loaded and loading chunks
-/******/ 		// undefined = chunk not loaded, null = chunk preloaded/prefetched
-/******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
-/******/ 		var installedChunks = __webpack_require__.hmrS_jsonp = __webpack_require__.hmrS_jsonp || {
-/******/ 			826: 0
-/******/ 		};
-/******/ 		
-/******/ 		// no chunk on demand loading
-/******/ 		
-/******/ 		// no prefetching
-/******/ 		
-/******/ 		// no preloaded
-/******/ 		
-/******/ 		var currentUpdatedModulesList;
-/******/ 		var waitingUpdateResolves = {};
-/******/ 		function loadUpdateChunk(chunkId, updatedModulesList) {
-/******/ 			currentUpdatedModulesList = updatedModulesList;
-/******/ 			return new Promise((resolve, reject) => {
-/******/ 				waitingUpdateResolves[chunkId] = resolve;
-/******/ 				// start update chunk loading
-/******/ 				var url = __webpack_require__.p + __webpack_require__.hu(chunkId);
-/******/ 				// create error before stack unwound to get useful stacktrace later
-/******/ 				var error = new Error();
-/******/ 				var loadingEnded = (event) => {
-/******/ 					if(waitingUpdateResolves[chunkId]) {
-/******/ 						waitingUpdateResolves[chunkId] = undefined
-/******/ 						var errorType = event && (event.type === 'load' ? 'missing' : event.type);
-/******/ 						var realSrc = event && event.target && event.target.src;
-/******/ 						error.message = 'Loading hot update chunk ' + chunkId + ' failed.\n(' + errorType + ': ' + realSrc + ')';
-/******/ 						error.name = 'ChunkLoadError';
-/******/ 						error.type = errorType;
-/******/ 						error.request = realSrc;
-/******/ 						reject(error);
-/******/ 					}
-/******/ 				};
-/******/ 				__webpack_require__.l(url, loadingEnded);
-/******/ 			});
-/******/ 		}
-/******/ 		
-/******/ 		self["webpackHotUpdateCIStore"] = (chunkId, moreModules, runtime) => {
-/******/ 			for(var moduleId in moreModules) {
-/******/ 				if(__webpack_require__.o(moreModules, moduleId)) {
-/******/ 					currentUpdate[moduleId] = moreModules[moduleId];
-/******/ 					if(currentUpdatedModulesList) currentUpdatedModulesList.push(moduleId);
-/******/ 				}
-/******/ 			}
-/******/ 			if(runtime) currentUpdateRuntime.push(runtime);
-/******/ 			if(waitingUpdateResolves[chunkId]) {
-/******/ 				waitingUpdateResolves[chunkId]();
-/******/ 				waitingUpdateResolves[chunkId] = undefined;
-/******/ 			}
-/******/ 		};
-/******/ 		
-/******/ 		var currentUpdateChunks;
-/******/ 		var currentUpdate;
-/******/ 		var currentUpdateRemovedChunks;
-/******/ 		var currentUpdateRuntime;
-/******/ 		function applyHandler(options) {
-/******/ 			if (__webpack_require__.f) delete __webpack_require__.f.jsonpHmr;
-/******/ 			currentUpdateChunks = undefined;
-/******/ 			function getAffectedModuleEffects(updateModuleId) {
-/******/ 				var outdatedModules = [updateModuleId];
-/******/ 				var outdatedDependencies = {};
-/******/ 		
-/******/ 				var queue = outdatedModules.map(function (id) {
-/******/ 					return {
-/******/ 						chain: [id],
-/******/ 						id: id
-/******/ 					};
-/******/ 				});
-/******/ 				while (queue.length > 0) {
-/******/ 					var queueItem = queue.pop();
-/******/ 					var moduleId = queueItem.id;
-/******/ 					var chain = queueItem.chain;
-/******/ 					var module = __webpack_require__.c[moduleId];
-/******/ 					if (
-/******/ 						!module ||
-/******/ 						(module.hot._selfAccepted && !module.hot._selfInvalidated)
-/******/ 					)
-/******/ 						continue;
-/******/ 					if (module.hot._selfDeclined) {
-/******/ 						return {
-/******/ 							type: "self-declined",
-/******/ 							chain: chain,
-/******/ 							moduleId: moduleId
-/******/ 						};
-/******/ 					}
-/******/ 					if (module.hot._main) {
-/******/ 						return {
-/******/ 							type: "unaccepted",
-/******/ 							chain: chain,
-/******/ 							moduleId: moduleId
-/******/ 						};
-/******/ 					}
-/******/ 					for (var i = 0; i < module.parents.length; i++) {
-/******/ 						var parentId = module.parents[i];
-/******/ 						var parent = __webpack_require__.c[parentId];
-/******/ 						if (!parent) continue;
-/******/ 						if (parent.hot._declinedDependencies[moduleId]) {
-/******/ 							return {
-/******/ 								type: "declined",
-/******/ 								chain: chain.concat([parentId]),
-/******/ 								moduleId: moduleId,
-/******/ 								parentId: parentId
-/******/ 							};
-/******/ 						}
-/******/ 						if (outdatedModules.indexOf(parentId) !== -1) continue;
-/******/ 						if (parent.hot._acceptedDependencies[moduleId]) {
-/******/ 							if (!outdatedDependencies[parentId])
-/******/ 								outdatedDependencies[parentId] = [];
-/******/ 							addAllToSet(outdatedDependencies[parentId], [moduleId]);
-/******/ 							continue;
-/******/ 						}
-/******/ 						delete outdatedDependencies[parentId];
-/******/ 						outdatedModules.push(parentId);
-/******/ 						queue.push({
-/******/ 							chain: chain.concat([parentId]),
-/******/ 							id: parentId
-/******/ 						});
-/******/ 					}
-/******/ 				}
-/******/ 		
-/******/ 				return {
-/******/ 					type: "accepted",
-/******/ 					moduleId: updateModuleId,
-/******/ 					outdatedModules: outdatedModules,
-/******/ 					outdatedDependencies: outdatedDependencies
-/******/ 				};
-/******/ 			}
-/******/ 		
-/******/ 			function addAllToSet(a, b) {
-/******/ 				for (var i = 0; i < b.length; i++) {
-/******/ 					var item = b[i];
-/******/ 					if (a.indexOf(item) === -1) a.push(item);
-/******/ 				}
-/******/ 			}
-/******/ 		
-/******/ 			// at begin all updates modules are outdated
-/******/ 			// the "outdated" status can propagate to parents if they don't accept the children
-/******/ 			var outdatedDependencies = {};
-/******/ 			var outdatedModules = [];
-/******/ 			var appliedUpdate = {};
-/******/ 		
-/******/ 			var warnUnexpectedRequire = function warnUnexpectedRequire(module) {
-/******/ 				console.warn(
-/******/ 					"[HMR] unexpected require(" + module.id + ") to disposed module"
-/******/ 				);
-/******/ 			};
-/******/ 		
-/******/ 			for (var moduleId in currentUpdate) {
-/******/ 				if (__webpack_require__.o(currentUpdate, moduleId)) {
-/******/ 					var newModuleFactory = currentUpdate[moduleId];
-/******/ 					/** @type {TODO} */
-/******/ 					var result;
-/******/ 					if (newModuleFactory) {
-/******/ 						result = getAffectedModuleEffects(moduleId);
-/******/ 					} else {
-/******/ 						result = {
-/******/ 							type: "disposed",
-/******/ 							moduleId: moduleId
-/******/ 						};
-/******/ 					}
-/******/ 					/** @type {Error|false} */
-/******/ 					var abortError = false;
-/******/ 					var doApply = false;
-/******/ 					var doDispose = false;
-/******/ 					var chainInfo = "";
-/******/ 					if (result.chain) {
-/******/ 						chainInfo = "\nUpdate propagation: " + result.chain.join(" -> ");
-/******/ 					}
-/******/ 					switch (result.type) {
-/******/ 						case "self-declined":
-/******/ 							if (options.onDeclined) options.onDeclined(result);
-/******/ 							if (!options.ignoreDeclined)
-/******/ 								abortError = new Error(
-/******/ 									"Aborted because of self decline: " +
-/******/ 										result.moduleId +
-/******/ 										chainInfo
-/******/ 								);
-/******/ 							break;
-/******/ 						case "declined":
-/******/ 							if (options.onDeclined) options.onDeclined(result);
-/******/ 							if (!options.ignoreDeclined)
-/******/ 								abortError = new Error(
-/******/ 									"Aborted because of declined dependency: " +
-/******/ 										result.moduleId +
-/******/ 										" in " +
-/******/ 										result.parentId +
-/******/ 										chainInfo
-/******/ 								);
-/******/ 							break;
-/******/ 						case "unaccepted":
-/******/ 							if (options.onUnaccepted) options.onUnaccepted(result);
-/******/ 							if (!options.ignoreUnaccepted)
-/******/ 								abortError = new Error(
-/******/ 									"Aborted because " + moduleId + " is not accepted" + chainInfo
-/******/ 								);
-/******/ 							break;
-/******/ 						case "accepted":
-/******/ 							if (options.onAccepted) options.onAccepted(result);
-/******/ 							doApply = true;
-/******/ 							break;
-/******/ 						case "disposed":
-/******/ 							if (options.onDisposed) options.onDisposed(result);
-/******/ 							doDispose = true;
-/******/ 							break;
-/******/ 						default:
-/******/ 							throw new Error("Unexception type " + result.type);
-/******/ 					}
-/******/ 					if (abortError) {
-/******/ 						return {
-/******/ 							error: abortError
-/******/ 						};
-/******/ 					}
-/******/ 					if (doApply) {
-/******/ 						appliedUpdate[moduleId] = newModuleFactory;
-/******/ 						addAllToSet(outdatedModules, result.outdatedModules);
-/******/ 						for (moduleId in result.outdatedDependencies) {
-/******/ 							if (__webpack_require__.o(result.outdatedDependencies, moduleId)) {
-/******/ 								if (!outdatedDependencies[moduleId])
-/******/ 									outdatedDependencies[moduleId] = [];
-/******/ 								addAllToSet(
-/******/ 									outdatedDependencies[moduleId],
-/******/ 									result.outdatedDependencies[moduleId]
-/******/ 								);
-/******/ 							}
-/******/ 						}
-/******/ 					}
-/******/ 					if (doDispose) {
-/******/ 						addAllToSet(outdatedModules, [result.moduleId]);
-/******/ 						appliedUpdate[moduleId] = warnUnexpectedRequire;
-/******/ 					}
-/******/ 				}
-/******/ 			}
-/******/ 			currentUpdate = undefined;
-/******/ 		
-/******/ 			// Store self accepted outdated modules to require them later by the module system
-/******/ 			var outdatedSelfAcceptedModules = [];
-/******/ 			for (var j = 0; j < outdatedModules.length; j++) {
-/******/ 				var outdatedModuleId = outdatedModules[j];
-/******/ 				var module = __webpack_require__.c[outdatedModuleId];
-/******/ 				if (
-/******/ 					module &&
-/******/ 					(module.hot._selfAccepted || module.hot._main) &&
-/******/ 					// removed self-accepted modules should not be required
-/******/ 					appliedUpdate[outdatedModuleId] !== warnUnexpectedRequire &&
-/******/ 					// when called invalidate self-accepting is not possible
-/******/ 					!module.hot._selfInvalidated
-/******/ 				) {
-/******/ 					outdatedSelfAcceptedModules.push({
-/******/ 						module: outdatedModuleId,
-/******/ 						require: module.hot._requireSelf,
-/******/ 						errorHandler: module.hot._selfAccepted
-/******/ 					});
-/******/ 				}
-/******/ 			}
-/******/ 		
-/******/ 			var moduleOutdatedDependencies;
-/******/ 		
-/******/ 			return {
-/******/ 				dispose: function () {
-/******/ 					currentUpdateRemovedChunks.forEach(function (chunkId) {
-/******/ 						delete installedChunks[chunkId];
-/******/ 					});
-/******/ 					currentUpdateRemovedChunks = undefined;
-/******/ 		
-/******/ 					var idx;
-/******/ 					var queue = outdatedModules.slice();
-/******/ 					while (queue.length > 0) {
-/******/ 						var moduleId = queue.pop();
-/******/ 						var module = __webpack_require__.c[moduleId];
-/******/ 						if (!module) continue;
-/******/ 		
-/******/ 						var data = {};
-/******/ 		
-/******/ 						// Call dispose handlers
-/******/ 						var disposeHandlers = module.hot._disposeHandlers;
-/******/ 						for (j = 0; j < disposeHandlers.length; j++) {
-/******/ 							disposeHandlers[j].call(null, data);
-/******/ 						}
-/******/ 						__webpack_require__.hmrD[moduleId] = data;
-/******/ 		
-/******/ 						// disable module (this disables requires from this module)
-/******/ 						module.hot.active = false;
-/******/ 		
-/******/ 						// remove module from cache
-/******/ 						delete __webpack_require__.c[moduleId];
-/******/ 		
-/******/ 						// when disposing there is no need to call dispose handler
-/******/ 						delete outdatedDependencies[moduleId];
-/******/ 		
-/******/ 						// remove "parents" references from all children
-/******/ 						for (j = 0; j < module.children.length; j++) {
-/******/ 							var child = __webpack_require__.c[module.children[j]];
-/******/ 							if (!child) continue;
-/******/ 							idx = child.parents.indexOf(moduleId);
-/******/ 							if (idx >= 0) {
-/******/ 								child.parents.splice(idx, 1);
-/******/ 							}
-/******/ 						}
-/******/ 					}
-/******/ 		
-/******/ 					// remove outdated dependency from module children
-/******/ 					var dependency;
-/******/ 					for (var outdatedModuleId in outdatedDependencies) {
-/******/ 						if (__webpack_require__.o(outdatedDependencies, outdatedModuleId)) {
-/******/ 							module = __webpack_require__.c[outdatedModuleId];
-/******/ 							if (module) {
-/******/ 								moduleOutdatedDependencies =
-/******/ 									outdatedDependencies[outdatedModuleId];
-/******/ 								for (j = 0; j < moduleOutdatedDependencies.length; j++) {
-/******/ 									dependency = moduleOutdatedDependencies[j];
-/******/ 									idx = module.children.indexOf(dependency);
-/******/ 									if (idx >= 0) module.children.splice(idx, 1);
-/******/ 								}
-/******/ 							}
-/******/ 						}
-/******/ 					}
-/******/ 				},
-/******/ 				apply: function (reportError) {
-/******/ 					// insert new code
-/******/ 					for (var updateModuleId in appliedUpdate) {
-/******/ 						if (__webpack_require__.o(appliedUpdate, updateModuleId)) {
-/******/ 							__webpack_require__.m[updateModuleId] = appliedUpdate[updateModuleId];
-/******/ 						}
-/******/ 					}
-/******/ 		
-/******/ 					// run new runtime modules
-/******/ 					for (var i = 0; i < currentUpdateRuntime.length; i++) {
-/******/ 						currentUpdateRuntime[i](__webpack_require__);
-/******/ 					}
-/******/ 		
-/******/ 					// call accept handlers
-/******/ 					for (var outdatedModuleId in outdatedDependencies) {
-/******/ 						if (__webpack_require__.o(outdatedDependencies, outdatedModuleId)) {
-/******/ 							var module = __webpack_require__.c[outdatedModuleId];
-/******/ 							if (module) {
-/******/ 								moduleOutdatedDependencies =
-/******/ 									outdatedDependencies[outdatedModuleId];
-/******/ 								var callbacks = [];
-/******/ 								var errorHandlers = [];
-/******/ 								var dependenciesForCallbacks = [];
-/******/ 								for (var j = 0; j < moduleOutdatedDependencies.length; j++) {
-/******/ 									var dependency = moduleOutdatedDependencies[j];
-/******/ 									var acceptCallback =
-/******/ 										module.hot._acceptedDependencies[dependency];
-/******/ 									var errorHandler =
-/******/ 										module.hot._acceptedErrorHandlers[dependency];
-/******/ 									if (acceptCallback) {
-/******/ 										if (callbacks.indexOf(acceptCallback) !== -1) continue;
-/******/ 										callbacks.push(acceptCallback);
-/******/ 										errorHandlers.push(errorHandler);
-/******/ 										dependenciesForCallbacks.push(dependency);
-/******/ 									}
-/******/ 								}
-/******/ 								for (var k = 0; k < callbacks.length; k++) {
-/******/ 									try {
-/******/ 										callbacks[k].call(null, moduleOutdatedDependencies);
-/******/ 									} catch (err) {
-/******/ 										if (typeof errorHandlers[k] === "function") {
-/******/ 											try {
-/******/ 												errorHandlers[k](err, {
-/******/ 													moduleId: outdatedModuleId,
-/******/ 													dependencyId: dependenciesForCallbacks[k]
-/******/ 												});
-/******/ 											} catch (err2) {
-/******/ 												if (options.onErrored) {
-/******/ 													options.onErrored({
-/******/ 														type: "accept-error-handler-errored",
-/******/ 														moduleId: outdatedModuleId,
-/******/ 														dependencyId: dependenciesForCallbacks[k],
-/******/ 														error: err2,
-/******/ 														originalError: err
-/******/ 													});
-/******/ 												}
-/******/ 												if (!options.ignoreErrored) {
-/******/ 													reportError(err2);
-/******/ 													reportError(err);
-/******/ 												}
-/******/ 											}
-/******/ 										} else {
-/******/ 											if (options.onErrored) {
-/******/ 												options.onErrored({
-/******/ 													type: "accept-errored",
-/******/ 													moduleId: outdatedModuleId,
-/******/ 													dependencyId: dependenciesForCallbacks[k],
-/******/ 													error: err
-/******/ 												});
-/******/ 											}
-/******/ 											if (!options.ignoreErrored) {
-/******/ 												reportError(err);
-/******/ 											}
-/******/ 										}
-/******/ 									}
-/******/ 								}
-/******/ 							}
-/******/ 						}
-/******/ 					}
-/******/ 		
-/******/ 					// Load self accepted modules
-/******/ 					for (var o = 0; o < outdatedSelfAcceptedModules.length; o++) {
-/******/ 						var item = outdatedSelfAcceptedModules[o];
-/******/ 						var moduleId = item.module;
-/******/ 						try {
-/******/ 							item.require(moduleId);
-/******/ 						} catch (err) {
-/******/ 							if (typeof item.errorHandler === "function") {
-/******/ 								try {
-/******/ 									item.errorHandler(err, {
-/******/ 										moduleId: moduleId,
-/******/ 										module: __webpack_require__.c[moduleId]
-/******/ 									});
-/******/ 								} catch (err2) {
-/******/ 									if (options.onErrored) {
-/******/ 										options.onErrored({
-/******/ 											type: "self-accept-error-handler-errored",
-/******/ 											moduleId: moduleId,
-/******/ 											error: err2,
-/******/ 											originalError: err
-/******/ 										});
-/******/ 									}
-/******/ 									if (!options.ignoreErrored) {
-/******/ 										reportError(err2);
-/******/ 										reportError(err);
-/******/ 									}
-/******/ 								}
-/******/ 							} else {
-/******/ 								if (options.onErrored) {
-/******/ 									options.onErrored({
-/******/ 										type: "self-accept-errored",
-/******/ 										moduleId: moduleId,
-/******/ 										error: err
-/******/ 									});
-/******/ 								}
-/******/ 								if (!options.ignoreErrored) {
-/******/ 									reportError(err);
-/******/ 								}
-/******/ 							}
-/******/ 						}
-/******/ 					}
-/******/ 		
-/******/ 					return outdatedModules;
-/******/ 				}
-/******/ 			};
-/******/ 		}
-/******/ 		__webpack_require__.hmrI.jsonp = function (moduleId, applyHandlers) {
-/******/ 			if (!currentUpdate) {
-/******/ 				currentUpdate = {};
-/******/ 				currentUpdateRuntime = [];
-/******/ 				currentUpdateRemovedChunks = [];
-/******/ 				applyHandlers.push(applyHandler);
-/******/ 			}
-/******/ 			if (!__webpack_require__.o(currentUpdate, moduleId)) {
-/******/ 				currentUpdate[moduleId] = __webpack_require__.m[moduleId];
-/******/ 			}
-/******/ 		};
-/******/ 		__webpack_require__.hmrC.jsonp = function (
-/******/ 			chunkIds,
-/******/ 			removedChunks,
-/******/ 			removedModules,
-/******/ 			promises,
-/******/ 			applyHandlers,
-/******/ 			updatedModulesList
-/******/ 		) {
-/******/ 			applyHandlers.push(applyHandler);
-/******/ 			currentUpdateChunks = {};
-/******/ 			currentUpdateRemovedChunks = removedChunks;
-/******/ 			currentUpdate = removedModules.reduce(function (obj, key) {
-/******/ 				obj[key] = false;
-/******/ 				return obj;
-/******/ 			}, {});
-/******/ 			currentUpdateRuntime = [];
-/******/ 			chunkIds.forEach(function (chunkId) {
-/******/ 				if (
-/******/ 					__webpack_require__.o(installedChunks, chunkId) &&
-/******/ 					installedChunks[chunkId] !== undefined
-/******/ 				) {
-/******/ 					promises.push(loadUpdateChunk(chunkId, updatedModulesList));
-/******/ 					currentUpdateChunks[chunkId] = true;
-/******/ 				} else {
-/******/ 					currentUpdateChunks[chunkId] = false;
-/******/ 				}
-/******/ 			});
-/******/ 			if (__webpack_require__.f) {
-/******/ 				__webpack_require__.f.jsonpHmr = function (chunkId, promises) {
-/******/ 					if (
-/******/ 						currentUpdateChunks &&
-/******/ 						__webpack_require__.o(currentUpdateChunks, chunkId) &&
-/******/ 						!currentUpdateChunks[chunkId]
-/******/ 					) {
-/******/ 						promises.push(loadUpdateChunk(chunkId));
-/******/ 						currentUpdateChunks[chunkId] = true;
-/******/ 					}
-/******/ 				};
-/******/ 			}
-/******/ 		};
-/******/ 		
-/******/ 		__webpack_require__.hmrM = () => {
-/******/ 			if (typeof fetch === "undefined") throw new Error("No browser support: need fetch API");
-/******/ 			return fetch(__webpack_require__.p + __webpack_require__.hmrF()).then((response) => {
-/******/ 				if(response.status === 404) return; // no update available
-/******/ 				if(!response.ok) throw new Error("Failed to fetch update manifest " + response.statusText);
-/******/ 				return response.json();
-/******/ 			});
-/******/ 		};
-/******/ 		
-/******/ 		// no on chunks loaded
-/******/ 		
-/******/ 		// no jsonp function
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/nonce */
-/******/ 	(() => {
-/******/ 		__webpack_require__.nc = undefined;
-/******/ 	})();
-/******/ 	
-/************************************************************************/
-/******/ 	
-/******/ 	// module cache are used so entry inlining is disabled
-/******/ 	// startup
-/******/ 	// Load entry module and return exports
-/******/ 	var __webpack_exports__ = __webpack_require__(227);
-/******/ 	
 /******/ 	return __webpack_exports__;
 /******/ })()
 ;
 });
-//# sourceMappingURL=ci-store-plugin.js.map
+//# sourceMappingURL=ci_import_products.js.map

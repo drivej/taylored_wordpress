@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Context, useContext, useRef, useState } from 'react';
+import { JobContext, JobProvider } from '../../../../__old/jobs/JobProvider';
+import { IJobContext, JobStatus } from '../../../../__old/jobs/JobTypes';
 import { DownloadButton } from '../../../../components/DownloadButton';
-import { JobContext, JobProvider } from '../../../../jobs/JobProvider';
-import { IJobContext, JobStatus } from '../../../../jobs/JobTypes';
 import { chunkArray } from '../../../../utils/chunkArray';
 import { IWooProduct } from '../../IWoo';
 import { convertWooProductsToCSV } from '../../WooUtils';

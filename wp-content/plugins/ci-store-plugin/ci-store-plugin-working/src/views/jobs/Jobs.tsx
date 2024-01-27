@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
 import { useState } from 'react';
-import { since } from '../../utils/datestamp';
-import { fetchWordpressAjax } from '../../utils/fetchWordpressAjax';
+import { since } from '../../common/utils/datestamp';
+import { fetchWordpressAjax } from '../../common/utils/fetchWordpressAjax';
 
 export interface IWordpressAjaxParams {
   action: string;

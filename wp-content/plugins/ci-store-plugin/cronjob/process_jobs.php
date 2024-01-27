@@ -1,6 +1,5 @@
 <?php
-
-// require_once __DIR__ . '../../actions/index.php';
+/*
 require_once __DIR__ . '/get_jobs.php';
 require_once __DIR__ . '/update_job.php';
 require_once __DIR__ . '/start_job.php';
@@ -166,3 +165,4 @@ function run_job($job)
     // sleep(5);
     // process_jobs();
 }
+*/

@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { JobProvider, useJob } from '../../jobs/JobProvider';
-import { JobTitle, JobUI } from '../../jobs/JobUI';
+import { JobProvider, useJob } from '../../__old/jobs/JobProvider';
+import { JobTitle, JobUI } from '../../__old/jobs/JobUI';
 import { getStore } from '../../utils/getStore';
 import { lookup } from '../../utils/lookup';
 import { IWesternBigImportPayload, WesternBigImportJobManager } from './WesternBigImportJob';

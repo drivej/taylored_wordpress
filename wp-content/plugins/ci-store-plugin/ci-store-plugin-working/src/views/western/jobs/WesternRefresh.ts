@@ -1,6 +1,6 @@
+import { JobManager } from '../../../__old/jobs/JobManager';
+import { JobRunner } from '../../../__old/jobs/JobRunner';
 import { Product } from '../../../components/woo/Product';
-import { JobManager } from '../../../jobs/JobManager';
-import { JobRunner } from '../../../jobs/JobRunner';
 import { chunkArray } from '../../../utils/chunkArray';
 import { lookup } from '../../../utils/lookup';
 import { fetchWooAPI } from '../../woo/useWoo';

@@ -1,4 +1,4 @@
-import { JobRunner } from '../../../jobs/JobRunner';
+import { JobRunner } from '../../../__old/jobs/JobRunner';
 import { getStore } from '../../../utils/getStore';
 import { lookup } from '../../../utils/lookup';
 import { IWesternTaxonomyTerm } from '../IWestern';

@@ -1,6 +1,6 @@
-import { JobManager } from '../../jobs/JobManager';
-import { JobRunner } from '../../jobs/JobRunner';
-import { formatDuration } from '../../utils/formatDuration';
+import { JobManager } from '../../__old/jobs/JobManager';
+import { JobRunner } from '../../__old/jobs/JobRunner';
+import { formatDuration } from '../../common/utils/formatDuration';
 import { lookup } from '../../utils/lookup';
 import { IWesternProductExt } from './IWestern';
 import { getTotalWPSProducts, getWPSProduct, get_western_products_page, importWesternProduct, syncWooProduct, wooIsOutdated } from './WPSJobUtils';

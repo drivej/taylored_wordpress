@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { JobEventType } from '../jobs/JobTypes';
+import { JobEventType } from '../__old/jobs/JobTypes';
 import { IWooVariable } from '../views/western/IWoo';
 import { getTotalWPSProducts } from '../views/western/WPSJobUtils';
 import { Job_loadAllWpsProducts } from '../views/western/tasks/Job_loadAllWpsProducts';

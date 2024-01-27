@@ -1,4 +1,4 @@
-import { JobRunner } from '../../../jobs/JobRunner';
+import { JobRunner } from '../../../__old/jobs/JobRunner';
 import { IWesternProductExt, IWesternResponse } from '../IWestern';
 import { IndexedDBHandler } from '../IndexedDatabase';
 import { get_western_products_page } from '../WPSJobUtils';

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Context, useContext } from 'react';
-import { formatDuration } from '../utils/formatDuration';
+import { formatDuration } from '../../common/utils/formatDuration';
 import { JobContext } from './JobProvider';
 import { IJobContext, JobStatus } from './JobTypes';
 

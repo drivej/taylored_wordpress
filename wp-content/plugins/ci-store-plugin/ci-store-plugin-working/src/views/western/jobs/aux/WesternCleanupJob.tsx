@@ -1,5 +1,5 @@
-import { JobManager } from '../../../../jobs/JobManager';
-import { JobRunner } from '../../../../jobs/JobRunner';
+import { JobManager } from '../../../../__old/jobs/JobManager';
+import { JobRunner } from '../../../../__old/jobs/JobRunner';
 import { SUPPLIER } from '../../../../utils/SUPPLIER_INFO';
 import { mergeArraysOn } from '../../../../utils/mergeArraysOn';
 import { IWooProductListItem, fetchWooAPI } from '../../../woo/useWoo';

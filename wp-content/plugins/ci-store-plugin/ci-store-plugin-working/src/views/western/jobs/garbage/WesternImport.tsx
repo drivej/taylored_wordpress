@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { Context, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { clearInterval } from 'timers';
+import { JobContext, JobProvider } from '../../../../__old/jobs/JobProvider';
+import { IJobContext, JobStatus } from '../../../../__old/jobs/JobTypes';
 import { DownloadButton } from '../../../../components/DownloadButton';
 import { UploadCSVFile } from '../../../../components/UploadFile';
-import { JobContext, JobProvider } from '../../../../jobs/JobProvider';
-import { IJobContext, JobStatus } from '../../../../jobs/JobTypes';
 import { chunkArray } from '../../../../utils/chunkArray';
 import { WooTest } from '../../../woo/WooTest';
 import { CATEGORY_DELETE, IWooProduct } from '../../IWoo';

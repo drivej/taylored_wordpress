@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
-import { fetchWordpressAjax } from '../../utils/fetchWordpressAjax';
+import { fetchWordpressAjax } from '../../common/utils/fetchWordpressAjax';
 import { IWordpressAjaxParams } from '../jobs/Jobs';
 
 const useLogs = () => {

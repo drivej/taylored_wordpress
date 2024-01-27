@@ -1,10 +1,10 @@
 import { FormMethod } from 'react-router-dom';
+import { JobManager } from '../../__old/jobs/JobManager';
+import { JobRunner } from '../../__old/jobs/JobRunner';
+import { formatDuration } from '../../common/utils/formatDuration';
 import { Product } from '../../components/woo/Product';
-import { JobManager } from '../../jobs/JobManager';
-import { JobRunner } from '../../jobs/JobRunner';
 import { SUPPLIER } from '../../utils/SUPPLIER_INFO';
 import { chunkArray } from '../../utils/chunkArray';
-import { formatDuration } from '../../utils/formatDuration';
 import { lookup } from '../../utils/lookup';
 import { fetchWooAPI, fetchWooProducts } from '../woo/useWoo';
 import { IWesternProductExt } from './IWestern';
