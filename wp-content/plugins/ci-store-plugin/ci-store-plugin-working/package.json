@@ -8,7 +8,7 @@
     "start": "webpack --config webpack.plugin.config.js --mode production --watch"
   },
   "dependencies": {
-    "@tanstack/react-query": "^4.35.0",
+    "@tanstack/react-query": "^5.17.19",
     "bootstrap": "^5.2.3",
     "cross-fetch": "^3.1.5",
     "css-loader": "^6.7.3",

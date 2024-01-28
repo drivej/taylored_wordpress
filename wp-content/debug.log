@@ -1,1 +1,10 @@
-[27-Jan-2024 21:43:03 UTC] StockCheck:task() complete
+[28-Jan-2024 16:48:34 UTC] StockCheck::task() 
+[28-Jan-2024 16:50:15 UTC] StockCheck:task() complete
+[28-Jan-2024 16:50:50 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[28-Jan-2024 16:50:50 UTC] Cron reschedule event error for hook: ci_handle_schedule_event, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":[],"interval":60}
+[28-Jan-2024 16:51:00 UTC] Cron reschedule event error for hook: ci_handle_schedule_event, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":[],"interval":60}
+[28-Jan-2024 16:52:54 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[28-Jan-2024 16:57:03 UTC] Cron reschedule event error for hook: ci_handle_schedule_event, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":[],"interval":60}
+[28-Jan-2024 16:58:57 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[28-Jan-2024 17:02:01 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[28-Jan-2024 17:02:01 UTC] Cron reschedule event error for hook: ci_handle_schedule_event, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":[],"interval":60}

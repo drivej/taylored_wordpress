@@ -1512,38 +1512,6 @@ module.exports = styleTagTransform;
 
 /***/ }),
 
-/***/ 250:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-/**
- * @license React
- * use-sync-external-store-shim.production.min.js
- *
- * Copyright (c) Facebook, Inc. and its affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-var e=__webpack_require__(294);function h(a,b){return a===b&&(0!==a||1/a===1/b)||a!==a&&b!==b}var k="function"===typeof Object.is?Object.is:h,l=e.useState,m=e.useEffect,n=e.useLayoutEffect,p=e.useDebugValue;function q(a,b){var d=b(),f=l({inst:{value:d,getSnapshot:b}}),c=f[0].inst,g=f[1];n(function(){c.value=d;c.getSnapshot=b;r(c)&&g({inst:c})},[a,d,b]);m(function(){r(c)&&g({inst:c});return a(function(){r(c)&&g({inst:c})})},[a]);p(d);return d}
-function r(a){var b=a.getSnapshot;a=a.value;try{var d=b();return!k(a,d)}catch(f){return!0}}function t(a,b){return b()}var u="undefined"===typeof window||"undefined"===typeof window.document||"undefined"===typeof window.document.createElement?t:q;exports.useSyncExternalStore=void 0!==e.useSyncExternalStore?e.useSyncExternalStore:u;
-
-
-/***/ }),
-
-/***/ 688:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-
-
-if (true) {
-  module.exports = __webpack_require__(250);
-} else {}
-
-
-/***/ }),
-
 /***/ 204:
 /***/ ((module) => {
 
@@ -1859,90 +1827,31 @@ var update = injectStylesIntoStyleTag_default()(assets_plugin/* default */.Z, op
 
        /* harmony default export */ const src_assets_plugin = (assets_plugin/* default */.Z && assets_plugin/* default */.Z.locals ? assets_plugin/* default */.Z.locals : undefined);
 
-;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/utils.mjs
-// TYPES
-// UTILS
-const isServer = typeof window === 'undefined' || 'Deno' in window;
+;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/modern/utils.js
+// src/utils.ts
+var isServer = typeof window === "undefined" || "Deno" in window;
 function noop() {
-  return undefined;
+  return void 0;
 }
 function functionalUpdate(updater, input) {
-  return typeof updater === 'function' ? updater(input) : updater;
+  return typeof updater === "function" ? updater(input) : updater;
 }
 function isValidTimeout(value) {
-  return typeof value === 'number' && value >= 0 && value !== Infinity;
-}
-function difference(array1, array2) {
-  return array1.filter(x => !array2.includes(x));
-}
-function replaceAt(array, index, value) {
-  const copy = array.slice(0);
-  copy[index] = value;
-  return copy;
+  return typeof value === "number" && value >= 0 && value !== Infinity;
 }
 function timeUntilStale(updatedAt, staleTime) {
   return Math.max(updatedAt + (staleTime || 0) - Date.now(), 0);
 }
-function parseQueryArgs(arg1, arg2, arg3) {
-  if (!isQueryKey(arg1)) {
-    return arg1;
-  }
-
-  if (typeof arg2 === 'function') {
-    return { ...arg3,
-      queryKey: arg1,
-      queryFn: arg2
-    };
-  }
-
-  return { ...arg2,
-    queryKey: arg1
-  };
-}
-function parseMutationArgs(arg1, arg2, arg3) {
-  if (isQueryKey(arg1)) {
-    if (typeof arg2 === 'function') {
-      return { ...arg3,
-        mutationKey: arg1,
-        mutationFn: arg2
-      };
-    }
-
-    return { ...arg2,
-      mutationKey: arg1
-    };
-  }
-
-  if (typeof arg1 === 'function') {
-    return { ...arg2,
-      mutationFn: arg1
-    };
-  }
-
-  return { ...arg1
-  };
-}
-function parseFilterArgs(arg1, arg2, arg3) {
-  return isQueryKey(arg1) ? [{ ...arg2,
-    queryKey: arg1
-  }, arg3] : [arg1 || {}, arg2];
-}
-function parseMutationFilterArgs(arg1, arg2, arg3) {
-  return isQueryKey(arg1) ? [{ ...arg2,
-    mutationKey: arg1
-  }, arg3] : [arg1 || {}, arg2];
-}
 function matchQuery(filters, query) {
   const {
-    type = 'all',
+    type = "all",
     exact,
     fetchStatus,
     predicate,
     queryKey,
     stale
   } = filters;
-
-  if (isQueryKey(queryKey)) {
+  if (queryKey) {
     if (exact) {
       if (query.queryHash !== hashQueryKeyByOptions(queryKey, query.options)) {
         return false;
@@ -1951,584 +1860,399 @@ function matchQuery(filters, query) {
       return false;
     }
   }
-
-  if (type !== 'all') {
+  if (type !== "all") {
     const isActive = query.isActive();
-
-    if (type === 'active' && !isActive) {
+    if (type === "active" && !isActive) {
       return false;
     }
-
-    if (type === 'inactive' && isActive) {
+    if (type === "inactive" && isActive) {
       return false;
     }
   }
-
-  if (typeof stale === 'boolean' && query.isStale() !== stale) {
+  if (typeof stale === "boolean" && query.isStale() !== stale) {
     return false;
   }
-
-  if (typeof fetchStatus !== 'undefined' && fetchStatus !== query.state.fetchStatus) {
+  if (typeof fetchStatus !== "undefined" && fetchStatus !== query.state.fetchStatus) {
     return false;
   }
-
   if (predicate && !predicate(query)) {
     return false;
   }
-
   return true;
 }
 function matchMutation(filters, mutation) {
-  const {
-    exact,
-    fetching,
-    predicate,
-    mutationKey
-  } = filters;
-
-  if (isQueryKey(mutationKey)) {
+  const { exact, status, predicate, mutationKey } = filters;
+  if (mutationKey) {
     if (!mutation.options.mutationKey) {
       return false;
     }
-
     if (exact) {
-      if (hashQueryKey(mutation.options.mutationKey) !== hashQueryKey(mutationKey)) {
+      if (hashKey(mutation.options.mutationKey) !== hashKey(mutationKey)) {
         return false;
       }
     } else if (!partialMatchKey(mutation.options.mutationKey, mutationKey)) {
       return false;
     }
   }
-
-  if (typeof fetching === 'boolean' && mutation.state.status === 'loading' !== fetching) {
+  if (status && mutation.state.status !== status) {
     return false;
   }
-
   if (predicate && !predicate(mutation)) {
     return false;
   }
-
   return true;
 }
 function hashQueryKeyByOptions(queryKey, options) {
-  const hashFn = (options == null ? void 0 : options.queryKeyHashFn) || hashQueryKey;
+  const hashFn = options?.queryKeyHashFn || hashKey;
   return hashFn(queryKey);
 }
-/**
- * Default query keys hash function.
- * Hashes the value into a stable hash.
- */
-
-function hashQueryKey(queryKey) {
-  return JSON.stringify(queryKey, (_, val) => isPlainObject(val) ? Object.keys(val).sort().reduce((result, key) => {
-    result[key] = val[key];
-    return result;
-  }, {}) : val);
+function hashKey(queryKey) {
+  return JSON.stringify(
+    queryKey,
+    (_, val) => isPlainObject(val) ? Object.keys(val).sort().reduce((result, key) => {
+      result[key] = val[key];
+      return result;
+    }, {}) : val
+  );
 }
-/**
- * Checks if key `b` partially matches with key `a`.
- */
-
 function partialMatchKey(a, b) {
-  return partialDeepEqual(a, b);
-}
-/**
- * Checks if `b` partially matches with `a`.
- */
-
-function partialDeepEqual(a, b) {
   if (a === b) {
     return true;
   }
-
   if (typeof a !== typeof b) {
     return false;
   }
-
-  if (a && b && typeof a === 'object' && typeof b === 'object') {
-    return !Object.keys(b).some(key => !partialDeepEqual(a[key], b[key]));
+  if (a && b && typeof a === "object" && typeof b === "object") {
+    return !Object.keys(b).some((key) => !partialMatchKey(a[key], b[key]));
   }
-
   return false;
 }
-/**
- * This function returns `a` if `b` is deeply equal.
- * If not, it will replace any deeply equal children of `b` with those of `a`.
- * This can be used for structural sharing between JSON values for example.
- */
-
 function replaceEqualDeep(a, b) {
   if (a === b) {
     return a;
   }
-
   const array = isPlainArray(a) && isPlainArray(b);
-
   if (array || isPlainObject(a) && isPlainObject(b)) {
-    const aSize = array ? a.length : Object.keys(a).length;
+    const aItems = array ? a : Object.keys(a);
+    const aSize = aItems.length;
     const bItems = array ? b : Object.keys(b);
     const bSize = bItems.length;
     const copy = array ? [] : {};
     let equalItems = 0;
-
     for (let i = 0; i < bSize; i++) {
       const key = array ? i : bItems[i];
-      copy[key] = replaceEqualDeep(a[key], b[key]);
-
-      if (copy[key] === a[key]) {
+      if (!array && a[key] === void 0 && b[key] === void 0 && aItems.includes(key)) {
+        copy[key] = void 0;
         equalItems++;
+      } else {
+        copy[key] = replaceEqualDeep(a[key], b[key]);
+        if (copy[key] === a[key] && a[key] !== void 0) {
+          equalItems++;
+        }
       }
     }
-
     return aSize === bSize && equalItems === aSize ? a : copy;
   }
-
   return b;
 }
-/**
- * Shallow compare objects. Only works with objects that always have the same properties.
- */
-
 function shallowEqualObjects(a, b) {
   if (a && !b || b && !a) {
     return false;
   }
-
   for (const key in a) {
     if (a[key] !== b[key]) {
       return false;
     }
   }
-
   return true;
 }
 function isPlainArray(value) {
   return Array.isArray(value) && value.length === Object.keys(value).length;
-} // Copied from: https://github.com/jonschlinkert/is-plain-object
-
+}
 function isPlainObject(o) {
   if (!hasObjectPrototype(o)) {
     return false;
-  } // If has modified constructor
-
-
+  }
   const ctor = o.constructor;
-
-  if (typeof ctor === 'undefined') {
+  if (typeof ctor === "undefined") {
     return true;
-  } // If has modified prototype
-
-
+  }
   const prot = ctor.prototype;
-
   if (!hasObjectPrototype(prot)) {
     return false;
-  } // If constructor does not have an Object-specific method
-
-
-  if (!prot.hasOwnProperty('isPrototypeOf')) {
+  }
+  if (!prot.hasOwnProperty("isPrototypeOf")) {
     return false;
-  } // Most likely a plain Object
-
-
+  }
   return true;
 }
-
 function hasObjectPrototype(o) {
-  return Object.prototype.toString.call(o) === '[object Object]';
+  return Object.prototype.toString.call(o) === "[object Object]";
 }
-
-function isQueryKey(value) {
-  return Array.isArray(value);
-}
-function isError(value) {
-  return value instanceof Error;
-}
-function sleep(timeout) {
-  return new Promise(resolve => {
-    setTimeout(resolve, timeout);
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
   });
 }
-/**
- * Schedules a microtask.
- * This can be useful to schedule state updates after rendering.
- */
-
-function scheduleMicrotask(callback) {
-  sleep(0).then(callback);
-}
-function getAbortController() {
-  if (typeof AbortController === 'function') {
-    return new AbortController();
-  }
-
-  return;
-}
 function replaceData(prevData, data, options) {
-  // Use prev data if an isDataEqual function is defined and returns `true`
-  if (options.isDataEqual != null && options.isDataEqual(prevData, data)) {
-    return prevData;
-  } else if (typeof options.structuralSharing === 'function') {
+  if (typeof options.structuralSharing === "function") {
     return options.structuralSharing(prevData, data);
   } else if (options.structuralSharing !== false) {
-    // Structurally share data between prev and new data if needed
     return replaceEqualDeep(prevData, data);
   }
-
   return data;
 }
+function keepPreviousData(previousData) {
+  return previousData;
+}
+function addToEnd(items, item, max = 0) {
+  const newItems = [...items, item];
+  return max && newItems.length > max ? newItems.slice(1) : newItems;
+}
+function addToStart(items, item, max = 0) {
+  const newItems = [item, ...items];
+  return max && newItems.length > max ? newItems.slice(0, -1) : newItems;
+}
 
-
-//# sourceMappingURL=utils.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/logger.mjs
-const defaultLogger = console;
-
-
-//# sourceMappingURL=logger.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/notifyManager.mjs
-
-
+//# sourceMappingURL=utils.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/modern/notifyManager.js
+// src/notifyManager.ts
 function createNotifyManager() {
   let queue = [];
   let transactions = 0;
-
-  let notifyFn = callback => {
+  let notifyFn = (callback) => {
     callback();
   };
-
-  let batchNotifyFn = callback => {
+  let batchNotifyFn = (callback) => {
     callback();
   };
-
-  const batch = callback => {
+  let scheduleFn = (cb) => setTimeout(cb, 0);
+  const setScheduler = (fn) => {
+    scheduleFn = fn;
+  };
+  const batch = (callback) => {
     let result;
     transactions++;
-
     try {
       result = callback();
     } finally {
       transactions--;
-
       if (!transactions) {
         flush();
       }
     }
-
     return result;
   };
-
-  const schedule = callback => {
+  const schedule = (callback) => {
     if (transactions) {
       queue.push(callback);
     } else {
-      scheduleMicrotask(() => {
+      scheduleFn(() => {
         notifyFn(callback);
       });
     }
   };
-  /**
-   * All calls to the wrapped function will be batched.
-   */
-
-
-  const batchCalls = callback => {
+  const batchCalls = (callback) => {
     return (...args) => {
       schedule(() => {
         callback(...args);
       });
     };
   };
-
   const flush = () => {
     const originalQueue = queue;
     queue = [];
-
     if (originalQueue.length) {
-      scheduleMicrotask(() => {
+      scheduleFn(() => {
         batchNotifyFn(() => {
-          originalQueue.forEach(callback => {
+          originalQueue.forEach((callback) => {
             notifyFn(callback);
           });
         });
       });
     }
   };
-  /**
-   * Use this method to set a custom notify function.
-   * This can be used to for example wrap notifications with `React.act` while running tests.
-   */
-
-
-  const setNotifyFunction = fn => {
+  const setNotifyFunction = (fn) => {
     notifyFn = fn;
   };
-  /**
-   * Use this method to set a custom function to batch notifications together into a single tick.
-   * By default React Query will use the batch function provided by ReactDOM or React Native.
-   */
-
-
-  const setBatchNotifyFunction = fn => {
+  const setBatchNotifyFunction = (fn) => {
     batchNotifyFn = fn;
   };
-
   return {
     batch,
     batchCalls,
     schedule,
     setNotifyFunction,
-    setBatchNotifyFunction
+    setBatchNotifyFunction,
+    setScheduler
   };
-} // SINGLETON
+}
+var notifyManager = createNotifyManager();
 
-const notifyManager = createNotifyManager();
-
-
-//# sourceMappingURL=notifyManager.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/subscribable.mjs
-class Subscribable {
+//# sourceMappingURL=notifyManager.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/modern/subscribable.js
+// src/subscribable.ts
+var Subscribable = class {
   constructor() {
-    this.listeners = new Set();
+    this.listeners = /* @__PURE__ */ new Set();
     this.subscribe = this.subscribe.bind(this);
   }
-
   subscribe(listener) {
-    const identity = {
-      listener
-    };
-    this.listeners.add(identity);
+    this.listeners.add(listener);
     this.onSubscribe();
     return () => {
-      this.listeners.delete(identity);
+      this.listeners.delete(listener);
       this.onUnsubscribe();
     };
   }
-
   hasListeners() {
     return this.listeners.size > 0;
   }
-
-  onSubscribe() {// Do nothing
+  onSubscribe() {
   }
-
-  onUnsubscribe() {// Do nothing
+  onUnsubscribe() {
   }
+};
 
-}
-
-
-//# sourceMappingURL=subscribable.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/focusManager.mjs
+//# sourceMappingURL=subscribable.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/modern/focusManager.js
+// src/focusManager.ts
 
 
-
-class FocusManager extends Subscribable {
+var FocusManager = class extends Subscribable {
+  #focused;
+  #cleanup;
+  #setup;
   constructor() {
     super();
-
-    this.setup = onFocus => {
-      // addEventListener does not exist in React Native, but window does
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    this.#setup = (onFocus) => {
       if (!isServer && window.addEventListener) {
-        const listener = () => onFocus(); // Listen to visibillitychange and focus
-
-
-        window.addEventListener('visibilitychange', listener, false);
-        window.addEventListener('focus', listener, false);
+        const listener = () => onFocus();
+        window.addEventListener("visibilitychange", listener, false);
         return () => {
-          // Be sure to unsubscribe if a new handler is set
-          window.removeEventListener('visibilitychange', listener);
-          window.removeEventListener('focus', listener);
+          window.removeEventListener("visibilitychange", listener);
         };
       }
-
       return;
     };
   }
-
   onSubscribe() {
-    if (!this.cleanup) {
-      this.setEventListener(this.setup);
+    if (!this.#cleanup) {
+      this.setEventListener(this.#setup);
     }
   }
-
   onUnsubscribe() {
     if (!this.hasListeners()) {
-      var _this$cleanup;
-
-      (_this$cleanup = this.cleanup) == null ? void 0 : _this$cleanup.call(this);
-      this.cleanup = undefined;
+      this.#cleanup?.();
+      this.#cleanup = void 0;
     }
   }
-
   setEventListener(setup) {
-    var _this$cleanup2;
-
-    this.setup = setup;
-    (_this$cleanup2 = this.cleanup) == null ? void 0 : _this$cleanup2.call(this);
-    this.cleanup = setup(focused => {
-      if (typeof focused === 'boolean') {
+    this.#setup = setup;
+    this.#cleanup?.();
+    this.#cleanup = setup((focused) => {
+      if (typeof focused === "boolean") {
         this.setFocused(focused);
       } else {
         this.onFocus();
       }
     });
   }
-
   setFocused(focused) {
-    const changed = this.focused !== focused;
-
+    const changed = this.#focused !== focused;
     if (changed) {
-      this.focused = focused;
+      this.#focused = focused;
       this.onFocus();
     }
   }
-
   onFocus() {
-    this.listeners.forEach(({
-      listener
-    }) => {
+    this.listeners.forEach((listener) => {
       listener();
     });
   }
-
   isFocused() {
-    if (typeof this.focused === 'boolean') {
-      return this.focused;
-    } // document global can be unavailable in react native
-
-
-    if (typeof document === 'undefined') {
-      return true;
+    if (typeof this.#focused === "boolean") {
+      return this.#focused;
     }
-
-    return [undefined, 'visible', 'prerender'].includes(document.visibilityState);
+    return globalThis.document?.visibilityState !== "hidden";
   }
+};
+var focusManager = new FocusManager();
 
-}
-const focusManager = new FocusManager();
-
-
-//# sourceMappingURL=focusManager.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/onlineManager.mjs
+//# sourceMappingURL=focusManager.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/modern/onlineManager.js
+// src/onlineManager.ts
 
 
-
-const onlineEvents = ['online', 'offline'];
-class OnlineManager extends Subscribable {
+var OnlineManager = class extends Subscribable {
+  #online = true;
+  #cleanup;
+  #setup;
   constructor() {
     super();
-
-    this.setup = onOnline => {
-      // addEventListener does not exist in React Native, but window does
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    this.#setup = (onOnline) => {
       if (!isServer && window.addEventListener) {
-        const listener = () => onOnline(); // Listen to online
-
-
-        onlineEvents.forEach(event => {
-          window.addEventListener(event, listener, false);
-        });
+        const onlineListener = () => onOnline(true);
+        const offlineListener = () => onOnline(false);
+        window.addEventListener("online", onlineListener, false);
+        window.addEventListener("offline", offlineListener, false);
         return () => {
-          // Be sure to unsubscribe if a new handler is set
-          onlineEvents.forEach(event => {
-            window.removeEventListener(event, listener);
-          });
+          window.removeEventListener("online", onlineListener);
+          window.removeEventListener("offline", offlineListener);
         };
       }
-
       return;
     };
   }
-
   onSubscribe() {
-    if (!this.cleanup) {
-      this.setEventListener(this.setup);
+    if (!this.#cleanup) {
+      this.setEventListener(this.#setup);
     }
   }
-
   onUnsubscribe() {
     if (!this.hasListeners()) {
-      var _this$cleanup;
-
-      (_this$cleanup = this.cleanup) == null ? void 0 : _this$cleanup.call(this);
-      this.cleanup = undefined;
+      this.#cleanup?.();
+      this.#cleanup = void 0;
     }
   }
-
   setEventListener(setup) {
-    var _this$cleanup2;
-
-    this.setup = setup;
-    (_this$cleanup2 = this.cleanup) == null ? void 0 : _this$cleanup2.call(this);
-    this.cleanup = setup(online => {
-      if (typeof online === 'boolean') {
-        this.setOnline(online);
-      } else {
-        this.onOnline();
-      }
-    });
+    this.#setup = setup;
+    this.#cleanup?.();
+    this.#cleanup = setup(this.setOnline.bind(this));
   }
-
   setOnline(online) {
-    const changed = this.online !== online;
-
+    const changed = this.#online !== online;
     if (changed) {
-      this.online = online;
-      this.onOnline();
+      this.#online = online;
+      this.listeners.forEach((listener) => {
+        listener(online);
+      });
     }
   }
-
-  onOnline() {
-    this.listeners.forEach(({
-      listener
-    }) => {
-      listener();
-    });
-  }
-
   isOnline() {
-    if (typeof this.online === 'boolean') {
-      return this.online;
-    }
-
-    if (typeof navigator === 'undefined' || typeof navigator.onLine === 'undefined') {
-      return true;
-    }
-
-    return navigator.onLine;
+    return this.#online;
   }
+};
+var onlineManager = new OnlineManager();
 
-}
-const onlineManager = new OnlineManager();
-
-
-//# sourceMappingURL=onlineManager.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/retryer.mjs
-
+//# sourceMappingURL=onlineManager.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/modern/retryer.js
+// src/retryer.ts
 
 
 
 function defaultRetryDelay(failureCount) {
-  return Math.min(1000 * 2 ** failureCount, 30000);
+  return Math.min(1e3 * 2 ** failureCount, 3e4);
 }
-
 function canFetch(networkMode) {
-  return (networkMode != null ? networkMode : 'online') === 'online' ? onlineManager.isOnline() : true;
+  return (networkMode ?? "online") === "online" ? onlineManager.isOnline() : true;
 }
-class CancelledError {
+var CancelledError = class {
   constructor(options) {
-    this.revert = options == null ? void 0 : options.revert;
-    this.silent = options == null ? void 0 : options.silent;
+    this.revert = options?.revert;
+    this.silent = options?.silent;
   }
-
-}
+};
 function isCancelledError(value) {
   return value instanceof CancelledError;
 }
@@ -2543,109 +2267,80 @@ function createRetryer(config) {
     promiseResolve = outerResolve;
     promiseReject = outerReject;
   });
-
-  const cancel = cancelOptions => {
+  const cancel = (cancelOptions) => {
     if (!isResolved) {
       reject(new CancelledError(cancelOptions));
-      config.abort == null ? void 0 : config.abort();
+      config.abort?.();
     }
   };
-
   const cancelRetry = () => {
     isRetryCancelled = true;
   };
-
   const continueRetry = () => {
     isRetryCancelled = false;
   };
-
-  const shouldPause = () => !focusManager.isFocused() || config.networkMode !== 'always' && !onlineManager.isOnline();
-
-  const resolve = value => {
+  const shouldPause = () => !focusManager.isFocused() || config.networkMode !== "always" && !onlineManager.isOnline();
+  const resolve = (value) => {
     if (!isResolved) {
       isResolved = true;
-      config.onSuccess == null ? void 0 : config.onSuccess(value);
-      continueFn == null ? void 0 : continueFn();
+      config.onSuccess?.(value);
+      continueFn?.();
       promiseResolve(value);
     }
   };
-
-  const reject = value => {
+  const reject = (value) => {
     if (!isResolved) {
       isResolved = true;
-      config.onError == null ? void 0 : config.onError(value);
-      continueFn == null ? void 0 : continueFn();
+      config.onError?.(value);
+      continueFn?.();
       promiseReject(value);
     }
   };
-
   const pause = () => {
-    return new Promise(continueResolve => {
-      continueFn = value => {
+    return new Promise((continueResolve) => {
+      continueFn = (value) => {
         const canContinue = isResolved || !shouldPause();
-
         if (canContinue) {
           continueResolve(value);
         }
-
         return canContinue;
       };
-
-      config.onPause == null ? void 0 : config.onPause();
+      config.onPause?.();
     }).then(() => {
-      continueFn = undefined;
-
+      continueFn = void 0;
       if (!isResolved) {
-        config.onContinue == null ? void 0 : config.onContinue();
+        config.onContinue?.();
       }
     });
-  }; // Create loop function
-
-
+  };
   const run = () => {
-    // Do nothing if already resolved
     if (isResolved) {
       return;
     }
-
-    let promiseOrValue; // Execute query
-
+    let promiseOrValue;
     try {
       promiseOrValue = config.fn();
     } catch (error) {
       promiseOrValue = Promise.reject(error);
     }
-
-    Promise.resolve(promiseOrValue).then(resolve).catch(error => {
-      var _config$retry, _config$retryDelay;
-
-      // Stop if the fetch is already resolved
+    Promise.resolve(promiseOrValue).then(resolve).catch((error) => {
       if (isResolved) {
         return;
-      } // Do we need to retry the request?
-
-
-      const retry = (_config$retry = config.retry) != null ? _config$retry : 3;
-      const retryDelay = (_config$retryDelay = config.retryDelay) != null ? _config$retryDelay : defaultRetryDelay;
-      const delay = typeof retryDelay === 'function' ? retryDelay(failureCount, error) : retryDelay;
-      const shouldRetry = retry === true || typeof retry === 'number' && failureCount < retry || typeof retry === 'function' && retry(failureCount, error);
-
+      }
+      const retry = config.retry ?? (isServer ? 0 : 3);
+      const retryDelay = config.retryDelay ?? defaultRetryDelay;
+      const delay = typeof retryDelay === "function" ? retryDelay(failureCount, error) : retryDelay;
+      const shouldRetry = retry === true || typeof retry === "number" && failureCount < retry || typeof retry === "function" && retry(failureCount, error);
       if (isRetryCancelled || !shouldRetry) {
-        // We are done if the query does not need to be retried
         reject(error);
         return;
       }
-
-      failureCount++; // Notify on fail
-
-      config.onFail == null ? void 0 : config.onFail(failureCount, error); // Delay
-
-      sleep(delay) // Pause if the document is not visible or when the device is offline
-      .then(() => {
+      failureCount++;
+      config.onFail?.(failureCount, error);
+      sleep(delay).then(() => {
         if (shouldPause()) {
           return pause();
         }
-
         return;
       }).then(() => {
         if (isRetryCancelled) {
@@ -2655,20 +2350,17 @@ function createRetryer(config) {
         }
       });
     });
-  }; // Start loop
-
-
+  };
   if (canFetch(config.networkMode)) {
     run();
   } else {
     pause().then(run);
   }
-
   return {
     promise,
     cancel,
     continue: () => {
-      const didContinue = continueFn == null ? void 0 : continueFn();
+      const didContinue = continueFn?.();
       return didContinue ? promise : Promise.resolve();
     },
     cancelRetry,
@@ -2676,296 +2368,211 @@ function createRetryer(config) {
   };
 }
 
+//# sourceMappingURL=retryer.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/modern/removable.js
+// src/removable.ts
 
-//# sourceMappingURL=retryer.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/removable.mjs
-
-
-class Removable {
+var Removable = class {
+  #gcTimeout;
   destroy() {
     this.clearGcTimeout();
   }
-
   scheduleGc() {
     this.clearGcTimeout();
-
-    if (isValidTimeout(this.cacheTime)) {
-      this.gcTimeout = setTimeout(() => {
+    if (isValidTimeout(this.gcTime)) {
+      this.#gcTimeout = setTimeout(() => {
         this.optionalRemove();
-      }, this.cacheTime);
+      }, this.gcTime);
     }
   }
-
-  updateCacheTime(newCacheTime) {
-    // Default to 5 minutes (Infinity for server-side) if no cache time is set
-    this.cacheTime = Math.max(this.cacheTime || 0, newCacheTime != null ? newCacheTime : isServer ? Infinity : 5 * 60 * 1000);
+  updateGcTime(newGcTime) {
+    this.gcTime = Math.max(
+      this.gcTime || 0,
+      newGcTime ?? (isServer ? Infinity : 5 * 60 * 1e3)
+    );
   }
-
   clearGcTimeout() {
-    if (this.gcTimeout) {
-      clearTimeout(this.gcTimeout);
-      this.gcTimeout = undefined;
+    if (this.#gcTimeout) {
+      clearTimeout(this.#gcTimeout);
+      this.#gcTimeout = void 0;
     }
   }
+};
 
-}
-
-
-//# sourceMappingURL=removable.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/query.mjs
+//# sourceMappingURL=removable.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/modern/query.js
+// src/query.ts
 
 
 
 
-
-
-// CLASS
-class Query extends Removable {
+var Query = class extends Removable {
   constructor(config) {
     super();
-    this.abortSignalConsumed = false;
-    this.defaultOptions = config.defaultOptions;
-    this.setOptions(config.options);
-    this.observers = [];
-    this.cache = config.cache;
-    this.logger = config.logger || defaultLogger;
+    this.#abortSignalConsumed = false;
+    this.#defaultOptions = config.defaultOptions;
+    this.#setOptions(config.options);
+    this.#observers = [];
+    this.#cache = config.cache;
     this.queryKey = config.queryKey;
     this.queryHash = config.queryHash;
-    this.initialState = config.state || getDefaultState(this.options);
-    this.state = this.initialState;
+    this.#initialState = config.state || getDefaultState(this.options);
+    this.state = this.#initialState;
     this.scheduleGc();
   }
-
+  #initialState;
+  #revertState;
+  #cache;
+  #promise;
+  #retryer;
+  #observers;
+  #defaultOptions;
+  #abortSignalConsumed;
   get meta() {
     return this.options.meta;
   }
-
-  setOptions(options) {
-    this.options = { ...this.defaultOptions,
-      ...options
-    };
-    this.updateCacheTime(this.options.cacheTime);
+  #setOptions(options) {
+    this.options = { ...this.#defaultOptions, ...options };
+    this.updateGcTime(this.options.gcTime);
   }
-
   optionalRemove() {
-    if (!this.observers.length && this.state.fetchStatus === 'idle') {
-      this.cache.remove(this);
+    if (!this.#observers.length && this.state.fetchStatus === "idle") {
+      this.#cache.remove(this);
     }
   }
-
   setData(newData, options) {
-    const data = replaceData(this.state.data, newData, this.options); // Set data and mark it as cached
-
-    this.dispatch({
+    const data = replaceData(this.state.data, newData, this.options);
+    this.#dispatch({
       data,
-      type: 'success',
-      dataUpdatedAt: options == null ? void 0 : options.updatedAt,
-      manual: options == null ? void 0 : options.manual
+      type: "success",
+      dataUpdatedAt: options?.updatedAt,
+      manual: options?.manual
     });
     return data;
   }
-
   setState(state, setStateOptions) {
-    this.dispatch({
-      type: 'setState',
-      state,
-      setStateOptions
-    });
+    this.#dispatch({ type: "setState", state, setStateOptions });
   }
-
   cancel(options) {
-    var _this$retryer;
-
-    const promise = this.promise;
-    (_this$retryer = this.retryer) == null ? void 0 : _this$retryer.cancel(options);
+    const promise = this.#promise;
+    this.#retryer?.cancel(options);
     return promise ? promise.then(noop).catch(noop) : Promise.resolve();
   }
-
   destroy() {
     super.destroy();
-    this.cancel({
-      silent: true
-    });
+    this.cancel({ silent: true });
   }
-
   reset() {
     this.destroy();
-    this.setState(this.initialState);
+    this.setState(this.#initialState);
   }
-
   isActive() {
-    return this.observers.some(observer => observer.options.enabled !== false);
+    return this.#observers.some(
+      (observer) => observer.options.enabled !== false
+    );
   }
-
   isDisabled() {
     return this.getObserversCount() > 0 && !this.isActive();
   }
-
   isStale() {
-    return this.state.isInvalidated || !this.state.dataUpdatedAt || this.observers.some(observer => observer.getCurrentResult().isStale);
+    return this.state.isInvalidated || !this.state.dataUpdatedAt || this.#observers.some((observer) => observer.getCurrentResult().isStale);
   }
-
   isStaleByTime(staleTime = 0) {
     return this.state.isInvalidated || !this.state.dataUpdatedAt || !timeUntilStale(this.state.dataUpdatedAt, staleTime);
   }
-
   onFocus() {
-    var _this$retryer2;
-
-    const observer = this.observers.find(x => x.shouldFetchOnWindowFocus());
-
-    if (observer) {
-      observer.refetch({
-        cancelRefetch: false
-      });
-    } // Continue fetch if currently paused
-
-
-    (_this$retryer2 = this.retryer) == null ? void 0 : _this$retryer2.continue();
+    const observer = this.#observers.find((x) => x.shouldFetchOnWindowFocus());
+    observer?.refetch({ cancelRefetch: false });
+    this.#retryer?.continue();
   }
-
   onOnline() {
-    var _this$retryer3;
-
-    const observer = this.observers.find(x => x.shouldFetchOnReconnect());
-
-    if (observer) {
-      observer.refetch({
-        cancelRefetch: false
-      });
-    } // Continue fetch if currently paused
-
-
-    (_this$retryer3 = this.retryer) == null ? void 0 : _this$retryer3.continue();
+    const observer = this.#observers.find((x) => x.shouldFetchOnReconnect());
+    observer?.refetch({ cancelRefetch: false });
+    this.#retryer?.continue();
   }
-
   addObserver(observer) {
-    if (!this.observers.includes(observer)) {
-      this.observers.push(observer); // Stop the query from being garbage collected
-
+    if (!this.#observers.includes(observer)) {
+      this.#observers.push(observer);
       this.clearGcTimeout();
-      this.cache.notify({
-        type: 'observerAdded',
-        query: this,
-        observer
-      });
+      this.#cache.notify({ type: "observerAdded", query: this, observer });
     }
   }
-
   removeObserver(observer) {
-    if (this.observers.includes(observer)) {
-      this.observers = this.observers.filter(x => x !== observer);
-
-      if (!this.observers.length) {
-        // If the transport layer does not support cancellation
-        // we'll let the query continue so the result can be cached
-        if (this.retryer) {
-          if (this.abortSignalConsumed) {
-            this.retryer.cancel({
-              revert: true
-            });
+    if (this.#observers.includes(observer)) {
+      this.#observers = this.#observers.filter((x) => x !== observer);
+      if (!this.#observers.length) {
+        if (this.#retryer) {
+          if (this.#abortSignalConsumed) {
+            this.#retryer.cancel({ revert: true });
           } else {
-            this.retryer.cancelRetry();
+            this.#retryer.cancelRetry();
           }
         }
-
         this.scheduleGc();
       }
-
-      this.cache.notify({
-        type: 'observerRemoved',
-        query: this,
-        observer
-      });
+      this.#cache.notify({ type: "observerRemoved", query: this, observer });
     }
   }
-
   getObserversCount() {
-    return this.observers.length;
+    return this.#observers.length;
   }
-
   invalidate() {
     if (!this.state.isInvalidated) {
-      this.dispatch({
-        type: 'invalidate'
-      });
+      this.#dispatch({ type: "invalidate" });
     }
   }
-
   fetch(options, fetchOptions) {
-    var _this$options$behavio, _context$fetchOptions;
-
-    if (this.state.fetchStatus !== 'idle') {
-      if (this.state.dataUpdatedAt && fetchOptions != null && fetchOptions.cancelRefetch) {
-        // Silently cancel current fetch if the user wants to cancel refetches
-        this.cancel({
-          silent: true
-        });
-      } else if (this.promise) {
-        var _this$retryer4;
-
-        // make sure that retries that were potentially cancelled due to unmounts can continue
-        (_this$retryer4 = this.retryer) == null ? void 0 : _this$retryer4.continueRetry(); // Return current promise if we are already fetching
-
-        return this.promise;
-      }
-    } // Update config if passed, otherwise the config from the last execution is used
-
-
-    if (options) {
-      this.setOptions(options);
-    } // Use the options from the first observer with a query function if no function is found.
-    // This can happen when the query is hydrated or created with setQueryData.
-
-
-    if (!this.options.queryFn) {
-      const observer = this.observers.find(x => x.options.queryFn);
-
-      if (observer) {
-        this.setOptions(observer.options);
+    if (this.state.fetchStatus !== "idle") {
+      if (this.state.dataUpdatedAt && fetchOptions?.cancelRefetch) {
+        this.cancel({ silent: true });
+      } else if (this.#promise) {
+        this.#retryer?.continueRetry();
+        return this.#promise;
       }
     }
-
+    if (options) {
+      this.#setOptions(options);
+    }
+    if (!this.options.queryFn) {
+      const observer = this.#observers.find((x) => x.options.queryFn);
+      if (observer) {
+        this.#setOptions(observer.options);
+      }
+    }
     if (false) {}
-
-    const abortController = getAbortController(); // Create query function context
-
+    const abortController = new AbortController();
     const queryFnContext = {
       queryKey: this.queryKey,
-      pageParam: undefined,
       meta: this.meta
-    }; // Adds an enumerable signal property to the object that
-    // which sets abortSignalConsumed to true when the signal
-    // is read.
-
-    const addSignalProperty = object => {
-      Object.defineProperty(object, 'signal', {
+    };
+    const addSignalProperty = (object) => {
+      Object.defineProperty(object, "signal", {
         enumerable: true,
         get: () => {
-          if (abortController) {
-            this.abortSignalConsumed = true;
-            return abortController.signal;
-          }
-
-          return undefined;
+          this.#abortSignalConsumed = true;
+          return abortController.signal;
         }
       });
     };
-
-    addSignalProperty(queryFnContext); // Create fetch function
-
+    addSignalProperty(queryFnContext);
     const fetchFn = () => {
       if (!this.options.queryFn) {
-        return Promise.reject("Missing queryFn for queryKey '" + this.options.queryHash + "'");
+        return Promise.reject(
+          new Error(`Missing queryFn: '${this.options.queryHash}'`)
+        );
       }
-
-      this.abortSignalConsumed = false;
-      return this.options.queryFn(queryFnContext);
-    }; // Trigger behavior hook
-
-
+      this.#abortSignalConsumed = false;
+      if (this.options.persister) {
+        return this.options.persister(
+          this.options.queryFn,
+          queryFnContext,
+          this
+        );
+      }
+      return this.options.queryFn(
+        queryFnContext
+      );
+    };
     const context = {
       fetchOptions,
       options: this.options,
@@ -2974,200 +2581,165 @@ class Query extends Removable {
       fetchFn
     };
     addSignalProperty(context);
-    (_this$options$behavio = this.options.behavior) == null ? void 0 : _this$options$behavio.onFetch(context); // Store state in case the current fetch needs to be reverted
-
-    this.revertState = this.state; // Set to fetching state if not already in it
-
-    if (this.state.fetchStatus === 'idle' || this.state.fetchMeta !== ((_context$fetchOptions = context.fetchOptions) == null ? void 0 : _context$fetchOptions.meta)) {
-      var _context$fetchOptions2;
-
-      this.dispatch({
-        type: 'fetch',
-        meta: (_context$fetchOptions2 = context.fetchOptions) == null ? void 0 : _context$fetchOptions2.meta
-      });
+    this.options.behavior?.onFetch(
+      context,
+      this
+    );
+    this.#revertState = this.state;
+    if (this.state.fetchStatus === "idle" || this.state.fetchMeta !== context.fetchOptions?.meta) {
+      this.#dispatch({ type: "fetch", meta: context.fetchOptions?.meta });
     }
-
-    const onError = error => {
-      // Optimistically update state if needed
+    const onError = (error) => {
       if (!(isCancelledError(error) && error.silent)) {
-        this.dispatch({
-          type: 'error',
-          error: error
+        this.#dispatch({
+          type: "error",
+          error
         });
       }
-
       if (!isCancelledError(error)) {
-        var _this$cache$config$on, _this$cache$config, _this$cache$config$on2, _this$cache$config2;
-
-        // Notify cache callback
-        (_this$cache$config$on = (_this$cache$config = this.cache.config).onError) == null ? void 0 : _this$cache$config$on.call(_this$cache$config, error, this);
-        (_this$cache$config$on2 = (_this$cache$config2 = this.cache.config).onSettled) == null ? void 0 : _this$cache$config$on2.call(_this$cache$config2, this.state.data, error, this);
-
-        if (false) {}
+        this.#cache.config.onError?.(
+          error,
+          this
+        );
+        this.#cache.config.onSettled?.(
+          this.state.data,
+          error,
+          this
+        );
       }
-
       if (!this.isFetchingOptimistic) {
-        // Schedule query gc after fetching
         this.scheduleGc();
       }
-
       this.isFetchingOptimistic = false;
-    }; // Try to fetch the data
-
-
-    this.retryer = createRetryer({
+    };
+    this.#retryer = createRetryer({
       fn: context.fetchFn,
-      abort: abortController == null ? void 0 : abortController.abort.bind(abortController),
-      onSuccess: data => {
-        var _this$cache$config$on3, _this$cache$config3, _this$cache$config$on4, _this$cache$config4;
-
-        if (typeof data === 'undefined') {
+      abort: abortController.abort.bind(abortController),
+      onSuccess: (data) => {
+        if (typeof data === "undefined") {
           if (false) {}
-
-          onError(new Error(this.queryHash + " data is undefined"));
+          onError(new Error(`${this.queryHash} data is undefined`));
           return;
         }
-
-        this.setData(data); // Notify cache callback
-
-        (_this$cache$config$on3 = (_this$cache$config3 = this.cache.config).onSuccess) == null ? void 0 : _this$cache$config$on3.call(_this$cache$config3, data, this);
-        (_this$cache$config$on4 = (_this$cache$config4 = this.cache.config).onSettled) == null ? void 0 : _this$cache$config$on4.call(_this$cache$config4, data, this.state.error, this);
-
+        this.setData(data);
+        this.#cache.config.onSuccess?.(data, this);
+        this.#cache.config.onSettled?.(
+          data,
+          this.state.error,
+          this
+        );
         if (!this.isFetchingOptimistic) {
-          // Schedule query gc after fetching
           this.scheduleGc();
         }
-
         this.isFetchingOptimistic = false;
       },
       onError,
       onFail: (failureCount, error) => {
-        this.dispatch({
-          type: 'failed',
-          failureCount,
-          error
-        });
+        this.#dispatch({ type: "failed", failureCount, error });
       },
       onPause: () => {
-        this.dispatch({
-          type: 'pause'
-        });
+        this.#dispatch({ type: "pause" });
       },
       onContinue: () => {
-        this.dispatch({
-          type: 'continue'
-        });
+        this.#dispatch({ type: "continue" });
       },
       retry: context.options.retry,
       retryDelay: context.options.retryDelay,
       networkMode: context.options.networkMode
     });
-    this.promise = this.retryer.promise;
-    return this.promise;
+    this.#promise = this.#retryer.promise;
+    return this.#promise;
   }
-
-  dispatch(action) {
-    const reducer = state => {
-      var _action$meta, _action$dataUpdatedAt;
-
+  #dispatch(action) {
+    const reducer = (state) => {
       switch (action.type) {
-        case 'failed':
-          return { ...state,
+        case "failed":
+          return {
+            ...state,
             fetchFailureCount: action.failureCount,
             fetchFailureReason: action.error
           };
-
-        case 'pause':
-          return { ...state,
-            fetchStatus: 'paused'
+        case "pause":
+          return {
+            ...state,
+            fetchStatus: "paused"
           };
-
-        case 'continue':
-          return { ...state,
-            fetchStatus: 'fetching'
+        case "continue":
+          return {
+            ...state,
+            fetchStatus: "fetching"
           };
-
-        case 'fetch':
-          return { ...state,
+        case "fetch":
+          return {
+            ...state,
             fetchFailureCount: 0,
             fetchFailureReason: null,
-            fetchMeta: (_action$meta = action.meta) != null ? _action$meta : null,
-            fetchStatus: canFetch(this.options.networkMode) ? 'fetching' : 'paused',
-            ...(!state.dataUpdatedAt && {
+            fetchMeta: action.meta ?? null,
+            fetchStatus: canFetch(this.options.networkMode) ? "fetching" : "paused",
+            ...!state.dataUpdatedAt && {
               error: null,
-              status: 'loading'
-            })
+              status: "pending"
+            }
           };
-
-        case 'success':
-          return { ...state,
+        case "success":
+          return {
+            ...state,
             data: action.data,
             dataUpdateCount: state.dataUpdateCount + 1,
-            dataUpdatedAt: (_action$dataUpdatedAt = action.dataUpdatedAt) != null ? _action$dataUpdatedAt : Date.now(),
+            dataUpdatedAt: action.dataUpdatedAt ?? Date.now(),
             error: null,
             isInvalidated: false,
-            status: 'success',
-            ...(!action.manual && {
-              fetchStatus: 'idle',
+            status: "success",
+            ...!action.manual && {
+              fetchStatus: "idle",
               fetchFailureCount: 0,
               fetchFailureReason: null
-            })
+            }
           };
-
-        case 'error':
+        case "error":
           const error = action.error;
-
-          if (isCancelledError(error) && error.revert && this.revertState) {
-            return { ...this.revertState,
-              fetchStatus: 'idle'
-            };
+          if (isCancelledError(error) && error.revert && this.#revertState) {
+            return { ...this.#revertState, fetchStatus: "idle" };
           }
-
-          return { ...state,
-            error: error,
+          return {
+            ...state,
+            error,
             errorUpdateCount: state.errorUpdateCount + 1,
             errorUpdatedAt: Date.now(),
             fetchFailureCount: state.fetchFailureCount + 1,
             fetchFailureReason: error,
-            fetchStatus: 'idle',
-            status: 'error'
+            fetchStatus: "idle",
+            status: "error"
           };
-
-        case 'invalidate':
-          return { ...state,
+        case "invalidate":
+          return {
+            ...state,
             isInvalidated: true
           };
-
-        case 'setState':
-          return { ...state,
+        case "setState":
+          return {
+            ...state,
             ...action.state
           };
       }
     };
-
     this.state = reducer(this.state);
     notifyManager.batch(() => {
-      this.observers.forEach(observer => {
-        observer.onQueryUpdate(action);
+      this.#observers.forEach((observer) => {
+        observer.onQueryUpdate();
       });
-      this.cache.notify({
-        query: this,
-        type: 'updated',
-        action
-      });
+      this.#cache.notify({ query: this, type: "updated", action });
     });
   }
-
-}
-
+};
 function getDefaultState(options) {
-  const data = typeof options.initialData === 'function' ? options.initialData() : options.initialData;
-  const hasData = typeof data !== 'undefined';
-  const initialDataUpdatedAt = hasData ? typeof options.initialDataUpdatedAt === 'function' ? options.initialDataUpdatedAt() : options.initialDataUpdatedAt : 0;
+  const data = typeof options.initialData === "function" ? options.initialData() : options.initialData;
+  const hasData = typeof data !== "undefined";
+  const initialDataUpdatedAt = hasData ? typeof options.initialDataUpdatedAt === "function" ? options.initialDataUpdatedAt() : options.initialDataUpdatedAt : 0;
   return {
     data,
     dataUpdateCount: 0,
-    dataUpdatedAt: hasData ? initialDataUpdatedAt != null ? initialDataUpdatedAt : Date.now() : 0,
+    dataUpdatedAt: hasData ? initialDataUpdatedAt ?? Date.now() : 0,
     error: null,
     errorUpdateCount: 0,
     errorUpdatedAt: 0,
@@ -3175,40 +2747,32 @@ function getDefaultState(options) {
     fetchFailureReason: null,
     fetchMeta: null,
     isInvalidated: false,
-    status: hasData ? 'success' : 'loading',
-    fetchStatus: 'idle'
+    status: hasData ? "success" : "pending",
+    fetchStatus: "idle"
   };
 }
 
-
-//# sourceMappingURL=query.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/queryCache.mjs
-
+//# sourceMappingURL=query.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/modern/queryCache.js
+// src/queryCache.ts
 
 
 
 
-// CLASS
-class QueryCache extends Subscribable {
-  constructor(config) {
+var QueryCache = class extends Subscribable {
+  constructor(config = {}) {
     super();
-    this.config = config || {};
-    this.queries = [];
-    this.queriesMap = {};
+    this.config = config;
+    this.#queries = /* @__PURE__ */ new Map();
   }
-
+  #queries;
   build(client, options, state) {
-    var _options$queryHash;
-
     const queryKey = options.queryKey;
-    const queryHash = (_options$queryHash = options.queryHash) != null ? _options$queryHash : hashQueryKeyByOptions(queryKey, options);
+    const queryHash = options.queryHash ?? hashQueryKeyByOptions(queryKey, options);
     let query = this.get(queryHash);
-
     if (!query) {
       query = new Query({
         cache: this,
-        logger: client.getLogger(),
         queryKey,
         queryHash,
         options: client.defaultQueryOptions(options),
@@ -3217,607 +2781,513 @@ class QueryCache extends Subscribable {
       });
       this.add(query);
     }
-
     return query;
   }
-
   add(query) {
-    if (!this.queriesMap[query.queryHash]) {
-      this.queriesMap[query.queryHash] = query;
-      this.queries.push(query);
+    if (!this.#queries.has(query.queryHash)) {
+      this.#queries.set(query.queryHash, query);
       this.notify({
-        type: 'added',
+        type: "added",
         query
       });
     }
   }
-
   remove(query) {
-    const queryInMap = this.queriesMap[query.queryHash];
-
+    const queryInMap = this.#queries.get(query.queryHash);
     if (queryInMap) {
       query.destroy();
-      this.queries = this.queries.filter(x => x !== query);
-
       if (queryInMap === query) {
-        delete this.queriesMap[query.queryHash];
+        this.#queries.delete(query.queryHash);
       }
-
-      this.notify({
-        type: 'removed',
-        query
-      });
+      this.notify({ type: "removed", query });
     }
   }
-
   clear() {
     notifyManager.batch(() => {
-      this.queries.forEach(query => {
+      this.getAll().forEach((query) => {
         this.remove(query);
       });
     });
   }
-
   get(queryHash) {
-    return this.queriesMap[queryHash];
+    return this.#queries.get(queryHash);
   }
-
   getAll() {
-    return this.queries;
+    return [...this.#queries.values()];
   }
-
-  find(arg1, arg2) {
-    const [filters] = parseFilterArgs(arg1, arg2);
-
-    if (typeof filters.exact === 'undefined') {
-      filters.exact = true;
-    }
-
-    return this.queries.find(query => matchQuery(filters, query));
+  find(filters) {
+    const defaultedFilters = { exact: true, ...filters };
+    return this.getAll().find(
+      (query) => matchQuery(defaultedFilters, query)
+    );
   }
-
-  findAll(arg1, arg2) {
-    const [filters] = parseFilterArgs(arg1, arg2);
-    return Object.keys(filters).length > 0 ? this.queries.filter(query => matchQuery(filters, query)) : this.queries;
+  findAll(filters = {}) {
+    const queries = this.getAll();
+    return Object.keys(filters).length > 0 ? queries.filter((query) => matchQuery(filters, query)) : queries;
   }
-
   notify(event) {
     notifyManager.batch(() => {
-      this.listeners.forEach(({
-        listener
-      }) => {
+      this.listeners.forEach((listener) => {
         listener(event);
       });
     });
   }
-
   onFocus() {
     notifyManager.batch(() => {
-      this.queries.forEach(query => {
+      this.getAll().forEach((query) => {
         query.onFocus();
       });
     });
   }
-
   onOnline() {
     notifyManager.batch(() => {
-      this.queries.forEach(query => {
+      this.getAll().forEach((query) => {
         query.onOnline();
       });
     });
   }
+};
 
-}
-
-
-//# sourceMappingURL=queryCache.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/mutation.mjs
+//# sourceMappingURL=queryCache.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/modern/mutation.js
+// src/mutation.ts
 
 
 
-
-
-// CLASS
-class Mutation extends Removable {
+var Mutation = class extends Removable {
   constructor(config) {
     super();
-    this.defaultOptions = config.defaultOptions;
     this.mutationId = config.mutationId;
-    this.mutationCache = config.mutationCache;
-    this.logger = config.logger || defaultLogger;
-    this.observers = [];
+    this.#defaultOptions = config.defaultOptions;
+    this.#mutationCache = config.mutationCache;
+    this.#observers = [];
     this.state = config.state || mutation_getDefaultState();
     this.setOptions(config.options);
     this.scheduleGc();
   }
-
+  #observers;
+  #defaultOptions;
+  #mutationCache;
+  #retryer;
   setOptions(options) {
-    this.options = { ...this.defaultOptions,
-      ...options
-    };
-    this.updateCacheTime(this.options.cacheTime);
+    this.options = { ...this.#defaultOptions, ...options };
+    this.updateGcTime(this.options.gcTime);
   }
-
   get meta() {
     return this.options.meta;
   }
-
-  setState(state) {
-    this.dispatch({
-      type: 'setState',
-      state
-    });
-  }
-
   addObserver(observer) {
-    if (!this.observers.includes(observer)) {
-      this.observers.push(observer); // Stop the mutation from being garbage collected
-
+    if (!this.#observers.includes(observer)) {
+      this.#observers.push(observer);
       this.clearGcTimeout();
-      this.mutationCache.notify({
-        type: 'observerAdded',
+      this.#mutationCache.notify({
+        type: "observerAdded",
         mutation: this,
         observer
       });
     }
   }
-
   removeObserver(observer) {
-    this.observers = this.observers.filter(x => x !== observer);
+    this.#observers = this.#observers.filter((x) => x !== observer);
     this.scheduleGc();
-    this.mutationCache.notify({
-      type: 'observerRemoved',
+    this.#mutationCache.notify({
+      type: "observerRemoved",
       mutation: this,
       observer
     });
   }
-
   optionalRemove() {
-    if (!this.observers.length) {
-      if (this.state.status === 'loading') {
+    if (!this.#observers.length) {
+      if (this.state.status === "pending") {
         this.scheduleGc();
       } else {
-        this.mutationCache.remove(this);
+        this.#mutationCache.remove(this);
       }
     }
   }
-
   continue() {
-    var _this$retryer$continu, _this$retryer;
-
-    return (_this$retryer$continu = (_this$retryer = this.retryer) == null ? void 0 : _this$retryer.continue()) != null ? _this$retryer$continu : this.execute();
+    return this.#retryer?.continue() ?? // continuing a mutation assumes that variables are set, mutation must have been dehydrated before
+    this.execute(this.state.variables);
   }
-
-  async execute() {
+  async execute(variables) {
     const executeMutation = () => {
-      var _this$options$retry;
-
-      this.retryer = createRetryer({
+      this.#retryer = createRetryer({
         fn: () => {
           if (!this.options.mutationFn) {
-            return Promise.reject('No mutationFn found');
+            return Promise.reject(new Error("No mutationFn found"));
           }
-
-          return this.options.mutationFn(this.state.variables);
+          return this.options.mutationFn(variables);
         },
         onFail: (failureCount, error) => {
-          this.dispatch({
-            type: 'failed',
-            failureCount,
-            error
-          });
+          this.#dispatch({ type: "failed", failureCount, error });
         },
         onPause: () => {
-          this.dispatch({
-            type: 'pause'
-          });
+          this.#dispatch({ type: "pause" });
         },
         onContinue: () => {
-          this.dispatch({
-            type: 'continue'
-          });
+          this.#dispatch({ type: "continue" });
         },
-        retry: (_this$options$retry = this.options.retry) != null ? _this$options$retry : 0,
+        retry: this.options.retry ?? 0,
         retryDelay: this.options.retryDelay,
         networkMode: this.options.networkMode
       });
-      return this.retryer.promise;
+      return this.#retryer.promise;
     };
-
-    const restored = this.state.status === 'loading';
-
+    const restored = this.state.status === "pending";
     try {
-      var _this$mutationCache$c3, _this$mutationCache$c4, _this$options$onSucce, _this$options2, _this$mutationCache$c5, _this$mutationCache$c6, _this$options$onSettl, _this$options3;
-
       if (!restored) {
-        var _this$mutationCache$c, _this$mutationCache$c2, _this$options$onMutat, _this$options;
-
-        this.dispatch({
-          type: 'loading',
-          variables: this.options.variables
-        }); // Notify cache callback
-
-        await ((_this$mutationCache$c = (_this$mutationCache$c2 = this.mutationCache.config).onMutate) == null ? void 0 : _this$mutationCache$c.call(_this$mutationCache$c2, this.state.variables, this));
-        const context = await ((_this$options$onMutat = (_this$options = this.options).onMutate) == null ? void 0 : _this$options$onMutat.call(_this$options, this.state.variables));
-
+        this.#dispatch({ type: "pending", variables });
+        await this.#mutationCache.config.onMutate?.(
+          variables,
+          this
+        );
+        const context = await this.options.onMutate?.(variables);
         if (context !== this.state.context) {
-          this.dispatch({
-            type: 'loading',
+          this.#dispatch({
+            type: "pending",
             context,
-            variables: this.state.variables
+            variables
           });
         }
       }
-
-      const data = await executeMutation(); // Notify cache callback
-
-      await ((_this$mutationCache$c3 = (_this$mutationCache$c4 = this.mutationCache.config).onSuccess) == null ? void 0 : _this$mutationCache$c3.call(_this$mutationCache$c4, data, this.state.variables, this.state.context, this));
-      await ((_this$options$onSucce = (_this$options2 = this.options).onSuccess) == null ? void 0 : _this$options$onSucce.call(_this$options2, data, this.state.variables, this.state.context)); // Notify cache callback
-
-      await ((_this$mutationCache$c5 = (_this$mutationCache$c6 = this.mutationCache.config).onSettled) == null ? void 0 : _this$mutationCache$c5.call(_this$mutationCache$c6, data, null, this.state.variables, this.state.context, this));
-      await ((_this$options$onSettl = (_this$options3 = this.options).onSettled) == null ? void 0 : _this$options$onSettl.call(_this$options3, data, null, this.state.variables, this.state.context));
-      this.dispatch({
-        type: 'success',
-        data
-      });
+      const data = await executeMutation();
+      await this.#mutationCache.config.onSuccess?.(
+        data,
+        variables,
+        this.state.context,
+        this
+      );
+      await this.options.onSuccess?.(data, variables, this.state.context);
+      await this.#mutationCache.config.onSettled?.(
+        data,
+        null,
+        this.state.variables,
+        this.state.context,
+        this
+      );
+      await this.options.onSettled?.(data, null, variables, this.state.context);
+      this.#dispatch({ type: "success", data });
       return data;
     } catch (error) {
       try {
-        var _this$mutationCache$c7, _this$mutationCache$c8, _this$options$onError, _this$options4, _this$mutationCache$c9, _this$mutationCache$c10, _this$options$onSettl2, _this$options5;
-
-        // Notify cache callback
-        await ((_this$mutationCache$c7 = (_this$mutationCache$c8 = this.mutationCache.config).onError) == null ? void 0 : _this$mutationCache$c7.call(_this$mutationCache$c8, error, this.state.variables, this.state.context, this));
-
-        if (false) {}
-
-        await ((_this$options$onError = (_this$options4 = this.options).onError) == null ? void 0 : _this$options$onError.call(_this$options4, error, this.state.variables, this.state.context)); // Notify cache callback
-
-        await ((_this$mutationCache$c9 = (_this$mutationCache$c10 = this.mutationCache.config).onSettled) == null ? void 0 : _this$mutationCache$c9.call(_this$mutationCache$c10, undefined, error, this.state.variables, this.state.context, this));
-        await ((_this$options$onSettl2 = (_this$options5 = this.options).onSettled) == null ? void 0 : _this$options$onSettl2.call(_this$options5, undefined, error, this.state.variables, this.state.context));
+        await this.#mutationCache.config.onError?.(
+          error,
+          variables,
+          this.state.context,
+          this
+        );
+        await this.options.onError?.(
+          error,
+          variables,
+          this.state.context
+        );
+        await this.#mutationCache.config.onSettled?.(
+          void 0,
+          error,
+          this.state.variables,
+          this.state.context,
+          this
+        );
+        await this.options.onSettled?.(
+          void 0,
+          error,
+          variables,
+          this.state.context
+        );
         throw error;
       } finally {
-        this.dispatch({
-          type: 'error',
-          error: error
-        });
+        this.#dispatch({ type: "error", error });
       }
     }
   }
-
-  dispatch(action) {
-    const reducer = state => {
+  #dispatch(action) {
+    const reducer = (state) => {
       switch (action.type) {
-        case 'failed':
-          return { ...state,
+        case "failed":
+          return {
+            ...state,
             failureCount: action.failureCount,
             failureReason: action.error
           };
-
-        case 'pause':
-          return { ...state,
+        case "pause":
+          return {
+            ...state,
             isPaused: true
           };
-
-        case 'continue':
-          return { ...state,
+        case "continue":
+          return {
+            ...state,
             isPaused: false
           };
-
-        case 'loading':
-          return { ...state,
+        case "pending":
+          return {
+            ...state,
             context: action.context,
-            data: undefined,
+            data: void 0,
             failureCount: 0,
             failureReason: null,
             error: null,
             isPaused: !canFetch(this.options.networkMode),
-            status: 'loading',
-            variables: action.variables
+            status: "pending",
+            variables: action.variables,
+            submittedAt: Date.now()
           };
-
-        case 'success':
-          return { ...state,
+        case "success":
+          return {
+            ...state,
             data: action.data,
             failureCount: 0,
             failureReason: null,
             error: null,
-            status: 'success',
+            status: "success",
             isPaused: false
           };
-
-        case 'error':
-          return { ...state,
-            data: undefined,
+        case "error":
+          return {
+            ...state,
+            data: void 0,
             error: action.error,
             failureCount: state.failureCount + 1,
             failureReason: action.error,
             isPaused: false,
-            status: 'error'
-          };
-
-        case 'setState':
-          return { ...state,
-            ...action.state
+            status: "error"
           };
       }
     };
-
     this.state = reducer(this.state);
     notifyManager.batch(() => {
-      this.observers.forEach(observer => {
+      this.#observers.forEach((observer) => {
         observer.onMutationUpdate(action);
       });
-      this.mutationCache.notify({
+      this.#mutationCache.notify({
         mutation: this,
-        type: 'updated',
+        type: "updated",
         action
       });
     });
   }
-
-}
+};
 function mutation_getDefaultState() {
   return {
-    context: undefined,
-    data: undefined,
+    context: void 0,
+    data: void 0,
     error: null,
     failureCount: 0,
     failureReason: null,
     isPaused: false,
-    status: 'idle',
-    variables: undefined
+    status: "idle",
+    variables: void 0,
+    submittedAt: 0
   };
 }
 
-
-//# sourceMappingURL=mutation.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/mutationCache.mjs
-
+//# sourceMappingURL=mutation.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/modern/mutationCache.js
+// src/mutationCache.ts
 
 
 
 
-// CLASS
-class MutationCache extends Subscribable {
-  constructor(config) {
+var MutationCache = class extends Subscribable {
+  constructor(config = {}) {
     super();
-    this.config = config || {};
-    this.mutations = [];
-    this.mutationId = 0;
+    this.config = config;
+    this.#mutations = [];
+    this.#mutationId = 0;
   }
-
+  #mutations;
+  #mutationId;
+  #resuming;
   build(client, options, state) {
     const mutation = new Mutation({
       mutationCache: this,
-      logger: client.getLogger(),
-      mutationId: ++this.mutationId,
+      mutationId: ++this.#mutationId,
       options: client.defaultMutationOptions(options),
-      state,
-      defaultOptions: options.mutationKey ? client.getMutationDefaults(options.mutationKey) : undefined
+      state
     });
     this.add(mutation);
     return mutation;
   }
-
   add(mutation) {
-    this.mutations.push(mutation);
-    this.notify({
-      type: 'added',
-      mutation
-    });
+    this.#mutations.push(mutation);
+    this.notify({ type: "added", mutation });
   }
-
   remove(mutation) {
-    this.mutations = this.mutations.filter(x => x !== mutation);
-    this.notify({
-      type: 'removed',
-      mutation
-    });
+    this.#mutations = this.#mutations.filter((x) => x !== mutation);
+    this.notify({ type: "removed", mutation });
   }
-
   clear() {
     notifyManager.batch(() => {
-      this.mutations.forEach(mutation => {
+      this.#mutations.forEach((mutation) => {
         this.remove(mutation);
       });
     });
   }
-
   getAll() {
-    return this.mutations;
+    return this.#mutations;
   }
-
   find(filters) {
-    if (typeof filters.exact === 'undefined') {
-      filters.exact = true;
-    }
-
-    return this.mutations.find(mutation => matchMutation(filters, mutation));
+    const defaultedFilters = { exact: true, ...filters };
+    return this.#mutations.find(
+      (mutation) => matchMutation(defaultedFilters, mutation)
+    );
   }
-
-  findAll(filters) {
-    return this.mutations.filter(mutation => matchMutation(filters, mutation));
+  findAll(filters = {}) {
+    return this.#mutations.filter(
+      (mutation) => matchMutation(filters, mutation)
+    );
   }
-
   notify(event) {
     notifyManager.batch(() => {
-      this.listeners.forEach(({
-        listener
-      }) => {
+      this.listeners.forEach((listener) => {
         listener(event);
       });
     });
   }
-
   resumePausedMutations() {
-    var _this$resuming;
-
-    this.resuming = ((_this$resuming = this.resuming) != null ? _this$resuming : Promise.resolve()).then(() => {
-      const pausedMutations = this.mutations.filter(x => x.state.isPaused);
-      return notifyManager.batch(() => pausedMutations.reduce((promise, mutation) => promise.then(() => mutation.continue().catch(noop)), Promise.resolve()));
+    this.#resuming = (this.#resuming ?? Promise.resolve()).then(() => {
+      const pausedMutations = this.#mutations.filter((x) => x.state.isPaused);
+      return notifyManager.batch(
+        () => pausedMutations.reduce(
+          (promise, mutation) => promise.then(() => mutation.continue().catch(noop)),
+          Promise.resolve()
+        )
+      );
     }).then(() => {
-      this.resuming = undefined;
+      this.#resuming = void 0;
     });
-    return this.resuming;
+    return this.#resuming;
   }
+};
 
-}
+//# sourceMappingURL=mutationCache.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/modern/infiniteQueryBehavior.js
+// src/infiniteQueryBehavior.ts
 
-
-//# sourceMappingURL=mutationCache.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/infiniteQueryBehavior.mjs
-function infiniteQueryBehavior() {
+function infiniteQueryBehavior(pages) {
   return {
-    onFetch: context => {
-      context.fetchFn = () => {
-        var _context$fetchOptions, _context$fetchOptions2, _context$fetchOptions3, _context$fetchOptions4, _context$state$data, _context$state$data2;
-
-        const refetchPage = (_context$fetchOptions = context.fetchOptions) == null ? void 0 : (_context$fetchOptions2 = _context$fetchOptions.meta) == null ? void 0 : _context$fetchOptions2.refetchPage;
-        const fetchMore = (_context$fetchOptions3 = context.fetchOptions) == null ? void 0 : (_context$fetchOptions4 = _context$fetchOptions3.meta) == null ? void 0 : _context$fetchOptions4.fetchMore;
-        const pageParam = fetchMore == null ? void 0 : fetchMore.pageParam;
-        const isFetchingNextPage = (fetchMore == null ? void 0 : fetchMore.direction) === 'forward';
-        const isFetchingPreviousPage = (fetchMore == null ? void 0 : fetchMore.direction) === 'backward';
-        const oldPages = ((_context$state$data = context.state.data) == null ? void 0 : _context$state$data.pages) || [];
-        const oldPageParams = ((_context$state$data2 = context.state.data) == null ? void 0 : _context$state$data2.pageParams) || [];
-        let newPageParams = oldPageParams;
+    onFetch: (context, query) => {
+      const fetchFn = async () => {
+        const options = context.options;
+        const direction = context.fetchOptions?.meta?.fetchMore?.direction;
+        const oldPages = context.state.data?.pages || [];
+        const oldPageParams = context.state.data?.pageParams || [];
+        const empty = { pages: [], pageParams: [] };
         let cancelled = false;
-
-        const addSignalProperty = object => {
-          Object.defineProperty(object, 'signal', {
+        const addSignalProperty = (object) => {
+          Object.defineProperty(object, "signal", {
             enumerable: true,
             get: () => {
-              var _context$signal;
-
-              if ((_context$signal = context.signal) != null && _context$signal.aborted) {
+              if (context.signal.aborted) {
                 cancelled = true;
               } else {
-                var _context$signal2;
-
-                (_context$signal2 = context.signal) == null ? void 0 : _context$signal2.addEventListener('abort', () => {
+                context.signal.addEventListener("abort", () => {
                   cancelled = true;
                 });
               }
-
               return context.signal;
             }
           });
-        }; // Get query function
-
-
-        const queryFn = context.options.queryFn || (() => Promise.reject("Missing queryFn for queryKey '" + context.options.queryHash + "'"));
-
-        const buildNewPages = (pages, param, page, previous) => {
-          newPageParams = previous ? [param, ...newPageParams] : [...newPageParams, param];
-          return previous ? [page, ...pages] : [...pages, page];
-        }; // Create function to fetch a page
-
-
-        const fetchPage = (pages, manual, param, previous) => {
+        };
+        const queryFn = context.options.queryFn || (() => Promise.reject(
+          new Error(`Missing queryFn: '${context.options.queryHash}'`)
+        ));
+        const fetchPage = async (data, param, previous) => {
           if (cancelled) {
-            return Promise.reject('Cancelled');
+            return Promise.reject();
           }
-
-          if (typeof param === 'undefined' && !manual && pages.length) {
-            return Promise.resolve(pages);
+          if (param == null && data.pages.length) {
+            return Promise.resolve(data);
           }
-
           const queryFnContext = {
             queryKey: context.queryKey,
             pageParam: param,
+            direction: previous ? "backward" : "forward",
             meta: context.options.meta
           };
           addSignalProperty(queryFnContext);
-          const queryFnResult = queryFn(queryFnContext);
-          const promise = Promise.resolve(queryFnResult).then(page => buildNewPages(pages, param, page, previous));
-          return promise;
+          const page = await queryFn(
+            queryFnContext
+          );
+          const { maxPages } = context.options;
+          const addTo = previous ? addToStart : addToEnd;
+          return {
+            pages: addTo(data.pages, page, maxPages),
+            pageParams: addTo(data.pageParams, param, maxPages)
+          };
         };
-
-        let promise; // Fetch first page?
-
-        if (!oldPages.length) {
-          promise = fetchPage([]);
-        } // Fetch next page?
-        else if (isFetchingNextPage) {
-          const manual = typeof pageParam !== 'undefined';
-          const param = manual ? pageParam : getNextPageParam(context.options, oldPages);
-          promise = fetchPage(oldPages, manual, param);
-        } // Fetch previous page?
-        else if (isFetchingPreviousPage) {
-          const manual = typeof pageParam !== 'undefined';
-          const param = manual ? pageParam : getPreviousPageParam(context.options, oldPages);
-          promise = fetchPage(oldPages, manual, param, true);
-        } // Refetch pages
-        else {
-          newPageParams = [];
-          const manual = typeof context.options.getNextPageParam === 'undefined';
-          const shouldFetchFirstPage = refetchPage && oldPages[0] ? refetchPage(oldPages[0], 0, oldPages) : true; // Fetch first page
-
-          promise = shouldFetchFirstPage ? fetchPage([], manual, oldPageParams[0]) : Promise.resolve(buildNewPages([], oldPageParams[0], oldPages[0])); // Fetch remaining pages
-
-          for (let i = 1; i < oldPages.length; i++) {
-            promise = promise.then(pages => {
-              const shouldFetchNextPage = refetchPage && oldPages[i] ? refetchPage(oldPages[i], i, oldPages) : true;
-
-              if (shouldFetchNextPage) {
-                const param = manual ? oldPageParams[i] : getNextPageParam(context.options, pages);
-                return fetchPage(pages, manual, param);
-              }
-
-              return Promise.resolve(buildNewPages(pages, oldPageParams[i], oldPages[i]));
-            });
+        let result;
+        if (direction && oldPages.length) {
+          const previous = direction === "backward";
+          const pageParamFn = previous ? getPreviousPageParam : getNextPageParam;
+          const oldData = {
+            pages: oldPages,
+            pageParams: oldPageParams
+          };
+          const param = pageParamFn(options, oldData);
+          result = await fetchPage(oldData, param, previous);
+        } else {
+          result = await fetchPage(
+            empty,
+            oldPageParams[0] ?? options.initialPageParam
+          );
+          const remainingPages = pages ?? oldPages.length;
+          for (let i = 1; i < remainingPages; i++) {
+            const param = getNextPageParam(options, result);
+            result = await fetchPage(result, param);
           }
         }
-
-        const finalPromise = promise.then(pages => ({
-          pages,
-          pageParams: newPageParams
-        }));
-        return finalPromise;
+        return result;
       };
+      if (context.options.persister) {
+        context.fetchFn = () => {
+          return context.options.persister?.(
+            fetchFn,
+            {
+              queryKey: context.queryKey,
+              meta: context.options.meta,
+              signal: context.signal
+            },
+            query
+          );
+        };
+      } else {
+        context.fetchFn = fetchFn;
+      }
     }
   };
 }
-function getNextPageParam(options, pages) {
-  return options.getNextPageParam == null ? void 0 : options.getNextPageParam(pages[pages.length - 1], pages);
+function getNextPageParam(options, { pages, pageParams }) {
+  const lastIndex = pages.length - 1;
+  return options.getNextPageParam(
+    pages[lastIndex],
+    pages,
+    pageParams[lastIndex],
+    pageParams
+  );
 }
-function getPreviousPageParam(options, pages) {
-  return options.getPreviousPageParam == null ? void 0 : options.getPreviousPageParam(pages[0], pages);
+function getPreviousPageParam(options, { pages, pageParams }) {
+  return options.getPreviousPageParam?.(
+    pages[0],
+    pages,
+    pageParams[0],
+    pageParams
+  );
 }
-/**
- * Checks if there is a next page.
- * Returns `undefined` if it cannot be determined.
- */
-
-function hasNextPage(options, pages) {
-  if (options.getNextPageParam && Array.isArray(pages)) {
-    const nextPageParam = getNextPageParam(options, pages);
-    return typeof nextPageParam !== 'undefined' && nextPageParam !== null && nextPageParam !== false;
-  }
-
-  return;
+function hasNextPage(options, data) {
+  if (!data)
+    return false;
+  return getNextPageParam(options, data) != null;
 }
-/**
- * Checks if there is a previous page.
- * Returns `undefined` if it cannot be determined.
- */
-
-function hasPreviousPage(options, pages) {
-  if (options.getPreviousPageParam && Array.isArray(pages)) {
-    const previousPageParam = getPreviousPageParam(options, pages);
-    return typeof previousPageParam !== 'undefined' && previousPageParam !== null && previousPageParam !== false;
-  }
-
-  return;
+function hasPreviousPage(options, data) {
+  if (!data || !options.getPreviousPageParam)
+    return false;
+  return getPreviousPageParam(options, data) != null;
 }
 
-
-//# sourceMappingURL=infiniteQueryBehavior.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/queryClient.mjs
-
+//# sourceMappingURL=infiniteQueryBehavior.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/modern/queryClient.js
+// src/queryClient.ts
 
 
 
@@ -3825,386 +3295,281 @@ function hasPreviousPage(options, pages) {
 
 
 
-
-// CLASS
-class QueryClient {
+var QueryClient = class {
+  #queryCache;
+  #mutationCache;
+  #defaultOptions;
+  #queryDefaults;
+  #mutationDefaults;
+  #mountCount;
+  #unsubscribeFocus;
+  #unsubscribeOnline;
   constructor(config = {}) {
-    this.queryCache = config.queryCache || new QueryCache();
-    this.mutationCache = config.mutationCache || new MutationCache();
-    this.logger = config.logger || defaultLogger;
-    this.defaultOptions = config.defaultOptions || {};
-    this.queryDefaults = [];
-    this.mutationDefaults = [];
-    this.mountCount = 0;
-
-    if (false) {}
+    this.#queryCache = config.queryCache || new QueryCache();
+    this.#mutationCache = config.mutationCache || new MutationCache();
+    this.#defaultOptions = config.defaultOptions || {};
+    this.#queryDefaults = /* @__PURE__ */ new Map();
+    this.#mutationDefaults = /* @__PURE__ */ new Map();
+    this.#mountCount = 0;
   }
-
   mount() {
-    this.mountCount++;
-    if (this.mountCount !== 1) return;
-    this.unsubscribeFocus = focusManager.subscribe(() => {
+    this.#mountCount++;
+    if (this.#mountCount !== 1)
+      return;
+    this.#unsubscribeFocus = focusManager.subscribe(() => {
       if (focusManager.isFocused()) {
         this.resumePausedMutations();
-        this.queryCache.onFocus();
+        this.#queryCache.onFocus();
       }
     });
-    this.unsubscribeOnline = onlineManager.subscribe(() => {
+    this.#unsubscribeOnline = onlineManager.subscribe(() => {
       if (onlineManager.isOnline()) {
         this.resumePausedMutations();
-        this.queryCache.onOnline();
+        this.#queryCache.onOnline();
       }
     });
   }
-
   unmount() {
-    var _this$unsubscribeFocu, _this$unsubscribeOnli;
-
-    this.mountCount--;
-    if (this.mountCount !== 0) return;
-    (_this$unsubscribeFocu = this.unsubscribeFocus) == null ? void 0 : _this$unsubscribeFocu.call(this);
-    this.unsubscribeFocus = undefined;
-    (_this$unsubscribeOnli = this.unsubscribeOnline) == null ? void 0 : _this$unsubscribeOnli.call(this);
-    this.unsubscribeOnline = undefined;
+    this.#mountCount--;
+    if (this.#mountCount !== 0)
+      return;
+    this.#unsubscribeFocus?.();
+    this.#unsubscribeFocus = void 0;
+    this.#unsubscribeOnline?.();
+    this.#unsubscribeOnline = void 0;
   }
-
-  isFetching(arg1, arg2) {
-    const [filters] = parseFilterArgs(arg1, arg2);
-    filters.fetchStatus = 'fetching';
-    return this.queryCache.findAll(filters).length;
+  isFetching(filters) {
+    return this.#queryCache.findAll({ ...filters, fetchStatus: "fetching" }).length;
   }
-
   isMutating(filters) {
-    return this.mutationCache.findAll({ ...filters,
-      fetching: true
-    }).length;
+    return this.#mutationCache.findAll({ ...filters, status: "pending" }).length;
   }
-
-  getQueryData(queryKey, filters) {
-    var _this$queryCache$find;
-
-    return (_this$queryCache$find = this.queryCache.find(queryKey, filters)) == null ? void 0 : _this$queryCache$find.state.data;
+  getQueryData(queryKey) {
+    return this.#queryCache.find({ queryKey })?.state.data;
   }
-
-  ensureQueryData(arg1, arg2, arg3) {
-    const parsedOptions = parseQueryArgs(arg1, arg2, arg3);
-    const cachedData = this.getQueryData(parsedOptions.queryKey);
-    return cachedData ? Promise.resolve(cachedData) : this.fetchQuery(parsedOptions);
+  ensureQueryData(options) {
+    const cachedData = this.getQueryData(options.queryKey);
+    return cachedData !== void 0 ? Promise.resolve(cachedData) : this.fetchQuery(options);
   }
-
-  getQueriesData(queryKeyOrFilters) {
-    return this.getQueryCache().findAll(queryKeyOrFilters).map(({
-      queryKey,
-      state
-    }) => {
+  getQueriesData(filters) {
+    return this.getQueryCache().findAll(filters).map(({ queryKey, state }) => {
       const data = state.data;
       return [queryKey, data];
     });
   }
-
   setQueryData(queryKey, updater, options) {
-    const query = this.queryCache.find(queryKey);
-    const prevData = query == null ? void 0 : query.state.data;
+    const query = this.#queryCache.find({ queryKey });
+    const prevData = query?.state.data;
     const data = functionalUpdate(updater, prevData);
-
-    if (typeof data === 'undefined') {
-      return undefined;
+    if (typeof data === "undefined") {
+      return void 0;
     }
-
-    const parsedOptions = parseQueryArgs(queryKey);
-    const defaultedOptions = this.defaultQueryOptions(parsedOptions);
-    return this.queryCache.build(this, defaultedOptions).setData(data, { ...options,
-      manual: true
-    });
+    const defaultedOptions = this.defaultQueryOptions({ queryKey });
+    return this.#queryCache.build(this, defaultedOptions).setData(data, { ...options, manual: true });
   }
-
-  setQueriesData(queryKeyOrFilters, updater, options) {
-    return notifyManager.batch(() => this.getQueryCache().findAll(queryKeyOrFilters).map(({
-      queryKey
-    }) => [queryKey, this.setQueryData(queryKey, updater, options)]));
+  setQueriesData(filters, updater, options) {
+    return notifyManager.batch(
+      () => this.getQueryCache().findAll(filters).map(({ queryKey }) => [
+        queryKey,
+        this.setQueryData(queryKey, updater, options)
+      ])
+    );
   }
-
-  getQueryState(queryKey, filters) {
-    var _this$queryCache$find2;
-
-    return (_this$queryCache$find2 = this.queryCache.find(queryKey, filters)) == null ? void 0 : _this$queryCache$find2.state;
+  getQueryState(queryKey) {
+    return this.#queryCache.find({ queryKey })?.state;
   }
-
-  removeQueries(arg1, arg2) {
-    const [filters] = parseFilterArgs(arg1, arg2);
-    const queryCache = this.queryCache;
+  removeQueries(filters) {
+    const queryCache = this.#queryCache;
     notifyManager.batch(() => {
-      queryCache.findAll(filters).forEach(query => {
+      queryCache.findAll(filters).forEach((query) => {
         queryCache.remove(query);
       });
     });
   }
-
-  resetQueries(arg1, arg2, arg3) {
-    const [filters, options] = parseFilterArgs(arg1, arg2, arg3);
-    const queryCache = this.queryCache;
+  resetQueries(filters, options) {
+    const queryCache = this.#queryCache;
     const refetchFilters = {
-      type: 'active',
+      type: "active",
       ...filters
     };
     return notifyManager.batch(() => {
-      queryCache.findAll(filters).forEach(query => {
+      queryCache.findAll(filters).forEach((query) => {
         query.reset();
       });
       return this.refetchQueries(refetchFilters, options);
     });
   }
-
-  cancelQueries(arg1, arg2, arg3) {
-    const [filters, cancelOptions = {}] = parseFilterArgs(arg1, arg2, arg3);
-
-    if (typeof cancelOptions.revert === 'undefined') {
-      cancelOptions.revert = true;
-    }
-
-    const promises = notifyManager.batch(() => this.queryCache.findAll(filters).map(query => query.cancel(cancelOptions)));
+  cancelQueries(filters = {}, cancelOptions = {}) {
+    const defaultedCancelOptions = { revert: true, ...cancelOptions };
+    const promises = notifyManager.batch(
+      () => this.#queryCache.findAll(filters).map((query) => query.cancel(defaultedCancelOptions))
+    );
     return Promise.all(promises).then(noop).catch(noop);
   }
-
-  invalidateQueries(arg1, arg2, arg3) {
-    const [filters, options] = parseFilterArgs(arg1, arg2, arg3);
+  invalidateQueries(filters = {}, options = {}) {
     return notifyManager.batch(() => {
-      var _ref, _filters$refetchType;
-
-      this.queryCache.findAll(filters).forEach(query => {
+      this.#queryCache.findAll(filters).forEach((query) => {
         query.invalidate();
       });
-
-      if (filters.refetchType === 'none') {
+      if (filters.refetchType === "none") {
         return Promise.resolve();
       }
-
-      const refetchFilters = { ...filters,
-        type: (_ref = (_filters$refetchType = filters.refetchType) != null ? _filters$refetchType : filters.type) != null ? _ref : 'active'
+      const refetchFilters = {
+        ...filters,
+        type: filters.refetchType ?? filters.type ?? "active"
       };
       return this.refetchQueries(refetchFilters, options);
     });
   }
-
-  refetchQueries(arg1, arg2, arg3) {
-    const [filters, options] = parseFilterArgs(arg1, arg2, arg3);
-    const promises = notifyManager.batch(() => this.queryCache.findAll(filters).filter(query => !query.isDisabled()).map(query => {
-      var _options$cancelRefetc;
-
-      return query.fetch(undefined, { ...options,
-        cancelRefetch: (_options$cancelRefetc = options == null ? void 0 : options.cancelRefetch) != null ? _options$cancelRefetc : true,
-        meta: {
-          refetchPage: filters.refetchPage
+  refetchQueries(filters = {}, options) {
+    const fetchOptions = {
+      ...options,
+      cancelRefetch: options?.cancelRefetch ?? true
+    };
+    const promises = notifyManager.batch(
+      () => this.#queryCache.findAll(filters).filter((query) => !query.isDisabled()).map((query) => {
+        let promise = query.fetch(void 0, fetchOptions);
+        if (!fetchOptions.throwOnError) {
+          promise = promise.catch(noop);
         }
-      });
-    }));
-    let promise = Promise.all(promises).then(noop);
-
-    if (!(options != null && options.throwOnError)) {
-      promise = promise.catch(noop);
-    }
-
-    return promise;
+        return query.state.fetchStatus === "paused" ? Promise.resolve() : promise;
+      })
+    );
+    return Promise.all(promises).then(noop);
   }
-
-  fetchQuery(arg1, arg2, arg3) {
-    const parsedOptions = parseQueryArgs(arg1, arg2, arg3);
-    const defaultedOptions = this.defaultQueryOptions(parsedOptions); // https://github.com/tannerlinsley/react-query/issues/652
-
-    if (typeof defaultedOptions.retry === 'undefined') {
+  fetchQuery(options) {
+    const defaultedOptions = this.defaultQueryOptions(options);
+    if (typeof defaultedOptions.retry === "undefined") {
       defaultedOptions.retry = false;
     }
-
-    const query = this.queryCache.build(this, defaultedOptions);
+    const query = this.#queryCache.build(this, defaultedOptions);
     return query.isStaleByTime(defaultedOptions.staleTime) ? query.fetch(defaultedOptions) : Promise.resolve(query.state.data);
   }
-
-  prefetchQuery(arg1, arg2, arg3) {
-    return this.fetchQuery(arg1, arg2, arg3).then(noop).catch(noop);
+  prefetchQuery(options) {
+    return this.fetchQuery(options).then(noop).catch(noop);
   }
-
-  fetchInfiniteQuery(arg1, arg2, arg3) {
-    const parsedOptions = parseQueryArgs(arg1, arg2, arg3);
-    parsedOptions.behavior = infiniteQueryBehavior();
-    return this.fetchQuery(parsedOptions);
+  fetchInfiniteQuery(options) {
+    options.behavior = infiniteQueryBehavior(options.pages);
+    return this.fetchQuery(options);
   }
-
-  prefetchInfiniteQuery(arg1, arg2, arg3) {
-    return this.fetchInfiniteQuery(arg1, arg2, arg3).then(noop).catch(noop);
+  prefetchInfiniteQuery(options) {
+    return this.fetchInfiniteQuery(options).then(noop).catch(noop);
   }
-
   resumePausedMutations() {
-    return this.mutationCache.resumePausedMutations();
+    return this.#mutationCache.resumePausedMutations();
   }
-
   getQueryCache() {
-    return this.queryCache;
+    return this.#queryCache;
   }
-
   getMutationCache() {
-    return this.mutationCache;
+    return this.#mutationCache;
   }
-
-  getLogger() {
-    return this.logger;
-  }
-
   getDefaultOptions() {
-    return this.defaultOptions;
+    return this.#defaultOptions;
   }
-
   setDefaultOptions(options) {
-    this.defaultOptions = options;
+    this.#defaultOptions = options;
   }
-
   setQueryDefaults(queryKey, options) {
-    const result = this.queryDefaults.find(x => hashQueryKey(queryKey) === hashQueryKey(x.queryKey));
-
-    if (result) {
-      result.defaultOptions = options;
-    } else {
-      this.queryDefaults.push({
-        queryKey,
-        defaultOptions: options
-      });
-    }
+    this.#queryDefaults.set(hashKey(queryKey), {
+      queryKey,
+      defaultOptions: options
+    });
   }
-
   getQueryDefaults(queryKey) {
-    if (!queryKey) {
-      return undefined;
-    } // Get the first matching defaults
-
-
-    const firstMatchingDefaults = this.queryDefaults.find(x => partialMatchKey(queryKey, x.queryKey)); // Additional checks and error in dev mode
-
-    if (false) {}
-
-    return firstMatchingDefaults == null ? void 0 : firstMatchingDefaults.defaultOptions;
+    const defaults = [...this.#queryDefaults.values()];
+    let result = {};
+    defaults.forEach((queryDefault) => {
+      if (partialMatchKey(queryKey, queryDefault.queryKey)) {
+        result = { ...result, ...queryDefault.defaultOptions };
+      }
+    });
+    return result;
   }
-
   setMutationDefaults(mutationKey, options) {
-    const result = this.mutationDefaults.find(x => hashQueryKey(mutationKey) === hashQueryKey(x.mutationKey));
-
-    if (result) {
-      result.defaultOptions = options;
-    } else {
-      this.mutationDefaults.push({
-        mutationKey,
-        defaultOptions: options
-      });
-    }
+    this.#mutationDefaults.set(hashKey(mutationKey), {
+      mutationKey,
+      defaultOptions: options
+    });
   }
-
   getMutationDefaults(mutationKey) {
-    if (!mutationKey) {
-      return undefined;
-    } // Get the first matching defaults
-
-
-    const firstMatchingDefaults = this.mutationDefaults.find(x => partialMatchKey(mutationKey, x.mutationKey)); // Additional checks and error in dev mode
-
-    if (false) {}
-
-    return firstMatchingDefaults == null ? void 0 : firstMatchingDefaults.defaultOptions;
+    const defaults = [...this.#mutationDefaults.values()];
+    let result = {};
+    defaults.forEach((queryDefault) => {
+      if (partialMatchKey(mutationKey, queryDefault.mutationKey)) {
+        result = { ...result, ...queryDefault.defaultOptions };
+      }
+    });
+    return result;
   }
-
   defaultQueryOptions(options) {
-    if (options != null && options._defaulted) {
+    if (options?._defaulted) {
       return options;
     }
-
-    const defaultedOptions = { ...this.defaultOptions.queries,
-      ...this.getQueryDefaults(options == null ? void 0 : options.queryKey),
+    const defaultedOptions = {
+      ...this.#defaultOptions.queries,
+      ...options?.queryKey && this.getQueryDefaults(options.queryKey),
       ...options,
       _defaulted: true
     };
-
-    if (!defaultedOptions.queryHash && defaultedOptions.queryKey) {
-      defaultedOptions.queryHash = hashQueryKeyByOptions(defaultedOptions.queryKey, defaultedOptions);
-    } // dependent default values
-
-
-    if (typeof defaultedOptions.refetchOnReconnect === 'undefined') {
-      defaultedOptions.refetchOnReconnect = defaultedOptions.networkMode !== 'always';
+    if (!defaultedOptions.queryHash) {
+      defaultedOptions.queryHash = hashQueryKeyByOptions(
+        defaultedOptions.queryKey,
+        defaultedOptions
+      );
     }
-
-    if (typeof defaultedOptions.useErrorBoundary === 'undefined') {
-      defaultedOptions.useErrorBoundary = !!defaultedOptions.suspense;
+    if (typeof defaultedOptions.refetchOnReconnect === "undefined") {
+      defaultedOptions.refetchOnReconnect = defaultedOptions.networkMode !== "always";
     }
-
+    if (typeof defaultedOptions.throwOnError === "undefined") {
+      defaultedOptions.throwOnError = !!defaultedOptions.suspense;
+    }
+    if (typeof defaultedOptions.networkMode === "undefined" && defaultedOptions.persister) {
+      defaultedOptions.networkMode = "offlineFirst";
+    }
     return defaultedOptions;
   }
-
   defaultMutationOptions(options) {
-    if (options != null && options._defaulted) {
+    if (options?._defaulted) {
       return options;
     }
-
-    return { ...this.defaultOptions.mutations,
-      ...this.getMutationDefaults(options == null ? void 0 : options.mutationKey),
+    return {
+      ...this.#defaultOptions.mutations,
+      ...options?.mutationKey && this.getMutationDefaults(options.mutationKey),
       ...options,
       _defaulted: true
     };
   }
-
   clear() {
-    this.queryCache.clear();
-    this.mutationCache.clear();
+    this.#queryCache.clear();
+    this.#mutationCache.clear();
   }
+};
 
-}
-
-
-//# sourceMappingURL=queryClient.mjs.map
-
+//# sourceMappingURL=queryClient.js.map
 // EXTERNAL MODULE: ./node_modules/react/index.js
 var react = __webpack_require__(294);
-;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/QueryClientProvider.mjs
-'use client';
+;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js
+"use client";
 
+// src/QueryClientProvider.tsx
 
-const defaultContext = /*#__PURE__*/react.createContext(undefined);
-const QueryClientSharingContext = /*#__PURE__*/react.createContext(false); // If we are given a context, we will use it.
-// Otherwise, if contextSharing is on, we share the first and at least one
-// instance of the context across the window
-// to ensure that if React Query is used across
-// different bundles or microfrontends they will
-// all use the same **instance** of context, regardless
-// of module scoping.
-
-function getQueryClientContext(context, contextSharing) {
-  if (context) {
-    return context;
+var QueryClientContext = react.createContext(
+  void 0
+);
+var useQueryClient = (queryClient) => {
+  const client = react.useContext(QueryClientContext);
+  if (queryClient) {
+    return queryClient;
   }
-
-  if (contextSharing && typeof window !== 'undefined') {
-    if (!window.ReactQueryClientContext) {
-      window.ReactQueryClientContext = defaultContext;
-    }
-
-    return window.ReactQueryClientContext;
+  if (!client) {
+    throw new Error("No QueryClient set, use QueryClientProvider to set one");
   }
-
-  return defaultContext;
-}
-
-const useQueryClient = ({
-  context
-} = {}) => {
-  const queryClient = react.useContext(getQueryClientContext(context, react.useContext(QueryClientSharingContext)));
-
-  if (!queryClient) {
-    throw new Error('No QueryClient set, use QueryClientProvider to set one');
-  }
-
-  return queryClient;
+  return client;
 };
-const QueryClientProvider = ({
+var QueryClientProvider = ({
   client,
-  children,
-  context,
-  contextSharing = false
+  children
 }) => {
   react.useEffect(() => {
     client.mount();
@@ -4212,217 +3577,741 @@ const QueryClientProvider = ({
       client.unmount();
     };
   }, [client]);
-
-  if (false) {}
-
-  const Context = getQueryClientContext(context, contextSharing);
-  return /*#__PURE__*/react.createElement(QueryClientSharingContext.Provider, {
-    value: !context && contextSharing
-  }, /*#__PURE__*/react.createElement(Context.Provider, {
-    value: client
-  }, children));
+  return /* @__PURE__ */ react.createElement(QueryClientContext.Provider, { value: client }, children);
 };
 
-
-//# sourceMappingURL=QueryClientProvider.mjs.map
-
+//# sourceMappingURL=QueryClientProvider.js.map
 // EXTERNAL MODULE: ./node_modules/react-dom/client.js
 var client = __webpack_require__(745);
-;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/mutationObserver.mjs
+;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/modern/mutationObserver.js
+// src/mutationObserver.ts
 
 
 
 
-
-// CLASS
-class MutationObserver extends Subscribable {
+var MutationObserver = class extends Subscribable {
   constructor(client, options) {
     super();
-    this.client = client;
+    this.#currentResult = void 0;
+    this.#client = client;
     this.setOptions(options);
     this.bindMethods();
-    this.updateResult();
+    this.#updateResult();
   }
-
+  #client;
+  #currentResult;
+  #currentMutation;
+  #mutateOptions;
   bindMethods() {
     this.mutate = this.mutate.bind(this);
     this.reset = this.reset.bind(this);
   }
-
   setOptions(options) {
-    var _this$currentMutation;
-
     const prevOptions = this.options;
-    this.options = this.client.defaultMutationOptions(options);
-
+    this.options = this.#client.defaultMutationOptions(options);
     if (!shallowEqualObjects(prevOptions, this.options)) {
-      this.client.getMutationCache().notify({
-        type: 'observerOptionsUpdated',
-        mutation: this.currentMutation,
+      this.#client.getMutationCache().notify({
+        type: "observerOptionsUpdated",
+        mutation: this.#currentMutation,
         observer: this
       });
     }
-
-    (_this$currentMutation = this.currentMutation) == null ? void 0 : _this$currentMutation.setOptions(this.options);
+    this.#currentMutation?.setOptions(this.options);
+    if (prevOptions?.mutationKey && this.options.mutationKey && hashKey(prevOptions.mutationKey) !== hashKey(this.options.mutationKey)) {
+      this.reset();
+    }
   }
-
   onUnsubscribe() {
     if (!this.hasListeners()) {
-      var _this$currentMutation2;
-
-      (_this$currentMutation2 = this.currentMutation) == null ? void 0 : _this$currentMutation2.removeObserver(this);
+      this.#currentMutation?.removeObserver(this);
     }
   }
-
   onMutationUpdate(action) {
-    this.updateResult(); // Determine which callbacks to trigger
-
-    const notifyOptions = {
-      listeners: true
-    };
-
-    if (action.type === 'success') {
-      notifyOptions.onSuccess = true;
-    } else if (action.type === 'error') {
-      notifyOptions.onError = true;
-    }
-
-    this.notify(notifyOptions);
+    this.#updateResult();
+    this.#notify(action);
   }
-
   getCurrentResult() {
-    return this.currentResult;
+    return this.#currentResult;
   }
-
   reset() {
-    this.currentMutation = undefined;
-    this.updateResult();
-    this.notify({
-      listeners: true
-    });
+    this.#currentMutation?.removeObserver(this);
+    this.#currentMutation = void 0;
+    this.#updateResult();
+    this.#notify();
   }
-
   mutate(variables, options) {
-    this.mutateOptions = options;
-
-    if (this.currentMutation) {
-      this.currentMutation.removeObserver(this);
-    }
-
-    this.currentMutation = this.client.getMutationCache().build(this.client, { ...this.options,
-      variables: typeof variables !== 'undefined' ? variables : this.options.variables
-    });
-    this.currentMutation.addObserver(this);
-    return this.currentMutation.execute();
+    this.#mutateOptions = options;
+    this.#currentMutation?.removeObserver(this);
+    this.#currentMutation = this.#client.getMutationCache().build(this.#client, this.options);
+    this.#currentMutation.addObserver(this);
+    return this.#currentMutation.execute(variables);
   }
-
-  updateResult() {
-    const state = this.currentMutation ? this.currentMutation.state : mutation_getDefaultState();
-    const result = { ...state,
-      isLoading: state.status === 'loading',
-      isSuccess: state.status === 'success',
-      isError: state.status === 'error',
-      isIdle: state.status === 'idle',
+  #updateResult() {
+    const state = this.#currentMutation?.state ?? mutation_getDefaultState();
+    this.#currentResult = {
+      ...state,
+      isPending: state.status === "pending",
+      isSuccess: state.status === "success",
+      isError: state.status === "error",
+      isIdle: state.status === "idle",
       mutate: this.mutate,
       reset: this.reset
     };
-    this.currentResult = result;
   }
-
-  notify(options) {
+  #notify(action) {
     notifyManager.batch(() => {
-      // First trigger the mutate callbacks
-      if (this.mutateOptions && this.hasListeners()) {
-        if (options.onSuccess) {
-          var _this$mutateOptions$o, _this$mutateOptions, _this$mutateOptions$o2, _this$mutateOptions2;
-
-          (_this$mutateOptions$o = (_this$mutateOptions = this.mutateOptions).onSuccess) == null ? void 0 : _this$mutateOptions$o.call(_this$mutateOptions, this.currentResult.data, this.currentResult.variables, this.currentResult.context);
-          (_this$mutateOptions$o2 = (_this$mutateOptions2 = this.mutateOptions).onSettled) == null ? void 0 : _this$mutateOptions$o2.call(_this$mutateOptions2, this.currentResult.data, null, this.currentResult.variables, this.currentResult.context);
-        } else if (options.onError) {
-          var _this$mutateOptions$o3, _this$mutateOptions3, _this$mutateOptions$o4, _this$mutateOptions4;
-
-          (_this$mutateOptions$o3 = (_this$mutateOptions3 = this.mutateOptions).onError) == null ? void 0 : _this$mutateOptions$o3.call(_this$mutateOptions3, this.currentResult.error, this.currentResult.variables, this.currentResult.context);
-          (_this$mutateOptions$o4 = (_this$mutateOptions4 = this.mutateOptions).onSettled) == null ? void 0 : _this$mutateOptions$o4.call(_this$mutateOptions4, undefined, this.currentResult.error, this.currentResult.variables, this.currentResult.context);
+      if (this.#mutateOptions && this.hasListeners()) {
+        const variables = this.#currentResult.variables;
+        const context = this.#currentResult.context;
+        if (action?.type === "success") {
+          this.#mutateOptions.onSuccess?.(action.data, variables, context);
+          this.#mutateOptions.onSettled?.(action.data, null, variables, context);
+        } else if (action?.type === "error") {
+          this.#mutateOptions.onError?.(action.error, variables, context);
+          this.#mutateOptions.onSettled?.(
+            void 0,
+            action.error,
+            variables,
+            context
+          );
         }
-      } // Then trigger the listeners
-
-
-      if (options.listeners) {
-        this.listeners.forEach(({
-          listener
-        }) => {
-          listener(this.currentResult);
-        });
       }
+      this.listeners.forEach((listener) => {
+        listener(this.#currentResult);
+      });
     });
   }
+};
 
-}
-
-
-//# sourceMappingURL=mutationObserver.mjs.map
-
-// EXTERNAL MODULE: ./node_modules/use-sync-external-store/shim/index.js
-var shim = __webpack_require__(688);
-;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/useSyncExternalStore.mjs
-'use client';
-
-
-const useSyncExternalStore = shim.useSyncExternalStore;
-
-
-//# sourceMappingURL=useSyncExternalStore.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/utils.mjs
-function shouldThrowError(_useErrorBoundary, params) {
-  // Allow useErrorBoundary function to override throwing behavior on a per-error basis
-  if (typeof _useErrorBoundary === 'function') {
-    return _useErrorBoundary(...params);
+//# sourceMappingURL=mutationObserver.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/modern/utils.js
+// src/utils.ts
+function shouldThrowError(throwError, params) {
+  if (typeof throwError === "function") {
+    return throwError(...params);
   }
-
-  return !!_useErrorBoundary;
+  return !!throwError;
 }
 
+//# sourceMappingURL=utils.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/modern/useMutation.js
+"use client";
 
-//# sourceMappingURL=utils.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/useMutation.mjs
-'use client';
-
-
+// src/useMutation.ts
 
 
 
 
-function useMutation(arg1, arg2, arg3) {
-  const options = parseMutationArgs(arg1, arg2, arg3);
-  const queryClient = useQueryClient({
-    context: options.context
-  });
-  const [observer] = react.useState(() => new MutationObserver(queryClient, options));
+function useMutation(options, queryClient) {
+  const client = useQueryClient(queryClient);
+  const [observer] = react.useState(
+    () => new MutationObserver(
+      client,
+      options
+    )
+  );
   react.useEffect(() => {
     observer.setOptions(options);
   }, [observer, options]);
-  const result = useSyncExternalStore(react.useCallback(onStoreChange => observer.subscribe(notifyManager.batchCalls(onStoreChange)), [observer]), () => observer.getCurrentResult(), () => observer.getCurrentResult());
-  const mutate = react.useCallback((variables, mutateOptions) => {
-    observer.mutate(variables, mutateOptions).catch(useMutation_noop);
-  }, [observer]);
-
-  if (result.error && shouldThrowError(observer.options.useErrorBoundary, [result.error])) {
+  const result = react.useSyncExternalStore(
+    react.useCallback(
+      (onStoreChange) => observer.subscribe(notifyManager.batchCalls(onStoreChange)),
+      [observer]
+    ),
+    () => observer.getCurrentResult(),
+    () => observer.getCurrentResult()
+  );
+  const mutate = react.useCallback(
+    (variables, mutateOptions) => {
+      observer.mutate(variables, mutateOptions).catch(useMutation_noop);
+    },
+    [observer]
+  );
+  if (result.error && shouldThrowError(observer.options.throwOnError, [result.error])) {
     throw result.error;
   }
+  return { ...result, mutate, mutateAsync: result.mutate };
+}
+function useMutation_noop() {
+}
 
-  return { ...result,
-    mutate,
-    mutateAsync: result.mutate
+//# sourceMappingURL=useMutation.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/modern/queryObserver.js
+// src/queryObserver.ts
+
+
+
+
+
+var QueryObserver = class extends Subscribable {
+  constructor(client, options) {
+    super();
+    this.options = options;
+    this.#client = client;
+    this.#selectError = null;
+    this.bindMethods();
+    this.setOptions(options);
+  }
+  #client;
+  #currentQuery = void 0;
+  #currentQueryInitialState = void 0;
+  #currentResult = void 0;
+  #currentResultState;
+  #currentResultOptions;
+  #selectError;
+  #selectFn;
+  #selectResult;
+  // This property keeps track of the last query with defined data.
+  // It will be used to pass the previous data and query to the placeholder function between renders.
+  #lastQueryWithDefinedData;
+  #staleTimeoutId;
+  #refetchIntervalId;
+  #currentRefetchInterval;
+  #trackedProps = /* @__PURE__ */ new Set();
+  bindMethods() {
+    this.refetch = this.refetch.bind(this);
+  }
+  onSubscribe() {
+    if (this.listeners.size === 1) {
+      this.#currentQuery.addObserver(this);
+      if (shouldFetchOnMount(this.#currentQuery, this.options)) {
+        this.#executeFetch();
+      } else {
+        this.updateResult();
+      }
+      this.#updateTimers();
+    }
+  }
+  onUnsubscribe() {
+    if (!this.hasListeners()) {
+      this.destroy();
+    }
+  }
+  shouldFetchOnReconnect() {
+    return shouldFetchOn(
+      this.#currentQuery,
+      this.options,
+      this.options.refetchOnReconnect
+    );
+  }
+  shouldFetchOnWindowFocus() {
+    return shouldFetchOn(
+      this.#currentQuery,
+      this.options,
+      this.options.refetchOnWindowFocus
+    );
+  }
+  destroy() {
+    this.listeners = /* @__PURE__ */ new Set();
+    this.#clearStaleTimeout();
+    this.#clearRefetchInterval();
+    this.#currentQuery.removeObserver(this);
+  }
+  setOptions(options, notifyOptions) {
+    const prevOptions = this.options;
+    const prevQuery = this.#currentQuery;
+    this.options = this.#client.defaultQueryOptions(options);
+    if (!shallowEqualObjects(prevOptions, this.options)) {
+      this.#client.getQueryCache().notify({
+        type: "observerOptionsUpdated",
+        query: this.#currentQuery,
+        observer: this
+      });
+    }
+    if (typeof this.options.enabled !== "undefined" && typeof this.options.enabled !== "boolean") {
+      throw new Error("Expected enabled to be a boolean");
+    }
+    if (!this.options.queryKey) {
+      this.options.queryKey = prevOptions.queryKey;
+    }
+    this.#updateQuery();
+    const mounted = this.hasListeners();
+    if (mounted && shouldFetchOptionally(
+      this.#currentQuery,
+      prevQuery,
+      this.options,
+      prevOptions
+    )) {
+      this.#executeFetch();
+    }
+    this.updateResult(notifyOptions);
+    if (mounted && (this.#currentQuery !== prevQuery || this.options.enabled !== prevOptions.enabled || this.options.staleTime !== prevOptions.staleTime)) {
+      this.#updateStaleTimeout();
+    }
+    const nextRefetchInterval = this.#computeRefetchInterval();
+    if (mounted && (this.#currentQuery !== prevQuery || this.options.enabled !== prevOptions.enabled || nextRefetchInterval !== this.#currentRefetchInterval)) {
+      this.#updateRefetchInterval(nextRefetchInterval);
+    }
+  }
+  getOptimisticResult(options) {
+    const query = this.#client.getQueryCache().build(this.#client, options);
+    const result = this.createResult(query, options);
+    if (shouldAssignObserverCurrentProperties(this, result)) {
+      this.#currentResult = result;
+      this.#currentResultOptions = this.options;
+      this.#currentResultState = this.#currentQuery.state;
+    }
+    return result;
+  }
+  getCurrentResult() {
+    return this.#currentResult;
+  }
+  trackResult(result) {
+    const trackedResult = {};
+    Object.keys(result).forEach((key) => {
+      Object.defineProperty(trackedResult, key, {
+        configurable: false,
+        enumerable: true,
+        get: () => {
+          this.#trackedProps.add(key);
+          return result[key];
+        }
+      });
+    });
+    return trackedResult;
+  }
+  getCurrentQuery() {
+    return this.#currentQuery;
+  }
+  refetch({ ...options } = {}) {
+    return this.fetch({
+      ...options
+    });
+  }
+  fetchOptimistic(options) {
+    const defaultedOptions = this.#client.defaultQueryOptions(options);
+    const query = this.#client.getQueryCache().build(this.#client, defaultedOptions);
+    query.isFetchingOptimistic = true;
+    return query.fetch().then(() => this.createResult(query, defaultedOptions));
+  }
+  fetch(fetchOptions) {
+    return this.#executeFetch({
+      ...fetchOptions,
+      cancelRefetch: fetchOptions.cancelRefetch ?? true
+    }).then(() => {
+      this.updateResult();
+      return this.#currentResult;
+    });
+  }
+  #executeFetch(fetchOptions) {
+    this.#updateQuery();
+    let promise = this.#currentQuery.fetch(
+      this.options,
+      fetchOptions
+    );
+    if (!fetchOptions?.throwOnError) {
+      promise = promise.catch(noop);
+    }
+    return promise;
+  }
+  #updateStaleTimeout() {
+    this.#clearStaleTimeout();
+    if (isServer || this.#currentResult.isStale || !isValidTimeout(this.options.staleTime)) {
+      return;
+    }
+    const time = timeUntilStale(
+      this.#currentResult.dataUpdatedAt,
+      this.options.staleTime
+    );
+    const timeout = time + 1;
+    this.#staleTimeoutId = setTimeout(() => {
+      if (!this.#currentResult.isStale) {
+        this.updateResult();
+      }
+    }, timeout);
+  }
+  #computeRefetchInterval() {
+    return (typeof this.options.refetchInterval === "function" ? this.options.refetchInterval(this.#currentQuery) : this.options.refetchInterval) ?? false;
+  }
+  #updateRefetchInterval(nextInterval) {
+    this.#clearRefetchInterval();
+    this.#currentRefetchInterval = nextInterval;
+    if (isServer || this.options.enabled === false || !isValidTimeout(this.#currentRefetchInterval) || this.#currentRefetchInterval === 0) {
+      return;
+    }
+    this.#refetchIntervalId = setInterval(() => {
+      if (this.options.refetchIntervalInBackground || focusManager.isFocused()) {
+        this.#executeFetch();
+      }
+    }, this.#currentRefetchInterval);
+  }
+  #updateTimers() {
+    this.#updateStaleTimeout();
+    this.#updateRefetchInterval(this.#computeRefetchInterval());
+  }
+  #clearStaleTimeout() {
+    if (this.#staleTimeoutId) {
+      clearTimeout(this.#staleTimeoutId);
+      this.#staleTimeoutId = void 0;
+    }
+  }
+  #clearRefetchInterval() {
+    if (this.#refetchIntervalId) {
+      clearInterval(this.#refetchIntervalId);
+      this.#refetchIntervalId = void 0;
+    }
+  }
+  createResult(query, options) {
+    const prevQuery = this.#currentQuery;
+    const prevOptions = this.options;
+    const prevResult = this.#currentResult;
+    const prevResultState = this.#currentResultState;
+    const prevResultOptions = this.#currentResultOptions;
+    const queryChange = query !== prevQuery;
+    const queryInitialState = queryChange ? query.state : this.#currentQueryInitialState;
+    const { state } = query;
+    let { error, errorUpdatedAt, fetchStatus, status } = state;
+    let isPlaceholderData = false;
+    let data;
+    if (options._optimisticResults) {
+      const mounted = this.hasListeners();
+      const fetchOnMount = !mounted && shouldFetchOnMount(query, options);
+      const fetchOptionally = mounted && shouldFetchOptionally(query, prevQuery, options, prevOptions);
+      if (fetchOnMount || fetchOptionally) {
+        fetchStatus = canFetch(query.options.networkMode) ? "fetching" : "paused";
+        if (!state.dataUpdatedAt) {
+          status = "pending";
+        }
+      }
+      if (options._optimisticResults === "isRestoring") {
+        fetchStatus = "idle";
+      }
+    }
+    if (options.select && typeof state.data !== "undefined") {
+      if (prevResult && state.data === prevResultState?.data && options.select === this.#selectFn) {
+        data = this.#selectResult;
+      } else {
+        try {
+          this.#selectFn = options.select;
+          data = options.select(state.data);
+          data = replaceData(prevResult?.data, data, options);
+          this.#selectResult = data;
+          this.#selectError = null;
+        } catch (selectError) {
+          this.#selectError = selectError;
+        }
+      }
+    } else {
+      data = state.data;
+    }
+    if (typeof options.placeholderData !== "undefined" && typeof data === "undefined" && status === "pending") {
+      let placeholderData;
+      if (prevResult?.isPlaceholderData && options.placeholderData === prevResultOptions?.placeholderData) {
+        placeholderData = prevResult.data;
+      } else {
+        placeholderData = typeof options.placeholderData === "function" ? options.placeholderData(
+          this.#lastQueryWithDefinedData?.state.data,
+          this.#lastQueryWithDefinedData
+        ) : options.placeholderData;
+        if (options.select && typeof placeholderData !== "undefined") {
+          try {
+            placeholderData = options.select(placeholderData);
+            this.#selectError = null;
+          } catch (selectError) {
+            this.#selectError = selectError;
+          }
+        }
+      }
+      if (typeof placeholderData !== "undefined") {
+        status = "success";
+        data = replaceData(
+          prevResult?.data,
+          placeholderData,
+          options
+        );
+        isPlaceholderData = true;
+      }
+    }
+    if (this.#selectError) {
+      error = this.#selectError;
+      data = this.#selectResult;
+      errorUpdatedAt = Date.now();
+      status = "error";
+    }
+    const isFetching = fetchStatus === "fetching";
+    const isPending = status === "pending";
+    const isError = status === "error";
+    const isLoading = isPending && isFetching;
+    const result = {
+      status,
+      fetchStatus,
+      isPending,
+      isSuccess: status === "success",
+      isError,
+      isInitialLoading: isLoading,
+      isLoading,
+      data,
+      dataUpdatedAt: state.dataUpdatedAt,
+      error,
+      errorUpdatedAt,
+      failureCount: state.fetchFailureCount,
+      failureReason: state.fetchFailureReason,
+      errorUpdateCount: state.errorUpdateCount,
+      isFetched: state.dataUpdateCount > 0 || state.errorUpdateCount > 0,
+      isFetchedAfterMount: state.dataUpdateCount > queryInitialState.dataUpdateCount || state.errorUpdateCount > queryInitialState.errorUpdateCount,
+      isFetching,
+      isRefetching: isFetching && !isPending,
+      isLoadingError: isError && state.dataUpdatedAt === 0,
+      isPaused: fetchStatus === "paused",
+      isPlaceholderData,
+      isRefetchError: isError && state.dataUpdatedAt !== 0,
+      isStale: isStale(query, options),
+      refetch: this.refetch
+    };
+    return result;
+  }
+  updateResult(notifyOptions) {
+    const prevResult = this.#currentResult;
+    const nextResult = this.createResult(this.#currentQuery, this.options);
+    this.#currentResultState = this.#currentQuery.state;
+    this.#currentResultOptions = this.options;
+    if (this.#currentResultState.data !== void 0) {
+      this.#lastQueryWithDefinedData = this.#currentQuery;
+    }
+    if (shallowEqualObjects(nextResult, prevResult)) {
+      return;
+    }
+    this.#currentResult = nextResult;
+    const defaultNotifyOptions = {};
+    const shouldNotifyListeners = () => {
+      if (!prevResult) {
+        return true;
+      }
+      const { notifyOnChangeProps } = this.options;
+      const notifyOnChangePropsValue = typeof notifyOnChangeProps === "function" ? notifyOnChangeProps() : notifyOnChangeProps;
+      if (notifyOnChangePropsValue === "all" || !notifyOnChangePropsValue && !this.#trackedProps.size) {
+        return true;
+      }
+      const includedProps = new Set(
+        notifyOnChangePropsValue ?? this.#trackedProps
+      );
+      if (this.options.throwOnError) {
+        includedProps.add("error");
+      }
+      return Object.keys(this.#currentResult).some((key) => {
+        const typedKey = key;
+        const changed = this.#currentResult[typedKey] !== prevResult[typedKey];
+        return changed && includedProps.has(typedKey);
+      });
+    };
+    if (notifyOptions?.listeners !== false && shouldNotifyListeners()) {
+      defaultNotifyOptions.listeners = true;
+    }
+    this.#notify({ ...defaultNotifyOptions, ...notifyOptions });
+  }
+  #updateQuery() {
+    const query = this.#client.getQueryCache().build(this.#client, this.options);
+    if (query === this.#currentQuery) {
+      return;
+    }
+    const prevQuery = this.#currentQuery;
+    this.#currentQuery = query;
+    this.#currentQueryInitialState = query.state;
+    if (this.hasListeners()) {
+      prevQuery?.removeObserver(this);
+      query.addObserver(this);
+    }
+  }
+  onQueryUpdate() {
+    this.updateResult();
+    if (this.hasListeners()) {
+      this.#updateTimers();
+    }
+  }
+  #notify(notifyOptions) {
+    notifyManager.batch(() => {
+      if (notifyOptions.listeners) {
+        this.listeners.forEach((listener) => {
+          listener(this.#currentResult);
+        });
+      }
+      this.#client.getQueryCache().notify({
+        query: this.#currentQuery,
+        type: "observerResultsUpdated"
+      });
+    });
+  }
+};
+function shouldLoadOnMount(query, options) {
+  return options.enabled !== false && !query.state.dataUpdatedAt && !(query.state.status === "error" && options.retryOnMount === false);
+}
+function shouldFetchOnMount(query, options) {
+  return shouldLoadOnMount(query, options) || query.state.dataUpdatedAt > 0 && shouldFetchOn(query, options, options.refetchOnMount);
+}
+function shouldFetchOn(query, options, field) {
+  if (options.enabled !== false) {
+    const value = typeof field === "function" ? field(query) : field;
+    return value === "always" || value !== false && isStale(query, options);
+  }
+  return false;
+}
+function shouldFetchOptionally(query, prevQuery, options, prevOptions) {
+  return options.enabled !== false && (query !== prevQuery || prevOptions.enabled === false) && (!options.suspense || query.state.status !== "error") && isStale(query, options);
+}
+function isStale(query, options) {
+  return query.isStaleByTime(options.staleTime);
+}
+function shouldAssignObserverCurrentProperties(observer, optimisticResult) {
+  if (!shallowEqualObjects(observer.getCurrentResult(), optimisticResult)) {
+    return true;
+  }
+  return false;
+}
+
+//# sourceMappingURL=queryObserver.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/modern/QueryErrorResetBoundary.js
+"use client";
+
+// src/QueryErrorResetBoundary.tsx
+
+function createValue() {
+  let isReset = false;
+  return {
+    clearReset: () => {
+      isReset = false;
+    },
+    reset: () => {
+      isReset = true;
+    },
+    isReset: () => {
+      return isReset;
+    }
   };
-} // eslint-disable-next-line @typescript-eslint/no-empty-function
+}
+var QueryErrorResetBoundaryContext = react.createContext(createValue());
+var useQueryErrorResetBoundary = () => react.useContext(QueryErrorResetBoundaryContext);
+var QueryErrorResetBoundary = ({
+  children
+}) => {
+  const [value] = React.useState(() => createValue());
+  return /* @__PURE__ */ React.createElement(QueryErrorResetBoundaryContext.Provider, { value }, typeof children === "function" ? children(value) : children);
+};
 
-function useMutation_noop() {}
+//# sourceMappingURL=QueryErrorResetBoundary.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/modern/isRestoring.js
+"use client";
+
+// src/isRestoring.ts
+
+var IsRestoringContext = react.createContext(false);
+var useIsRestoring = () => react.useContext(IsRestoringContext);
+var IsRestoringProvider = IsRestoringContext.Provider;
+
+//# sourceMappingURL=isRestoring.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/modern/errorBoundaryUtils.js
+"use client";
+
+// src/errorBoundaryUtils.ts
 
 
-//# sourceMappingURL=useMutation.mjs.map
+var ensurePreventErrorBoundaryRetry = (options, errorResetBoundary) => {
+  if (options.suspense || options.throwOnError) {
+    if (!errorResetBoundary.isReset()) {
+      options.retryOnMount = false;
+    }
+  }
+};
+var useClearResetErrorBoundary = (errorResetBoundary) => {
+  react.useEffect(() => {
+    errorResetBoundary.clearReset();
+  }, [errorResetBoundary]);
+};
+var getHasError = ({
+  result,
+  errorResetBoundary,
+  throwOnError,
+  query
+}) => {
+  return result.isError && !errorResetBoundary.isReset() && !result.isFetching && query && shouldThrowError(throwOnError, [result.error, query]);
+};
 
+//# sourceMappingURL=errorBoundaryUtils.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/modern/suspense.js
+// src/suspense.ts
+var defaultThrowOnError = (_error, query) => typeof query.state.data === "undefined";
+var ensureStaleTime = (defaultedOptions) => {
+  if (defaultedOptions.suspense) {
+    if (typeof defaultedOptions.staleTime !== "number") {
+      defaultedOptions.staleTime = 1e3;
+    }
+  }
+};
+var willFetch = (result, isRestoring) => result.isLoading && result.isFetching && !isRestoring;
+var shouldSuspend = (defaultedOptions, result) => defaultedOptions?.suspense && result.isPending;
+var fetchOptimistic = (defaultedOptions, observer, errorResetBoundary) => observer.fetchOptimistic(defaultedOptions).catch(() => {
+  errorResetBoundary.clearReset();
+});
+
+//# sourceMappingURL=suspense.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/modern/useBaseQuery.js
+"use client";
+
+// src/useBaseQuery.ts
+
+
+
+
+
+
+
+function useBaseQuery(options, Observer, queryClient) {
+  if (false) {}
+  const client = useQueryClient(queryClient);
+  const isRestoring = useIsRestoring();
+  const errorResetBoundary = useQueryErrorResetBoundary();
+  const defaultedOptions = client.defaultQueryOptions(options);
+  defaultedOptions._optimisticResults = isRestoring ? "isRestoring" : "optimistic";
+  ensureStaleTime(defaultedOptions);
+  ensurePreventErrorBoundaryRetry(defaultedOptions, errorResetBoundary);
+  useClearResetErrorBoundary(errorResetBoundary);
+  const [observer] = react.useState(
+    () => new Observer(
+      client,
+      defaultedOptions
+    )
+  );
+  const result = observer.getOptimisticResult(defaultedOptions);
+  react.useSyncExternalStore(
+    react.useCallback(
+      (onStoreChange) => {
+        const unsubscribe = isRestoring ? () => void 0 : observer.subscribe(notifyManager.batchCalls(onStoreChange));
+        observer.updateResult();
+        return unsubscribe;
+      },
+      [observer, isRestoring]
+    ),
+    () => observer.getCurrentResult(),
+    () => observer.getCurrentResult()
+  );
+  react.useEffect(() => {
+    observer.setOptions(defaultedOptions, { listeners: false });
+  }, [defaultedOptions, observer]);
+  if (shouldSuspend(defaultedOptions, result)) {
+    throw fetchOptimistic(defaultedOptions, observer, errorResetBoundary);
+  }
+  if (getHasError({
+    result,
+    errorResetBoundary,
+    throwOnError: defaultedOptions.throwOnError,
+    query: client.getQueryCache().get(defaultedOptions.queryHash)
+  })) {
+    throw result.error;
+  }
+  return !defaultedOptions.notifyOnChangeProps ? observer.trackResult(result) : result;
+}
+
+//# sourceMappingURL=useBaseQuery.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/modern/useQuery.js
+"use client";
+
+// src/useQuery.ts
+
+
+function useQuery(options, queryClient) {
+  return useBaseQuery(options, QueryObserver, queryClient);
+}
+
+//# sourceMappingURL=useQuery.js.map
 // EXTERNAL MODULE: ./node_modules/cross-fetch/dist/browser-ponyfill.js
 var browser_ponyfill = __webpack_require__(98);
 var browser_ponyfill_default = /*#__PURE__*/__webpack_require__.n(browser_ponyfill);
@@ -4459,6 +4348,61 @@ function fetchWordpressAjax(params = { action: '' }) {
     });
 }
 
+;// CONCATENATED MODULE: ./src/common/job_worker/useDebugLog.tsx
+
+
+const useDebugLog = () => {
+    return useQuery({
+        queryKey: ['debug_log_api'],
+        queryFn: () => {
+            return fetchWordpressAjax({ action: `debug_log_api`, cmd: 'get_data' });
+        },
+        placeholderData: keepPreviousData,
+        refetchInterval: 2000
+    });
+};
+// export const useWordpressAjax = (apiKey: string, cmd:string = '') => {
+//   return useQuery({
+//     queryKey: [apiKey],
+//     queryFn: () => {
+//       return fetchWordpressAjax<IJobWorker>({ action: `${apiKey}`, cmd });
+//     },
+//     placeholderData: keepPreviousData,
+//     refetchInterval: 2000
+//   });
+// };
+
+;// CONCATENATED MODULE: ./src/common/debug_log/DebugLog.tsx
+
+
+
+
+// wp_ajax_debug_log_api
+const DebugLog = () => {
+    var _a;
+    const log = useDebugLog();
+    const queryClient = useQueryClient();
+    const mutation = useMutation({
+        mutationFn: (options) => fetchWordpressAjax(Object.assign({ action: 'debug_log_api' }, options)),
+        onSuccess: (data) => queryClient.setQueryData(['debug_log_api'], data)
+    });
+    const empty = () => {
+        mutation.mutate({ cmd: `empty` });
+    };
+    const refresh = () => {
+        queryClient.invalidateQueries({ queryKey: ['debug_log_api'] });
+    };
+    return (react.createElement("div", { className: 'p-3' },
+        react.createElement("div", { className: 'btn-group mb-2' },
+            react.createElement("button", { className: 'btn btn-primary', onClick: empty }, "Empty"),
+            react.createElement("button", { className: 'btn btn-primary', onClick: refresh }, "Refresh")),
+        log.isSuccess && ((_a = log.data) === null || _a === void 0 ? void 0 : _a.data) ? (react.createElement("table", { className: 'table table-sm table-bordered w-100', style: { fontSize: '12px', tableLayout: 'fixed' } },
+            react.createElement("tbody", null, log.data.data.map((line) => (react.createElement("tr", null,
+                react.createElement("td", { style: { width: '24ch' }, className: 'text-nowrap' }, line.date),
+                react.createElement("td", null,
+                    react.createElement("div", { className: 'text-truncate w-100', title: line.message }, line.message)))))))) : null));
+};
+
 ;// CONCATENATED MODULE: ./src/common/utils/formatDuration.ts
 function formatDuration(seconds) {
     var date = new Date(0);
@@ -4491,771 +4435,6 @@ function formatTimeAgo(seconds) {
     return '<1 min ago';
 }
 
-;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/lib/queryObserver.mjs
-
-
-
-
-
-
-class QueryObserver extends Subscribable {
-  constructor(client, options) {
-    super();
-    this.client = client;
-    this.options = options;
-    this.trackedProps = new Set();
-    this.selectError = null;
-    this.bindMethods();
-    this.setOptions(options);
-  }
-
-  bindMethods() {
-    this.remove = this.remove.bind(this);
-    this.refetch = this.refetch.bind(this);
-  }
-
-  onSubscribe() {
-    if (this.listeners.size === 1) {
-      this.currentQuery.addObserver(this);
-
-      if (shouldFetchOnMount(this.currentQuery, this.options)) {
-        this.executeFetch();
-      }
-
-      this.updateTimers();
-    }
-  }
-
-  onUnsubscribe() {
-    if (!this.hasListeners()) {
-      this.destroy();
-    }
-  }
-
-  shouldFetchOnReconnect() {
-    return shouldFetchOn(this.currentQuery, this.options, this.options.refetchOnReconnect);
-  }
-
-  shouldFetchOnWindowFocus() {
-    return shouldFetchOn(this.currentQuery, this.options, this.options.refetchOnWindowFocus);
-  }
-
-  destroy() {
-    this.listeners = new Set();
-    this.clearStaleTimeout();
-    this.clearRefetchInterval();
-    this.currentQuery.removeObserver(this);
-  }
-
-  setOptions(options, notifyOptions) {
-    const prevOptions = this.options;
-    const prevQuery = this.currentQuery;
-    this.options = this.client.defaultQueryOptions(options);
-
-    if (false) {}
-
-    if (!shallowEqualObjects(prevOptions, this.options)) {
-      this.client.getQueryCache().notify({
-        type: 'observerOptionsUpdated',
-        query: this.currentQuery,
-        observer: this
-      });
-    }
-
-    if (typeof this.options.enabled !== 'undefined' && typeof this.options.enabled !== 'boolean') {
-      throw new Error('Expected enabled to be a boolean');
-    } // Keep previous query key if the user does not supply one
-
-
-    if (!this.options.queryKey) {
-      this.options.queryKey = prevOptions.queryKey;
-    }
-
-    this.updateQuery();
-    const mounted = this.hasListeners(); // Fetch if there are subscribers
-
-    if (mounted && shouldFetchOptionally(this.currentQuery, prevQuery, this.options, prevOptions)) {
-      this.executeFetch();
-    } // Update result
-
-
-    this.updateResult(notifyOptions); // Update stale interval if needed
-
-    if (mounted && (this.currentQuery !== prevQuery || this.options.enabled !== prevOptions.enabled || this.options.staleTime !== prevOptions.staleTime)) {
-      this.updateStaleTimeout();
-    }
-
-    const nextRefetchInterval = this.computeRefetchInterval(); // Update refetch interval if needed
-
-    if (mounted && (this.currentQuery !== prevQuery || this.options.enabled !== prevOptions.enabled || nextRefetchInterval !== this.currentRefetchInterval)) {
-      this.updateRefetchInterval(nextRefetchInterval);
-    }
-  }
-
-  getOptimisticResult(options) {
-    const query = this.client.getQueryCache().build(this.client, options);
-    const result = this.createResult(query, options);
-
-    if (shouldAssignObserverCurrentProperties(this, result, options)) {
-      // this assigns the optimistic result to the current Observer
-      // because if the query function changes, useQuery will be performing
-      // an effect where it would fetch again.
-      // When the fetch finishes, we perform a deep data cloning in order
-      // to reuse objects references. This deep data clone is performed against
-      // the `observer.currentResult.data` property
-      // When QueryKey changes, we refresh the query and get new `optimistic`
-      // result, while we leave the `observer.currentResult`, so when new data
-      // arrives, it finds the old `observer.currentResult` which is related
-      // to the old QueryKey. Which means that currentResult and selectData are
-      // out of sync already.
-      // To solve this, we move the cursor of the currentResult everytime
-      // an observer reads an optimistic value.
-      // When keeping the previous data, the result doesn't change until new
-      // data arrives.
-      this.currentResult = result;
-      this.currentResultOptions = this.options;
-      this.currentResultState = this.currentQuery.state;
-    }
-
-    return result;
-  }
-
-  getCurrentResult() {
-    return this.currentResult;
-  }
-
-  trackResult(result) {
-    const trackedResult = {};
-    Object.keys(result).forEach(key => {
-      Object.defineProperty(trackedResult, key, {
-        configurable: false,
-        enumerable: true,
-        get: () => {
-          this.trackedProps.add(key);
-          return result[key];
-        }
-      });
-    });
-    return trackedResult;
-  }
-
-  getCurrentQuery() {
-    return this.currentQuery;
-  }
-
-  remove() {
-    this.client.getQueryCache().remove(this.currentQuery);
-  }
-
-  refetch({
-    refetchPage,
-    ...options
-  } = {}) {
-    return this.fetch({ ...options,
-      meta: {
-        refetchPage
-      }
-    });
-  }
-
-  fetchOptimistic(options) {
-    const defaultedOptions = this.client.defaultQueryOptions(options);
-    const query = this.client.getQueryCache().build(this.client, defaultedOptions);
-    query.isFetchingOptimistic = true;
-    return query.fetch().then(() => this.createResult(query, defaultedOptions));
-  }
-
-  fetch(fetchOptions) {
-    var _fetchOptions$cancelR;
-
-    return this.executeFetch({ ...fetchOptions,
-      cancelRefetch: (_fetchOptions$cancelR = fetchOptions.cancelRefetch) != null ? _fetchOptions$cancelR : true
-    }).then(() => {
-      this.updateResult();
-      return this.currentResult;
-    });
-  }
-
-  executeFetch(fetchOptions) {
-    // Make sure we reference the latest query as the current one might have been removed
-    this.updateQuery(); // Fetch
-
-    let promise = this.currentQuery.fetch(this.options, fetchOptions);
-
-    if (!(fetchOptions != null && fetchOptions.throwOnError)) {
-      promise = promise.catch(noop);
-    }
-
-    return promise;
-  }
-
-  updateStaleTimeout() {
-    this.clearStaleTimeout();
-
-    if (isServer || this.currentResult.isStale || !isValidTimeout(this.options.staleTime)) {
-      return;
-    }
-
-    const time = timeUntilStale(this.currentResult.dataUpdatedAt, this.options.staleTime); // The timeout is sometimes triggered 1 ms before the stale time expiration.
-    // To mitigate this issue we always add 1 ms to the timeout.
-
-    const timeout = time + 1;
-    this.staleTimeoutId = setTimeout(() => {
-      if (!this.currentResult.isStale) {
-        this.updateResult();
-      }
-    }, timeout);
-  }
-
-  computeRefetchInterval() {
-    var _this$options$refetch;
-
-    return typeof this.options.refetchInterval === 'function' ? this.options.refetchInterval(this.currentResult.data, this.currentQuery) : (_this$options$refetch = this.options.refetchInterval) != null ? _this$options$refetch : false;
-  }
-
-  updateRefetchInterval(nextInterval) {
-    this.clearRefetchInterval();
-    this.currentRefetchInterval = nextInterval;
-
-    if (isServer || this.options.enabled === false || !isValidTimeout(this.currentRefetchInterval) || this.currentRefetchInterval === 0) {
-      return;
-    }
-
-    this.refetchIntervalId = setInterval(() => {
-      if (this.options.refetchIntervalInBackground || focusManager.isFocused()) {
-        this.executeFetch();
-      }
-    }, this.currentRefetchInterval);
-  }
-
-  updateTimers() {
-    this.updateStaleTimeout();
-    this.updateRefetchInterval(this.computeRefetchInterval());
-  }
-
-  clearStaleTimeout() {
-    if (this.staleTimeoutId) {
-      clearTimeout(this.staleTimeoutId);
-      this.staleTimeoutId = undefined;
-    }
-  }
-
-  clearRefetchInterval() {
-    if (this.refetchIntervalId) {
-      clearInterval(this.refetchIntervalId);
-      this.refetchIntervalId = undefined;
-    }
-  }
-
-  createResult(query, options) {
-    const prevQuery = this.currentQuery;
-    const prevOptions = this.options;
-    const prevResult = this.currentResult;
-    const prevResultState = this.currentResultState;
-    const prevResultOptions = this.currentResultOptions;
-    const queryChange = query !== prevQuery;
-    const queryInitialState = queryChange ? query.state : this.currentQueryInitialState;
-    const prevQueryResult = queryChange ? this.currentResult : this.previousQueryResult;
-    const {
-      state
-    } = query;
-    let {
-      dataUpdatedAt,
-      error,
-      errorUpdatedAt,
-      fetchStatus,
-      status
-    } = state;
-    let isPreviousData = false;
-    let isPlaceholderData = false;
-    let data; // Optimistically set result in fetching state if needed
-
-    if (options._optimisticResults) {
-      const mounted = this.hasListeners();
-      const fetchOnMount = !mounted && shouldFetchOnMount(query, options);
-      const fetchOptionally = mounted && shouldFetchOptionally(query, prevQuery, options, prevOptions);
-
-      if (fetchOnMount || fetchOptionally) {
-        fetchStatus = canFetch(query.options.networkMode) ? 'fetching' : 'paused';
-
-        if (!dataUpdatedAt) {
-          status = 'loading';
-        }
-      }
-
-      if (options._optimisticResults === 'isRestoring') {
-        fetchStatus = 'idle';
-      }
-    } // Keep previous data if needed
-
-
-    if (options.keepPreviousData && !state.dataUpdatedAt && prevQueryResult != null && prevQueryResult.isSuccess && status !== 'error') {
-      data = prevQueryResult.data;
-      dataUpdatedAt = prevQueryResult.dataUpdatedAt;
-      status = prevQueryResult.status;
-      isPreviousData = true;
-    } // Select data if needed
-    else if (options.select && typeof state.data !== 'undefined') {
-      // Memoize select result
-      if (prevResult && state.data === (prevResultState == null ? void 0 : prevResultState.data) && options.select === this.selectFn) {
-        data = this.selectResult;
-      } else {
-        try {
-          this.selectFn = options.select;
-          data = options.select(state.data);
-          data = replaceData(prevResult == null ? void 0 : prevResult.data, data, options);
-          this.selectResult = data;
-          this.selectError = null;
-        } catch (selectError) {
-          if (false) {}
-
-          this.selectError = selectError;
-        }
-      }
-    } // Use query data
-    else {
-      data = state.data;
-    } // Show placeholder data if needed
-
-
-    if (typeof options.placeholderData !== 'undefined' && typeof data === 'undefined' && status === 'loading') {
-      let placeholderData; // Memoize placeholder data
-
-      if (prevResult != null && prevResult.isPlaceholderData && options.placeholderData === (prevResultOptions == null ? void 0 : prevResultOptions.placeholderData)) {
-        placeholderData = prevResult.data;
-      } else {
-        placeholderData = typeof options.placeholderData === 'function' ? options.placeholderData() : options.placeholderData;
-
-        if (options.select && typeof placeholderData !== 'undefined') {
-          try {
-            placeholderData = options.select(placeholderData);
-            this.selectError = null;
-          } catch (selectError) {
-            if (false) {}
-
-            this.selectError = selectError;
-          }
-        }
-      }
-
-      if (typeof placeholderData !== 'undefined') {
-        status = 'success';
-        data = replaceData(prevResult == null ? void 0 : prevResult.data, placeholderData, options);
-        isPlaceholderData = true;
-      }
-    }
-
-    if (this.selectError) {
-      error = this.selectError;
-      data = this.selectResult;
-      errorUpdatedAt = Date.now();
-      status = 'error';
-    }
-
-    const isFetching = fetchStatus === 'fetching';
-    const isLoading = status === 'loading';
-    const isError = status === 'error';
-    const result = {
-      status,
-      fetchStatus,
-      isLoading,
-      isSuccess: status === 'success',
-      isError,
-      isInitialLoading: isLoading && isFetching,
-      data,
-      dataUpdatedAt,
-      error,
-      errorUpdatedAt,
-      failureCount: state.fetchFailureCount,
-      failureReason: state.fetchFailureReason,
-      errorUpdateCount: state.errorUpdateCount,
-      isFetched: state.dataUpdateCount > 0 || state.errorUpdateCount > 0,
-      isFetchedAfterMount: state.dataUpdateCount > queryInitialState.dataUpdateCount || state.errorUpdateCount > queryInitialState.errorUpdateCount,
-      isFetching,
-      isRefetching: isFetching && !isLoading,
-      isLoadingError: isError && state.dataUpdatedAt === 0,
-      isPaused: fetchStatus === 'paused',
-      isPlaceholderData,
-      isPreviousData,
-      isRefetchError: isError && state.dataUpdatedAt !== 0,
-      isStale: isStale(query, options),
-      refetch: this.refetch,
-      remove: this.remove
-    };
-    return result;
-  }
-
-  updateResult(notifyOptions) {
-    const prevResult = this.currentResult;
-    const nextResult = this.createResult(this.currentQuery, this.options);
-    this.currentResultState = this.currentQuery.state;
-    this.currentResultOptions = this.options; // Only notify and update result if something has changed
-
-    if (shallowEqualObjects(nextResult, prevResult)) {
-      return;
-    }
-
-    this.currentResult = nextResult; // Determine which callbacks to trigger
-
-    const defaultNotifyOptions = {
-      cache: true
-    };
-
-    const shouldNotifyListeners = () => {
-      if (!prevResult) {
-        return true;
-      }
-
-      const {
-        notifyOnChangeProps
-      } = this.options;
-      const notifyOnChangePropsValue = typeof notifyOnChangeProps === 'function' ? notifyOnChangeProps() : notifyOnChangeProps;
-
-      if (notifyOnChangePropsValue === 'all' || !notifyOnChangePropsValue && !this.trackedProps.size) {
-        return true;
-      }
-
-      const includedProps = new Set(notifyOnChangePropsValue != null ? notifyOnChangePropsValue : this.trackedProps);
-
-      if (this.options.useErrorBoundary) {
-        includedProps.add('error');
-      }
-
-      return Object.keys(this.currentResult).some(key => {
-        const typedKey = key;
-        const changed = this.currentResult[typedKey] !== prevResult[typedKey];
-        return changed && includedProps.has(typedKey);
-      });
-    };
-
-    if ((notifyOptions == null ? void 0 : notifyOptions.listeners) !== false && shouldNotifyListeners()) {
-      defaultNotifyOptions.listeners = true;
-    }
-
-    this.notify({ ...defaultNotifyOptions,
-      ...notifyOptions
-    });
-  }
-
-  updateQuery() {
-    const query = this.client.getQueryCache().build(this.client, this.options);
-
-    if (query === this.currentQuery) {
-      return;
-    }
-
-    const prevQuery = this.currentQuery;
-    this.currentQuery = query;
-    this.currentQueryInitialState = query.state;
-    this.previousQueryResult = this.currentResult;
-
-    if (this.hasListeners()) {
-      prevQuery == null ? void 0 : prevQuery.removeObserver(this);
-      query.addObserver(this);
-    }
-  }
-
-  onQueryUpdate(action) {
-    const notifyOptions = {};
-
-    if (action.type === 'success') {
-      notifyOptions.onSuccess = !action.manual;
-    } else if (action.type === 'error' && !isCancelledError(action.error)) {
-      notifyOptions.onError = true;
-    }
-
-    this.updateResult(notifyOptions);
-
-    if (this.hasListeners()) {
-      this.updateTimers();
-    }
-  }
-
-  notify(notifyOptions) {
-    notifyManager.batch(() => {
-      // First trigger the configuration callbacks
-      if (notifyOptions.onSuccess) {
-        var _this$options$onSucce, _this$options, _this$options$onSettl, _this$options2;
-
-        (_this$options$onSucce = (_this$options = this.options).onSuccess) == null ? void 0 : _this$options$onSucce.call(_this$options, this.currentResult.data);
-        (_this$options$onSettl = (_this$options2 = this.options).onSettled) == null ? void 0 : _this$options$onSettl.call(_this$options2, this.currentResult.data, null);
-      } else if (notifyOptions.onError) {
-        var _this$options$onError, _this$options3, _this$options$onSettl2, _this$options4;
-
-        (_this$options$onError = (_this$options3 = this.options).onError) == null ? void 0 : _this$options$onError.call(_this$options3, this.currentResult.error);
-        (_this$options$onSettl2 = (_this$options4 = this.options).onSettled) == null ? void 0 : _this$options$onSettl2.call(_this$options4, undefined, this.currentResult.error);
-      } // Then trigger the listeners
-
-
-      if (notifyOptions.listeners) {
-        this.listeners.forEach(({
-          listener
-        }) => {
-          listener(this.currentResult);
-        });
-      } // Then the cache listeners
-
-
-      if (notifyOptions.cache) {
-        this.client.getQueryCache().notify({
-          query: this.currentQuery,
-          type: 'observerResultsUpdated'
-        });
-      }
-    });
-  }
-
-}
-
-function shouldLoadOnMount(query, options) {
-  return options.enabled !== false && !query.state.dataUpdatedAt && !(query.state.status === 'error' && options.retryOnMount === false);
-}
-
-function shouldFetchOnMount(query, options) {
-  return shouldLoadOnMount(query, options) || query.state.dataUpdatedAt > 0 && shouldFetchOn(query, options, options.refetchOnMount);
-}
-
-function shouldFetchOn(query, options, field) {
-  if (options.enabled !== false) {
-    const value = typeof field === 'function' ? field(query) : field;
-    return value === 'always' || value !== false && isStale(query, options);
-  }
-
-  return false;
-}
-
-function shouldFetchOptionally(query, prevQuery, options, prevOptions) {
-  return options.enabled !== false && (query !== prevQuery || prevOptions.enabled === false) && (!options.suspense || query.state.status !== 'error') && isStale(query, options);
-}
-
-function isStale(query, options) {
-  return query.isStaleByTime(options.staleTime);
-} // this function would decide if we will update the observer's 'current'
-// properties after an optimistic reading via getOptimisticResult
-
-
-function shouldAssignObserverCurrentProperties(observer, optimisticResult, options) {
-  // it is important to keep this condition like this for three reasons:
-  // 1. It will get removed in the v5
-  // 2. it reads: don't update the properties if we want to keep the previous
-  // data.
-  // 3. The opposite condition (!options.keepPreviousData) would fallthrough
-  // and will result in a bad decision
-  if (options.keepPreviousData) {
-    return false;
-  } // this means we want to put some placeholder data when pending and queryKey
-  // changed.
-
-
-  if (options.placeholderData !== undefined) {
-    // re-assign properties only if current data is placeholder data
-    // which means that data did not arrive yet, so, if there is some cached data
-    // we need to "prepare" to receive it
-    return optimisticResult.isPlaceholderData;
-  } // if the newly created result isn't what the observer is holding as current,
-  // then we'll need to update the properties as well
-
-
-  if (!shallowEqualObjects(observer.getCurrentResult(), optimisticResult)) {
-    return true;
-  } // basically, just keep previous properties if nothing changed
-
-
-  return false;
-}
-
-
-//# sourceMappingURL=queryObserver.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/QueryErrorResetBoundary.mjs
-'use client';
-
-
-function createValue() {
-  let isReset = false;
-  return {
-    clearReset: () => {
-      isReset = false;
-    },
-    reset: () => {
-      isReset = true;
-    },
-    isReset: () => {
-      return isReset;
-    }
-  };
-}
-
-const QueryErrorResetBoundaryContext = /*#__PURE__*/react.createContext(createValue()); // HOOK
-
-const useQueryErrorResetBoundary = () => react.useContext(QueryErrorResetBoundaryContext); // COMPONENT
-
-const QueryErrorResetBoundary = ({
-  children
-}) => {
-  const [value] = React.useState(() => createValue());
-  return /*#__PURE__*/React.createElement(QueryErrorResetBoundaryContext.Provider, {
-    value: value
-  }, typeof children === 'function' ? children(value) : children);
-};
-
-
-//# sourceMappingURL=QueryErrorResetBoundary.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/isRestoring.mjs
-'use client';
-
-
-const IsRestoringContext = /*#__PURE__*/react.createContext(false);
-const useIsRestoring = () => react.useContext(IsRestoringContext);
-const IsRestoringProvider = IsRestoringContext.Provider;
-
-
-//# sourceMappingURL=isRestoring.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/errorBoundaryUtils.mjs
-'use client';
-
-
-
-const ensurePreventErrorBoundaryRetry = (options, errorResetBoundary) => {
-  if (options.suspense || options.useErrorBoundary) {
-    // Prevent retrying failed query if the error boundary has not been reset yet
-    if (!errorResetBoundary.isReset()) {
-      options.retryOnMount = false;
-    }
-  }
-};
-const useClearResetErrorBoundary = errorResetBoundary => {
-  react.useEffect(() => {
-    errorResetBoundary.clearReset();
-  }, [errorResetBoundary]);
-};
-const getHasError = ({
-  result,
-  errorResetBoundary,
-  useErrorBoundary,
-  query
-}) => {
-  return result.isError && !errorResetBoundary.isReset() && !result.isFetching && shouldThrowError(useErrorBoundary, [result.error, query]);
-};
-
-
-//# sourceMappingURL=errorBoundaryUtils.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/suspense.mjs
-const ensureStaleTime = defaultedOptions => {
-  if (defaultedOptions.suspense) {
-    // Always set stale time when using suspense to prevent
-    // fetching again when directly mounting after suspending
-    if (typeof defaultedOptions.staleTime !== 'number') {
-      defaultedOptions.staleTime = 1000;
-    }
-  }
-};
-const willFetch = (result, isRestoring) => result.isLoading && result.isFetching && !isRestoring;
-const shouldSuspend = (defaultedOptions, result, isRestoring) => (defaultedOptions == null ? void 0 : defaultedOptions.suspense) && willFetch(result, isRestoring);
-const fetchOptimistic = (defaultedOptions, observer, errorResetBoundary) => observer.fetchOptimistic(defaultedOptions).then(({
-  data
-}) => {
-  defaultedOptions.onSuccess == null ? void 0 : defaultedOptions.onSuccess(data);
-  defaultedOptions.onSettled == null ? void 0 : defaultedOptions.onSettled(data, null);
-}).catch(error => {
-  errorResetBoundary.clearReset();
-  defaultedOptions.onError == null ? void 0 : defaultedOptions.onError(error);
-  defaultedOptions.onSettled == null ? void 0 : defaultedOptions.onSettled(undefined, error);
-});
-
-
-//# sourceMappingURL=suspense.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/useBaseQuery.mjs
-'use client';
-
-
-
-
-
-
-
-
-
-function useBaseQuery(options, Observer) {
-  const queryClient = useQueryClient({
-    context: options.context
-  });
-  const isRestoring = useIsRestoring();
-  const errorResetBoundary = useQueryErrorResetBoundary();
-  const defaultedOptions = queryClient.defaultQueryOptions(options); // Make sure results are optimistically set in fetching state before subscribing or updating options
-
-  defaultedOptions._optimisticResults = isRestoring ? 'isRestoring' : 'optimistic'; // Include callbacks in batch renders
-
-  if (defaultedOptions.onError) {
-    defaultedOptions.onError = notifyManager.batchCalls(defaultedOptions.onError);
-  }
-
-  if (defaultedOptions.onSuccess) {
-    defaultedOptions.onSuccess = notifyManager.batchCalls(defaultedOptions.onSuccess);
-  }
-
-  if (defaultedOptions.onSettled) {
-    defaultedOptions.onSettled = notifyManager.batchCalls(defaultedOptions.onSettled);
-  }
-
-  ensureStaleTime(defaultedOptions);
-  ensurePreventErrorBoundaryRetry(defaultedOptions, errorResetBoundary);
-  useClearResetErrorBoundary(errorResetBoundary);
-  const [observer] = react.useState(() => new Observer(queryClient, defaultedOptions));
-  const result = observer.getOptimisticResult(defaultedOptions);
-  useSyncExternalStore(react.useCallback(onStoreChange => {
-    const unsubscribe = isRestoring ? () => undefined : observer.subscribe(notifyManager.batchCalls(onStoreChange)); // Update result to make sure we did not miss any query updates
-    // between creating the observer and subscribing to it.
-
-    observer.updateResult();
-    return unsubscribe;
-  }, [observer, isRestoring]), () => observer.getCurrentResult(), () => observer.getCurrentResult());
-  react.useEffect(() => {
-    // Do not notify on updates because of changes in the options because
-    // these changes should already be reflected in the optimistic result.
-    observer.setOptions(defaultedOptions, {
-      listeners: false
-    });
-  }, [defaultedOptions, observer]); // Handle suspense
-
-  if (shouldSuspend(defaultedOptions, result, isRestoring)) {
-    throw fetchOptimistic(defaultedOptions, observer, errorResetBoundary);
-  } // Handle error boundary
-
-
-  if (getHasError({
-    result,
-    errorResetBoundary,
-    useErrorBoundary: defaultedOptions.useErrorBoundary,
-    query: observer.getCurrentQuery()
-  })) {
-    throw result.error;
-  } // Handle result property usage tracking
-
-
-  return !defaultedOptions.notifyOnChangeProps ? observer.trackResult(result) : result;
-}
-
-
-//# sourceMappingURL=useBaseQuery.mjs.map
-
-;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/lib/useQuery.mjs
-'use client';
-
-
-
-function useQuery(arg1, arg2, arg3) {
-  const parsedOptions = parseQueryArgs(arg1, arg2, arg3);
-  return useBaseQuery(parsedOptions, QueryObserver);
-}
-
-
-//# sourceMappingURL=useQuery.mjs.map
-
 ;// CONCATENATED MODULE: ./src/common/job_worker/useJob.tsx
 
 
@@ -5265,7 +4444,7 @@ const useJob = (jobKey) => {
         queryFn: () => {
             return fetchWordpressAjax({ action: `${jobKey}_api`, cmd: `status` });
         },
-        keepPreviousData: true,
+        placeholderData: keepPreviousData,
         refetchInterval: 2000
     });
 };
@@ -5288,7 +4467,7 @@ const JobWorker = ({ jobKey }) => {
     });
     const refresh = () => {
         if (!jobData.isLoading) {
-            queryClient.invalidateQueries([jobKey]);
+            queryClient.invalidateQueries({ queryKey: [jobKey] });
         }
     };
     const update = () => {
@@ -5328,7 +4507,7 @@ const JobWorker = ({ jobKey }) => {
     const canResume = !isRunning && !isComplete;
     const lastUpdate = ((_f = jobData.data) === null || _f === void 0 ? void 0 : _f.started) ? new Date(Date.parse((_g = jobData.data) === null || _g === void 0 ? void 0 : _g.started)) : null;
     const ago = ((_h = jobData.data) === null || _h === void 0 ? void 0 : _h.started) ? formatTimeAgo((Date.now() - lastUpdate.getTime()) / 1000) : '';
-    return (react.createElement("div", { className: 'd-flex flex-column gap-3 p-3' },
+    return (react.createElement("div", { className: 'd-flex flex-column gap-3' },
         react.createElement("div", { className: 'd-flex gap-3' },
             react.createElement("div", { className: 'btn-group' },
                 react.createElement("button", { className: 'btn btn-primary', disabled: !canStart, onClick: start }, "Start"),
@@ -5345,168 +4524,13 @@ const JobWorker = ({ jobKey }) => {
 ;// CONCATENATED MODULE: ./src/stock_check/StockCheck.tsx
 
 
+
 const StockCheck = () => {
-    return react.createElement(JobWorker, { jobKey: 'stock_check' });
+    return (react.createElement("div", { className: 'p-3' },
+        react.createElement("h3", null, "Stock Check"),
+        react.createElement(JobWorker, { jobKey: 'stock_check' }),
+        react.createElement(DebugLog, null)));
 };
-// import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-// import * as React from 'react';
-// import { useEffect } from 'react';
-// import { fetchWordpressAjax } from '../utils/fetchWordpressAjax';
-// import { formatDate, formatTimeAgo } from '../utils/formatDuration';
-// import { IWordpressAjaxParams } from '../views/jobs/Jobs';
-// interface IStockStatus {
-//   total_products: number;
-//   started: string;
-//   cursor: string;
-//   products_processed: number;
-//   update: number;
-//   ignore: number;
-//   insert: number;
-//   completed: string;
-//   is_running: boolean;
-//   is_complete: boolean;
-//   is_stopping: boolean;
-//   is_stalled: boolean;
-// }
-// const useStockUpdate = () => {
-//   return useQuery({
-//     queryKey: ['stock_status'],
-//     queryFn: () => {
-//       return fetchWordpressAjax<IStockStatus>({ action: 'stock_check_api', cmd: 'status' });
-//     },
-//     keepPreviousData: true,
-//     refetchInterval: 5000
-//   });
-// };
-// export const StockCheck = () => {
-//   const queryClient = useQueryClient();
-//   const stockStatus = useStockUpdate();
-//   const mutation = useMutation({
-//     mutationFn: (options: Partial<IWordpressAjaxParams>) => fetchWordpressAjax<string[]>({ action: 'stock_check_api', ...options }),
-//     onSuccess: (data) => queryClient.setQueryData(['stock_status'], data)
-//   });
-//   const refresh = () => {
-//     if (!stockStatus.isLoading) {
-//       queryClient.invalidateQueries(['stock_status']);
-//     }
-//   };
-//   const startStockCheck = () => {
-//     const confirmed = confirm('Start stock check?');
-//     if (confirmed) {
-//       mutation.mutate({ cmd: 'start_stock_check' });
-//     }
-//   };
-//   const stopStockCheck = () => {
-//     mutation.mutate({ cmd: 'stop_stock_check' });
-//   };
-//   const hackStockCheck = () => {
-//     mutation.mutate({ cmd: 'hack_stock_check' });
-//   };
-//   const resumeStockCheck = () => {
-//     mutation.mutate({ cmd: 'resume_stock_check' });
-//   };
-//   useEffect(() => {
-//     if (stockStatus.data?.is_running) {
-//       const timer = setInterval(() => refresh(), 2000);
-//       return () => {
-//         clearInterval(timer);
-//       };
-//     }
-//   }, [stockStatus.data]);
-//   if (!stockStatus.isSuccess) {
-//     return <div>loading...</div>;
-//   }
-//   const isRunning = stockStatus.isSuccess ? stockStatus.data.is_running === true : false;
-//   const isComplete = stockStatus.isSuccess ? stockStatus.data.is_complete === true : false;
-//   const canResume = !isRunning && !isComplete;
-//   const totalProducts = stockStatus.data?.total_products ?? 1;
-//   const ignoreCount = stockStatus.data?.ignore ?? 0;
-//   const updateCount = stockStatus.data?.update ?? 0;
-//   const insertCount = stockStatus.data?.insert ?? 0;
-//   const ignoreWidth = (100 * ignoreCount) / totalProducts;
-//   const updateWidth = (100 * updateCount) / totalProducts;
-//   const insertWidth = (100 * insertCount) / totalProducts;
-//   const lastUpdate = stockStatus.data?.started ? new Date(Date.parse(stockStatus.data?.started)) : null;
-//   const ago = stockStatus.data?.started ? formatTimeAgo((Date.now() - lastUpdate.getTime()) / 1000) : '';
-//   return (
-//     <div className='d-flex flex-column gap-3 p-3'>
-//       {isRunning ? (
-//         <div>
-//           <h5>
-//             <div className='spinner-border spinner-border-sm text-primary' role='status' /> Running...
-//           </h5>
-//           <p>Started {ago}</p>
-//         </div>
-//       ) : (
-//         <div>
-//           {lastUpdate ? (
-//             <>
-//               <h5>Last Updated:</h5>
-//               <p>
-//                 {formatDate(lastUpdate)} ({ago})
-//               </p>
-//             </>
-//           ) : (
-//             <h5>Run your first stock check!</h5>
-//           )}
-//         </div>
-//       )}
-//       <div className='d-flex gap-3'>
-//         <div className='btn-group'>
-//           <button className='btn btn-primary' disabled={isRunning} onClick={startStockCheck}>
-//             Start
-//           </button>
-//           <button className='btn btn-primary' disabled={!canResume} onClick={resumeStockCheck}>
-//             Resume
-//           </button>
-//           <button className='btn btn-primary' disabled={!isRunning} onClick={stopStockCheck}>
-//             Stop
-//           </button>
-//         </div>
-//       </div>
-//       <div className='progress-stacked'>
-//         <div className='progress' role='progressbar' style={{ width: ignoreWidth + '%' }}>
-//           <div className={`progress-bar ${isRunning ? 'progress-bar-striped progress-bar-animated' : ''} bg-secondary`}></div>
-//         </div>
-//         <div className='progress' role='progressbar' style={{ width: updateWidth + '%' }}>
-//           <div className={`progress-bar ${isRunning ? 'progress-bar-striped progress-bar-animated' : ''} bg-info`}></div>
-//         </div>
-//         <div className='progress' role='progressbar' style={{ width: insertWidth + '%' }}>
-//           <div className={`progress-bar ${isRunning ? 'progress-bar-striped progress-bar-animated' : ''} bg-success`}></div>
-//         </div>
-//       </div>
-//       <table style={{ width: 1 }} cellPadding={5}>
-//         <tbody>
-//           <tr>
-//             <td>
-//               <div className='bg-secondary' style={{ width: 16, height: 16 }} />
-//             </td>
-//             <td>Ignore</td>
-//             <td align='right'>{ignoreCount.toLocaleString()}</td>
-//           </tr>
-//           <tr>
-//             <td>
-//               <div className='bg-info' style={{ width: 16, height: 16 }} />
-//             </td>
-//             <td>Update</td>
-//             <td align='right'>{updateCount.toLocaleString()}</td>
-//           </tr>
-//           <tr>
-//             <td>
-//               <div className='bg-success' style={{ width: 16, height: 16 }} />
-//             </td>
-//             <td>Insert</td>
-//             <td align='right'>{insertCount.toLocaleString()}</td>
-//           </tr>
-//         </tbody>
-//       </table>
-//       <pre>{JSON.stringify(stockStatus.data, null, 2)}</pre>
-//       <button className='btn btn-primary' onClick={hackStockCheck}>
-//         Hack
-//       </button>
-//     </div>
-//   );
-// };
 
 ;// CONCATENATED MODULE: ./src/stock_check/index.tsx
 

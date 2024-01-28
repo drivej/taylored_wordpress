@@ -15,7 +15,7 @@ class JobWorker
         'completed' => null,
         'progress' => 0,
     ];
-    public FileCache $cache;
+    public FileCache $cache; // TODO: It'd be nice to use something native or the actual wordpress db
 
     public function __construct(string $key)
     {

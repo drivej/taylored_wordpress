@@ -17,5 +17,5 @@ export const useCronJobs = () => {
     const res = await fetch('/wp-admin/admin-ajax.php', { method: 'POST', body: new URLSearchParams({ action: 'ci_action', ci_action: 'select', 'post[post_type]': 'cronjob' }) });
     return res.json();
   };
-  return useQuery<{ data: CronJobPost[] }>(['getCronJobs'], getCronJobs);
+  return useQuery<{ data: CronJobPost[] }>({queryKey:['getCronJobs'], queryFn:getCronJobs});
 };

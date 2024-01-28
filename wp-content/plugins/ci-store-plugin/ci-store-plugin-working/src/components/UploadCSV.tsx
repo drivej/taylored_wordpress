@@ -13,7 +13,7 @@ export function useImportedFile() {
   const query = useQuery<IImportedFile>({
     queryKey: importKey,
     enabled: false,
-    cacheTime: Infinity
+    gcTime: Infinity
   });
 
   const update = (content: IImportedFile) => {

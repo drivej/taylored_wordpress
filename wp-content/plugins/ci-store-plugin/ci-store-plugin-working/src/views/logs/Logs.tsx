@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
 import { fetchWordpressAjax } from '../../common/utils/fetchWordpressAjax';
 import { IWordpressAjaxParams } from '../jobs/Jobs';
@@ -9,7 +9,7 @@ const useLogs = () => {
     queryFn: () => {
       return fetchWordpressAjax<string[]>({ action: 'logs_do_cmd', cmd: 'get_logs' });
     },
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,
     initialData: [],
     refetchInterval: 10000
   });
@@ -26,7 +26,7 @@ export const Logs = () => {
   });
 
   const refresh = () => {
-    queryClient.invalidateQueries(['logs']);
+    queryClient.invalidateQueries({queryKey:['logs']});
   };
 
   const clear = () => {

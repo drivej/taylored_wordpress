@@ -108,7 +108,7 @@ export const Jobs = () => {
   const queryClient = useQueryClient();
 
   const updateJobs = () => {
-    queryClient.invalidateQueries(['jobs']);
+    queryClient.invalidateQueries({queryKey:['jobs']});
   };
 
   const mutationJob = useMutation({
@@ -225,7 +225,7 @@ export const Jobs = () => {
         </button>
       </div>
       <div className='position-relative'>
-        <div className='bg-primary' style={{ opacity: jobs.isFetching || mutationJob.isLoading ? 1 : 0, transition: 'opacity 0.3s', width: '100%', height: 5 }} />
+        <div className='bg-primary' style={{ opacity: jobs.isFetching || mutationJob.isPending ? 1 : 0, transition: 'opacity 0.3s', width: '100%', height: 5 }} />
         {jobs.data?.length > 0 ? (
           <table className='table table-sm table-bordered align-middle'>
             <thead>

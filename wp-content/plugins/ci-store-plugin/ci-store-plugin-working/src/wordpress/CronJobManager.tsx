@@ -102,7 +102,7 @@ export const CronJobRow = ({ job }: { job: CronJobPost }) => {
       e.preventDefault();
       const response = await fetch('/wp-admin/admin-ajax.php', { method: 'POST', body: new FormData(e.currentTarget) }).then((r) => r.json());
       console.log({ response });
-      queryClient.invalidateQueries(['getCronJobs']);
+      queryClient.invalidateQueries({queryKey:['getCronJobs']});
     }
   };
 
@@ -206,7 +206,7 @@ export const useCronJob = () => {
   const logsMutation = useMutation({
     mutationFn: getStoreAPI,
     onSuccess: () => {
-      queryClient.invalidateQueries(['getStoreLogs']);
+      queryClient.invalidateQueries({queryKey:['getStoreLogs']});
     }
   });
 
@@ -328,7 +328,7 @@ const CreateCronJobButton = () => {
     const data = new FormData(e.currentTarget);
     const response = await fetch('/wp-admin/admin-ajax.php', { method: 'POST', body: data }).then((r) => r.json());
     console.log({ response });
-    queryClient.invalidateQueries(['getCronJobs']);
+    queryClient.invalidateQueries({queryKey:['getCronJobs']});
   };
 
   return (

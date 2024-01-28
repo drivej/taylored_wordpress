@@ -18,7 +18,7 @@ export const JobWorker = ({ jobKey }: { jobKey: string }) => {
 
   const refresh = () => {
     if (!jobData.isLoading) {
-      queryClient.invalidateQueries([jobKey]);
+      queryClient.invalidateQueries({queryKey:[jobKey]});
     }
   };
 
@@ -67,7 +67,7 @@ export const JobWorker = ({ jobKey }: { jobKey: string }) => {
   const ago = jobData.data?.started ? formatTimeAgo((Date.now() - lastUpdate.getTime()) / 1000) : '';
 
   return (
-    <div className='d-flex flex-column gap-3 p-3'>
+    <div className='d-flex flex-column gap-3'>
       <div className='d-flex gap-3'>
         <div className='btn-group'>
           <button className='btn btn-primary' disabled={!canStart} onClick={start}>

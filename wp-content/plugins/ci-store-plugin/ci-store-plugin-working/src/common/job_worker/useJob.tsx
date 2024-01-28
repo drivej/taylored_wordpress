@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { fetchWordpressAjax } from '../utils/fetchWordpressAjax';
 import { IJobWorker } from './job_models';
 
@@ -8,7 +8,7 @@ export const useJob = (jobKey: string) => {
     queryFn: () => {
       return fetchWordpressAjax<IJobWorker>({ action: `${jobKey}_api`, cmd: `status` });
     },
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,
     refetchInterval: 2000
   });
 };

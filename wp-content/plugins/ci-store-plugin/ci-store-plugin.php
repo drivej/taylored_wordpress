@@ -17,6 +17,10 @@ include_once __DIR__ . '/test.php';
 include_once __DIR__ . '/western/wps_ajax_handler.php';
 include_once __DIR__ . '/hooks/index.php';
 include_once __DIR__ . '/admin/index.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/DebugLogAPI.php';
+
+// build debug API
+new DebugLogAPI();
 
 function create_admin_menu()
 {

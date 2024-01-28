@@ -21,7 +21,7 @@ export const useCronStatus = () => {
     const res = await fetch('/wp-admin/admin-ajax.php?action=ci_store_cronjob_api');
     return res.json();
   };
-  return useQuery<ICronStatus>(['getCronStatus'], getCronJobs, { refetchInterval: 5000 });
+  return useQuery<ICronStatus>({ queryKey: ['getCronStatus'], queryFn: getCronJobs, refetchInterval: 5000 });
 };
 
 // export const CronStatus = () => {
