@@ -1,20 +1,20 @@
 <?php
 
-include_once __DIR__ . '/utils/Report.php';
-include_once __DIR__ . '/actions/import_western.php';
-include_once __DIR__ . '/western/get_western_products_page.php';
-include_once __DIR__ . '/western/get_western_attributes_from_product.php';
-include_once __DIR__ . '/western/western_utils.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/ReactSubpage.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Report.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/get_western_products_page.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/get_western_attributes_from_product.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/western_utils.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/print_utils.php';
 
-include_once __DIR__ . '/utils/print_utils.php';
-include_once __DIR__ . '/test/wps_page_action.php';
-include_once __DIR__ . '/test/wps_post_action.php';
-include_once __DIR__ . '/test/woo_repair_action.php';
-include_once __DIR__ . '/test/woo_product_action.php';
-include_once __DIR__ . '/test/wps_import_action.php';
-include_once __DIR__ . '/test/wps_product_action.php';
-include_once __DIR__ . '/test/clear_logs_action.php';
-include_once __DIR__ . '/test/stock_check_action.php';
+include_once __DIR__ . '/wps_page_action.php';
+include_once __DIR__ . '/wps_post_action.php';
+include_once __DIR__ . '/woo_repair_action.php';
+include_once __DIR__ . '/woo_product_action.php';
+include_once __DIR__ . '/wps_import_action.php';
+include_once __DIR__ . '/wps_product_action.php';
+include_once __DIR__ . '/clear_logs_action.php';
+include_once __DIR__ . '/actions_action.php';
 
 $action_handlers = [
     "wc_api",
@@ -25,7 +25,8 @@ $action_handlers = [
     "wps_import",
     "wps_page",
     "clear_logs",
-    "stock_check"
+    "stock_check",
+    "actions"
 ];
 
 function render_ci_store_plugin_test()

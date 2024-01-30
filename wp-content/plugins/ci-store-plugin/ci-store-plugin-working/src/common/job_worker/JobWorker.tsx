@@ -1,36 +1,43 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
+import { useEffect } from 'react';
+import { useStopWatch } from '../../utils/useStopWatch';
 import { IWordpressAjaxParams } from '../../views/jobs/Jobs';
 import { fetchWordpressAjax } from '../utils/fetchWordpressAjax';
-import { formatTimeAgo } from '../utils/formatDuration';
-import { useJob } from './useJob';
+import { formatDuration, formatTimeAgo } from '../utils/formatDuration';
+import { IJobWorker } from './job_models';
+import { useJobData } from './useJob';
 
-export const JobWorker = ({ jobKey }: { jobKey: string }) => {
-  //   const jobKey = 'import_products';
+export function JobWorker<T>({ jobKey, args }: { jobKey: string; args?: T }) {
   const action = `${jobKey}_api`;
   const queryClient = useQueryClient();
-  const jobData = useJob(jobKey);
+  // const jobData = useJobStatus(jobKey);
+  const jobData = useJobData(jobKey);
 
   const mutation = useMutation({
-    mutationFn: (options: Partial<IWordpressAjaxParams>) => fetchWordpressAjax<string[]>({ action, ...options }),
+    mutationFn: (options: Partial<IWordpressAjaxParams>) => fetchWordpressAjax<string[]>({ action, ...(args ?? {}), ...options }),
     onSuccess: (data) => queryClient.setQueryData([jobKey], data)
   });
 
   const refresh = () => {
     if (!jobData.isLoading) {
-      queryClient.invalidateQueries({queryKey:[jobKey]});
+      queryClient.invalidateQueries({ queryKey: [jobKey, 'status'] });
     }
   };
 
-  const update = () => {
-    mutation.mutate({ cmd: `status` });
-  };
+  // const update = () => {
+  //   mutation.mutate({ cmd: `status` });
+  // };
 
   const start = () => {
     const confirmed = confirm('Start job?');
     if (confirmed) {
       mutation.mutate({ cmd: `start` });
     }
+  };
+
+  const reset = () => {
+    mutation.mutate({ cmd: `reset` });
   };
 
   const stop = () => {
@@ -45,29 +52,40 @@ export const JobWorker = ({ jobKey }: { jobKey: string }) => {
     mutation.mutate({ cmd: 'hack' });
   };
 
-  //   useEffect(() => {
-  //     if (jobData.data?.is_running) {
-  //       const timer = setInterval(() => refresh(), 5000);
-  //       return () => {
-  //         clearInterval(timer);
-  //       };
-  //     }
-  //   }, [jobData.data]);
+  useEffect(() => {
+    if (jobData.data?.is_running) {
+      const timer = setInterval(() => refresh(), 2000);
+      return () => {
+        clearInterval(timer);
+      };
+    }
+  }, [jobData.data]);
+
   if (!jobData.isSuccess) {
-    return <div className='p-3'>loading...</div>;
+    return (
+      <div>
+        <p>Loading...</p>
+      </div>
+    );
   }
 
   const isRunning = jobData.data?.is_running === true;
   const isComplete = jobData.data.is_complete === true;
+  const isStopping = isRunning && jobData.data.is_stopping === true;
+  const wasStopped = !isRunning && !isStopping && !isComplete;
   const canStart = jobData.data?.is_running === false;
   const canStop = jobData.data?.is_running === true;
   const percentComplete = (jobData.data?.progress ?? 0) * 100;
   const canResume = !isRunning && !isComplete;
-  const lastUpdate = jobData.data?.started ? new Date(Date.parse(jobData.data?.started)) : null;
-  const ago = jobData.data?.started ? formatTimeAgo((Date.now() - lastUpdate.getTime()) / 1000) : '';
+  const canReset = !isRunning;
+  // const lastUpdate = jobData.data?.started ? new Date(Date.parse(jobData.data?.started)) : null;
+  // const ago = jobData.data?.started ? formatTimeAgo((Date.now() - lastUpdate.getTime()) / 1000) : '';
 
   return (
     <div className='d-flex flex-column gap-3'>
+
+      {/* <pre style={{ fontSize: 12 }}>{JSON.stringify(jobInfo.data, null, 2)}</pre> */}
+      {isComplete ? <CompletedMessage jobData={jobData.data} /> : isRunning ? <RunningMessage jobData={jobData.data} /> : isStopping ? <StoppingMessage /> : wasStopped ? <StoppedMessage jobData={jobData.data} /> : ''}
       <div className='d-flex gap-3'>
         <div className='btn-group'>
           <button className='btn btn-primary' disabled={!canStart} onClick={start}>
@@ -82,13 +100,17 @@ export const JobWorker = ({ jobKey }: { jobKey: string }) => {
             Stop
           </button>
 
-          <button className='btn btn-primary' onClick={update}>
-            Refresh
+          <button className='btn btn-primary' disabled={!canReset} onClick={reset}>
+            Reset
           </button>
 
-          <button className='btn btn-primary' onClick={hack}>
+          {/* <button className='btn btn-primary' onClick={update}>
+            Refresh
+          </button> */}
+
+          {/* <button className='btn btn-primary' onClick={hack}>
             Hack
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -98,37 +120,54 @@ export const JobWorker = ({ jobKey }: { jobKey: string }) => {
         </div>
       </div>
 
-      {/* <table style={{ width: 1 }} cellPadding={5}>
-              <tbody>
-                <tr>
-                  <td>
-                    <div className='bg-secondary' style={{ width: 16, height: 16 }} />
-                  </td>
-                  <td>Ignore</td>
-                  <td align='right'>{ignoreCount.toLocaleString()}</td>
-                </tr>
-                <tr>
-                  <td>
-                    <div className='bg-info' style={{ width: 16, height: 16 }} />
-                  </td>
-                  <td>Update</td>
-                  <td align='right'>{updateCount.toLocaleString()}</td>
-                </tr>
-                <tr>
-                  <td>
-                    <div className='bg-success' style={{ width: 16, height: 16 }} />
-                  </td>
-                  <td>Insert</td>
-                  <td align='right'>{insertCount.toLocaleString()}</td>
-                </tr>
-              </tbody>
-            </table> */}
+      <pre style={{ fontSize: 12 }}>{JSON.stringify(jobData.data, null, 2)}</pre>
+    </div>
+  );
+}
 
-      <pre>{JSON.stringify(jobData.data, null, 2)}</pre>
+const CompletedMessage = ({ jobData }: { jobData: IJobWorker }) => {
+  const started = new Date(Date.parse(jobData.started)).getTime();
+  const completed = new Date(Date.parse(jobData.completed)).getTime();
+  const duration = formatDuration((completed - started) / 1000);
+  const ago = formatTimeAgo((Date.now() - completed) / 1000);
 
-      {/* <button className='btn btn-primary' onClick={hackStockCheck}>
-              Hack
-            </button> */}
+  return (
+    <div>
+      <p className='m-0'>
+        Completed {ago} in {duration}
+      </p>
+    </div>
+  );
+};
+
+const RunningMessage = ({ jobData }: { jobData: IJobWorker }) => {
+  const stopWatch = useStopWatch();
+
+  useEffect(() => {
+    const startTime = new Date(Date.parse(jobData.started)).getTime();
+    stopWatch.start(startTime);
+  }, [jobData]);
+
+  return (
+    <div>
+      <p className='m-0'>Running... {formatDuration(stopWatch.elapsedSeconds)}</p>
+    </div>
+  );
+};
+
+const StoppingMessage = ({ jobData }: { jobData?: IJobWorker }) => {
+  return (
+    <div>
+      <p className='m-0'>Stopping...</p>
+    </div>
+  );
+};
+
+const StoppedMessage = ({ jobData }: { jobData?: IJobWorker }) => {
+  const ago = formatTimeAgo((Date.now() - new Date(Date.parse(jobData.stopped)).getTime()) / 1000);
+  return (
+    <div>
+      <p className='m-0'>Stopped {ago}</p>
     </div>
   );
 };

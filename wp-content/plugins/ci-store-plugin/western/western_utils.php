@@ -67,8 +67,14 @@ function wps_item_has_images($item)
 
 function isValidItem($item)
 {
-    $valid_status = ['DIR', 'NEW', 'STK'];
-    return in_array($item['status_id'], $valid_status);
+    $status_ids = ['DIR', 'NEW', 'STK'];
+    return in_array($item['status_id'], $status_ids);
+}
+
+function isDeadItem($item)
+{
+    $status_ids = ['NLA', 'CLO', 'DSC'];
+    return in_array($item['status_id'], $status_ids);
 }
 
 function getValidProductIds($products)
@@ -138,10 +144,22 @@ function get_western_stock($wps_product_id)
 
 function has_valid_items($wps_product_data)
 {
-    $items = $wps_product_data['items']['data'];
-    if (isset($items)) {
+    $items = isset($wps_product_data['items']['data']) ? $wps_product_data['items']['data'] : [];
+    if (count($items)) {
         $valid_items = array_filter($items, 'isValidItem');
         if (count($valid_items)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function wps_should_delete($wps_product_data)
+{
+    $items = $wps_product_data['items']['data'];
+    if (isset($items)) {
+        $valid_items = array_filter($items, 'isDeadItem');
+        if (count($valid_items) === count($items)) {
             return true;
         }
     }

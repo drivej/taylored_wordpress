@@ -10,3 +10,9 @@ export interface IJobWorker {
   is_stopping: boolean;
   is_stalled: boolean;
 }
+
+export interface IJobInfo {
+  key: string;
+  data_url: string;
+  log_url: string;
+}

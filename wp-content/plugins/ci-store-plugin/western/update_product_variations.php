@@ -1,7 +1,5 @@
 <?php
 
-require_once __DIR__ . './../log/write_to_log_file.php';
-
 function variation_needs_update($woo_variation, $wps_item)
 {
     global $WPS_SETTINGS;
@@ -84,7 +82,7 @@ function update_product_variations($product, $wps_product, $report)
             $variation = wc_get_product($variation_id);
             // Note: setting the sku of an existing variation causes issues - I think
             $report->addLog('variations ' . $variation_sku . ' already exists WTH?');
-            write_to_log_file('variations ' . $variation_sku . ' already exists WTH? parent=' . $variation->get_parent_id() . ' this pid=' . $product_id);
+            error_log('variations ' . $variation_sku . ' already exists WTH? parent=' . $variation->get_parent_id() . ' this pid=' . $product_id);
         } else {
             // create variation
             $variation = new WC_Product_Variation();

@@ -2002,7 +2002,7 @@ function replaceData(prevData, data, options) {
   }
   return data;
 }
-function keepPreviousData(previousData) {
+function utils_keepPreviousData(previousData) {
   return previousData;
 }
 function addToEnd(items, item, max = 0) {
@@ -4307,7 +4307,7 @@ function useBaseQuery(options, Observer, queryClient) {
 // src/useQuery.ts
 
 
-function useQuery(options, queryClient) {
+function useQuery_useQuery(options, queryClient) {
   return useBaseQuery(options, QueryObserver, queryClient);
 }
 
@@ -4326,7 +4326,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
     });
 };
 
-function fetchWordpressAjax(params = { action: '' }) {
+function fetchWordpressAjax_fetchWordpressAjax(params = { action: '' }) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         const url = new URL(location.origin);
@@ -4352,13 +4352,13 @@ function fetchWordpressAjax(params = { action: '' }) {
 
 
 const useDebugLog = () => {
-    return useQuery({
+    return useQuery_useQuery({
         queryKey: ['debug_log_api'],
         queryFn: () => {
-            return fetchWordpressAjax({ action: `debug_log_api`, cmd: 'get_data' });
+            return fetchWordpressAjax_fetchWordpressAjax({ action: `debug_log_api`, cmd: 'get_data' });
         },
-        placeholderData: keepPreviousData,
-        refetchInterval: 2000
+        placeholderData: utils_keepPreviousData,
+        refetchInterval: 5000
     });
 };
 // export const useWordpressAjax = (apiKey: string, cmd:string = '') => {
@@ -4383,7 +4383,7 @@ const DebugLog = () => {
     const log = useDebugLog();
     const queryClient = useQueryClient();
     const mutation = useMutation({
-        mutationFn: (options) => fetchWordpressAjax(Object.assign({ action: 'debug_log_api' }, options)),
+        mutationFn: (options) => fetchWordpressAjax_fetchWordpressAjax(Object.assign({ action: 'debug_log_api' }, options)),
         onSuccess: (data) => queryClient.setQueryData(['debug_log_api'], data)
     });
     const empty = () => {
@@ -4392,7 +4392,8 @@ const DebugLog = () => {
     const refresh = () => {
         queryClient.invalidateQueries({ queryKey: ['debug_log_api'] });
     };
-    return (react.createElement("div", { className: 'p-3' },
+    return (react.createElement("div", null,
+        react.createElement("p", null, "debug.log"),
         react.createElement("div", { className: 'btn-group mb-2' },
             react.createElement("button", { className: 'btn btn-primary', onClick: empty }, "Empty"),
             react.createElement("button", { className: 'btn btn-primary', onClick: refresh }, "Refresh")),
@@ -4401,6 +4402,139 @@ const DebugLog = () => {
                 react.createElement("td", { style: { width: '24ch' }, className: 'text-nowrap' }, line.date),
                 react.createElement("td", null,
                     react.createElement("div", { className: 'text-truncate w-100', title: line.message }, line.message)))))))) : null));
+};
+
+;// CONCATENATED MODULE: ./src/common/job_worker/useJob.tsx
+var useJob_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+const useWordpressAjax = (query, options = {}) => {
+    return useQuery(Object.assign({ queryKey: [query.action, query.cmd], queryFn: () => {
+            return fetchWordpressAjax(query);
+        }, placeholderData: keepPreviousData }, options));
+};
+const useJob = (jobKey, cmd = `status`, options = {}) => {
+    return useQuery_useQuery(Object.assign({ queryKey: [jobKey, cmd], queryFn: () => {
+            return fetchWordpressAjax_fetchWordpressAjax({ action: `${jobKey}_api`, cmd });
+        }, placeholderData: utils_keepPreviousData }, options));
+};
+const useJobStatus = (jobKey) => useJob(jobKey, 'status', { refetchInterval: 5000 });
+// export const useJobInfo = (jobKey: string) => useJob(jobKey, 'info');
+const useJobData = (jobKey) => {
+    var _a;
+    const info = useJob(jobKey, 'info');
+    const data = useDataFile((_a = info === null || info === void 0 ? void 0 : info.data) === null || _a === void 0 ? void 0 : _a.data_url, { enabled: info.isSuccess, refetchInterval: 5000, gcTime: 0 });
+    data.data;
+    return data;
+};
+const useDataFile = (url, options = {}) => {
+    return useQuery_useQuery(Object.assign({ queryKey: [url], queryFn: () => useJob_awaiter(void 0, void 0, void 0, function* () {
+            const u = new URL(url, window.location.href);
+            u.searchParams.set('nocache', Date.now().toString());
+            const r = yield fetch(u.href);
+            return yield r.json();
+        }) }, options));
+};
+
+;// CONCATENATED MODULE: ./src/common/job_worker/useJobLog.tsx
+
+const useJobLog = (jobKey) => {
+    var _a;
+    const info = useJob(jobKey, 'info');
+    const data = useDataFile((_a = info === null || info === void 0 ? void 0 : info.data) === null || _a === void 0 ? void 0 : _a.log_url, { enabled: info.isSuccess, refetchInterval: 5000, gcTime: 0 });
+    return data;
+};
+// export const useJobLog = (jobKey: string) => {
+//   return useQuery({
+//     queryKey: [jobKey, 'log'],
+//     queryFn: () => fetchWordpressAjax<IJobLog>({ action: `${jobKey}_api`, cmd: `log` }),
+//     placeholderData: keepPreviousData,
+//     refetchInterval: 5000
+//   });
+// };
+
+;// CONCATENATED MODULE: ./src/common/job_worker/JobLog.tsx
+
+
+
+
+const JobLog = ({ jobKey }) => {
+    var _a, _b, _c;
+    const action = `${jobKey}_api`;
+    const queryKey = [jobKey, 'log'];
+    const log = useJobLog(jobKey);
+    const queryClient = useQueryClient();
+    const mutation = useMutation({
+        mutationFn: (options) => fetchWordpressAjax_fetchWordpressAjax(Object.assign({ action }, options)),
+        onSuccess: (data) => queryClient.setQueryData(queryKey, data)
+    });
+    const empty = () => {
+        mutation.mutate({ cmd: `clear_log` });
+    };
+    const refresh = () => {
+        queryClient.invalidateQueries({ queryKey });
+    };
+    return (react.createElement("div", null,
+        react.createElement("div", { className: 'btn-group mb-2' },
+            react.createElement("button", { className: 'btn btn-primary', onClick: empty }, "Empty"),
+            react.createElement("button", { className: 'btn btn-primary', onClick: refresh }, "Refresh")),
+        log.isSuccess && log.data ? (react.createElement("div", { style: { maxHeight: 300, overflow: 'auto' } },
+            react.createElement("table", { className: 'table table-sm table-bordered w-100', style: { fontSize: '12px', tableLayout: 'fixed' } },
+                react.createElement("tbody", null, (_c = (_b = (_a = log.data) === null || _a === void 0 ? void 0 : _a.reverse()) === null || _b === void 0 ? void 0 : _b.map((line, i) => (react.createElement("tr", null,
+                    react.createElement("td", { style: { width: '6ch' } }, log.data.length - i),
+                    react.createElement("td", { style: { width: '24ch' }, className: 'text-nowrap' }, line.timestamp),
+                    react.createElement("td", null, JSON.stringify(line, null, 2)))))) !== null && _c !== void 0 ? _c : null)))) : null));
+};
+
+;// CONCATENATED MODULE: ./src/utils/useStopWatch.tsx
+
+const useStopWatch = () => {
+    const [isRunning, setIsRunning] = (0,react.useState)(false);
+    const [offsetSeconds, setOffsetSeconds] = (0,react.useState)(0);
+    const [elapsedSeconds, setElapsedSeconds] = (0,react.useState)(0);
+    const [startTime, setStartTime] = (0,react.useState)(Date.now());
+    (0,react.useEffect)(() => {
+        const onTick = () => {
+            setElapsedSeconds(offsetSeconds + (Date.now() - startTime) / 1000);
+        };
+        onTick();
+        if (isRunning) {
+            const timer = setInterval(onTick, 1000);
+            return () => {
+                clearInterval(timer);
+            };
+        }
+    }, [startTime, isRunning]);
+    const start = (t = Date.now()) => {
+        setStartTime(t);
+        setIsRunning(true);
+    };
+    const pause = () => {
+        setIsRunning(false);
+    };
+    const resume = () => {
+        setIsRunning(true);
+    };
+    const reset = () => {
+        setStartTime(Date.now());
+    };
+    return {
+        isRunning,
+        setStartTime,
+        elapsedSeconds,
+        pause,
+        resume,
+        start,
+        reset
+    };
 };
 
 ;// CONCATENATED MODULE: ./src/common/utils/formatDuration.ts
@@ -4435,49 +4569,40 @@ function formatTimeAgo(seconds) {
     return '<1 min ago';
 }
 
-;// CONCATENATED MODULE: ./src/common/job_worker/useJob.tsx
-
-
-const useJob = (jobKey) => {
-    return useQuery({
-        queryKey: [jobKey],
-        queryFn: () => {
-            return fetchWordpressAjax({ action: `${jobKey}_api`, cmd: `status` });
-        },
-        placeholderData: keepPreviousData,
-        refetchInterval: 2000
-    });
-};
-
 ;// CONCATENATED MODULE: ./src/common/job_worker/JobWorker.tsx
 
 
 
 
 
-const JobWorker = ({ jobKey }) => {
-    var _a, _b, _c, _d, _e, _f, _g, _h;
-    //   const jobKey = 'import_products';
+
+
+function JobWorker({ jobKey, args }) {
+    var _a, _b, _c, _d, _e;
     const action = `${jobKey}_api`;
     const queryClient = useQueryClient();
-    const jobData = useJob(jobKey);
+    // const jobData = useJobStatus(jobKey);
+    const jobData = useJobData(jobKey);
     const mutation = useMutation({
-        mutationFn: (options) => fetchWordpressAjax(Object.assign({ action }, options)),
+        mutationFn: (options) => fetchWordpressAjax_fetchWordpressAjax(Object.assign(Object.assign({ action }, (args !== null && args !== void 0 ? args : {})), options)),
         onSuccess: (data) => queryClient.setQueryData([jobKey], data)
     });
     const refresh = () => {
         if (!jobData.isLoading) {
-            queryClient.invalidateQueries({ queryKey: [jobKey] });
+            queryClient.invalidateQueries({ queryKey: [jobKey, 'status'] });
         }
     };
-    const update = () => {
-        mutation.mutate({ cmd: `status` });
-    };
+    // const update = () => {
+    //   mutation.mutate({ cmd: `status` });
+    // };
     const start = () => {
         const confirmed = confirm('Start job?');
         if (confirmed) {
             mutation.mutate({ cmd: `start` });
         }
+    };
+    const reset = () => {
+        mutation.mutate({ cmd: `reset` });
     };
     const stop = () => {
         mutation.mutate({ cmd: `stop` });
@@ -4488,47 +4613,93 @@ const JobWorker = ({ jobKey }) => {
     const hack = () => {
         mutation.mutate({ cmd: 'hack' });
     };
-    //   useEffect(() => {
-    //     if (jobData.data?.is_running) {
-    //       const timer = setInterval(() => refresh(), 5000);
-    //       return () => {
-    //         clearInterval(timer);
-    //       };
-    //     }
-    //   }, [jobData.data]);
+    (0,react.useEffect)(() => {
+        var _a;
+        if ((_a = jobData.data) === null || _a === void 0 ? void 0 : _a.is_running) {
+            const timer = setInterval(() => refresh(), 2000);
+            return () => {
+                clearInterval(timer);
+            };
+        }
+    }, [jobData.data]);
     if (!jobData.isSuccess) {
-        return react.createElement("div", { className: 'p-3' }, "loading...");
+        return (react.createElement("div", null,
+            react.createElement("p", null, "Loading...")));
     }
     const isRunning = ((_a = jobData.data) === null || _a === void 0 ? void 0 : _a.is_running) === true;
     const isComplete = jobData.data.is_complete === true;
+    const isStopping = isRunning && jobData.data.is_stopping === true;
+    const wasStopped = !isRunning && !isStopping && !isComplete;
     const canStart = ((_b = jobData.data) === null || _b === void 0 ? void 0 : _b.is_running) === false;
     const canStop = ((_c = jobData.data) === null || _c === void 0 ? void 0 : _c.is_running) === true;
     const percentComplete = ((_e = (_d = jobData.data) === null || _d === void 0 ? void 0 : _d.progress) !== null && _e !== void 0 ? _e : 0) * 100;
     const canResume = !isRunning && !isComplete;
-    const lastUpdate = ((_f = jobData.data) === null || _f === void 0 ? void 0 : _f.started) ? new Date(Date.parse((_g = jobData.data) === null || _g === void 0 ? void 0 : _g.started)) : null;
-    const ago = ((_h = jobData.data) === null || _h === void 0 ? void 0 : _h.started) ? formatTimeAgo((Date.now() - lastUpdate.getTime()) / 1000) : '';
+    const canReset = !isRunning;
+    // const lastUpdate = jobData.data?.started ? new Date(Date.parse(jobData.data?.started)) : null;
+    // const ago = jobData.data?.started ? formatTimeAgo((Date.now() - lastUpdate.getTime()) / 1000) : '';
     return (react.createElement("div", { className: 'd-flex flex-column gap-3' },
+        isComplete ? react.createElement(CompletedMessage, { jobData: jobData.data }) : isRunning ? react.createElement(RunningMessage, { jobData: jobData.data }) : isStopping ? react.createElement(StoppingMessage, null) : wasStopped ? react.createElement(StoppedMessage, { jobData: jobData.data }) : '',
         react.createElement("div", { className: 'd-flex gap-3' },
             react.createElement("div", { className: 'btn-group' },
                 react.createElement("button", { className: 'btn btn-primary', disabled: !canStart, onClick: start }, "Start"),
                 react.createElement("button", { className: 'btn btn-primary', disabled: !canResume, onClick: resume }, "Resume"),
                 react.createElement("button", { className: 'btn btn-primary', disabled: !canStop, onClick: stop }, "Stop"),
-                react.createElement("button", { className: 'btn btn-primary', onClick: update }, "Refresh"),
-                react.createElement("button", { className: 'btn btn-primary', onClick: hack }, "Hack"))),
+                react.createElement("button", { className: 'btn btn-primary', disabled: !canReset, onClick: reset }, "Reset"))),
         react.createElement("div", { className: 'progress-stacked' },
             react.createElement("div", { className: 'progress', role: 'progressbar', style: { width: percentComplete + '%' } },
                 react.createElement("div", { className: `progress-bar ${isRunning ? 'progress-bar-striped progress-bar-animated' : ''} bg-info` }))),
-        react.createElement("pre", null, JSON.stringify(jobData.data, null, 2))));
+        react.createElement("pre", { style: { fontSize: 12 } }, JSON.stringify(jobData.data, null, 2))));
+}
+const CompletedMessage = ({ jobData }) => {
+    const started = new Date(Date.parse(jobData.started)).getTime();
+    const completed = new Date(Date.parse(jobData.completed)).getTime();
+    const duration = formatDuration((completed - started) / 1000);
+    const ago = formatTimeAgo((Date.now() - completed) / 1000);
+    return (react.createElement("div", null,
+        react.createElement("p", { className: 'm-0' },
+            "Completed ",
+            ago,
+            " in ",
+            duration)));
+};
+const RunningMessage = ({ jobData }) => {
+    const stopWatch = useStopWatch();
+    (0,react.useEffect)(() => {
+        const startTime = new Date(Date.parse(jobData.started)).getTime();
+        stopWatch.start(startTime);
+    }, [jobData]);
+    return (react.createElement("div", null,
+        react.createElement("p", { className: 'm-0' },
+            "Running... ",
+            formatDuration(stopWatch.elapsedSeconds))));
+};
+const StoppingMessage = ({ jobData }) => {
+    return (react.createElement("div", null,
+        react.createElement("p", { className: 'm-0' }, "Stopping...")));
+};
+const StoppedMessage = ({ jobData }) => {
+    const ago = formatTimeAgo((Date.now() - new Date(Date.parse(jobData.stopped)).getTime()) / 1000);
+    return (react.createElement("div", null,
+        react.createElement("p", { className: 'm-0' },
+            "Stopped ",
+            ago)));
 };
 
 ;// CONCATENATED MODULE: ./src/stock_check/StockCheck.tsx
 
 
 
+
+
 const StockCheck = () => {
-    return (react.createElement("div", { className: 'p-3' },
-        react.createElement("h3", null, "Stock Check"),
-        react.createElement(JobWorker, { jobKey: 'stock_check' }),
+    const [since, setSince] = (0,react.useState)('');
+    return (react.createElement("div", { className: 'p-3 d-flex flex-column gap-3' },
+        react.createElement("div", null,
+            react.createElement("h3", null, "Stock Check"),
+            react.createElement("label", { className: 'form-label' }, "Since"),
+            react.createElement("input", { className: 'form-control', type: 'date', value: since, onChange: (e) => setSince(e.currentTarget.value) })),
+        react.createElement(JobWorker, { jobKey: 'stock_check', args: { since } }),
+        react.createElement(JobLog, { jobKey: 'stock_check' }),
         react.createElement(DebugLog, null)));
 };
 

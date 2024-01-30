@@ -12,7 +12,7 @@ export const useDebugLog = () => {
       return fetchWordpressAjax<IDebugLog>({ action: `debug_log_api`, cmd: 'get_data' });
     },
     placeholderData: keepPreviousData,
-    refetchInterval: 2000
+    refetchInterval: 5000
   });
 };
 

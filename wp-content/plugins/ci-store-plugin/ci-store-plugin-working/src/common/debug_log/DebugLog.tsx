@@ -24,7 +24,8 @@ export const DebugLog = () => {
   };
 
   return (
-    <div className='p-3'>
+    <div>
+      <p>debug.log</p>
       <div className='btn-group mb-2'>
         <button className='btn btn-primary' onClick={empty}>
           Empty

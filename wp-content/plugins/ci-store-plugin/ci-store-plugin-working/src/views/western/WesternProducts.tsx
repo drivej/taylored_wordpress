@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { SpinnerSmall } from '../../components/SpinnerSmall';
 import { Product, ProductVariation } from '../../components/woo/Product';
 import { lookup } from '../../utils/lookup';
 import { StatsProvider, useStats } from '../../utils/useStats';
@@ -831,10 +832,3 @@ const WesternProductsPageRow = ({ product: product, index }: { product: IWestern
   );
 };
 
-const SpinnerSmall = () => {
-  return (
-    <div className='spinner-border spinner-border-sm' role='status'>
-      <span className='visually-hidden'>Loading...</span>
-    </div>
-  );
-};

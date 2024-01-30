@@ -2,11 +2,11 @@
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
 	else if(typeof define === 'function' && define.amd)
-		define("ci_import_products", [], factory);
+		define("ci_overview", [], factory);
 	else if(typeof exports === 'object')
-		exports["ci_import_products"] = factory();
+		exports["ci_overview"] = factory();
 	else
-		root["ci_import_products"] = factory();
+		root["ci_overview"] = factory();
 })(self, () => {
 return /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
@@ -2002,7 +2002,7 @@ function replaceData(prevData, data, options) {
   }
   return data;
 }
-function utils_keepPreviousData(previousData) {
+function keepPreviousData(previousData) {
   return previousData;
 }
 function addToEnd(items, item, max = 0) {
@@ -3736,117 +3736,6 @@ function useMutation_noop() {
 }
 
 //# sourceMappingURL=useMutation.js.map
-;// CONCATENATED MODULE: ./src/utils/useStopWatch.tsx
-
-const useStopWatch = () => {
-    const [isRunning, setIsRunning] = (0,react.useState)(false);
-    const [offsetSeconds, setOffsetSeconds] = (0,react.useState)(0);
-    const [elapsedSeconds, setElapsedSeconds] = (0,react.useState)(0);
-    const [startTime, setStartTime] = (0,react.useState)(Date.now());
-    (0,react.useEffect)(() => {
-        const onTick = () => {
-            setElapsedSeconds(offsetSeconds + (Date.now() - startTime) / 1000);
-        };
-        onTick();
-        if (isRunning) {
-            const timer = setInterval(onTick, 1000);
-            return () => {
-                clearInterval(timer);
-            };
-        }
-    }, [startTime, isRunning]);
-    const start = (t = Date.now()) => {
-        setStartTime(t);
-        setIsRunning(true);
-    };
-    const pause = () => {
-        setIsRunning(false);
-    };
-    const resume = () => {
-        setIsRunning(true);
-    };
-    const reset = () => {
-        setStartTime(Date.now());
-    };
-    return {
-        isRunning,
-        setStartTime,
-        elapsedSeconds,
-        pause,
-        resume,
-        start,
-        reset
-    };
-};
-
-// EXTERNAL MODULE: ./node_modules/cross-fetch/dist/browser-ponyfill.js
-var browser_ponyfill = __webpack_require__(98);
-var browser_ponyfill_default = /*#__PURE__*/__webpack_require__.n(browser_ponyfill);
-;// CONCATENATED MODULE: ./src/common/utils/fetchWordpressAjax.tsx
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-function fetchWordpressAjax_fetchWordpressAjax(params = { action: '' }) {
-    var _a, _b;
-    return __awaiter(this, void 0, void 0, function* () {
-        const url = new URL(location.origin);
-        url.pathname = '/wp-admin/admin-ajax.php';
-        Object.keys(params).forEach((k) => url.searchParams.set(k, params[k]));
-        const res = yield browser_ponyfill_default()(url);
-        if (!res.ok) {
-            const info = { message: 'ERROR', description: 'There was a problem' };
-            try {
-                const err = yield res.json();
-                info.message = (_a = err === null || err === void 0 ? void 0 : err.message) !== null && _a !== void 0 ? _a : '';
-                info.description = (_b = err === null || err === void 0 ? void 0 : err.description) !== null && _b !== void 0 ? _b : '';
-            }
-            catch (e) { }
-            return Promise.reject({ error: info });
-        }
-        const data = yield res.json();
-        return data;
-    });
-}
-
-;// CONCATENATED MODULE: ./src/common/utils/formatDuration.ts
-function formatDuration(seconds) {
-    var date = new Date(0);
-    if (seconds)
-        date.setSeconds(seconds); // specify value for SECONDS here
-    return date.toISOString().substring(11, 19);
-    //   if (isNaN(seconds)) return '';
-    //   seconds = Math.round(seconds);
-    //   const m = Math.floor(seconds / 60);
-    //   const s = seconds % 60;
-    //   return `${m}:${('0' + s).slice(-2)}`;
-}
-function formatDate(d) {
-    return d.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
-}
-function formatTimeAgo(seconds) {
-    const intervals = [
-        { label: 'year', seconds: 31536000 },
-        { label: 'month', seconds: 2592000 },
-        { label: 'day', seconds: 86400 },
-        { label: 'hour', seconds: 3600 },
-        { label: 'minute', seconds: 60 }
-    ];
-    for (const interval of intervals) {
-        const count = Math.floor(seconds / interval.seconds);
-        if (count >= 1) {
-            return count === 1 ? `${count} ${interval.label} ago` : `${count} ${interval.label}s ago`;
-        }
-    }
-    return '<1 min ago';
-}
-
 ;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/modern/queryObserver.js
 // src/queryObserver.ts
 
@@ -4418,13 +4307,16 @@ function useBaseQuery(options, Observer, queryClient) {
 // src/useQuery.ts
 
 
-function useQuery_useQuery(options, queryClient) {
+function useQuery(options, queryClient) {
   return useBaseQuery(options, QueryObserver, queryClient);
 }
 
 //# sourceMappingURL=useQuery.js.map
-;// CONCATENATED MODULE: ./src/common/job_worker/useJob.tsx
-var useJob_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+// EXTERNAL MODULE: ./node_modules/cross-fetch/dist/browser-ponyfill.js
+var browser_ponyfill = __webpack_require__(98);
+var browser_ponyfill_default = /*#__PURE__*/__webpack_require__.n(browser_ponyfill);
+;// CONCATENATED MODULE: ./src/common/utils/fetchWordpressAjax.tsx
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -4434,161 +4326,94 @@ var useJob_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _a
     });
 };
 
-
-const useWordpressAjax = (query, options = {}) => {
-    return useQuery(Object.assign({ queryKey: [query.action, query.cmd], queryFn: () => {
-            return fetchWordpressAjax(query);
-        }, placeholderData: keepPreviousData }, options));
-};
-const useJob = (jobKey, cmd = `status`, options = {}) => {
-    return useQuery_useQuery(Object.assign({ queryKey: [jobKey, cmd], queryFn: () => {
-            return fetchWordpressAjax_fetchWordpressAjax({ action: `${jobKey}_api`, cmd });
-        }, placeholderData: utils_keepPreviousData }, options));
-};
-const useJobStatus = (jobKey) => useJob(jobKey, 'status', { refetchInterval: 5000 });
-// export const useJobInfo = (jobKey: string) => useJob(jobKey, 'info');
-const useJobData = (jobKey) => {
-    var _a;
-    const info = useJob(jobKey, 'info');
-    const data = useDataFile((_a = info === null || info === void 0 ? void 0 : info.data) === null || _a === void 0 ? void 0 : _a.data_url, { enabled: info.isSuccess, refetchInterval: 5000, gcTime: 0 });
-    data.data;
-    return data;
-};
-const useDataFile = (url, options = {}) => {
-    return useQuery_useQuery(Object.assign({ queryKey: [url], queryFn: () => useJob_awaiter(void 0, void 0, void 0, function* () {
-            const u = new URL(url, window.location.href);
-            u.searchParams.set('nocache', Date.now().toString());
-            const r = yield fetch(u.href);
-            return yield r.json();
-        }) }, options));
-};
-
-;// CONCATENATED MODULE: ./src/common/job_worker/JobWorker.tsx
-
-
-
-
-
-
-
-function JobWorker({ jobKey, args }) {
-    var _a, _b, _c, _d, _e;
-    const action = `${jobKey}_api`;
-    const queryClient = useQueryClient();
-    // const jobData = useJobStatus(jobKey);
-    const jobData = useJobData(jobKey);
-    const mutation = useMutation({
-        mutationFn: (options) => fetchWordpressAjax_fetchWordpressAjax(Object.assign(Object.assign({ action }, (args !== null && args !== void 0 ? args : {})), options)),
-        onSuccess: (data) => queryClient.setQueryData([jobKey], data)
+function fetchWordpressAjax(params = { action: '' }) {
+    var _a, _b;
+    return __awaiter(this, void 0, void 0, function* () {
+        const url = new URL(location.origin);
+        url.pathname = '/wp-admin/admin-ajax.php';
+        Object.keys(params).forEach((k) => url.searchParams.set(k, params[k]));
+        const res = yield browser_ponyfill_default()(url);
+        if (!res.ok) {
+            const info = { message: 'ERROR', description: 'There was a problem' };
+            try {
+                const err = yield res.json();
+                info.message = (_a = err === null || err === void 0 ? void 0 : err.message) !== null && _a !== void 0 ? _a : '';
+                info.description = (_b = err === null || err === void 0 ? void 0 : err.description) !== null && _b !== void 0 ? _b : '';
+            }
+            catch (e) { }
+            return Promise.reject({ error: info });
+        }
+        const data = yield res.json();
+        return data;
     });
-    const refresh = () => {
-        if (!jobData.isLoading) {
-            queryClient.invalidateQueries({ queryKey: [jobKey, 'status'] });
-        }
-    };
-    // const update = () => {
-    //   mutation.mutate({ cmd: `status` });
-    // };
-    const start = () => {
-        const confirmed = confirm('Start job?');
-        if (confirmed) {
-            mutation.mutate({ cmd: `start` });
-        }
-    };
-    const reset = () => {
-        mutation.mutate({ cmd: `reset` });
-    };
-    const stop = () => {
-        mutation.mutate({ cmd: `stop` });
-    };
-    const resume = () => {
-        mutation.mutate({ cmd: 'resume' });
-    };
-    const hack = () => {
-        mutation.mutate({ cmd: 'hack' });
-    };
-    (0,react.useEffect)(() => {
-        var _a;
-        if ((_a = jobData.data) === null || _a === void 0 ? void 0 : _a.is_running) {
-            const timer = setInterval(() => refresh(), 2000);
-            return () => {
-                clearInterval(timer);
-            };
-        }
-    }, [jobData.data]);
-    if (!jobData.isSuccess) {
-        return (react.createElement("div", null,
-            react.createElement("p", null, "Loading...")));
-    }
-    const isRunning = ((_a = jobData.data) === null || _a === void 0 ? void 0 : _a.is_running) === true;
-    const isComplete = jobData.data.is_complete === true;
-    const isStopping = isRunning && jobData.data.is_stopping === true;
-    const wasStopped = !isRunning && !isStopping && !isComplete;
-    const canStart = ((_b = jobData.data) === null || _b === void 0 ? void 0 : _b.is_running) === false;
-    const canStop = ((_c = jobData.data) === null || _c === void 0 ? void 0 : _c.is_running) === true;
-    const percentComplete = ((_e = (_d = jobData.data) === null || _d === void 0 ? void 0 : _d.progress) !== null && _e !== void 0 ? _e : 0) * 100;
-    const canResume = !isRunning && !isComplete;
-    const canReset = !isRunning;
-    // const lastUpdate = jobData.data?.started ? new Date(Date.parse(jobData.data?.started)) : null;
-    // const ago = jobData.data?.started ? formatTimeAgo((Date.now() - lastUpdate.getTime()) / 1000) : '';
-    return (react.createElement("div", { className: 'd-flex flex-column gap-3' },
-        isComplete ? react.createElement(CompletedMessage, { jobData: jobData.data }) : isRunning ? react.createElement(RunningMessage, { jobData: jobData.data }) : isStopping ? react.createElement(StoppingMessage, null) : wasStopped ? react.createElement(StoppedMessage, { jobData: jobData.data }) : '',
-        react.createElement("div", { className: 'd-flex gap-3' },
-            react.createElement("div", { className: 'btn-group' },
-                react.createElement("button", { className: 'btn btn-primary', disabled: !canStart, onClick: start }, "Start"),
-                react.createElement("button", { className: 'btn btn-primary', disabled: !canResume, onClick: resume }, "Resume"),
-                react.createElement("button", { className: 'btn btn-primary', disabled: !canStop, onClick: stop }, "Stop"),
-                react.createElement("button", { className: 'btn btn-primary', disabled: !canReset, onClick: reset }, "Reset"))),
-        react.createElement("div", { className: 'progress-stacked' },
-            react.createElement("div", { className: 'progress', role: 'progressbar', style: { width: percentComplete + '%' } },
-                react.createElement("div", { className: `progress-bar ${isRunning ? 'progress-bar-striped progress-bar-animated' : ''} bg-info` }))),
-        react.createElement("pre", { style: { fontSize: 12 } }, JSON.stringify(jobData.data, null, 2))));
 }
-const CompletedMessage = ({ jobData }) => {
-    const started = new Date(Date.parse(jobData.started)).getTime();
-    const completed = new Date(Date.parse(jobData.completed)).getTime();
-    const duration = formatDuration((completed - started) / 1000);
-    const ago = formatTimeAgo((Date.now() - completed) / 1000);
-    return (react.createElement("div", null,
-        react.createElement("p", { className: 'm-0' },
-            "Completed ",
-            ago,
-            " in ",
-            duration)));
-};
-const RunningMessage = ({ jobData }) => {
-    const stopWatch = useStopWatch();
-    (0,react.useEffect)(() => {
-        const startTime = new Date(Date.parse(jobData.started)).getTime();
-        stopWatch.start(startTime);
-    }, [jobData]);
-    return (react.createElement("div", null,
-        react.createElement("p", { className: 'm-0' },
-            "Running... ",
-            formatDuration(stopWatch.elapsedSeconds))));
-};
-const StoppingMessage = ({ jobData }) => {
-    return (react.createElement("div", null,
-        react.createElement("p", { className: 'm-0' }, "Stopping...")));
-};
-const StoppedMessage = ({ jobData }) => {
-    const ago = formatTimeAgo((Date.now() - new Date(Date.parse(jobData.stopped)).getTime()) / 1000);
-    return (react.createElement("div", null,
-        react.createElement("p", { className: 'm-0' },
-            "Stopped ",
-            ago)));
-};
 
-;// CONCATENATED MODULE: ./src/import_products/ImportProducts.tsx
+;// CONCATENATED MODULE: ./src/common/job_worker/useDebugLog.tsx
 
 
-const ImportProducts = () => {
+const useDebugLog = () => {
+    return useQuery({
+        queryKey: ['debug_log_api'],
+        queryFn: () => {
+            return fetchWordpressAjax({ action: `debug_log_api`, cmd: 'get_data' });
+        },
+        placeholderData: keepPreviousData,
+        refetchInterval: 5000
+    });
+};
+// export const useWordpressAjax = (apiKey: string, cmd:string = '') => {
+//   return useQuery({
+//     queryKey: [apiKey],
+//     queryFn: () => {
+//       return fetchWordpressAjax<IJobWorker>({ action: `${apiKey}`, cmd });
+//     },
+//     placeholderData: keepPreviousData,
+//     refetchInterval: 2000
+//   });
+// };
+
+;// CONCATENATED MODULE: ./src/common/debug_log/DebugLog.tsx
+
+
+
+
+// wp_ajax_debug_log_api
+const DebugLog = () => {
+    var _a;
+    const log = useDebugLog();
+    const queryClient = useQueryClient();
+    const mutation = useMutation({
+        mutationFn: (options) => fetchWordpressAjax(Object.assign({ action: 'debug_log_api' }, options)),
+        onSuccess: (data) => queryClient.setQueryData(['debug_log_api'], data)
+    });
+    const empty = () => {
+        mutation.mutate({ cmd: `empty` });
+    };
+    const refresh = () => {
+        queryClient.invalidateQueries({ queryKey: ['debug_log_api'] });
+    };
+    return (react.createElement("div", null,
+        react.createElement("p", null, "debug.log"),
+        react.createElement("div", { className: 'btn-group mb-2' },
+            react.createElement("button", { className: 'btn btn-primary', onClick: empty }, "Empty"),
+            react.createElement("button", { className: 'btn btn-primary', onClick: refresh }, "Refresh")),
+        log.isSuccess && ((_a = log.data) === null || _a === void 0 ? void 0 : _a.data) ? (react.createElement("table", { className: 'table table-sm table-bordered w-100', style: { fontSize: '12px', tableLayout: 'fixed' } },
+            react.createElement("tbody", null, log.data.data.map((line) => (react.createElement("tr", null,
+                react.createElement("td", { style: { width: '24ch' }, className: 'text-nowrap' }, line.date),
+                react.createElement("td", null,
+                    react.createElement("div", { className: 'text-truncate w-100', title: line.message }, line.message)))))))) : null));
+};
+
+;// CONCATENATED MODULE: ./src/overview/Overview.tsx
+
+
+const Overview = () => {
     return (react.createElement("div", { className: 'p-3' },
-        react.createElement("h3", null, "Import Products"),
-        react.createElement(JobWorker, { jobKey: 'import_products' })));
+        react.createElement("h3", null, "Welcome!"),
+        react.createElement(DebugLog, null)));
 };
 
-;// CONCATENATED MODULE: ./src/import_products/index.tsx
+;// CONCATENATED MODULE: ./src/overview/index.tsx
 
 
 
@@ -4598,7 +4423,7 @@ const render = (id) => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: false, retry: false } } });
     const root = (0,client/* createRoot */.s)(document.getElementById(id));
     root.render(react.createElement(QueryClientProvider, { client: queryClient },
-        react.createElement(ImportProducts, null)));
+        react.createElement(Overview, null)));
 };
 
 })();
@@ -4607,4 +4432,4 @@ const render = (id) => {
 /******/ })()
 ;
 });
-//# sourceMappingURL=ci_import_products.js.map
+//# sourceMappingURL=ci_overview.js.map

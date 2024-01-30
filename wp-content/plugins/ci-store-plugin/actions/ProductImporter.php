@@ -1,6 +1,6 @@
 <?php
 
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/JobWorker.php';
+require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/JobWorker.php';
 
 class ProductImporter extends JobWorker
 {
@@ -11,7 +11,7 @@ class ProductImporter extends JobWorker
         parent::__construct('import_products');
     }
 
-    public function task($is_resuming = false)
+    public function task($is_resuming = false, $get = null)
     {
         error_log('ProductImporter::task() ' . ($is_resuming ? 'is_resuming' : ''));
         $is_complete = true;

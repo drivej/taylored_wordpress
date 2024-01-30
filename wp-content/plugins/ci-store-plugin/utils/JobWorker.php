@@ -1,6 +1,7 @@
 <?php
 
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/FileCache.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/LogFile.php';
 
 class JobWorker
 {
@@ -10,25 +11,40 @@ class JobWorker
         'is_running' => false,
         'is_stopping' => false,
         'is_complete' => false,
+        'is_stalled' => false,
         'started' => null,
         'stopped' => null,
         'completed' => null,
         'progress' => 0,
+        'result' => [],
     ];
     public FileCache $cache; // TODO: It'd be nice to use something native or the actual wordpress db
+    public LogFile $log_file;
+    private $info = [];
 
     public function __construct(string $key)
     {
         $this->key = 'job_worker_' . $key;
+        $this->log_file = new LogFile($key);
         $this->cache = new FileCache($this->key, [...$this->default_data, 'key' => $this->key]);
         if (!isset($this->cache->data['is_running'])) {
             $this->cache->update($this->default_data);
         }
+        $this->info = [
+            'key' => $this->key,
+            'data_url' => $this->cache->url,
+            'log_url' => $this->log_file->url,
+        ];
         $this->wp_action_name = 'job_worker_task_' . $key;
-        add_action($this->wp_action_name, array($this, 'task'), 10, 1);
+        add_action($this->wp_action_name, array($this, 'task'), 10, 2);
         // add_option($this->key, [...$this->default_data, 'key' => $this->key]);
         add_action('wp_ajax_' . $key . '_api', array($this, 'handle_ajax'));
         $this->stall_check();
+    }
+
+    public function log($message)
+    {
+        $this->log_file->log($message);
     }
 
     public function handle_ajax()
@@ -36,6 +52,10 @@ class JobWorker
         $cmd = $_GET['cmd'];
 
         switch ($cmd) {
+            case 'info':
+                wp_send_json($this->info);
+                break;
+
             case 'status':
                 wp_send_json($this->get_data());
                 break;
@@ -52,6 +72,18 @@ class JobWorker
                 wp_send_json($this->stop());
                 break;
 
+            case 'reset':
+                wp_send_json($this->reset());
+                break;
+
+            case 'log':
+                wp_send_json($this->log_file->get_log());
+                break;
+
+            case 'clear_log':
+                wp_send_json($this->log_file->clear());
+                break;
+
             case 'hack':
                 wp_send_json($this->get_data());
                 break;
@@ -62,9 +94,10 @@ class JobWorker
         wp_die();
     }
 
-    public function task($is_resuming = false)
+    public function task($is_resuming = false, $get = null)
     {
         $is_resuming;
+        $get;
         $this->complete();
     }
 
@@ -72,7 +105,7 @@ class JobWorker
     {
         if (!wp_next_scheduled($this->wp_action_name)) {
             // error_log('JobWorker::run_task()');
-            wp_schedule_single_event(time() + 1, $this->wp_action_name, [$is_resuming]);
+            wp_schedule_single_event(time() + 1, $this->wp_action_name, [$is_resuming, $_GET]);
         }
     }
 
@@ -102,11 +135,14 @@ class JobWorker
     {
         $data = $this->get_data();
         if ($data['is_running'] !== true) {
-            // error_log('JobWorker::start');
+            $this->log_file->clear();
+            error_log('JobWorker::start');
             $data['is_running'] = true;
             $data['is_stopping'] = false;
             $data['is_complete'] = false;
+            $data['is_stalled'] = false;
             $data['started'] = gmdate("c");
+            $data['updated'] = gmdate("c");
             $data['stopped'] = null;
             $data['completed'] = null;
             $data['progress'] = 0;
@@ -120,10 +156,8 @@ class JobWorker
     {
         $data = $this->get_data();
         if ($data['is_running'] === true) {
-            // error_log('JobWorker::stop() ' . ($force ? 'force' : ''));
+            error_log('JobWorker::stop() ' . ($force ? 'force' : ''));
             $data['is_stopping'] = true;
-
-            // error_log('--> JobWorker::stop()');
             if ($force) {
                 $data['is_running'] = false;
                 $data['is_stopping'] = false;
@@ -153,7 +187,7 @@ class JobWorker
 
     public function complete()
     {
-        // error_log('JobWorker::complete()');
+        error_log('JobWorker::complete()');
         $data = $this->get_data();
         $data['is_running'] = false;
         $data['is_complete'] = true;
@@ -164,11 +198,24 @@ class JobWorker
         return $data;
     }
 
+    public function reset()
+    {
+        error_log('JobWorker::reset()');
+        $data = $this->get_data();
+        if (!isset($data['is_running']) || $data['is_running'] !== true) {
+            error_log('--> ' . json_encode([...$this->default_data, 'key' => $this->key]));
+            $this->put_data([...$this->default_data, 'key' => $this->key]);
+            $test = $this->cache->pull();
+            error_log('--> test ' . json_encode($test));
+        }
+        return $data;
+    }
+
     public function stall()
     {
         $data = $this->get_data();
         if ($data['is_running'] === true) {
-            // error_log('JobWorker::stall()');
+            error_log('JobWorker::stall()');
             $data['is_running'] = false;
             $data['is_complete'] = true;
             $data['is_stopping'] = false;
@@ -204,6 +251,14 @@ class JobWorker
         } else {
             $data['updated'] = gmdate("c");
             $this->put_data($data);
+        }
+    }
+
+    public function schedule($recurrence = 'every_day')
+    {
+        $next = wp_next_scheduled($this->wp_action_name);
+        if ($next === false) {
+            wp_schedule_event(time(), $recurrence, $this->wp_action_name);
         }
     }
 }

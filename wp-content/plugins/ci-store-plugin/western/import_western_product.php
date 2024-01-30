@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . './../log/write_to_log_file.php';
+// require_once __DIR__ . './../log/write_to_log_file.php';
 require_once __DIR__ . './../western/get_western_products_page.php';
 require_once __DIR__ . './../western/get_western_product.php';
 require_once __DIR__ . './../western/western_utils.php';
@@ -93,7 +93,7 @@ function import_western_product($wps_product_id, $force_update = false, $report 
     // }
     $end_time = microtime(true);
     $time_taken = $end_time - $start_time;
-    write_to_log_file('import_western_product()' . json_encode(['wps_product_id' => $wps_product_id, 'action' => $action, 'time' => $time_taken]));
+    // write_to_log_file('import_western_product()' . json_encode(['wps_product_id' => $wps_product_id, 'action' => $action, 'time' => $time_taken]));
     // return $report; //['wps_product_id' => $wps_product_id, 'product_id' => $product_id, 'action' => $action, 'sku' => $sku];
 }
 /**
@@ -308,7 +308,7 @@ function delete_product($product_id)
 {
     $result = wp_delete_post($product_id, true);
     if ($result === false) {
-        write_to_log_file("ERROR! delete_product() " . json_encode(["product_id" => $product_id]));
+        // write_to_log_file("ERROR! delete_product() " . json_encode(["product_id" => $product_id]));
     }
 }
 

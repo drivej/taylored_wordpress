@@ -9,9 +9,9 @@
  * License: GPL2
  */
 
-include_once __DIR__ . '/cronjob/index.php';
-include_once __DIR__ . '/log/index.php';
-include_once __DIR__ . '/test.php';
+// include_once __DIR__ . '/cronjob/index.php';
+// include_once __DIR__ . '/log/index.php';
+include_once __DIR__ . '/test/index.php';
 // include_once __DIR__ . '/admin/stock_check.php';
 // include_once __DIR__ . '/admin/import_products.php';
 include_once __DIR__ . '/western/wps_ajax_handler.php';
@@ -19,7 +19,7 @@ include_once __DIR__ . '/hooks/index.php';
 include_once __DIR__ . '/admin/index.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/DebugLogAPI.php';
 
-// build debug API
+// build debug API for wp-content/plugins/ci-store-plugin/ci-store-plugin-working/src/common/debug_log/DebugLog.tsx
 new DebugLogAPI();
 
 function create_admin_menu()
@@ -40,13 +40,13 @@ function render_ci_store_plugin_ui()
 
 add_action('admin_menu', 'create_admin_menu');
 
-function enqueue_ci_plugin_script()
-{
-    wp_register_script('admin-ui-script', plugin_dir_url(__FILE__) . 'dist/ci-store-plugin.js', array(), '1.0', true);
-    wp_enqueue_script('admin-ui-script');
-}
+// function enqueue_ci_plugin_script()
+// {
+//     wp_register_script('admin-ui-script', plugin_dir_url(__FILE__) . 'dist/ci-store-plugin.js', array(), '1.0', true);
+//     wp_enqueue_script('admin-ui-script');
+// }
 
-add_action('admin_enqueue_scripts', 'enqueue_ci_plugin_script');
+// add_action('admin_enqueue_scripts', 'enqueue_ci_plugin_script');
 
 function enqueue_custom_styles()
 {
@@ -56,11 +56,11 @@ function enqueue_custom_styles()
     }
 }
 
-add_action('wp_enqueue_scripts', 'enqueue_custom_styles');
+// add_action('wp_enqueue_scripts', 'enqueue_custom_styles');
 
 function custom_enqueue_admin_styles()
 {
     wp_enqueue_style('admin_styles', plugins_url('css/ci-plugin.css', __FILE__));
 }
 
-add_action('admin_head', 'custom_enqueue_admin_styles');
+// add_action('admin_head', 'custom_enqueue_admin_styles');
