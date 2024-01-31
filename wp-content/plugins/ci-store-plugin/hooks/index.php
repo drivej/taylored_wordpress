@@ -31,6 +31,8 @@ function display_custom_product_list_column($column, $post_id)
         $interval = $currentDateTime->diff($date_imported);
         $daysDifference = $interval->days;
         echo $daysDifference. ' days';
+    } else {
+        echo '-';
     }
 }
 

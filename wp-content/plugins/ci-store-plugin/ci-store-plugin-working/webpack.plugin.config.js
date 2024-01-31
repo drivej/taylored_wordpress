@@ -3,6 +3,14 @@ const path = require('path');
 module.exports = [
   {
     extends: path.resolve(__dirname, './webpack.base.config.js'),
+    entry: './src/manage_events/index.tsx',
+    output: {
+      filename: `ci_manage_events.js`,
+      library: 'ci_manage_events'
+    }
+  },
+  {
+    extends: path.resolve(__dirname, './webpack.base.config.js'),
     entry: './src/overview/index.tsx',
     output: {
       filename: `ci_overview.js`,

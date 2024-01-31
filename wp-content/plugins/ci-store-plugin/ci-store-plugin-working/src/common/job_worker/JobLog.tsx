@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
-import { IWordpressAjaxParams } from '../../views/jobs/Jobs';
+import { ICronJobParams, IWordpressAjaxParams } from '../../views/jobs/Jobs';
 import { fetchWordpressAjax } from '../utils/fetchWordpressAjax';
 import { useJobLog } from './useJobLog';
 
@@ -11,7 +11,7 @@ export const JobLog = ({ jobKey }: { jobKey: string }) => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (options: Partial<IWordpressAjaxParams>) => fetchWordpressAjax<string[]>({ action, ...options }),
+    mutationFn: (options: Partial<IWordpressAjaxParams>) => fetchWordpressAjax<string[], ICronJobParams>({ action, ...options }),
     onSuccess: (data) => queryClient.setQueryData(queryKey, data)
   });
 

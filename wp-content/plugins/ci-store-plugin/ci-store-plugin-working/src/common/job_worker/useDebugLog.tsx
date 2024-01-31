@@ -1,4 +1,5 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { ICronJobParams } from '../../views/jobs/Jobs';
 import { fetchWordpressAjax } from '../utils/fetchWordpressAjax';
 
 export interface IDebugLog {
@@ -9,7 +10,7 @@ export const useDebugLog = () => {
   return useQuery({
     queryKey: ['debug_log_api'],
     queryFn: () => {
-      return fetchWordpressAjax<IDebugLog>({ action: `debug_log_api`, cmd: 'get_data' });
+      return fetchWordpressAjax<IDebugLog, ICronJobParams>({ action: `debug_log_api`, cmd: 'get_data' });
     },
     placeholderData: keepPreviousData,
     refetchInterval: 5000

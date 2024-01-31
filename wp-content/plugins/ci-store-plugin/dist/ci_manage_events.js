@@ -2,11 +2,11 @@
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
 	else if(typeof define === 'function' && define.amd)
-		define("ci_import_products", [], factory);
+		define("ci_manage_events", [], factory);
 	else if(typeof exports === 'object')
-		exports["ci_import_products"] = factory();
+		exports["ci_manage_events"] = factory();
 	else
-		root["ci_import_products"] = factory();
+		root["ci_manage_events"] = factory();
 })(self, () => {
 return /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
@@ -2002,7 +2002,7 @@ function replaceData(prevData, data, options) {
   }
   return data;
 }
-function utils_keepPreviousData(previousData) {
+function keepPreviousData(previousData) {
   return previousData;
 }
 function addToEnd(items, item, max = 0) {
@@ -3583,271 +3583,6 @@ var QueryClientProvider = ({
 //# sourceMappingURL=QueryClientProvider.js.map
 // EXTERNAL MODULE: ./node_modules/react-dom/client.js
 var client = __webpack_require__(745);
-;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/modern/mutationObserver.js
-// src/mutationObserver.ts
-
-
-
-
-var MutationObserver = class extends Subscribable {
-  constructor(client, options) {
-    super();
-    this.#currentResult = void 0;
-    this.#client = client;
-    this.setOptions(options);
-    this.bindMethods();
-    this.#updateResult();
-  }
-  #client;
-  #currentResult;
-  #currentMutation;
-  #mutateOptions;
-  bindMethods() {
-    this.mutate = this.mutate.bind(this);
-    this.reset = this.reset.bind(this);
-  }
-  setOptions(options) {
-    const prevOptions = this.options;
-    this.options = this.#client.defaultMutationOptions(options);
-    if (!shallowEqualObjects(prevOptions, this.options)) {
-      this.#client.getMutationCache().notify({
-        type: "observerOptionsUpdated",
-        mutation: this.#currentMutation,
-        observer: this
-      });
-    }
-    this.#currentMutation?.setOptions(this.options);
-    if (prevOptions?.mutationKey && this.options.mutationKey && hashKey(prevOptions.mutationKey) !== hashKey(this.options.mutationKey)) {
-      this.reset();
-    }
-  }
-  onUnsubscribe() {
-    if (!this.hasListeners()) {
-      this.#currentMutation?.removeObserver(this);
-    }
-  }
-  onMutationUpdate(action) {
-    this.#updateResult();
-    this.#notify(action);
-  }
-  getCurrentResult() {
-    return this.#currentResult;
-  }
-  reset() {
-    this.#currentMutation?.removeObserver(this);
-    this.#currentMutation = void 0;
-    this.#updateResult();
-    this.#notify();
-  }
-  mutate(variables, options) {
-    this.#mutateOptions = options;
-    this.#currentMutation?.removeObserver(this);
-    this.#currentMutation = this.#client.getMutationCache().build(this.#client, this.options);
-    this.#currentMutation.addObserver(this);
-    return this.#currentMutation.execute(variables);
-  }
-  #updateResult() {
-    const state = this.#currentMutation?.state ?? mutation_getDefaultState();
-    this.#currentResult = {
-      ...state,
-      isPending: state.status === "pending",
-      isSuccess: state.status === "success",
-      isError: state.status === "error",
-      isIdle: state.status === "idle",
-      mutate: this.mutate,
-      reset: this.reset
-    };
-  }
-  #notify(action) {
-    notifyManager.batch(() => {
-      if (this.#mutateOptions && this.hasListeners()) {
-        const variables = this.#currentResult.variables;
-        const context = this.#currentResult.context;
-        if (action?.type === "success") {
-          this.#mutateOptions.onSuccess?.(action.data, variables, context);
-          this.#mutateOptions.onSettled?.(action.data, null, variables, context);
-        } else if (action?.type === "error") {
-          this.#mutateOptions.onError?.(action.error, variables, context);
-          this.#mutateOptions.onSettled?.(
-            void 0,
-            action.error,
-            variables,
-            context
-          );
-        }
-      }
-      this.listeners.forEach((listener) => {
-        listener(this.#currentResult);
-      });
-    });
-  }
-};
-
-//# sourceMappingURL=mutationObserver.js.map
-;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/modern/utils.js
-// src/utils.ts
-function shouldThrowError(throwError, params) {
-  if (typeof throwError === "function") {
-    return throwError(...params);
-  }
-  return !!throwError;
-}
-
-//# sourceMappingURL=utils.js.map
-;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/modern/useMutation.js
-"use client";
-
-// src/useMutation.ts
-
-
-
-
-function useMutation(options, queryClient) {
-  const client = useQueryClient(queryClient);
-  const [observer] = react.useState(
-    () => new MutationObserver(
-      client,
-      options
-    )
-  );
-  react.useEffect(() => {
-    observer.setOptions(options);
-  }, [observer, options]);
-  const result = react.useSyncExternalStore(
-    react.useCallback(
-      (onStoreChange) => observer.subscribe(notifyManager.batchCalls(onStoreChange)),
-      [observer]
-    ),
-    () => observer.getCurrentResult(),
-    () => observer.getCurrentResult()
-  );
-  const mutate = react.useCallback(
-    (variables, mutateOptions) => {
-      observer.mutate(variables, mutateOptions).catch(useMutation_noop);
-    },
-    [observer]
-  );
-  if (result.error && shouldThrowError(observer.options.throwOnError, [result.error])) {
-    throw result.error;
-  }
-  return { ...result, mutate, mutateAsync: result.mutate };
-}
-function useMutation_noop() {
-}
-
-//# sourceMappingURL=useMutation.js.map
-;// CONCATENATED MODULE: ./src/utils/useStopWatch.tsx
-
-const useStopWatch = () => {
-    const [isRunning, setIsRunning] = (0,react.useState)(false);
-    const [offsetSeconds, setOffsetSeconds] = (0,react.useState)(0);
-    const [elapsedSeconds, setElapsedSeconds] = (0,react.useState)(0);
-    const [startTime, setStartTime] = (0,react.useState)(Date.now());
-    (0,react.useEffect)(() => {
-        const onTick = () => {
-            setElapsedSeconds(offsetSeconds + (Date.now() - startTime) / 1000);
-        };
-        onTick();
-        if (isRunning) {
-            const timer = setInterval(onTick, 1000);
-            return () => {
-                clearInterval(timer);
-            };
-        }
-    }, [startTime, isRunning]);
-    const start = (t = Date.now()) => {
-        setStartTime(t);
-        setIsRunning(true);
-    };
-    const pause = () => {
-        setIsRunning(false);
-    };
-    const resume = () => {
-        setIsRunning(true);
-    };
-    const reset = () => {
-        setStartTime(Date.now());
-    };
-    return {
-        isRunning,
-        setStartTime,
-        elapsedSeconds,
-        pause,
-        resume,
-        start,
-        reset
-    };
-};
-
-// EXTERNAL MODULE: ./node_modules/cross-fetch/dist/browser-ponyfill.js
-var browser_ponyfill = __webpack_require__(98);
-var browser_ponyfill_default = /*#__PURE__*/__webpack_require__.n(browser_ponyfill);
-;// CONCATENATED MODULE: ./src/common/utils/fetchWordpressAjax.tsx
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-// export async function fetchWordpressAjax<T,P = unknown>(params: IWordpressAjaxParams & ICronJobParams = { action: '' }) {
-function fetchWordpressAjax_fetchWordpressAjax(params) {
-    var _a, _b;
-    return __awaiter(this, void 0, void 0, function* () {
-        const url = new URL(location.origin);
-        url.pathname = '/wp-admin/admin-ajax.php';
-        Object.keys(params).forEach((k) => url.searchParams.set(k, params[k]));
-        const res = yield browser_ponyfill_default()(url);
-        if (!res.ok) {
-            const info = { message: 'ERROR', description: 'There was a problem' };
-            try {
-                const err = yield res.json();
-                info.message = (_a = err === null || err === void 0 ? void 0 : err.message) !== null && _a !== void 0 ? _a : '';
-                info.description = (_b = err === null || err === void 0 ? void 0 : err.description) !== null && _b !== void 0 ? _b : '';
-            }
-            catch (e) { }
-            return Promise.reject({ error: info });
-        }
-        const data = yield res.json();
-        return data;
-    });
-}
-
-;// CONCATENATED MODULE: ./src/common/utils/formatDuration.ts
-function formatDuration(seconds) {
-    var date = new Date(0);
-    if (seconds)
-        date.setSeconds(seconds); // specify value for SECONDS here
-    return date.toISOString().substring(11, 19);
-    //   if (isNaN(seconds)) return '';
-    //   seconds = Math.round(seconds);
-    //   const m = Math.floor(seconds / 60);
-    //   const s = seconds % 60;
-    //   return `${m}:${('0' + s).slice(-2)}`;
-}
-function formatDate(d) {
-    return d.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
-}
-function formatTimeAgo(seconds) {
-    const intervals = [
-        { label: 'year', seconds: 31536000 },
-        { label: 'month', seconds: 2592000 },
-        { label: 'day', seconds: 86400 },
-        { label: 'hour', seconds: 3600 },
-        { label: 'minute', seconds: 60 }
-    ];
-    for (const interval of intervals) {
-        const count = Math.floor(seconds / interval.seconds);
-        if (count >= 1) {
-            return count === 1 ? `${count} ${interval.label} ago` : `${count} ${interval.label}s ago`;
-        }
-    }
-    return '<1 min ago';
-}
-
 ;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/modern/queryObserver.js
 // src/queryObserver.ts
 
@@ -4310,6 +4045,16 @@ var useIsRestoring = () => react.useContext(IsRestoringContext);
 var IsRestoringProvider = IsRestoringContext.Provider;
 
 //# sourceMappingURL=isRestoring.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/modern/utils.js
+// src/utils.ts
+function shouldThrowError(throwError, params) {
+  if (typeof throwError === "function") {
+    return throwError(...params);
+  }
+  return !!throwError;
+}
+
+//# sourceMappingURL=utils.js.map
 ;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/modern/errorBoundaryUtils.js
 "use client";
 
@@ -4419,13 +4164,16 @@ function useBaseQuery(options, Observer, queryClient) {
 // src/useQuery.ts
 
 
-function useQuery_useQuery(options, queryClient) {
+function useQuery(options, queryClient) {
   return useBaseQuery(options, QueryObserver, queryClient);
 }
 
 //# sourceMappingURL=useQuery.js.map
-;// CONCATENATED MODULE: ./src/common/job_worker/useJob.tsx
-var useJob_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+// EXTERNAL MODULE: ./node_modules/cross-fetch/dist/browser-ponyfill.js
+var browser_ponyfill = __webpack_require__(98);
+var browser_ponyfill_default = /*#__PURE__*/__webpack_require__.n(browser_ponyfill);
+;// CONCATENATED MODULE: ./src/common/utils/fetchWordpressAjax.tsx
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -4435,161 +4183,182 @@ var useJob_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _a
     });
 };
 
-
-const useWordpressAjax = (query, options = {}) => {
-    return useQuery(Object.assign({ queryKey: [query.action, query.cmd], queryFn: () => {
-            return fetchWordpressAjax(query);
-        }, placeholderData: keepPreviousData }, options));
-};
-const useJob = (jobKey, cmd = `status`, options = {}) => {
-    return useQuery_useQuery(Object.assign({ queryKey: [jobKey, cmd], queryFn: () => {
-            return fetchWordpressAjax_fetchWordpressAjax({ action: `${jobKey}_api`, cmd });
-        }, placeholderData: utils_keepPreviousData }, options));
-};
-const useJobStatus = (jobKey) => useJob(jobKey, 'status', { refetchInterval: 5000 });
-// export const useJobInfo = (jobKey: string) => useJob(jobKey, 'info');
-const useJobData = (jobKey) => {
-    var _a;
-    const info = useJob(jobKey, 'info');
-    const data = useDataFile((_a = info === null || info === void 0 ? void 0 : info.data) === null || _a === void 0 ? void 0 : _a.data_url, { enabled: info.isSuccess, refetchInterval: 5000, gcTime: 0 });
-    data.data;
-    return data;
-};
-const useDataFile = (url, options = {}) => {
-    return useQuery_useQuery(Object.assign({ queryKey: [url], queryFn: () => useJob_awaiter(void 0, void 0, void 0, function* () {
-            const u = new URL(url, window.location.href);
-            u.searchParams.set('nocache', Date.now().toString());
-            const r = yield fetch(u.href);
-            return yield r.json();
-        }) }, options));
-};
-
-;// CONCATENATED MODULE: ./src/common/job_worker/JobWorker.tsx
-
-
-
-
-
-
-
-function JobWorker({ jobKey, args }) {
-    var _a, _b, _c, _d, _e;
-    const action = `${jobKey}_api`;
-    const queryClient = useQueryClient();
-    // const jobData = useJobStatus(jobKey);
-    const jobData = useJobData(jobKey);
-    const mutation = useMutation({
-        mutationFn: (options) => fetchWordpressAjax_fetchWordpressAjax(Object.assign(Object.assign({ action }, (args !== null && args !== void 0 ? args : {})), options)),
-        onSuccess: (data) => queryClient.setQueryData([jobKey], data)
+// export async function fetchWordpressAjax<T,P = unknown>(params: IWordpressAjaxParams & ICronJobParams = { action: '' }) {
+function fetchWordpressAjax(params) {
+    var _a, _b;
+    return __awaiter(this, void 0, void 0, function* () {
+        const url = new URL(location.origin);
+        url.pathname = '/wp-admin/admin-ajax.php';
+        Object.keys(params).forEach((k) => url.searchParams.set(k, params[k]));
+        const res = yield browser_ponyfill_default()(url);
+        if (!res.ok) {
+            const info = { message: 'ERROR', description: 'There was a problem' };
+            try {
+                const err = yield res.json();
+                info.message = (_a = err === null || err === void 0 ? void 0 : err.message) !== null && _a !== void 0 ? _a : '';
+                info.description = (_b = err === null || err === void 0 ? void 0 : err.description) !== null && _b !== void 0 ? _b : '';
+            }
+            catch (e) { }
+            return Promise.reject({ error: info });
+        }
+        const data = yield res.json();
+        return data;
     });
-    const refresh = () => {
-        if (!jobData.isLoading) {
-            queryClient.invalidateQueries({ queryKey: [jobKey, 'status'] });
-        }
-    };
-    // const update = () => {
-    //   mutation.mutate({ cmd: `status` });
-    // };
-    const start = () => {
-        const confirmed = confirm('Start job?');
-        if (confirmed) {
-            mutation.mutate({ cmd: `start` });
-        }
-    };
-    const reset = () => {
-        mutation.mutate({ cmd: `reset` });
-    };
-    const stop = () => {
-        mutation.mutate({ cmd: `stop` });
-    };
-    const resume = () => {
-        mutation.mutate({ cmd: 'resume' });
-    };
-    const hack = () => {
-        mutation.mutate({ cmd: 'hack' });
-    };
-    (0,react.useEffect)(() => {
-        var _a;
-        if ((_a = jobData.data) === null || _a === void 0 ? void 0 : _a.is_running) {
-            const timer = setInterval(() => refresh(), 2000);
-            return () => {
-                clearInterval(timer);
-            };
-        }
-    }, [jobData.data]);
-    if (!jobData.isSuccess) {
-        return (react.createElement("div", null,
-            react.createElement("p", null, "Loading...")));
-    }
-    const isRunning = ((_a = jobData.data) === null || _a === void 0 ? void 0 : _a.is_running) === true;
-    const isComplete = jobData.data.is_complete === true;
-    const isStopping = isRunning && jobData.data.is_stopping === true;
-    const wasStopped = !isRunning && !isStopping && !isComplete;
-    const canStart = ((_b = jobData.data) === null || _b === void 0 ? void 0 : _b.is_running) === false;
-    const canStop = ((_c = jobData.data) === null || _c === void 0 ? void 0 : _c.is_running) === true;
-    const percentComplete = ((_e = (_d = jobData.data) === null || _d === void 0 ? void 0 : _d.progress) !== null && _e !== void 0 ? _e : 0) * 100;
-    const canResume = !isRunning && !isComplete;
-    const canReset = !isRunning;
-    // const lastUpdate = jobData.data?.started ? new Date(Date.parse(jobData.data?.started)) : null;
-    // const ago = jobData.data?.started ? formatTimeAgo((Date.now() - lastUpdate.getTime()) / 1000) : '';
-    return (react.createElement("div", { className: 'd-flex flex-column gap-3' },
-        isComplete ? react.createElement(CompletedMessage, { jobData: jobData.data }) : isRunning ? react.createElement(RunningMessage, { jobData: jobData.data }) : isStopping ? react.createElement(StoppingMessage, null) : wasStopped ? react.createElement(StoppedMessage, { jobData: jobData.data }) : '',
-        react.createElement("div", { className: 'd-flex gap-3' },
-            react.createElement("div", { className: 'btn-group' },
-                react.createElement("button", { className: 'btn btn-primary', disabled: !canStart, onClick: start }, "Start"),
-                react.createElement("button", { className: 'btn btn-primary', disabled: !canResume, onClick: resume }, "Resume"),
-                react.createElement("button", { className: 'btn btn-primary', disabled: !canStop, onClick: stop }, "Stop"),
-                react.createElement("button", { className: 'btn btn-primary', disabled: !canReset, onClick: reset }, "Reset"))),
-        react.createElement("div", { className: 'progress-stacked' },
-            react.createElement("div", { className: 'progress', role: 'progressbar', style: { width: percentComplete + '%' } },
-                react.createElement("div", { className: `progress-bar ${isRunning ? 'progress-bar-striped progress-bar-animated' : ''} bg-info` }))),
-        react.createElement("pre", { style: { fontSize: 12 } }, JSON.stringify(jobData.data, null, 2))));
 }
-const CompletedMessage = ({ jobData }) => {
-    const started = new Date(Date.parse(jobData.started)).getTime();
-    const completed = new Date(Date.parse(jobData.completed)).getTime();
-    const duration = formatDuration((completed - started) / 1000);
-    const ago = formatTimeAgo((Date.now() - completed) / 1000);
-    return (react.createElement("div", null,
-        react.createElement("p", { className: 'm-0' },
-            "Completed ",
-            ago,
-            " in ",
-            duration)));
-};
-const RunningMessage = ({ jobData }) => {
-    const stopWatch = useStopWatch();
-    (0,react.useEffect)(() => {
-        const startTime = new Date(Date.parse(jobData.started)).getTime();
-        stopWatch.start(startTime);
-    }, [jobData]);
-    return (react.createElement("div", null,
-        react.createElement("p", { className: 'm-0' },
-            "Running... ",
-            formatDuration(stopWatch.elapsedSeconds))));
-};
-const StoppingMessage = ({ jobData }) => {
-    return (react.createElement("div", null,
-        react.createElement("p", { className: 'm-0' }, "Stopping...")));
-};
-const StoppedMessage = ({ jobData }) => {
-    const ago = formatTimeAgo((Date.now() - new Date(Date.parse(jobData.stopped)).getTime()) / 1000);
-    return (react.createElement("div", null,
-        react.createElement("p", { className: 'm-0' },
-            "Stopped ",
-            ago)));
-};
 
-;// CONCATENATED MODULE: ./src/import_products/ImportProducts.tsx
+;// CONCATENATED MODULE: ./src/common/job_worker/useScheduledEvents.tsx
 
 
-const ImportProducts = () => {
+const useScheduledEvents = (filter = '', options = {}) => {
+    const queryClient = useQueryClient();
+    const data = useQuery(Object.assign({ queryKey: ['wp_ajax_scheduled_events_api', filter], queryFn: () => {
+            return fetchWordpressAjax({ action: 'scheduled_events_api', filter });
+        }, placeholderData: keepPreviousData, refetchInterval: 30000 }, options));
+    const schedule = (event) => {
+        fetchWordpressAjax({
+            action: 'scheduled_events_api',
+            cmd: 'schedule',
+            hook_name: event.name,
+            hook_args: JSON.stringify(event.args)
+        }).then((res) => {
+            alert(JSON.stringify(res));
+        });
+    };
+    const unschedule = (event) => {
+        fetchWordpressAjax({
+            action: 'scheduled_events_api',
+            cmd: 'unschedule',
+            hook_name: event.name,
+            hook_hash: event.hash,
+            hook_timestamp: event.timestamp,
+            hook_args: JSON.stringify(event.args)
+        }).then((res) => {
+            alert(JSON.stringify(res));
+        });
+    };
+    const unscheduleAll = (hook_name) => {
+        fetchWordpressAjax({
+            action: 'scheduled_events_api',
+            cmd: 'unschedule',
+            hook_name
+        }).then((res) => {
+            alert(JSON.stringify(res));
+        });
+    };
+    const refresh = () => {
+        queryClient.invalidateQueries({ queryKey: ['wp_ajax_scheduled_events_api', filter] });
+    };
+    return Object.assign(Object.assign({}, data), { refresh, schedule, unschedule, unscheduleAll });
+};
+
+;// CONCATENATED MODULE: ./src/common/scheduled_events/ScheduledEvents.tsx
+
+
+
+const ScheduledEvents = () => {
+    const [eventNameInput, setEventNameInput] = (0,react.useState)('');
+    const [eventName, setEventName] = (0,react.useState)('');
+    const [hookName, setHookName] = (0,react.useState)('');
+    const [hookArgs, setHookArgs] = (0,react.useState)(['']);
+    const events = useScheduledEvents(eventName);
+    const [newHook, setNewHook] = (0,react.useState)({ args: [''], hash: '', name: '', timestamp: '', schedule: true, delay: 10 });
+    const onChangeArg = (e) => {
+        const index = parseInt(e.currentTarget.dataset.index);
+        const value = e.currentTarget.value;
+        setNewHook((evt) => {
+            const e = Object.assign({}, evt);
+            e.args[index] = value;
+            return e;
+        });
+    };
+    const addArg = () => {
+        setNewHook((evt) => {
+            const e = Object.assign({}, evt);
+            e.args.push('');
+            return e;
+        });
+    };
+    const removeArg = (index) => {
+        setNewHook((evt) => {
+            const e = Object.assign({}, evt);
+            e.args.splice(index, 1);
+            return e;
+        });
+    };
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const f = new FormData(e.currentTarget);
+        const filter = f.get('filter');
+        setEventName(filter);
+    };
+    return (react.createElement("div", { className: 'p-3 d-flex flex-column gap-3' },
+        react.createElement("form", { onSubmit: handleSubmit },
+            react.createElement("h3", null, "Scheduled Events"),
+            react.createElement("label", { className: 'form-label' }, "Search"),
+            react.createElement("div", { className: 'input-group' },
+                react.createElement("input", { className: 'form-control', type: 'text', name: 'filter', value: eventNameInput, onChange: (e) => setEventNameInput(e.currentTarget.value) }),
+                react.createElement("button", { className: 'btn btn-outline-secondary', type: 'button', disabled: eventNameInput === '', onClick: () => setEventName('') }, "\u00D7"),
+                react.createElement("button", { className: 'btn btn-outline-secondary', type: 'button', onClick: () => setEventName(eventNameInput) }, "Search"))),
+        react.createElement("div", { style: { maxHeight: 300, overflow: 'auto' } },
+            react.createElement(ScheduledEventsTable, { filter: eventName })),
+        react.createElement("div", { className: 'd-flex flex-column gap-2 p-3 rounded border' },
+            react.createElement("div", null,
+                react.createElement("label", { className: 'form-label' }, "Action Name"),
+                react.createElement("input", { className: 'form-control', type: 'text', value: newHook.name, onChange: (e) => {
+                        const name = e.currentTarget.value;
+                        setNewHook((v) => (Object.assign(Object.assign({}, v), { name })));
+                    } })),
+            react.createElement("div", null,
+                react.createElement("label", { className: 'form-label' }, "Action Delay"),
+                react.createElement("div", { className: 'input-group' },
+                    react.createElement("input", { className: 'form-control', type: 'number', min: 0, max: 60, value: newHook.delay, onChange: (e) => {
+                            const delay = parseInt(e.currentTarget.value);
+                            setNewHook((v) => (Object.assign(Object.assign({}, v), { delay })));
+                        } }),
+                    react.createElement("span", { className: 'input-group-text' }, "seconds"))),
+            react.createElement("div", null,
+                react.createElement("label", { className: 'form-label' }, "Action Arguments"),
+                react.createElement("div", { className: 'd-flex flex-column gap-2' }, newHook.args.map((v, i) => {
+                    return (react.createElement("div", { className: 'input-group' },
+                        react.createElement("span", { className: 'input-group-text' }, i),
+                        react.createElement("input", { className: 'form-control', type: 'text', "data-index": i, value: v, onChange: onChangeArg }),
+                        react.createElement("button", { className: 'btn btn-primary btn-sm px-3', onClick: () => removeArg(i) }, "-")));
+                }))),
+            react.createElement("div", null,
+                react.createElement("button", { className: 'btn btn-primary btn-sm px-3', onClick: addArg }, "+")),
+            react.createElement("div", null,
+                react.createElement("button", { className: 'btn btn-primary btn-sm', onClick: () => setHookArgs((args) => [...args, '']) }, "Create")))));
+};
+const ScheduledEventsTable = ({ filter = '' }) => {
+    var _a, _b, _c;
+    const events = useScheduledEvents(filter);
+    return (react.createElement("table", { className: 'table table-sm table-bordered w-100', style: { fontSize: '12px' } },
+        filter ? (react.createElement("thead", null,
+            react.createElement("tr", null,
+                react.createElement("th", { colSpan: 4 },
+                    "filter: ",
+                    filter)))) : null,
+        react.createElement("tbody", null, (_c = (_b = (_a = events.data) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.map((line, i) => {
+            var _a;
+            return (react.createElement("tr", null,
+                react.createElement("td", { style: { width: '1%' } }, ((_a = events.data) === null || _a === void 0 ? void 0 : _a.data.length) - i),
+                react.createElement("td", { style: { width: 'auto' }, className: 'text-nowrap' }, line.name),
+                react.createElement("td", null, JSON.stringify(line.args)),
+                react.createElement("td", { style: { width: '1%' } },
+                    react.createElement("div", { onClick: () => events.unschedule(line), style: { cursor: 'pointer' } }, "Delete"))));
+        })) !== null && _c !== void 0 ? _c : null)));
+};
+
+;// CONCATENATED MODULE: ./src/manage_events/ManageEvents.tsx
+
+
+const ManageEvents = () => {
     return (react.createElement("div", { className: 'p-3' },
-        react.createElement("h3", null, "Import Products"),
-        react.createElement(JobWorker, { jobKey: 'import_products' })));
+        react.createElement("h3", null, "Manage Events"),
+        react.createElement(ScheduledEvents, null)));
 };
 
-;// CONCATENATED MODULE: ./src/import_products/index.tsx
+;// CONCATENATED MODULE: ./src/manage_events/index.tsx
 
 
 
@@ -4599,7 +4368,7 @@ const render = (id) => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: false, retry: false } } });
     const root = (0,client/* createRoot */.s)(document.getElementById(id));
     root.render(react.createElement(QueryClientProvider, { client: queryClient },
-        react.createElement(ImportProducts, null)));
+        react.createElement(ManageEvents, null)));
 };
 
 })();
@@ -4608,4 +4377,4 @@ const render = (id) => {
 /******/ })()
 ;
 });
-//# sourceMappingURL=ci_import_products.js.map
+//# sourceMappingURL=ci_manage_events.js.map

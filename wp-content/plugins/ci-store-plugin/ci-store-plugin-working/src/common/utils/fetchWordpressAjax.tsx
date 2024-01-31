@@ -1,7 +1,8 @@
 import fetch from 'cross-fetch';
-import { ICronJobParams, IWordpressAjaxParams } from '../../views/jobs/Jobs';
+import { IWordpressAjaxParams } from '../../views/jobs/Jobs';
 
-export async function fetchWordpressAjax<T>(params: IWordpressAjaxParams & ICronJobParams = { action: '' }) {
+// export async function fetchWordpressAjax<T,P = unknown>(params: IWordpressAjaxParams & ICronJobParams = { action: '' }) {
+export async function fetchWordpressAjax<T, P = Record<string, string>>(params: IWordpressAjaxParams & P) {
   const url = new URL(location.origin);
   url.pathname = '/wp-admin/admin-ajax.php';
   Object.keys(params).forEach((k) => url.searchParams.set(k, params[k]));

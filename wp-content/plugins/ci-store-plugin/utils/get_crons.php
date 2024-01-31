@@ -4,12 +4,12 @@ function get_crons($needle)
 {
     $cron = get_option('cron');
     $found = [];
-    foreach ($cron as $actions) {
+    foreach ($cron as $timestamp => $actions) {
         if (is_countable($actions)) {
             foreach ($actions as $name => $action) {
                 if (str_contains($name, $needle)) {
                     $hash = array_key_first($action);
-                    $found[] = ['name' => $name, 'hash' => $hash, ...$action[$hash]];
+                    $found[] = ['name' => $name, 'hash' => $hash, 'timestamp' => $timestamp, ...$action[$hash]];
                 }
             }
         }

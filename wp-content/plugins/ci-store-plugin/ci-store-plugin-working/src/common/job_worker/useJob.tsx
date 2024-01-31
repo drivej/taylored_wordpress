@@ -1,8 +1,9 @@
 import { UseQueryOptions, UseQueryResult, keepPreviousData, useQuery } from '@tanstack/react-query';
+import { ICronJobParams } from '../../views/jobs/Jobs';
 import { fetchWordpressAjax } from '../utils/fetchWordpressAjax';
 import { IJobInfo, IJobWorker } from './job_models';
 
-type IQueryOptions<T = unknown> = Omit<UseQueryOptions<T>, 'queryKey' | 'queryFn'>;
+export type IQueryOptions<T = unknown> = Omit<UseQueryOptions<T>, 'queryKey' | 'queryFn'>;
 
 interface IAjaxQuery {
   action: string;
@@ -13,7 +14,7 @@ export const useWordpressAjax = <T,>(query: IAjaxQuery, options: IQueryOptions<T
   return useQuery({
     queryKey: [query.action, query.cmd],
     queryFn: () => {
-      return fetchWordpressAjax<T>(query);
+      return fetchWordpressAjax<T, ICronJobParams>(query);
     },
     placeholderData: keepPreviousData,
     ...options
@@ -24,7 +25,7 @@ export const useJob = <T,>(jobKey: string, cmd: string = `status`, options: IQue
   return useQuery({
     queryKey: [jobKey, cmd],
     queryFn: () => {
-      return fetchWordpressAjax<T>({ action: `${jobKey}_api`, cmd });
+      return fetchWordpressAjax<T, ICronJobParams>({ action: `${jobKey}_api`, cmd });
     },
     placeholderData: keepPreviousData,
     ...options
@@ -54,3 +55,5 @@ export const useDataFile = <T,>(url: string, options: IQueryOptions = {}) => {
     ...options
   }) as UseQueryResult<T, Error>;
 };
+
+

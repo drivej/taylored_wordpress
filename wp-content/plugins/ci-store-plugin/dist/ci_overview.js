@@ -4326,7 +4326,8 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
     });
 };
 
-function fetchWordpressAjax(params = { action: '' }) {
+// export async function fetchWordpressAjax<T,P = unknown>(params: IWordpressAjaxParams & ICronJobParams = { action: '' }) {
+function fetchWordpressAjax(params) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         const url = new URL(location.origin);

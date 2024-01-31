@@ -4326,7 +4326,8 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
     });
 };
 
-function fetchWordpressAjax_fetchWordpressAjax(params = { action: '' }) {
+// export async function fetchWordpressAjax<T,P = unknown>(params: IWordpressAjaxParams & ICronJobParams = { action: '' }) {
+function fetchWordpressAjax_fetchWordpressAjax(params) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         const url = new URL(location.origin);
@@ -4685,20 +4686,79 @@ const StoppedMessage = ({ jobData }) => {
             ago)));
 };
 
+;// CONCATENATED MODULE: ./src/common/job_worker/useScheduledEvents.tsx
+
+
+const useScheduledEvents = (filter = '', options = {}) => {
+    const queryClient = useQueryClient();
+    const data = useQuery_useQuery(Object.assign({ queryKey: ['wp_ajax_scheduled_events_api', filter], queryFn: () => {
+            return fetchWordpressAjax_fetchWordpressAjax({ action: 'scheduled_events_api', filter });
+        }, placeholderData: utils_keepPreviousData, refetchInterval: 30000 }, options));
+    const schedule = (event) => {
+        fetchWordpressAjax_fetchWordpressAjax({
+            action: 'scheduled_events_api',
+            cmd: 'schedule',
+            hook_name: event.name,
+            hook_args: JSON.stringify(event.args)
+        }).then((res) => {
+            alert(JSON.stringify(res));
+        });
+    };
+    const unschedule = (event) => {
+        fetchWordpressAjax_fetchWordpressAjax({
+            action: 'scheduled_events_api',
+            cmd: 'unschedule',
+            hook_name: event.name,
+            hook_hash: event.hash,
+            hook_timestamp: event.timestamp,
+            hook_args: JSON.stringify(event.args)
+        }).then((res) => {
+            alert(JSON.stringify(res));
+        });
+    };
+    const unscheduleAll = (hook_name) => {
+        fetchWordpressAjax_fetchWordpressAjax({
+            action: 'scheduled_events_api',
+            cmd: 'unschedule',
+            hook_name
+        }).then((res) => {
+            alert(JSON.stringify(res));
+        });
+    };
+    const refresh = () => {
+        queryClient.invalidateQueries({ queryKey: ['wp_ajax_scheduled_events_api', filter] });
+    };
+    return Object.assign(Object.assign({}, data), { refresh, schedule, unschedule, unscheduleAll });
+};
+
 ;// CONCATENATED MODULE: ./src/stock_check/StockCheck.tsx
 
 
 
 
 
+
 const StockCheck = () => {
+    var _a, _b, _c;
     const [since, setSince] = (0,react.useState)('');
+    const events = useScheduledEvents();
     return (react.createElement("div", { className: 'p-3 d-flex flex-column gap-3' },
         react.createElement("div", null,
             react.createElement("h3", null, "Stock Check"),
             react.createElement("label", { className: 'form-label' }, "Since"),
             react.createElement("input", { className: 'form-control', type: 'date', value: since, onChange: (e) => setSince(e.currentTarget.value) })),
         react.createElement(JobWorker, { jobKey: 'stock_check', args: { since } }),
+        react.createElement("div", { style: { maxHeight: 300, overflow: 'auto' } },
+            react.createElement("table", { className: 'table table-sm table-bordered w-100', style: { fontSize: '12px', tableLayout: 'fixed' } },
+                react.createElement("tbody", null, (_c = (_b = (_a = events.data) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.map((line, i) => {
+                    var _a;
+                    return (react.createElement("tr", null,
+                        react.createElement("td", { style: { width: '6ch' } }, ((_a = events.data) === null || _a === void 0 ? void 0 : _a.data.length) - i),
+                        react.createElement("td", { style: { width: '24ch' }, className: 'text-nowrap' }, line.name),
+                        react.createElement("td", null, JSON.stringify(line.args)),
+                        react.createElement("td", null,
+                            react.createElement("button", { onClick: () => events.unschedule(line) }, "del"))));
+                })) !== null && _c !== void 0 ? _c : null))),
         react.createElement(JobLog, { jobKey: 'stock_check' }),
         react.createElement(DebugLog, null)));
 };

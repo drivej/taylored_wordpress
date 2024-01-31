@@ -50,7 +50,7 @@ const useJobs = () => {
   return useQuery({
     queryKey: ['jobs'],
     queryFn: () => {
-      return fetchWordpressAjax<ICronJob[]>({ action: 'cronjob_do_cmd', cmd: 'get_jobs' });
+      return fetchWordpressAjax<ICronJob[], ICronJobParams>({ action: 'cronjob_do_cmd', cmd: 'get_jobs' });
     },
     // keepPreviousData: true,
     initialData: [],
@@ -63,7 +63,7 @@ const useJobsStatus = (cmd: string) => {
   return useQuery({
     queryKey: ['jobs_status', cmd],
     queryFn: () => {
-      return fetchWordpressAjax<{ active: boolean }>({ action: 'cronjob_do_cmd', cmd });
+      return fetchWordpressAjax<{ active: boolean }, ICronJobParams>({ action: 'cronjob_do_cmd', cmd });
     }
   });
 };
@@ -112,12 +112,12 @@ export const Jobs = () => {
   };
 
   const mutationJob = useMutation({
-    mutationFn: (options: Partial<ICronJobParams & IWordpressAjaxParams>) => fetchWordpressAjax<ICronJob[]>({ action: 'cronjob_do_cmd', ...options }),
+    mutationFn: (options: Partial<ICronJobParams & IWordpressAjaxParams>) => fetchWordpressAjax<ICronJob[], ICronJobParams>({ action: 'cronjob_do_cmd', ...options }),
     onSuccess: (data) => queryClient.setQueryData(['jobs'], data)
   });
 
   const mutationJobStatus = useMutation({
-    mutationFn: (options: Partial<ICronJobParams & IWordpressAjaxParams>) => fetchWordpressAjax<ICronJob[]>({ action: 'cronjob_do_cmd', ...options }),
+    mutationFn: (options: Partial<ICronJobParams & IWordpressAjaxParams>) => fetchWordpressAjax<ICronJob[], ICronJobParams>({ action: 'cronjob_do_cmd', ...options }),
     onSuccess: (data) => {
       console.log('success', data);
       queryClient.setQueryData(['jobs_status'], data);
