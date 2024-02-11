@@ -4,7 +4,7 @@ export const CATEGORY_DELETE = 'DELETE';
 
 type IWooProductType = 'variable' | 'variation' | 'simple' | 'grouped' | 'external';
 
-export interface IWooProduct {
+export interface IWooProductWPS {
   // ID: string;
   Type: IWooProductType; //'variable' | 'variation' | 'simple';
   SKU: string;
@@ -80,7 +80,7 @@ export interface IWooProduct {
   'Meta: _ci_data': string;
 }
 
-export const WooProductDefault: IWooProduct = {
+export const WooProductDefault: IWooProductWPS = {
   // ID: '0',
   Type: 'simple',
   SKU: '0',
@@ -156,7 +156,7 @@ export const WooProductDefault: IWooProduct = {
   'Meta: _ci_data': ''
 };
 
-export const WooProductDeleteDefaults: Partial<IWooProduct> = {
+export const WooProductDeleteDefaults: Partial<IWooProductWPS> = {
   Published: 0,
   'Is featured?': 0,
   'Visibility in catalog': 'hidden',

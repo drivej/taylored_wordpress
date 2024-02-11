@@ -2,7 +2,8 @@
 
 // require_once __DIR__ . '../../ci-store-settings.php';
 // require_once __DIR__ . '../ci-store-utils.php';
-require_once __DIR__ . '/WPS_SETTINGS.php';
+// require_once __DIR__ . '/WPS_SETTINGS.php';
+include_once(CI_STORE_PLUGIN . 'western/wps_settings.php');
 
 function get_western($path, $params = [])
 {

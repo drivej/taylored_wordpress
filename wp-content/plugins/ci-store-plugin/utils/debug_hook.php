@@ -14,6 +14,20 @@ function debug_hook($name, $type = 'action')
     }
 }
 
+function debug_print_r($msg)
+{
+    if (should_debug()) {
+        print_r($msg);
+    }
+}
+
+function debug_print($msg)
+{
+    if (should_debug()) {
+        print($msg);
+    }
+}
+
 function debug_filter($name)
 {
     debug_hook($name, 'filter');

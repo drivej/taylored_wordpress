@@ -62,9 +62,23 @@ export const useScheduledEvents = (filter: string = '', options: IQueryOptions<I
     });
   };
 
+  const precleanEvents = () => {
+    return fetchWordpressAjax<{ deleted: number }>({
+      action: 'scheduled_events_api', //
+      cmd: 'preclean'
+    });
+  };
+
+  const cleanEvents = () => {
+    return fetchWordpressAjax<{ deleted: number }>({
+      action: 'scheduled_events_api', //
+      cmd: 'clean'
+    });
+  };
+
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ['wp_ajax_scheduled_events_api', filter] });
   };
 
-  return { ...data, refresh, schedule, unschedule, unscheduleAll };
+  return { ...data, refresh, schedule, unschedule, unscheduleAll, precleanEvents, cleanEvents };
 };

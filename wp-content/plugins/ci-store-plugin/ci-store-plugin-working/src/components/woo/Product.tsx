@@ -1,7 +1,7 @@
 import { SUPPLIER } from '../../utils/SUPPLIER_INFO';
 import { lookup } from '../../utils/lookup';
 import { IWesternProductExt, stockStatusMap } from '../../views/western/IWestern';
-import { IWooProduct, IWooSimpleProduct, IWooVariable, IWooVariation, IWooVariationAttribute } from '../../views/western/IWoo';
+import { IWooProductWPS, IWooSimpleProduct, IWooVariable, IWooVariation, IWooVariationAttribute } from '../../views/western/IWoo';
 import { buildWesternImage, getWesterItemDescription } from '../../views/western/WesternUtils';
 import { getWooMetaValue } from '../../views/western/WooUtils';
 import { fetchWooAPI } from '../../views/woo/useWoo';
@@ -161,7 +161,7 @@ export class Product {
     };
   }
 
-  static fromWooRows(products: IWooProduct[]): Product {
+  static fromWooRows(products: IWooProductWPS[]): Product {
     const master = products.length === 1 ? products[0] : products.filter((p) => p.Type === 'variable')?.[0];
     const variations = products.filter((p) => p.Type === 'variation' || p.Type === 'simple');
     const product = new Product({ name: master.Name, sku: master.SKU, description: master.Description });
@@ -450,7 +450,7 @@ export class ProductVariation {
 
 const WILDCARD_ATTRIBUTE_VALUE = '*any';
 
-function parseWooAttributes(product: IWooProduct) {
+function parseWooAttributes(product: IWooProductWPS) {
   return [1, 2, 3, 4, 5, 6]
     .filter((n) => !!product?.[`Attribute ${n} name`])
     .reduce((o, n) => {

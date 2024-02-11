@@ -1,9 +1,9 @@
-export interface IJobWorker {
+export interface IJobWorker<R = unknown> {
   key: string;
   started: string;
   stopped: string;
   completed: string;
-  result: unknown;
+  result: R;
   progress: number;
   is_running: boolean;
   is_complete: boolean;

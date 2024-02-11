@@ -3557,7 +3557,7 @@ var react = __webpack_require__(294);
 var QueryClientContext = react.createContext(
   void 0
 );
-var useQueryClient = (queryClient) => {
+var QueryClientProvider_useQueryClient = (queryClient) => {
   const client = react.useContext(QueryClientContext);
   if (queryClient) {
     return queryClient;
@@ -3703,7 +3703,7 @@ function shouldThrowError(throwError, params) {
 
 
 function useMutation(options, queryClient) {
-  const client = useQueryClient(queryClient);
+  const client = QueryClientProvider_useQueryClient(queryClient);
   const [observer] = react.useState(
     () => new MutationObserver(
       client,
@@ -3778,75 +3778,6 @@ const useStopWatch = () => {
         reset
     };
 };
-
-// EXTERNAL MODULE: ./node_modules/cross-fetch/dist/browser-ponyfill.js
-var browser_ponyfill = __webpack_require__(98);
-var browser_ponyfill_default = /*#__PURE__*/__webpack_require__.n(browser_ponyfill);
-;// CONCATENATED MODULE: ./src/common/utils/fetchWordpressAjax.tsx
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-// export async function fetchWordpressAjax<T,P = unknown>(params: IWordpressAjaxParams & ICronJobParams = { action: '' }) {
-function fetchWordpressAjax_fetchWordpressAjax(params) {
-    var _a, _b;
-    return __awaiter(this, void 0, void 0, function* () {
-        const url = new URL(location.origin);
-        url.pathname = '/wp-admin/admin-ajax.php';
-        Object.keys(params).forEach((k) => url.searchParams.set(k, params[k]));
-        const res = yield browser_ponyfill_default()(url);
-        if (!res.ok) {
-            const info = { message: 'ERROR', description: 'There was a problem' };
-            try {
-                const err = yield res.json();
-                info.message = (_a = err === null || err === void 0 ? void 0 : err.message) !== null && _a !== void 0 ? _a : '';
-                info.description = (_b = err === null || err === void 0 ? void 0 : err.description) !== null && _b !== void 0 ? _b : '';
-            }
-            catch (e) { }
-            return Promise.reject({ error: info });
-        }
-        const data = yield res.json();
-        return data;
-    });
-}
-
-;// CONCATENATED MODULE: ./src/common/utils/formatDuration.ts
-function formatDuration(seconds) {
-    var date = new Date(0);
-    if (seconds)
-        date.setSeconds(seconds); // specify value for SECONDS here
-    return date.toISOString().substring(11, 19);
-    //   if (isNaN(seconds)) return '';
-    //   seconds = Math.round(seconds);
-    //   const m = Math.floor(seconds / 60);
-    //   const s = seconds % 60;
-    //   return `${m}:${('0' + s).slice(-2)}`;
-}
-function formatDate(d) {
-    return d.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
-}
-function formatTimeAgo(seconds) {
-    const intervals = [
-        { label: 'year', seconds: 31536000 },
-        { label: 'month', seconds: 2592000 },
-        { label: 'day', seconds: 86400 },
-        { label: 'hour', seconds: 3600 },
-        { label: 'minute', seconds: 60 }
-    ];
-    for (const interval of intervals) {
-        const count = Math.floor(seconds / interval.seconds);
-        if (count >= 1) {
-            return count === 1 ? `${count} ${interval.label} ago` : `${count} ${interval.label}s ago`;
-        }
-    }
-    return '<1 min ago';
-}
 
 ;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/modern/queryObserver.js
 // src/queryObserver.ts
@@ -4368,7 +4299,7 @@ var fetchOptimistic = (defaultedOptions, observer, errorResetBoundary) => observ
 
 function useBaseQuery(options, Observer, queryClient) {
   if (false) {}
-  const client = useQueryClient(queryClient);
+  const client = QueryClientProvider_useQueryClient(queryClient);
   const isRestoring = useIsRestoring();
   const errorResetBoundary = useQueryErrorResetBoundary();
   const defaultedOptions = client.defaultQueryOptions(options);
@@ -4424,8 +4355,147 @@ function useQuery_useQuery(options, queryClient) {
 }
 
 //# sourceMappingURL=useQuery.js.map
-;// CONCATENATED MODULE: ./src/common/job_worker/useJob.tsx
-var useJob_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+// EXTERNAL MODULE: ./node_modules/cross-fetch/dist/browser-ponyfill.js
+var browser_ponyfill = __webpack_require__(98);
+var browser_ponyfill_default = /*#__PURE__*/__webpack_require__.n(browser_ponyfill);
+;// CONCATENATED MODULE: ./src/common/utils/fetchWordpressAjax.tsx
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+// export async function fetchWordpressAjax<T,P = unknown>(params: IWordpressAjaxParams & ICronJobParams = { action: '' }) {
+function fetchWordpressAjax_fetchWordpressAjax(params) {
+    var _a, _b;
+    return __awaiter(this, void 0, void 0, function* () {
+        const url = new URL(location.origin);
+        url.pathname = window.ajaxurl; //'/wp-admin/admin-ajax.php';
+        Object.keys(params).forEach((k) => url.searchParams.set(k, params[k]));
+        const res = yield browser_ponyfill_default()(url);
+        if (!res.ok) {
+            const info = { message: 'ERROR', description: 'There was a problem' };
+            try {
+                const err = yield res.json();
+                info.message = (_a = err === null || err === void 0 ? void 0 : err.message) !== null && _a !== void 0 ? _a : '';
+                info.description = (_b = err === null || err === void 0 ? void 0 : err.description) !== null && _b !== void 0 ? _b : '';
+            }
+            catch (e) { }
+            return Promise.reject({ error: info });
+        }
+        const data = yield res.json();
+        return data;
+    });
+}
+
+;// CONCATENATED MODULE: ./src/common/hooks/useDataFile.tsx
+var useDataFile_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+const useDataFile = (url, options = {}) => {
+    return useQuery_useQuery(Object.assign({ queryKey: [url], queryFn: () => useDataFile_awaiter(void 0, void 0, void 0, function* () {
+            const u = new URL(url, window.location.href);
+            u.searchParams.set('nocache', Date.now().toString());
+            const r = yield fetch(u.href);
+            return yield r.json();
+        }) }, options));
+};
+
+;// CONCATENATED MODULE: ./src/common/hooks/useJob.tsx
+
+
+
+const useJob = (jobKey, cmd = `status`, options = {}) => {
+    return useQuery_useQuery(Object.assign({ queryKey: [jobKey, cmd], queryFn: () => {
+            return fetchWordpressAjax_fetchWordpressAjax({ action: `${jobKey}_api`, cmd });
+        }, placeholderData: utils_keepPreviousData }, options));
+};
+const useJobStatus = (jobKey) => useJob(jobKey, 'status', {
+    refetchInterval: 5000 //
+});
+// export const useJobInfo = (jobKey: string) => useJob(jobKey, 'info');
+const useJobData = (jobKey) => {
+    var _a;
+    const info = useJob(jobKey, 'info');
+    const data = useDataFile((_a = info === null || info === void 0 ? void 0 : info.data) === null || _a === void 0 ? void 0 : _a.data_url, {
+        enabled: info.isSuccess,
+        refetchInterval: 10000,
+        gcTime: 0
+    });
+    data.data;
+    return data;
+};
+
+;// CONCATENATED MODULE: ./src/common/hooks/useScheduledEvents.tsx
+
+
+const useScheduledEvents_useScheduledEvents = (filter = '', options = {}) => {
+    const queryClient = useQueryClient();
+    const data = useQuery(Object.assign({ queryKey: ['wp_ajax_scheduled_events_api', filter], queryFn: () => {
+            return fetchWordpressAjax({ action: 'scheduled_events_api', filter });
+        }, placeholderData: keepPreviousData, refetchInterval: 30000 }, options));
+    const schedule = (event) => {
+        fetchWordpressAjax({
+            action: 'scheduled_events_api',
+            cmd: 'schedule',
+            hook_name: event.name,
+            hook_args: JSON.stringify(event.args)
+        }).then((res) => {
+            alert(JSON.stringify(res));
+        });
+    };
+    const unschedule = (event) => {
+        fetchWordpressAjax({
+            action: 'scheduled_events_api',
+            cmd: 'unschedule',
+            hook_name: event.name,
+            hook_hash: event.hash,
+            hook_timestamp: event.timestamp,
+            hook_args: JSON.stringify(event.args)
+        }).then((res) => {
+            alert(JSON.stringify(res));
+        });
+    };
+    const unscheduleAll = (hook_name) => {
+        fetchWordpressAjax({
+            action: 'scheduled_events_api',
+            cmd: 'unschedule',
+            hook_name
+        }).then((res) => {
+            alert(JSON.stringify(res));
+        });
+    };
+    const precleanEvents = () => {
+        return fetchWordpressAjax({
+            action: 'scheduled_events_api',
+            cmd: 'preclean'
+        });
+    };
+    const cleanEvents = () => {
+        return fetchWordpressAjax({
+            action: 'scheduled_events_api',
+            cmd: 'clean'
+        });
+    };
+    const refresh = () => {
+        queryClient.invalidateQueries({ queryKey: ['wp_ajax_scheduled_events_api', filter] });
+    };
+    return Object.assign(Object.assign({}, data), { refresh, schedule, unschedule, unscheduleAll, precleanEvents, cleanEvents });
+};
+
+;// CONCATENATED MODULE: ./src/common/scheduled_events/ScheduledEvents.tsx
+var ScheduledEvents_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -4436,35 +4506,193 @@ var useJob_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _a
 };
 
 
-const useWordpressAjax = (query, options = {}) => {
-    return useQuery(Object.assign({ queryKey: [query.action, query.cmd], queryFn: () => {
-            return fetchWordpressAjax(query);
-        }, placeholderData: keepPreviousData }, options));
+
+const ScheduledEvents = () => {
+    const [eventNameInput, setEventNameInput] = useState('');
+    const [eventName, setEventName] = useState('');
+    const [hookName, setHookName] = useState('');
+    const [hookArgs, setHookArgs] = useState(['']);
+    const events = useScheduledEvents(eventName);
+    const [newHook, setNewHook] = useState({ args: [''], hash: '', name: '', timestamp: '', schedule: true, delay: 10 });
+    const onChangeArg = (e) => {
+        const index = parseInt(e.currentTarget.dataset.index);
+        const value = e.currentTarget.value;
+        setNewHook((evt) => {
+            const e = Object.assign({}, evt);
+            e.args[index] = value;
+            return e;
+        });
+    };
+    const addArg = () => {
+        setNewHook((evt) => {
+            const e = Object.assign({}, evt);
+            e.args.push('');
+            return e;
+        });
+    };
+    const removeArg = (index) => {
+        setNewHook((evt) => {
+            const e = Object.assign({}, evt);
+            e.args.splice(index, 1);
+            return e;
+        });
+    };
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const f = new FormData(e.currentTarget);
+        const filter = f.get('filter');
+        setEventName(filter);
+    };
+    //   const [deletes, setDeletes] = useState(-1);
+    //   const [canClean, setCanClean] = useState(false);
+    const doClean = () => ScheduledEvents_awaiter(void 0, void 0, void 0, function* () {
+        const deletes = yield events.precleanEvents();
+        // setDeletes(deletes.deleted);
+        // setCanClean(deletes.deleted > 0);
+        if (deletes.deleted > 0) {
+            const ok = confirm(`Are you sure you want to delete ${deletes.deleted.toLocaleString()} completed events?`);
+            if (ok) {
+                const result = yield events.cleanEvents();
+                alert(`Deleted ${result.deleted.toLocaleString()} completed events.`);
+                // setDeletes(result.deleted);
+            }
+        }
+        else {
+            alert(`There's nothing to delete.`);
+        }
+    });
+    return (React.createElement("div", { className: 'p-3 d-flex flex-column gap-3' },
+        React.createElement("form", { onSubmit: handleSubmit },
+            React.createElement("h3", null, "Scheduled Events"),
+            React.createElement("label", { className: 'form-label' }, "Search"),
+            React.createElement("div", { className: 'input-group' },
+                React.createElement("input", { className: 'form-control', type: 'text', name: 'filter', value: eventNameInput, onChange: (e) => setEventNameInput(e.currentTarget.value) }),
+                React.createElement("button", { className: 'btn btn-outline-secondary', type: 'button', disabled: eventNameInput === '', onClick: () => setEventName('') }, "\u00D7"),
+                React.createElement("button", { className: 'btn btn-outline-secondary', type: 'button', onClick: () => setEventName(eventNameInput) }, "Search"))),
+        React.createElement(ScheduledEventsTable, { filter: eventName }),
+        React.createElement("div", { className: 'd-flex flex-column gap-2 p-3 rounded border' },
+            React.createElement("div", null,
+                React.createElement("label", { className: 'form-label' }, "Action Name"),
+                React.createElement("input", { className: 'form-control', type: 'text', value: newHook.name, onChange: (e) => {
+                        const name = e.currentTarget.value;
+                        setNewHook((v) => (Object.assign(Object.assign({}, v), { name })));
+                    } })),
+            React.createElement("div", null,
+                React.createElement("label", { className: 'form-label' }, "Action Delay"),
+                React.createElement("div", { className: 'input-group' },
+                    React.createElement("input", { className: 'form-control', type: 'number', min: 0, max: 60, value: newHook.delay, onChange: (e) => {
+                            const delay = parseInt(e.currentTarget.value);
+                            setNewHook((v) => (Object.assign(Object.assign({}, v), { delay })));
+                        } }),
+                    React.createElement("span", { className: 'input-group-text' }, "seconds"))),
+            React.createElement("div", null,
+                React.createElement("label", { className: 'form-label' }, "Action Arguments"),
+                React.createElement("div", { className: 'd-flex flex-column gap-2' }, newHook.args.map((v, i) => {
+                    return (React.createElement("div", { className: 'input-group' },
+                        React.createElement("span", { className: 'input-group-text' }, i),
+                        React.createElement("input", { className: 'form-control', type: 'text', "data-index": i, value: v, onChange: onChangeArg }),
+                        React.createElement("button", { className: 'btn btn-primary btn-sm px-3', onClick: () => removeArg(i) }, "-")));
+                }))),
+            React.createElement("div", null,
+                React.createElement("button", { className: 'btn btn-primary btn-sm px-3', onClick: addArg }, "+")),
+            React.createElement("div", null,
+                React.createElement("button", { className: 'btn btn-primary btn-sm', onClick: () => setHookArgs((args) => [...args, '']) }, "Create"))),
+        React.createElement("button", { className: 'btn btn-outline-secondary', onClick: doClean }, "Clean up deleted events")));
 };
-const useJob = (jobKey, cmd = `status`, options = {}) => {
-    return useQuery_useQuery(Object.assign({ queryKey: [jobKey, cmd], queryFn: () => {
-            return fetchWordpressAjax_fetchWordpressAjax({ action: `${jobKey}_api`, cmd });
-        }, placeholderData: utils_keepPreviousData }, options));
+const RefetchTimer = ({ query }) => {
+    const [isWaiting, setIsWaiting] = (0,react.useState)(true);
+    const [startTime, setStartTime] = (0,react.useState)(Date.now());
+    const [elapsedTime, setElapsedTime] = (0,react.useState)(0);
+    const [totalTime, setTotalTime] = (0,react.useState)(30000);
+    const clockedTimes = react.useRef([]);
+    const progress = 100 * Math.min(1, elapsedTime / totalTime);
+    (0,react.useEffect)(() => {
+        if (query.isFetching) {
+            if (startTime !== 0) {
+                clockedTimes.current.push(Date.now() - startTime);
+                setTotalTime(clockedTimes.current.reduce((s, n) => s + n) / clockedTimes.current.length);
+            }
+            setIsWaiting(false);
+        }
+        else {
+            setIsWaiting(true);
+            setStartTime(Date.now());
+            setElapsedTime(0);
+        }
+    }, [query.isFetching]);
+    (0,react.useEffect)(() => {
+        if (isWaiting) {
+            const timer = setInterval(() => {
+                setElapsedTime(Date.now() - startTime);
+            }, 500);
+            return () => {
+                clearInterval(timer);
+            };
+        }
+    }, [isWaiting]);
+    return (react.createElement("div", { className: 'progress rounded-0', role: 'progressbar', style: { height: 4 } },
+        react.createElement("div", { className: `progress-bar bg-info ${query.fetchStatus === 'idle' ? '' : 'progress-bar-striped progress-bar-animated'}`, style: { width: progress + '%', transition: 'width 0.5s linear' } })));
 };
-const useJobStatus = (jobKey) => useJob(jobKey, 'status', { refetchInterval: 5000 });
-// export const useJobInfo = (jobKey: string) => useJob(jobKey, 'info');
-const useJobData = (jobKey) => {
-    var _a;
-    const info = useJob(jobKey, 'info');
-    const data = useDataFile((_a = info === null || info === void 0 ? void 0 : info.data) === null || _a === void 0 ? void 0 : _a.data_url, { enabled: info.isSuccess, refetchInterval: 5000, gcTime: 0 });
-    data.data;
-    return data;
-};
-const useDataFile = (url, options = {}) => {
-    return useQuery_useQuery(Object.assign({ queryKey: [url], queryFn: () => useJob_awaiter(void 0, void 0, void 0, function* () {
-            const u = new URL(url, window.location.href);
-            u.searchParams.set('nocache', Date.now().toString());
-            const r = yield fetch(u.href);
-            return yield r.json();
-        }) }, options));
+const ScheduledEventsTable = ({ filter = '' }) => {
+    var _a, _b, _c;
+    const events = useScheduledEvents(filter);
+    return (React.createElement("div", { className: 'border' },
+        React.createElement("div", null,
+            React.createElement("div", { className: 'p-2 d-flex justify-content-between align-items-center' },
+                React.createElement("h5", { className: 'm-0' }, "Scheduled Events"),
+                React.createElement("div", { className: 'btn-group' },
+                    React.createElement("button", { className: 'btn btn-primary btn-sm', onClick: events.refresh }, "Refresh"))),
+            React.createElement(RefetchTimer, { query: events })),
+        React.createElement("table", { className: 'table table-sm Xtable-bordered w-100', style: { fontSize: '12px' } },
+            React.createElement("thead", null, filter ? (React.createElement("tr", null,
+                React.createElement("th", { colSpan: 4, className: 'bg-light' },
+                    "filter: ",
+                    filter))) : null),
+            React.createElement("tbody", null, (_c = (_b = (_a = events.data) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.map((line, i) => {
+                var _a;
+                return (React.createElement("tr", null,
+                    React.createElement("td", { style: { width: '1%' } }, ((_a = events.data) === null || _a === void 0 ? void 0 : _a.data.length) - i),
+                    React.createElement("td", { style: { width: 'auto' }, className: 'text-nowrap' }, line.name),
+                    React.createElement("td", null, JSON.stringify(line.args)),
+                    React.createElement("td", { style: { width: '1%' } },
+                        React.createElement("div", { onClick: () => events.unschedule(line), style: { cursor: 'pointer' } }, "Delete"))));
+            })) !== null && _c !== void 0 ? _c : null))));
 };
 
+;// CONCATENATED MODULE: ./src/common/utils/formatDuration.ts
+function formatDuration(seconds) {
+    var date = new Date(0);
+    if (seconds)
+        date.setSeconds(seconds); // specify value for SECONDS here
+    return date.toISOString().substring(11, 19);
+    //   if (isNaN(seconds)) return '';
+    //   seconds = Math.round(seconds);
+    //   const m = Math.floor(seconds / 60);
+    //   const s = seconds % 60;
+    //   return `${m}:${('0' + s).slice(-2)}`;
+}
+function formatDate(d) {
+    return d.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+}
+function formatTimeAgo(seconds) {
+    const intervals = [
+        { label: 'year', seconds: 31536000 },
+        { label: 'month', seconds: 2592000 },
+        { label: 'day', seconds: 86400 },
+        { label: 'hour', seconds: 3600 },
+        { label: 'minute', seconds: 60 }
+    ];
+    for (const interval of intervals) {
+        const count = Math.floor(seconds / interval.seconds);
+        if (count >= 1) {
+            return count === 1 ? `${count} ${interval.label} ago` : `${count} ${interval.label}s ago`;
+        }
+    }
+    return '<1 min ago';
+}
+
 ;// CONCATENATED MODULE: ./src/common/job_worker/JobWorker.tsx
+
 
 
 
@@ -4475,7 +4703,7 @@ const useDataFile = (url, options = {}) => {
 function JobWorker({ jobKey, args }) {
     var _a, _b, _c, _d, _e;
     const action = `${jobKey}_api`;
-    const queryClient = useQueryClient();
+    const queryClient = QueryClientProvider_useQueryClient();
     // const jobData = useJobStatus(jobKey);
     const jobData = useJobData(jobKey);
     const mutation = useMutation({
@@ -4523,6 +4751,7 @@ function JobWorker({ jobKey, args }) {
     }
     const isRunning = ((_a = jobData.data) === null || _a === void 0 ? void 0 : _a.is_running) === true;
     const isComplete = jobData.data.is_complete === true;
+    const isStalled = jobData.data.is_stalled === true;
     const isStopping = isRunning && jobData.data.is_stopping === true;
     const wasStopped = !isRunning && !isStopping && !isComplete;
     const canStart = ((_b = jobData.data) === null || _b === void 0 ? void 0 : _b.is_running) === false;
@@ -4533,7 +4762,7 @@ function JobWorker({ jobKey, args }) {
     // const lastUpdate = jobData.data?.started ? new Date(Date.parse(jobData.data?.started)) : null;
     // const ago = jobData.data?.started ? formatTimeAgo((Date.now() - lastUpdate.getTime()) / 1000) : '';
     return (react.createElement("div", { className: 'd-flex flex-column gap-3' },
-        isComplete ? react.createElement(CompletedMessage, { jobData: jobData.data }) : isRunning ? react.createElement(RunningMessage, { jobData: jobData.data }) : isStopping ? react.createElement(StoppingMessage, null) : wasStopped ? react.createElement(StoppedMessage, { jobData: jobData.data }) : '',
+        isStalled ? react.createElement(StalledMessage, { jobData: jobData.data }) : isComplete ? react.createElement(CompletedMessage, { jobData: jobData.data }) : isRunning ? react.createElement(RunningMessage, { jobData: jobData.data }) : isStopping ? react.createElement(StoppingMessage, null) : wasStopped ? react.createElement(StoppedMessage, { jobData: jobData.data }) : '',
         react.createElement("div", { className: 'd-flex gap-3' },
             react.createElement("div", { className: 'btn-group' },
                 react.createElement("button", { className: 'btn btn-primary', disabled: !canStart, onClick: start }, "Start"),
@@ -4543,8 +4772,21 @@ function JobWorker({ jobKey, args }) {
         react.createElement("div", { className: 'progress-stacked' },
             react.createElement("div", { className: 'progress', role: 'progressbar', style: { width: percentComplete + '%' } },
                 react.createElement("div", { className: `progress-bar ${isRunning ? 'progress-bar-striped progress-bar-animated' : ''} bg-info` }))),
+        react.createElement(RefetchTimer, { query: jobData }),
         react.createElement("pre", { style: { fontSize: 12 } }, JSON.stringify(jobData.data, null, 2))));
 }
+const StalledMessage = ({ jobData }) => {
+    const started = new Date(Date.parse(jobData.started)).getTime();
+    const stopped = new Date(Date.parse(jobData.stopped)).getTime();
+    const duration = formatDuration((stopped - started) / 1000);
+    const ago = formatTimeAgo((Date.now() - stopped) / 1000);
+    return (react.createElement("div", null,
+        react.createElement("p", { className: 'm-0' },
+            "Stalled ",
+            ago,
+            " in ",
+            duration)));
+};
 const CompletedMessage = ({ jobData }) => {
     const started = new Date(Date.parse(jobData.started)).getTime();
     const completed = new Date(Date.parse(jobData.completed)).getTime();

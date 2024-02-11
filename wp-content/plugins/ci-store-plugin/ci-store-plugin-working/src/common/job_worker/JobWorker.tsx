@@ -3,10 +3,11 @@ import * as React from 'react';
 import { useEffect } from 'react';
 import { useStopWatch } from '../../utils/useStopWatch';
 import { IWordpressAjaxParams } from '../../views/jobs/Jobs';
+import { useJobData } from '../hooks/useJob';
+import { RefetchTimer } from '../scheduled_events/ScheduledEvents';
 import { fetchWordpressAjax } from '../utils/fetchWordpressAjax';
 import { formatDuration, formatTimeAgo } from '../utils/formatDuration';
 import { IJobWorker } from './job_models';
-import { useJobData } from './useJob';
 
 export function JobWorker<T>({ jobKey, args }: { jobKey: string; args?: T }) {
   const action = `${jobKey}_api`;
@@ -71,6 +72,7 @@ export function JobWorker<T>({ jobKey, args }: { jobKey: string; args?: T }) {
 
   const isRunning = jobData.data?.is_running === true;
   const isComplete = jobData.data.is_complete === true;
+  const isStalled = jobData.data.is_stalled === true;
   const isStopping = isRunning && jobData.data.is_stopping === true;
   const wasStopped = !isRunning && !isStopping && !isComplete;
   const canStart = jobData.data?.is_running === false;
@@ -85,7 +87,7 @@ export function JobWorker<T>({ jobKey, args }: { jobKey: string; args?: T }) {
     <div className='d-flex flex-column gap-3'>
 
       {/* <pre style={{ fontSize: 12 }}>{JSON.stringify(jobInfo.data, null, 2)}</pre> */}
-      {isComplete ? <CompletedMessage jobData={jobData.data} /> : isRunning ? <RunningMessage jobData={jobData.data} /> : isStopping ? <StoppingMessage /> : wasStopped ? <StoppedMessage jobData={jobData.data} /> : ''}
+      {isStalled ? <StalledMessage jobData={jobData.data} /> : isComplete ? <CompletedMessage jobData={jobData.data} /> : isRunning ? <RunningMessage jobData={jobData.data} /> : isStopping ? <StoppingMessage /> : wasStopped ? <StoppedMessage jobData={jobData.data} /> : ''}
       <div className='d-flex gap-3'>
         <div className='btn-group'>
           <button className='btn btn-primary' disabled={!canStart} onClick={start}>
@@ -120,10 +122,27 @@ export function JobWorker<T>({ jobKey, args }: { jobKey: string; args?: T }) {
         </div>
       </div>
 
+      <RefetchTimer query={jobData} />
+
       <pre style={{ fontSize: 12 }}>{JSON.stringify(jobData.data, null, 2)}</pre>
     </div>
   );
 }
+
+const StalledMessage = ({ jobData }: { jobData: IJobWorker }) => {
+  const started = new Date(Date.parse(jobData.started)).getTime();
+  const stopped = new Date(Date.parse(jobData.stopped)).getTime();
+  const duration = formatDuration((stopped - started) / 1000);
+  const ago = formatTimeAgo((Date.now() - stopped) / 1000);
+
+  return (
+    <div>
+      <p className='m-0'>
+        Stalled {ago} in {duration}
+      </p>
+    </div>
+  );
+};
 
 const CompletedMessage = ({ jobData }: { jobData: IJobWorker }) => {
   const started = new Date(Date.parse(jobData.started)).getTime();

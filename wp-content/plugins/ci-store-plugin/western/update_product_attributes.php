@@ -3,6 +3,7 @@
 include_once __DIR__ . './../utils/print_utils.php';
 include_once __DIR__ . '/get_western_product.php';
 include_once __DIR__ . './../utils/Report.php';
+require_once __DIR__ . '/wps_settings.php';
 
 function get_attribute_key_by_name($attributes, $attr_name)
 {
@@ -107,6 +108,7 @@ function get_wps_attributes($wps_product)
  */
 function update_product_attributes($woo_product, $wps_product, $report)
 {
+    global $WPS_SETTINGS;
     $report->addLog('update_product_attributes()');
 
     $attributes = $woo_product->get_attributes();
@@ -116,6 +118,7 @@ function update_product_attributes($woo_product, $wps_product, $report)
     $deletes = array_values(array_diff($current_attribute_names, $new_attributes_names));
     $attributes = delete_attributes($attributes, $deletes, $report);
     $woo_product->update_meta_data('_ci_additional_images', serialize(get_additional_images($wps_product)));
+    $woo_product->update_meta_data('_supplier_class', $WPS_SETTINGS['supplierClass']);
 
     foreach ($new_attributes as $new_attr) {
         $attributes = upsert_attribute($attributes, $new_attr, $report);

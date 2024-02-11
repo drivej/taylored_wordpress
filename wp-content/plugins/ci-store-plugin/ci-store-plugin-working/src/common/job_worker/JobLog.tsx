@@ -1,37 +1,25 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
-import { ICronJobParams, IWordpressAjaxParams } from '../../views/jobs/Jobs';
-import { fetchWordpressAjax } from '../utils/fetchWordpressAjax';
-import { useJobLog } from './useJobLog';
+import { useJobLog } from '../hooks/useJobLog';
+import { RefetchTimer } from '../scheduled_events/ScheduledEvents';
 
 export const JobLog = ({ jobKey }: { jobKey: string }) => {
-  const action = `${jobKey}_api`;
-  const queryKey = [jobKey, 'log'];
   const log = useJobLog(jobKey);
-  const queryClient = useQueryClient();
-
-  const mutation = useMutation({
-    mutationFn: (options: Partial<IWordpressAjaxParams>) => fetchWordpressAjax<string[], ICronJobParams>({ action, ...options }),
-    onSuccess: (data) => queryClient.setQueryData(queryKey, data)
-  });
-
-  const empty = () => {
-    mutation.mutate({ cmd: `clear_log` });
-  };
-
-  const refresh = () => {
-    queryClient.invalidateQueries({ queryKey });
-  };
 
   return (
-    <div>
-      <div className='btn-group mb-2'>
-        <button className='btn btn-primary' onClick={empty}>
-          Empty
-        </button>
-        <button className='btn btn-primary' onClick={refresh}>
-          Refresh
-        </button>
+    <div className='border'>
+      <div>
+        <div className='p-2 d-flex justify-content-between align-items-center'>
+          <h5 className='m-0'>Job Log</h5>
+          <div className='btn-group'>
+            <button className='btn btn-primary btn-sm' onClick={log.empty}>
+              Empty
+            </button>
+            <button className='btn btn-primary btn-sm' onClick={log.refresh}>
+              Refresh
+            </button>
+          </div>
+        </div>
+        <RefetchTimer query={log} />
       </div>
       {log.isSuccess && log.data ? (
         <div style={{ maxHeight: 300, overflow: 'auto' }}>
@@ -48,7 +36,7 @@ export const JobLog = ({ jobKey }: { jobKey: string }) => {
                       wps:{line.wps_id} action:{line.action}
                     </div>
                   </td> */}
-                  <td>{JSON.stringify(line, null, 2)}</td>
+                  <td>{JSON.stringify({ ...line, timestamp: undefined }, null, 2)}</td>
                 </tr>
               )) ?? null}
             </tbody>

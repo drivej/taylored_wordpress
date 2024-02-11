@@ -4,7 +4,7 @@ import { JobContext, JobProvider } from '../../../../__old/jobs/JobProvider';
 import { IJobContext, JobStatus } from '../../../../__old/jobs/JobTypes';
 import { DownloadButton } from '../../../../components/DownloadButton';
 import { chunkArray } from '../../../../utils/chunkArray';
-import { IWooProduct } from '../../IWoo';
+import { IWooProductWPS } from '../../IWoo';
 import { convertWooProductsToCSV } from '../../WooUtils';
 import { IWesternDeleteJobInput, IWesternDeleteJobOutput, WesternDeleteJobManager } from './WesternDeleteJob';
 
@@ -79,7 +79,7 @@ const WesternDeleteJobUI = () => {
   );
 };
 
-const MultiDownload = ({ products }: { products: IWooProduct[] }) => {
+const MultiDownload = ({ products }: { products: IWooProductWPS[] }) => {
   const [chunkSize, setChunkSize] = useState(10000);
   const timestamp = Date.now();
 

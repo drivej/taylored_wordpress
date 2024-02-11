@@ -7,7 +7,6 @@
  */
 function get_product_image($product)
 {
-    // print('<div>get_product_image()</div>');
     $src = null;
     if (isset($product)) {
         $serialized_data = $product->get_meta('_ci_additional_images', true);
@@ -15,6 +14,7 @@ function get_product_image($product)
 
         if (!empty($additional_images) && is_array($additional_images)) {
             $src = reset($additional_images);
+            $src = str_replace('http://', 'https://', $src);
         } else {
             $src = wc_placeholder_img_src();
         }

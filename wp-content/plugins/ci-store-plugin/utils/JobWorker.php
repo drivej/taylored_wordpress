@@ -231,7 +231,7 @@ class JobWorker
         $is_stalled = false;
         $data = $this->get_data();
         if (isset($data['updated'])) {
-            if ($data['is_running'] === true && $data['is_stopping'] === true) {
+            if ($data['is_running'] === true) {
                 $updated_time = strtotime($data['updated']);
                 $current_time = strtotime(gmdate("c"));
                 $time_difference = $current_time - $updated_time;

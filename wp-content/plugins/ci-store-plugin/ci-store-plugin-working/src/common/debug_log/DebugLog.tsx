@@ -1,41 +1,46 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
-import { IWordpressAjaxParams } from '../../views/jobs/Jobs';
-import { IDebugLog, useDebugLog } from '../job_worker/useDebugLog';
-import { fetchWordpressAjax } from '../utils/fetchWordpressAjax';
+import { useDebugLog } from '../hooks/useDebugLog';
+import { RefetchTimer } from '../scheduled_events/ScheduledEvents';
 
 // wp_ajax_debug_log_api
 
 export const DebugLog = () => {
   const log = useDebugLog();
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
 
-  const mutation = useMutation({
-    mutationFn: (options: Partial<IWordpressAjaxParams>) => fetchWordpressAjax<IDebugLog>({ action: 'debug_log_api', ...options }),
-    onSuccess: (data) => queryClient.setQueryData(['debug_log_api'], data)
-  });
+  // const mutation = useMutation({
+  //   mutationFn: (options: Partial<IWordpressAjaxParams>) => fetchWordpressAjax<IDebugLog>({ action: 'debug_log_api', ...options }),
+  //   onSuccess: (data) => queryClient.setQueryData(['debug_log_api'], data)
+  // });
 
-  const empty = () => {
-    mutation.mutate({ cmd: `empty` });
-  };
+  // const empty = () => {
+  //   mutation.mutate({ cmd: `empty` });
+  // };
 
-  const refresh = () => {
-    queryClient.invalidateQueries({ queryKey: ['debug_log_api'] });
-  };
+  // const refresh = () => {
+  //   queryClient.invalidateQueries({ queryKey: ['debug_log_api'] });
+  // };
+
+  // updated: 2024-02-03T15:41:15+00:00
 
   return (
-    <div>
-      <p>debug.log</p>
-      <div className='btn-group mb-2'>
-        <button className='btn btn-primary' onClick={empty}>
-          Empty
-        </button>
-        <button className='btn btn-primary' onClick={refresh}>
-          Refresh
-        </button>
+    <div className='border'>
+      <div>
+        <div className='p-2 d-flex justify-content-between align-items-center'>
+          <h5 className='m-0'>Debug Log</h5>
+          <div className='btn-group'>
+            <button className='btn btn-primary btn-sm' onClick={log.empty}>
+              Empty
+            </button>
+            <button className='btn btn-primary btn-sm' onClick={log.refresh}>
+              Refresh
+            </button>
+          </div>
+        </div>
+        <RefetchTimer query={log} />
       </div>
       {log.isSuccess && log.data?.data ? (
-        <table className='table table-sm table-bordered w-100' style={{ fontSize: '12px', tableLayout: 'fixed' }}>
+        <table className='table table-sm w-100' style={{ fontSize: '12px', tableLayout: 'fixed' }}>
           <tbody>
             {log.data.data.map((line) => (
               <tr>
@@ -43,7 +48,9 @@ export const DebugLog = () => {
                   {line.date}
                 </td>
                 <td>
-                  <div className='text-truncate w-100' title={line.message}>{line.message}</div>
+                  <div className='text-truncate w-100' title={line.message}>
+                    {line.message}
+                  </div>
                 </td>
               </tr>
             ))}

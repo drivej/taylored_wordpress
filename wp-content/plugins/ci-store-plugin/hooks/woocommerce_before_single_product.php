@@ -22,7 +22,7 @@ function custom_before_single_product()
         }
     }
 
-    print_r(['wps_stock_status' => $wps_stock_status, 'woo_stock_status' => $woo_stock_status, 'wps_product_id' => $wps_product_id]);
+    debug_print_r(['wps_stock_status' => $wps_stock_status, 'woo_stock_status' => $woo_stock_status, 'wps_product_id' => $wps_product_id]);
 
     // $additional_images = get_post_meta(get_the_ID(), '_ci_additional_images', false);
 

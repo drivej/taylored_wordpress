@@ -13,14 +13,15 @@ function custom_wp_get_attachment_image_src($image, $attachment_id, $size, $icon
     $src = $image;
 
     if (isset($product)) {
-        $serialized_data = $product->get_meta('_ci_additional_images', true);
-        $additional_images = unserialize($serialized_data);
+        $src = get_product_image($product);
+        // $serialized_data = $product->get_meta('_ci_additional_images', true);
+        // $additional_images = unserialize($serialized_data);
 
-        if (!empty($additional_images) && is_array($additional_images)) {
-            $src = reset($additional_images);
-        } else {
-            $src = wc_placeholder_img_src();
-        }
+        // if (!empty($additional_images) && is_array($additional_images)) {
+        //     $src = reset($additional_images);
+        // } else {
+        //     $src = wc_placeholder_img_src();
+        // }
     }
     // $image = get_product_image($woo_product);
     return $src;

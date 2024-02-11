@@ -4188,7 +4188,7 @@ function fetchWordpressAjax(params) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         const url = new URL(location.origin);
-        url.pathname = '/wp-admin/admin-ajax.php';
+        url.pathname = window.ajaxurl; //'/wp-admin/admin-ajax.php';
         Object.keys(params).forEach((k) => url.searchParams.set(k, params[k]));
         const res = yield browser_ponyfill_default()(url);
         if (!res.ok) {
@@ -4206,7 +4206,7 @@ function fetchWordpressAjax(params) {
     });
 }
 
-;// CONCATENATED MODULE: ./src/common/job_worker/useScheduledEvents.tsx
+;// CONCATENATED MODULE: ./src/common/hooks/useScheduledEvents.tsx
 
 
 const useScheduledEvents = (filter = '', options = {}) => {
@@ -4245,13 +4245,34 @@ const useScheduledEvents = (filter = '', options = {}) => {
             alert(JSON.stringify(res));
         });
     };
+    const precleanEvents = () => {
+        return fetchWordpressAjax({
+            action: 'scheduled_events_api',
+            cmd: 'preclean'
+        });
+    };
+    const cleanEvents = () => {
+        return fetchWordpressAjax({
+            action: 'scheduled_events_api',
+            cmd: 'clean'
+        });
+    };
     const refresh = () => {
         queryClient.invalidateQueries({ queryKey: ['wp_ajax_scheduled_events_api', filter] });
     };
-    return Object.assign(Object.assign({}, data), { refresh, schedule, unschedule, unscheduleAll });
+    return Object.assign(Object.assign({}, data), { refresh, schedule, unschedule, unscheduleAll, precleanEvents, cleanEvents });
 };
 
 ;// CONCATENATED MODULE: ./src/common/scheduled_events/ScheduledEvents.tsx
+var ScheduledEvents_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 
 
 
@@ -4291,6 +4312,24 @@ const ScheduledEvents = () => {
         const filter = f.get('filter');
         setEventName(filter);
     };
+    //   const [deletes, setDeletes] = useState(-1);
+    //   const [canClean, setCanClean] = useState(false);
+    const doClean = () => ScheduledEvents_awaiter(void 0, void 0, void 0, function* () {
+        const deletes = yield events.precleanEvents();
+        // setDeletes(deletes.deleted);
+        // setCanClean(deletes.deleted > 0);
+        if (deletes.deleted > 0) {
+            const ok = confirm(`Are you sure you want to delete ${deletes.deleted.toLocaleString()} completed events?`);
+            if (ok) {
+                const result = yield events.cleanEvents();
+                alert(`Deleted ${result.deleted.toLocaleString()} completed events.`);
+                // setDeletes(result.deleted);
+            }
+        }
+        else {
+            alert(`There's nothing to delete.`);
+        }
+    });
     return (react.createElement("div", { className: 'p-3 d-flex flex-column gap-3' },
         react.createElement("form", { onSubmit: handleSubmit },
             react.createElement("h3", null, "Scheduled Events"),
@@ -4299,8 +4338,7 @@ const ScheduledEvents = () => {
                 react.createElement("input", { className: 'form-control', type: 'text', name: 'filter', value: eventNameInput, onChange: (e) => setEventNameInput(e.currentTarget.value) }),
                 react.createElement("button", { className: 'btn btn-outline-secondary', type: 'button', disabled: eventNameInput === '', onClick: () => setEventName('') }, "\u00D7"),
                 react.createElement("button", { className: 'btn btn-outline-secondary', type: 'button', onClick: () => setEventName(eventNameInput) }, "Search"))),
-        react.createElement("div", { style: { maxHeight: 300, overflow: 'auto' } },
-            react.createElement(ScheduledEventsTable, { filter: eventName })),
+        react.createElement(ScheduledEventsTable, { filter: eventName }),
         react.createElement("div", { className: 'd-flex flex-column gap-2 p-3 rounded border' },
             react.createElement("div", null,
                 react.createElement("label", { className: 'form-label' }, "Action Name"),
@@ -4327,26 +4365,67 @@ const ScheduledEvents = () => {
             react.createElement("div", null,
                 react.createElement("button", { className: 'btn btn-primary btn-sm px-3', onClick: addArg }, "+")),
             react.createElement("div", null,
-                react.createElement("button", { className: 'btn btn-primary btn-sm', onClick: () => setHookArgs((args) => [...args, '']) }, "Create")))));
+                react.createElement("button", { className: 'btn btn-primary btn-sm', onClick: () => setHookArgs((args) => [...args, '']) }, "Create"))),
+        react.createElement("button", { className: 'btn btn-outline-secondary', onClick: doClean }, "Clean up deleted events")));
+};
+const RefetchTimer = ({ query }) => {
+    const [isWaiting, setIsWaiting] = (0,react.useState)(true);
+    const [startTime, setStartTime] = (0,react.useState)(Date.now());
+    const [elapsedTime, setElapsedTime] = (0,react.useState)(0);
+    const [totalTime, setTotalTime] = (0,react.useState)(30000);
+    const clockedTimes = react.useRef([]);
+    const progress = 100 * Math.min(1, elapsedTime / totalTime);
+    (0,react.useEffect)(() => {
+        if (query.isFetching) {
+            if (startTime !== 0) {
+                clockedTimes.current.push(Date.now() - startTime);
+                setTotalTime(clockedTimes.current.reduce((s, n) => s + n) / clockedTimes.current.length);
+            }
+            setIsWaiting(false);
+        }
+        else {
+            setIsWaiting(true);
+            setStartTime(Date.now());
+            setElapsedTime(0);
+        }
+    }, [query.isFetching]);
+    (0,react.useEffect)(() => {
+        if (isWaiting) {
+            const timer = setInterval(() => {
+                setElapsedTime(Date.now() - startTime);
+            }, 500);
+            return () => {
+                clearInterval(timer);
+            };
+        }
+    }, [isWaiting]);
+    return (react.createElement("div", { className: 'progress rounded-0', role: 'progressbar', style: { height: 4 } },
+        react.createElement("div", { className: `progress-bar bg-info ${query.fetchStatus === 'idle' ? '' : 'progress-bar-striped progress-bar-animated'}`, style: { width: progress + '%', transition: 'width 0.5s linear' } })));
 };
 const ScheduledEventsTable = ({ filter = '' }) => {
     var _a, _b, _c;
     const events = useScheduledEvents(filter);
-    return (react.createElement("table", { className: 'table table-sm table-bordered w-100', style: { fontSize: '12px' } },
-        filter ? (react.createElement("thead", null,
-            react.createElement("tr", null,
-                react.createElement("th", { colSpan: 4 },
+    return (react.createElement("div", { className: 'border' },
+        react.createElement("div", null,
+            react.createElement("div", { className: 'p-2 d-flex justify-content-between align-items-center' },
+                react.createElement("h5", { className: 'm-0' }, "Scheduled Events"),
+                react.createElement("div", { className: 'btn-group' },
+                    react.createElement("button", { className: 'btn btn-primary btn-sm', onClick: events.refresh }, "Refresh"))),
+            react.createElement(RefetchTimer, { query: events })),
+        react.createElement("table", { className: 'table table-sm Xtable-bordered w-100', style: { fontSize: '12px' } },
+            react.createElement("thead", null, filter ? (react.createElement("tr", null,
+                react.createElement("th", { colSpan: 4, className: 'bg-light' },
                     "filter: ",
-                    filter)))) : null,
-        react.createElement("tbody", null, (_c = (_b = (_a = events.data) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.map((line, i) => {
-            var _a;
-            return (react.createElement("tr", null,
-                react.createElement("td", { style: { width: '1%' } }, ((_a = events.data) === null || _a === void 0 ? void 0 : _a.data.length) - i),
-                react.createElement("td", { style: { width: 'auto' }, className: 'text-nowrap' }, line.name),
-                react.createElement("td", null, JSON.stringify(line.args)),
-                react.createElement("td", { style: { width: '1%' } },
-                    react.createElement("div", { onClick: () => events.unschedule(line), style: { cursor: 'pointer' } }, "Delete"))));
-        })) !== null && _c !== void 0 ? _c : null)));
+                    filter))) : null),
+            react.createElement("tbody", null, (_c = (_b = (_a = events.data) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.map((line, i) => {
+                var _a;
+                return (react.createElement("tr", null,
+                    react.createElement("td", { style: { width: '1%' } }, ((_a = events.data) === null || _a === void 0 ? void 0 : _a.data.length) - i),
+                    react.createElement("td", { style: { width: 'auto' }, className: 'text-nowrap' }, line.name),
+                    react.createElement("td", null, JSON.stringify(line.args)),
+                    react.createElement("td", { style: { width: '1%' } },
+                        react.createElement("div", { onClick: () => events.unschedule(line), style: { cursor: 'pointer' } }, "Delete"))));
+            })) !== null && _c !== void 0 ? _c : null))));
 };
 
 ;// CONCATENATED MODULE: ./src/manage_events/ManageEvents.tsx

@@ -43,10 +43,10 @@ function custom_before_shop_loop_item()
     // print_r(['type'=>$product->get_type()]);
 
     if ($product->is_type('variable')) {
-        $serialized_data = $product->get_meta('_ci_additional_images', true);
-        $additional_images = unserialize($serialized_data);
-        echo '<hr />';
-        print_r($additional_images);
+        // $serialized_data = $product->get_meta('_ci_additional_images', true);
+        // $additional_images = unserialize($serialized_data);
+        // echo '<hr />';
+        // print_r($additional_images);
         $src = get_product_image($product);
         echo '<img src="' . esc_url($src) . '" alt="' . esc_attr($product->get_title()) . '" class="attachment-shop_catalog size-shop_catalog wp-post-image" style="border:2px solid blue" />';
         // print($src);

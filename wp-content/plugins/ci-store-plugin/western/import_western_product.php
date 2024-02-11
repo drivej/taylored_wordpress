@@ -171,6 +171,8 @@ function insert_western_product($wps_product, $report = new Report())
     $product->update_meta_data('_ci_supplier_key', 'wps');
     $product->update_meta_data('_ci_product_id', $wps_product['data']['id']);
     $product->update_meta_data('_ci_supplier_key', 'wps');
+    $product->update_meta_data('_supplier_class', $WPS_SETTINGS['supplierClass']);
+
     // $product->update_meta_data('_ci_additional_images', serialize(get_additional_images($wps_product)));
     $product->update_meta_data('_ci_import_version', $WPS_SETTINGS['import_version']);
     $product->update_meta_data('_ci_import_timestamp', gmdate("c"));

@@ -1,0 +1,17 @@
+{
+    "name": "contento/woodropship",
+    "description": "Plugin to integrate product suppliers to woocommerce",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "WooDropship\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Robert Lester",
+            "email": "robertlesterjr@mac.com"
+        }
+    ],
+    "require": {}
+}

@@ -1,8 +1,8 @@
-import { IWooMetaData, IWooProduct, WooProductDefault } from './IWoo';
+import { IWooMetaData, IWooProductWPS, WooProductDefault } from './IWoo';
 
 export const WooColumnKeys = Object.keys(WooProductDefault);
 
-const convertWooProductToCSVRow = (data: IWooProduct, columnKeys: string[]) => {
+const convertWooProductToCSVRow = (data: IWooProductWPS, columnKeys: string[]) => {
   return columnKeys
     .map((k) => {
       if (Object.prototype.hasOwnProperty.call(data, k)) {
@@ -19,13 +19,13 @@ const convertWooProductToCSVRow = (data: IWooProduct, columnKeys: string[]) => {
     .join();
 };
 
-const sortProductType = (a: IWooProduct, b: IWooProduct) => {
+const sortProductType = (a: IWooProductWPS, b: IWooProductWPS) => {
   const av = a.Type === 'variable';
   const bv = b.Type === 'variable';
   return av && !bv ? -1 : !av && bv ? 1 : 0;
 };
 
-export const convertWooProductsToCSV = (data: IWooProduct[], columnKeys: string[] = WooColumnKeys) => {
+export const convertWooProductsToCSV = (data: IWooProductWPS[], columnKeys: string[] = WooColumnKeys) => {
   return [columnKeys.map((k) => `"${k}"`).join(','), ...data.sort(sortProductType).map((r) => convertWooProductToCSVRow(r, columnKeys))].join('\n');
 };
 

@@ -10,7 +10,6 @@ function custom_modify_product_image($image_html, $product, $size, $attr)
 
     $src = get_product_image($product);
     $alt = $product->get_name();
-
     $custom_image_html = '<div class="custom-product-image">
         <img 
             src="'.$src.'" 

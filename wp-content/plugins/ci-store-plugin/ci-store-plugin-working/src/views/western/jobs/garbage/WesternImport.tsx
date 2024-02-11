@@ -7,7 +7,7 @@ import { DownloadButton } from '../../../../components/DownloadButton';
 import { UploadCSVFile } from '../../../../components/UploadFile';
 import { chunkArray } from '../../../../utils/chunkArray';
 import { WooTest } from '../../../woo/WooTest';
-import { CATEGORY_DELETE, IWooProduct } from '../../IWoo';
+import { CATEGORY_DELETE, IWooProductWPS } from '../../IWoo';
 // import { convertWesternProductToWooProduct } from '../../WesternUtils';
 import { WooColumnKeys, convertWooProductsToCSV } from '../../WooUtils';
 import { useWesternProduct } from '../../useWestern';
@@ -23,7 +23,7 @@ export const WesternImport = () => (
 const WesternJobUI = () => {
   const job = useContext<IJobContext<IWesternJobInput, IWesternJobOutput>>(JobContext as Context<IJobContext<IWesternJobInput, IWesternJobOutput>>);
   const [lastUpdate, setLastUpdate] = useState<string>('');
-  const [currentProducts, setCurrentProducts] = useState<Partial<IWooProduct>[]>([]);
+  const [currentProducts, setCurrentProducts] = useState<Partial<IWooProductWPS>[]>([]);
   const [includeImages, setIncludeImages] = useState(true);
 
   const onComplete = (content: any[]) => {
@@ -121,7 +121,7 @@ const WesternJobUI = () => {
   );
 };
 
-const MultiDownload = ({ products, currentProducts, includeImages }: { products: IWooProduct[]; currentProducts: Partial<IWooProduct>[]; includeImages: boolean }) => {
+const MultiDownload = ({ products, currentProducts, includeImages }: { products: IWooProductWPS[]; currentProducts: Partial<IWooProductWPS>[]; includeImages: boolean }) => {
   const lookup = new Set(currentProducts.map((p) => p.SKU));
   const [chunkSize, setChunkSize] = useState(1000);
   const [newOnly, setNewOnly] = useState(true);
@@ -205,7 +205,7 @@ const formatTimestamp = (d: Date):string => {
   ].join('');
 };
 
-const DownloadCSVRows = ({ chunkSize, products, name, columnKeys = WooColumnKeys }: { products: IWooProduct[]; chunkSize: number; name: string; columnKeys?: string[] }) => {
+const DownloadCSVRows = ({ chunkSize, products, name, columnKeys = WooColumnKeys }: { products: IWooProductWPS[]; chunkSize: number; name: string; columnKeys?: string[] }) => {
   const productsChunks = chunkArray(products, chunkSize);
   const $buttons = useRef<HTMLAnchorElement[]>([]);
   const productsBlob = new Blob([convertWooProductsToCSV(products, columnKeys)], { type: 'text/csv' });

@@ -1,19 +1,19 @@
 import { JobManager } from "../../../../__old/jobs/JobManager";
 import { JobRunner } from "../../../../__old/jobs/JobRunner";
 import { IWesternItemStatus, IWesternProduct, IWesternProductExt } from "../../IWestern";
-import { IWooProduct } from "../../IWoo";
+import { IWooProductWPS } from "../../IWoo";
 // import { convertWesternProductToWooProduct } from "../../WesternUtils";
 import { fetchWesternAPI, westernProductIncludes } from "../../useWestern";
 
 export interface IWesternJobInput {
   lastUpdate: string;
   includeNLA: boolean;
-  currentProducts?: Partial<IWooProduct>[];
+  currentProducts?: Partial<IWooProductWPS>[];
 }
 
 export interface IWesternJobOutput {
   // csv: string;
-  products: IWooProduct[];
+  products: IWooProductWPS[];
 }
 
 class WesternImportJob_0 extends JobRunner<IWesternJobInput, IWesternJobInput & { totalProducts: number }> {
@@ -94,7 +94,7 @@ class WesternImportJob_2 extends JobRunner<IWesternJobInput & { products: IWeste
     super.run(input);
     // Duff's Device wins again... ~140s -> ~3.5
     const where = input.products.length % 8;
-    const all: IWooProduct[] = [];
+    const all: IWooProductWPS[] = [];
     // while (this.index < where) {
     //   all.push.apply(all, convertWesternProductToWooProduct(input.products[this.index++]));
     //   all.push.apply(all, convertWesternProductToWooProduct(input.products[this.index++]));

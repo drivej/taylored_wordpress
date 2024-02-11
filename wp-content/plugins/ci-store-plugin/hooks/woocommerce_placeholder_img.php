@@ -22,7 +22,7 @@ function custom_modify_placeholder_img($a, $b, $c)
 {
     debug_filter('woocommerce_placeholder_img');
     // print('custom_modify_placeholder_img');
-    print_r([$a, $b, $c]);
+    debug_print_r([$a, $b, $c]);
     global $product;
     $src = get_product_image($product);
     // return $src;

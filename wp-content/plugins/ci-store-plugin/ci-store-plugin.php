@@ -11,16 +11,23 @@
 
 // include_once __DIR__ . '/cronjob/index.php';
 // include_once __DIR__ . '/log/index.php';
-include_once __DIR__ . '/test/index.php';
 // include_once __DIR__ . '/admin/stock_check.php';
 // include_once __DIR__ . '/admin/import_products.php';
-include_once __DIR__ . '/western/wps_ajax_handler.php';
-include_once __DIR__ . '/hooks/index.php';
-include_once __DIR__ . '/admin/index.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/DebugLogAPI.php';
+
+
+define('CI_STORE_PLUGIN', plugin_dir_path(__FILE__));
+
+include_once CI_STORE_PLUGIN . 'test/index.php';
+include_once CI_STORE_PLUGIN . 'western/wps_ajax_handler.php';
+include_once CI_STORE_PLUGIN . 'hooks/index.php';
+include_once CI_STORE_PLUGIN . 'admin/index.php';
+include_once CI_STORE_PLUGIN . 'utils/DebugLogAPI.php';
+include_once CI_STORE_PLUGIN . 'utils/admin_ajax.php';
 
 // build debug API for wp-content/plugins/ci-store-plugin/ci-store-plugin-working/src/common/debug_log/DebugLog.tsx
 new DebugLogAPI();
+// build admin API
+new AdminAPI();
 
 function create_admin_menu()
 {
@@ -32,6 +39,8 @@ function render_ci_store_plugin_ui()
 {
     ?>
     <div id='ci-store-plugin-container'></div>
+    <h1>Welcome to the CI Store Manager</h1>
+    <p>This plugin import products from 3rd parties into WooCommerce.</p>
     <script>
         document.addEventListener("DOMContentLoaded", () => CIStore.render('ci-store-plugin-container'));
     </script>

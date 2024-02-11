@@ -1,6 +1,7 @@
+import { UseQueryResult } from '@tanstack/react-query';
 import * as React from 'react';
-import { useState } from 'react';
-import { IScheduledEvent, useScheduledEvents } from '../job_worker/useScheduledEvents';
+import { useEffect, useState } from 'react';
+import { IScheduledEvent, useScheduledEvents } from '../hooks/useScheduledEvents';
 
 export const ScheduledEvents = () => {
   const [eventNameInput, setEventNameInput] = useState('');
@@ -44,6 +45,25 @@ export const ScheduledEvents = () => {
     setEventName(filter);
   };
 
+  //   const [deletes, setDeletes] = useState(-1);
+  //   const [canClean, setCanClean] = useState(false);
+
+  const doClean = async () => {
+    const deletes = await events.precleanEvents();
+    // setDeletes(deletes.deleted);
+    // setCanClean(deletes.deleted > 0);
+    if (deletes.deleted > 0) {
+      const ok = confirm(`Are you sure you want to delete ${deletes.deleted.toLocaleString()} completed events?`);
+      if (ok) {
+        const result = await events.cleanEvents();
+        alert(`Deleted ${result.deleted.toLocaleString()} completed events.`);
+        // setDeletes(result.deleted);
+      }
+    } else {
+      alert(`There's nothing to delete.`);
+    }
+  };
+
   return (
     <div className='p-3 d-flex flex-column gap-3'>
       <form onSubmit={handleSubmit}>
@@ -60,27 +80,9 @@ export const ScheduledEvents = () => {
         </div>
       </form>
 
-      <div style={{ maxHeight: 300, overflow: 'auto' }}>
-        <ScheduledEventsTable filter={eventName} />
-        {/* <table className='table table-sm table-bordered w-100' style={{ fontSize: '12px' }}>
-          <tbody>
-            {events.data?.data?.map((line, i) => (
-              <tr>
-                <td style={{ width: '1%' }}>{events.data?.data.length - i}</td>
-                <td style={{ width: 'auto' }} className='text-nowrap'>
-                  {line.name}
-                </td>
-                <td>{JSON.stringify(line.args)}</td>
-                <td style={{ width: '1%' }}>
-                  <button className='btn btn-primary btn-sm' onClick={() => events.unschedule(line)}>
-                    &times;
-                  </button>
-                </td>
-              </tr>
-            )) ?? null}
-          </tbody>
-        </table> */}
-      </div>
+      {/* <div style={{ maxHeight: 300, overflow: 'auto' }}> */}
+      <ScheduledEventsTable filter={eventName} />
+      {/* </div> */}
 
       <div className='d-flex flex-column gap-2 p-3 rounded border'>
         <div>
@@ -140,41 +142,105 @@ export const ScheduledEvents = () => {
         </div>
       </div>
 
+      <button className='btn btn-outline-secondary' onClick={doClean}>
+        Clean up deleted events
+      </button>
       {/* <pre>{JSON.stringify(events.data, null, 2)}</pre> */}
     </div>
   );
 };
 
-const ScheduledEventsTable = ({ filter = '' }: { filter: string }) => {
-  const events = useScheduledEvents(filter);
+export const RefetchTimer = ({ query }: { query: UseQueryResult }) => {
+  const [isWaiting, setIsWaiting] = useState(true);
+  const [startTime, setStartTime] = useState(Date.now());
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [totalTime, setTotalTime] = useState(30000);
+  const clockedTimes = React.useRef<number[]>([]);
+  const progress = 100 * Math.min(1, elapsedTime / totalTime);
+
+  useEffect(() => {
+    if (query.isFetching) {
+      if (startTime !== 0) {
+        clockedTimes.current.push(Date.now() - startTime);
+        setTotalTime(clockedTimes.current.reduce((s, n) => s + n) / clockedTimes.current.length);
+      }
+      setIsWaiting(false);
+    } else {
+      setIsWaiting(true);
+      setStartTime(Date.now());
+      setElapsedTime(0);
+    }
+  }, [query.isFetching]);
+
+  useEffect(() => {
+    if (isWaiting) {
+      const timer = setInterval(() => {
+        setElapsedTime(Date.now() - startTime);
+      }, 500);
+
+      return () => {
+        clearInterval(timer);
+      };
+    }
+  }, [isWaiting]);
+
   return (
-    <table className='table table-sm table-bordered w-100' style={{ fontSize: '12px' }}>
-      {filter ? (
+    <div className='progress rounded-0' role='progressbar' style={{ height: 4 }}>
+      <div className={`progress-bar bg-info ${query.fetchStatus === 'idle' ? '' : 'progress-bar-striped progress-bar-animated'}`} style={{ width: progress + '%', transition: 'width 0.5s linear' }}></div>
+    </div>
+  );
+};
+
+export const ScheduledEventsTable = ({ filter = '' }: { filter: string }) => {
+  const events = useScheduledEvents(filter);
+
+  return (
+    <div className='border'>
+      <div>
+        <div className='p-2 d-flex justify-content-between align-items-center'>
+          <h5 className='m-0'>Scheduled Events</h5>
+          <div className='btn-group'>
+            {/* <button className='btn btn-primary btn-sm' onClick={events.empty}>
+              Empty
+            </button> */}
+            <button className='btn btn-primary btn-sm' onClick={events.refresh}>
+              Refresh
+            </button>
+          </div>
+        </div>
+        <RefetchTimer query={events} />
+      </div>
+      <table className='table table-sm Xtable-bordered w-100' style={{ fontSize: '12px' }}>
         <thead>
-          <tr>
-            <th colSpan={4}>filter: {filter}</th>
-          </tr>
+          {filter ? (
+            <tr>
+              <th colSpan={4} className='bg-light'>
+                filter: {filter}
+              </th>
+            </tr>
+          ) : null}
         </thead>
-      ) : null}
-      <tbody>
-        {events.data?.data?.map((line, i) => (
-          <tr>
-            <td style={{ width: '1%' }}>{events.data?.data.length - i}</td>
-            <td style={{ width: 'auto' }} className='text-nowrap'>
-              {line.name}
-            </td>
-            <td>{JSON.stringify(line.args)}</td>
-            <td style={{ width: '1%' }}>
-              <div onClick={() => events.unschedule(line)} style={{ cursor: 'pointer' }}>
-                Delete
-              </div>
-              {/* <button className='btn btn-secondary btn-sm' onClick={() => events.unschedule(line)}>
+
+        <tbody>
+          {events.data?.data?.map((line, i) => (
+            <tr>
+              <td style={{ width: '1%' }}>{events.data?.data.length - i}</td>
+              <td style={{ width: 'auto' }} className='text-nowrap'>
+                {line.name}
+              </td>
+              <td>{JSON.stringify(line.args)}</td>
+              <td style={{ width: '1%' }}>
+                <div onClick={() => events.unschedule(line)} style={{ cursor: 'pointer' }}>
+                  Delete
+                </div>
+                {/* <button className='btn btn-secondary btn-sm' onClick={() => events.unschedule(line)}>
                 &times;
               </button> */}
-            </td>
-          </tr>
-        )) ?? null}
-      </tbody>
-    </table>
+              </td>
+            </tr>
+          )) ?? null}
+        </tbody>
+      </table>
+    </div>
   );
 };

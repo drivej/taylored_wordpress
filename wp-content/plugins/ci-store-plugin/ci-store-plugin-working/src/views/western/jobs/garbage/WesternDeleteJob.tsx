@@ -1,7 +1,7 @@
 import { JobManager } from '../../../../__old/jobs/JobManager';
 import { JobRunner } from '../../../../__old/jobs/JobRunner';
 import { IWesternProduct, IWesternProductExt } from '../../IWestern';
-import { IWooProduct } from '../../IWoo';
+import { IWooProductWPS } from '../../IWoo';
 // import { convertWesternProductToWooProduct } from '../../WesternUtils';
 import { fetchWesternAPI, westernProductIncludes_ExcludeNLA } from '../../useWestern';
 
@@ -11,7 +11,7 @@ export interface IWesternDeleteJobInput {
 
 export interface IWesternDeleteJobOutput {
   // csv: string;
-  products: IWooProduct[];
+  products: IWooProductWPS[];
 }
 
 class WesternDeleteJob_0 extends JobRunner<IWesternDeleteJobInput, IWesternDeleteJobOutput & { totalProducts: number }> {
@@ -88,7 +88,7 @@ class WesternDeleteJob_2 extends JobRunner<IWesternProductExt[], IWesternDeleteJ
     super.run(input);
     // Duff's Device wins again... ~140s -> ~3.5
     const where = input.length % 8;
-    const all: IWooProduct[] = [];
+    const all: IWooProductWPS[] = [];
     // while (this.index < where) {
     //   all.push.apply(all, convertWesternProductToWooProduct(input[this.index++]));
     //   all.push.apply(all, convertWesternProductToWooProduct(input[this.index++]));

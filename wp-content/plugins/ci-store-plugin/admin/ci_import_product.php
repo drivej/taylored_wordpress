@@ -8,10 +8,9 @@ General purpose product import
 This should be fired by a scheduled event
 
  */
-function ci_import_product($supplier, $product_id)
+function ci_import_product($supplier, $product_id, $report = new Report())
 {
     error_log('ci_import_product(' . $supplier . ', ' . $product_id . ')');
-    $report = new Report();
     switch ($supplier) {
         case 'wps':
             import_western_product($product_id, false, $report);
