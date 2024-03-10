@@ -5,6 +5,7 @@ import { useJobData } from '../common/hooks/useJob';
 import { JobLog } from '../common/job_worker/JobLog';
 import { JobWorker } from '../common/job_worker/JobWorker';
 import { ScheduledEventsTable } from '../common/scheduled_events/ScheduledEvents';
+import { useDebug } from '../utils/useDebug';
 
 interface IStockCheckResult {
   total_products: number;
@@ -26,14 +27,31 @@ export const StockCheck = () => {
   // const queryClient = useQueryClient();
   // const jobData = useJobStatus(jobKey);
   const jobData = useJobData<IStockCheckResult>(jobKey);
+  const debug = useDebug();
 
   useEffect(() => {
-    if (jobData.data?.completed) {
-      setSince(jobData.data?.completed);
-    } else if (jobData.data?.result?.since) {
-      setSince(jobData.data?.result?.since);
+    if (jobData.isSuccess) {
+      if (!jobData.data.is_running) {
+        if (jobData.data?.result?.since) {
+          setSince(jobData.data?.result?.since); // already in the input format
+        } else if (jobData.data?.completed) {
+          const dateObj = new Date(Date.parse(jobData.data.completed));
+          const dateStr = [dateObj.getFullYear(), `${dateObj.getMonth()}`.padStart(2, '0'), `${dateObj.getDate()}`.padStart(2, '0')].join('-');
+          setSince(dateStr);
+        }
+      } else {
+        if (jobData.data?.last_completed) {
+          const dateObj = new Date(Date.parse(jobData.data.last_completed));
+          const dateStr = [dateObj.getFullYear(), `${dateObj.getMonth()}`.padStart(2, '0'), `${dateObj.getDate()}`.padStart(2, '0')].join('-');
+          setSince(dateStr);
+        }
+      }
     }
-  }, [jobData.data]);
+  }, [jobData.isSuccess, jobData.data]);
+
+  useEffect(() => {
+    console.log('since', since);
+  }, [since]);
 
   // jobworker
   // ci_
@@ -46,10 +64,15 @@ export const StockCheck = () => {
           <input className='form-control' type='date' value={since} onChange={(e) => setSince(e.currentTarget.value)} />
         </div>
       </div>
+      <pre>{JSON.stringify(jobData.data, null, 2)}</pre>
       <JobWorker jobKey={jobKey} args={{ since }} />
-      <ScheduledEventsTable filter='ci_import_product' />
-      <JobLog jobKey={jobKey} />
-      <DebugLog />
+      {debug ? (
+        <>
+          <ScheduledEventsTable filter='ci_import_product' />
+          <JobLog jobKey={jobKey} />
+          <DebugLog />
+        </>
+      ) : null}
     </div>
   );
 };

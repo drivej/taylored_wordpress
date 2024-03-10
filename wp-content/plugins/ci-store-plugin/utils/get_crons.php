@@ -18,7 +18,16 @@ function get_crons($needle)
     // print('<pre>'.json_encode($found, JSON_PRETTY_PRINT).'</pre>');
 }
 
-function bulk_delete_completed_actions() {
+// function get_crons_count($needle)
+// {
+//     global $wpdb;
+//     $query = $wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE %s", '_transient_timeout_%' . $needle . '%');
+//     $count = $wpdb->get_var($query);
+//     return ['count'=>$count, 'table'=>$wpdb->options];
+// }
+
+function bulk_delete_completed_actions()
+{
     // Get all scheduled hooks
     $cron_events = _get_cron_array();
     $deletes = [];
@@ -33,7 +42,7 @@ function bulk_delete_completed_actions() {
                     // Check if the event is completed
                     if ($timestamp < time() && $event['schedule'] === false) {
                         // Remove the completed event
-                        $deletes[] = ['hook'=>$hook,'key'=>$key];
+                        $deletes[] = ['hook' => $hook, 'key' => $key];
                         // unset($cron_events[$timestamp][$hook][$key]);
                     }
                 }

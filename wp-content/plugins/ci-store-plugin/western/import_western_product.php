@@ -1,15 +1,16 @@
 <?php
 
 // require_once __DIR__ . './../log/write_to_log_file.php';
-require_once __DIR__ . './../western/get_western_products_page.php';
-require_once __DIR__ . './../western/get_western_product.php';
+// require_once __DIR__ . './../western/get_western_products_page.php';
+// require_once __DIR__ . './../western/get_western_product.php';
 require_once __DIR__ . './../western/western_utils.php';
 require_once __DIR__ . './../western/wps_settings.php';
 require_once __DIR__ . '/update_product_attributes.php';
 require_once __DIR__ . '/update_product_taxonomy.php';
 require_once __DIR__ . '/update_product_variations.php';
 require_once __DIR__ . './../utils/Report.php';
-
+require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
 /**
  *
  * @param int    $wps_product_id
@@ -18,14 +19,16 @@ require_once __DIR__ . './../utils/Report.php';
  */
 function import_western_product($wps_product_id, $force_update = false, $report = new Report())
 {
+    $supplier = \CI\Admin\get_supplier('wps');
     $report->addLog('import_western_product()');
     $start_time = microtime(true);
     $action = '';
     $product_id = '';
-    $sku = get_western_sku($wps_product_id);
+    $sku = $supplier->get_product_sku($wps_product_id);
+    // $sku = get_western_sku($wps_product_id);
 
     // try {
-    $wps_product = get_western_product($wps_product_id);
+    $wps_product = $supplier->get_product($wps_product_id);
     $report->addData('wps_product_id', $wps_product_id);
 
     if (isset($wps_product['error'])) {
@@ -159,24 +162,19 @@ function product_needs_update($woo_product, $wps_product)
  */
 function insert_western_product($wps_product, $report = new Report())
 {
-    global $WPS_SETTINGS;
+    $supplier_key = 'wps';
+    $supplier = WooTools::get_supplier($supplier_key);
     $product = new WC_Product_Variable();
-    $item = $wps_product['data']['items']['data'][0];
     $sku = get_western_sku($wps_product['data']['id']);
     $product->set_sku($sku);
-    $product->set_name($wps_product['data']['name']);
-    $product->set_status('publish');
-    $product->set_regular_price($item['list_price']);
-    $product->set_stock_status('instock');
     $product->update_meta_data('_ci_supplier_key', 'wps');
     $product->update_meta_data('_ci_product_id', $wps_product['data']['id']);
-    $product->update_meta_data('_ci_supplier_key', 'wps');
-    $product->update_meta_data('_supplier_class', $WPS_SETTINGS['supplierClass']);
-
-    // $product->update_meta_data('_ci_additional_images', serialize(get_additional_images($wps_product)));
-    $product->update_meta_data('_ci_import_version', $WPS_SETTINGS['import_version']);
+    $product->update_meta_data('_supplier_class', $supplier->supplierClass);
+    $product->update_meta_data('_ci_import_version', $supplier->import_version);
     $product->update_meta_data('_ci_import_timestamp', gmdate("c"));
+
     $product_id = $product->save();
+    wp_set_object_terms($product_id, 'variable', 'product_type');
     update_product_attributes($product, $wps_product, $report);
     if ($report->getData('attribute_changes')) {
         $product->save();
@@ -192,11 +190,17 @@ function insert_western_product($wps_product, $report = new Report())
 function update_western_product($wps_product, $product_id, $report = new Report())
 {
     $report->addLog('update_western_product()');
-    $woo_product = wc_get_product_object('product', $product_id);
+    $woo_product = wc_get_product_object('variable', $product_id);
     // $has_variations = count($wps_product['data']['items']['data']) > 0;
     // $is_variable = $product->is_type('variable');
     $report->addData('type', $woo_product->get_type());
 
+    $first_item = $wps_product['data']['items']['data'][0];
+    $woo_product->set_name($wps_product['data']['name']);
+    $woo_product->set_status('publish');
+    $woo_product->set_regular_price($first_item['list_price']);
+    $woo_product->set_stock_status('instock');
+    
     // $images = get_additional_images($wps_product);
     // $serialized_images = serialize($images);
     // $woo_product->update_meta_data('_ci_additional_images', $serialized_images);
@@ -332,6 +336,7 @@ function get_additional_images($wps_product)
 function process_images($item)
 {
     if (count($item['images']['data'])) {
+        // show only the first image of each variation
         return build_western_image($item['images']['data'][0]);
     }
     return null;

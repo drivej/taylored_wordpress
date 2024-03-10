@@ -15,6 +15,31 @@ export interface IScheduledEvents {
   data: IScheduledEvent[];
 }
 
+interface IScheduledEventQuery extends Omit<IWordpressAjaxParams, 'action'> {
+  filter: string;
+}
+
+export const useScheduledEventsCount = (query: IScheduledEventQuery = { cmd: 'count', filter: '' }, options: IQueryOptions<IScheduledEvents> = {}) => {
+  const queryClient = useQueryClient();
+  const queryKey = ['wp_ajax_scheduled_events_api', query];
+
+  const data = useQuery({
+    queryKey,
+    queryFn: () => {
+      return fetchWordpressAjax<IScheduledEvents, IScheduledEventQuery>({ action: 'scheduled_events_api', ...query });
+    },
+    placeholderData: keepPreviousData,
+    refetchInterval: 30000,
+    ...options
+  });
+
+  const refresh = () => {
+    queryClient.invalidateQueries({ queryKey });
+  };
+
+  return { ...data, refresh };
+};
+
 export const useScheduledEvents = (filter: string = '', options: IQueryOptions<IScheduledEvents> = {}) => {
   const queryClient = useQueryClient();
 

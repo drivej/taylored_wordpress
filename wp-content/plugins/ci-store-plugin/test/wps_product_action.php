@@ -19,6 +19,11 @@ function wps_product_action($wps_product_id)
 
     $wps_product = get_western_product($wps_product_id);
     $is_valid = isValidProduct($wps_product);
+    $res['items'] = [
+        'total' => count($wps_product['data']['items']['data']),
+        'valid' => count(array_filter($wps_product['data']['items']['data'], 'isValidItem')),
+    ];
+    $res['supplier_price'] = isset($wps_product['data']['items']['data'][0]['list_price']) ? $wps_product['data']['items']['data'][0]['list_price'] : '?';
     $res['is_valid'] = $is_valid;
     $res['woo_product_id'] = 'not found';
     // $res['wps_product'] = $wps_product;
@@ -37,9 +42,9 @@ function wps_product_action($wps_product_id)
         $woo_product = wc_get_product_object('product', $woo_product_id);
         $res['woo_stock_status'] = $woo_product->get_stock_status();
 
+        $res['price'] = $woo_product->get_regular_price();
         $res['import_version'] = $woo_product->get_meta('_ci_import_version');
         $res['current_import_version'] = $WPS_SETTINGS['import_version'];
-
 
         $res['needs_update'] = product_needs_update($woo_product, $wps_product);
 

@@ -12,6 +12,11 @@ export const render = (id: string) => {
   root.render(
     <QueryClientProvider client={queryClient}>
       <StockCheck />
+      {/* <MemoryRouter initialEntries={[window.location.href.replace(window.location.origin, '')]}>
+        <Routes>
+          <Route path='*' element={<StockCheck />} />
+        </Routes>
+      </MemoryRouter> */}
     </QueryClientProvider>
   );
 };

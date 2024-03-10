@@ -1,7 +1,7 @@
 <?php
 
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/debug_hook.php';
-
+/*
 function custom_product_thumbnails()
 {
     debug_hook('woocommerce_product_thumbnails');
@@ -61,7 +61,8 @@ function custom_product_thumbnails()
     }
 }
 // deprecated!!!
-// add_action('woocommerce_product_thumbnails', 'custom_product_thumbnails', 10);
+add_action('woocommerce_product_thumbnails', 'custom_product_thumbnails', 10);
+*/
 
 function custom_single_product_image_thumbnail_html($html, $attachment_id)
 {

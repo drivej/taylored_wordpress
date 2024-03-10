@@ -5,7 +5,6 @@ import { debounce, isEqual } from 'lodash';
 import { useEffect, useState } from 'react';
 import { inBrowser, isBrowser } from './inBrowser';
 
-console.log({debounce})
 export function getLocalStoreObject<T = null>(id: string, defaultValue: T | null = null): T {
   let val: T | null = defaultValue;
   if (isBrowser()) {
@@ -24,7 +23,7 @@ export function getLocalStoreObject<T = null>(id: string, defaultValue: T | null
 export function useLocalStorage<T>(id: string, initialValue: T) {
   const [data, setData] = useState<T>({ ...initialValue, ...getLocalStoreObject(id) });
 
-  function merge(delta: T) {
+  function merge(delta: Partial<T>) {
     const res = { ...data, ...delta };
     if (!isEqual(data, res)) {
       setData(res);

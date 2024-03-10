@@ -3,6 +3,7 @@ export interface IJobWorker<R = unknown> {
   started: string;
   stopped: string;
   completed: string;
+  last_completed: string;
   result: R;
   progress: number;
   is_running: boolean;

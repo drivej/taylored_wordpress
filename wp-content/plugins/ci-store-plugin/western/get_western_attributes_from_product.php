@@ -21,7 +21,7 @@ function get_western_attributes_tally_from_product($product)
     return $attribute_ids;
 }
 
-// TODO: rename to lookup
+// TODO: DELETE rename to lookup
 function get_western_attributes_from_product($product) // wps_product
 {
     global $WESTERN_ATTRIBUTES_CACHE;

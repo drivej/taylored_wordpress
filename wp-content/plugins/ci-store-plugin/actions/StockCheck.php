@@ -108,7 +108,7 @@ class StockCheck extends JobWorker
 
         if ($product_id) {
             $should_delete = wps_should_delete($wps_product);
-            $woo_product = wc_get_product_object('product', $product_id);
+            $woo_product = wc_get_product_object('variable', $product_id);
 
             if ($should_delete) {
                 $woo_product->delete(true);

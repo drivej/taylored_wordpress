@@ -4,6 +4,7 @@ require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/ReactSubpage.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/actions/ProductImporter.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/actions/StockCheck.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/LogFile.php';
+require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/get_crons.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/western/import_western_product.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/admin/ci_import_product.php';
 
@@ -19,6 +20,8 @@ new ReactSubpage('stock_check', 'Stock Check', 'ci-store-plugin-page', 'ci-store
 new ReactSubpage('manage_events', 'Manage Events', 'ci-store-plugin-page', 'ci-store_page_');
 
 new ReactSubpage('manage_products', 'Manage Products', 'ci-store-plugin-page', 'ci-store_page_');
+
+new ReactSubpage('test_admin', 'Test Admin', 'ci-store-plugin-page', 'ci-store_page_');
 
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/get_crons.php';
 
@@ -46,6 +49,11 @@ function handle_ajax_scheduled_events_api()
     $filter = isset($_GET['filter']) ? $_GET['filter'] : '';
 
     switch ($cmd) {
+        // case 'count':
+        //     $crons = get_crons_count($filter);
+        //     wp_send_json(['data' => $crons]);
+        //     break;
+
         case 'info':
             $crons = get_crons($filter);
             wp_send_json(['data' => $crons]);

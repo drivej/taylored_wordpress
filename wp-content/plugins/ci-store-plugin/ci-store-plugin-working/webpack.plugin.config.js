@@ -3,6 +3,14 @@ const path = require('path');
 module.exports = [
   {
     extends: path.resolve(__dirname, './webpack.base.config.js'),
+    entry: './src/test_admin/index.tsx',
+    output: {
+      filename: `ci_test_admin.js`,
+      library: 'ci_test_admin'
+    }
+  },
+  {
+    extends: path.resolve(__dirname, './webpack.base.config.js'),
     entry: './src/manage_products/index.tsx',
     output: {
       filename: `ci_manage_products.js`,

@@ -2002,7 +2002,7 @@ function replaceData(prevData, data, options) {
   }
   return data;
 }
-function keepPreviousData(previousData) {
+function utils_keepPreviousData(previousData) {
   return previousData;
 }
 function addToEnd(items, item, max = 0) {
@@ -3557,7 +3557,7 @@ var react = __webpack_require__(294);
 var QueryClientContext = react.createContext(
   void 0
 );
-var useQueryClient = (queryClient) => {
+var QueryClientProvider_useQueryClient = (queryClient) => {
   const client = react.useContext(QueryClientContext);
   if (queryClient) {
     return queryClient;
@@ -4113,7 +4113,7 @@ var fetchOptimistic = (defaultedOptions, observer, errorResetBoundary) => observ
 
 function useBaseQuery(options, Observer, queryClient) {
   if (false) {}
-  const client = useQueryClient(queryClient);
+  const client = QueryClientProvider_useQueryClient(queryClient);
   const isRestoring = useIsRestoring();
   const errorResetBoundary = useQueryErrorResetBoundary();
   const defaultedOptions = client.defaultQueryOptions(options);
@@ -4164,7 +4164,7 @@ function useBaseQuery(options, Observer, queryClient) {
 // src/useQuery.ts
 
 
-function useQuery(options, queryClient) {
+function useQuery_useQuery(options, queryClient) {
   return useBaseQuery(options, QueryObserver, queryClient);
 }
 
@@ -4184,7 +4184,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 };
 
 // export async function fetchWordpressAjax<T,P = unknown>(params: IWordpressAjaxParams & ICronJobParams = { action: '' }) {
-function fetchWordpressAjax(params) {
+function fetchWordpressAjax_fetchWordpressAjax(params) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         const url = new URL(location.origin);
@@ -4209,13 +4209,24 @@ function fetchWordpressAjax(params) {
 ;// CONCATENATED MODULE: ./src/common/hooks/useScheduledEvents.tsx
 
 
-const useScheduledEvents = (filter = '', options = {}) => {
+const useScheduledEventsCount = (query = { cmd: 'count', filter: '' }, options = {}) => {
     const queryClient = useQueryClient();
-    const data = useQuery(Object.assign({ queryKey: ['wp_ajax_scheduled_events_api', filter], queryFn: () => {
-            return fetchWordpressAjax({ action: 'scheduled_events_api', filter });
+    const queryKey = ['wp_ajax_scheduled_events_api', query];
+    const data = useQuery(Object.assign({ queryKey, queryFn: () => {
+            return fetchWordpressAjax(Object.assign({ action: 'scheduled_events_api' }, query));
         }, placeholderData: keepPreviousData, refetchInterval: 30000 }, options));
+    const refresh = () => {
+        queryClient.invalidateQueries({ queryKey });
+    };
+    return Object.assign(Object.assign({}, data), { refresh });
+};
+const useScheduledEvents = (filter = '', options = {}) => {
+    const queryClient = QueryClientProvider_useQueryClient();
+    const data = useQuery_useQuery(Object.assign({ queryKey: ['wp_ajax_scheduled_events_api', filter], queryFn: () => {
+            return fetchWordpressAjax_fetchWordpressAjax({ action: 'scheduled_events_api', filter });
+        }, placeholderData: utils_keepPreviousData, refetchInterval: 30000 }, options));
     const schedule = (event) => {
-        fetchWordpressAjax({
+        fetchWordpressAjax_fetchWordpressAjax({
             action: 'scheduled_events_api',
             cmd: 'schedule',
             hook_name: event.name,
@@ -4225,7 +4236,7 @@ const useScheduledEvents = (filter = '', options = {}) => {
         });
     };
     const unschedule = (event) => {
-        fetchWordpressAjax({
+        fetchWordpressAjax_fetchWordpressAjax({
             action: 'scheduled_events_api',
             cmd: 'unschedule',
             hook_name: event.name,
@@ -4237,7 +4248,7 @@ const useScheduledEvents = (filter = '', options = {}) => {
         });
     };
     const unscheduleAll = (hook_name) => {
-        fetchWordpressAjax({
+        fetchWordpressAjax_fetchWordpressAjax({
             action: 'scheduled_events_api',
             cmd: 'unschedule',
             hook_name
@@ -4246,13 +4257,13 @@ const useScheduledEvents = (filter = '', options = {}) => {
         });
     };
     const precleanEvents = () => {
-        return fetchWordpressAjax({
+        return fetchWordpressAjax_fetchWordpressAjax({
             action: 'scheduled_events_api',
             cmd: 'preclean'
         });
     };
     const cleanEvents = () => {
-        return fetchWordpressAjax({
+        return fetchWordpressAjax_fetchWordpressAjax({
             action: 'scheduled_events_api',
             cmd: 'clean'
         });

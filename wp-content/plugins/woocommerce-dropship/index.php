@@ -14,7 +14,7 @@
  * 
  */
  
-if(session_status() !== PHP_SESSION_ACTIVE) session_start();
+// if(session_status() !== PHP_SESSION_ACTIVE) session_start(); // TODO: do we need this?
  
 require_once "vendor/autoload.php";
 

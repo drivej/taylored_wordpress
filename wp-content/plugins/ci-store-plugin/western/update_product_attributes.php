@@ -4,6 +4,8 @@ include_once __DIR__ . './../utils/print_utils.php';
 include_once __DIR__ . '/get_western_product.php';
 include_once __DIR__ . './../utils/Report.php';
 require_once __DIR__ . '/wps_settings.php';
+require_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/index.php';
+require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
 
 function get_attribute_key_by_name($attributes, $attr_name)
 {
@@ -75,30 +77,81 @@ function attribute_options_needs_update($attributes, $attr)
     return count($deletes) || count($inserts);
 }
 
-function get_wps_attributes($wps_product)
-{
-    $wps_attributes = $wps_product['data']['attributekeys']['data'];
+// function get_wps_attributes($supplier_product)
+// {
+//     /*
+//     extract an array of valid attributes
+//     [
+//     {
+//     "id": 15,
+//     "name": "Color",
+//     "slug": "color",
+//     "options": [
+//     "Black/Blue",
+//     "Black/Grey",...
+//     ]
+//     },
+//     {
+//     ...
+//     }
+//     ]
+//      */
+//     $attr_keys = $supplier_product['data']['attributekeys']['data'];
+//     $items = array_filter($supplier_product['data']['items']['data'], 'isDeadItem');
+//     $items_count = count($items);
 
-    foreach ($wps_product['data']['items']['data'] as $item) {
-        foreach ($item['attributevalues']['data'] as $attr) {
-            $attr_id = $attr['attributekey_id'];
-            // $attr_name = $wps_attributes[$attr_id];
-            if (!isset($wps_attributes[$attr_id]['options'])) {
-                $wps_attributes[$attr_id]['options'] = [];
-            }
-            if (!in_array($attr['name'], $wps_attributes[$attr_id]['options'])) {
-                $wps_attributes[$attr_id]['options'][] = $attr['name'];
-            }
-        }
-    }
+//     foreach ($items as $item) {
+//         foreach ($item['attributevalues']['data'] as $item_attr) {
+//             $attr_id = $item_attr['attributekey_id'];
+//             $attr_keys[$attr_id]['options'][$item_attr['name']]++;
+//         }
+//     }
 
-    $allow_attributes = array_reduce($wps_attributes, function ($sum, $attr) {
-        $sum[] = $attr;
-        return $sum;
-    }, []);
+//     foreach ($attr_keys as $i => $attr_key) {
+//         unset($attr_keys[$i]['created_at']);
+//         unset($attr_keys[$i]['updated_at']);
+//         $options = [];
+//         foreach ($attr_key['options'] as $option_name => $option_count) {
+//             if ($option_count < $items_count) {
+//                 $options[] = $option_name;
+//             }
+//         }
+//         $attr_keys[$i]['options'] = $options;
+//     }
 
-    return $allow_attributes;
-}
+//     foreach ($attr_keys as $i => $attr_key) {
+//         if (!count($attr_key['options'])) {
+//             unset($attr_keys[$i]);
+//         }
+//     }
+
+//     return array_values($attr_keys);
+// }
+
+// function get_wps_attributes($wps_product)
+// {
+//     $wps_attributes = $wps_product['data']['attributekeys']['data'];
+
+//     foreach ($wps_product['data']['items']['data'] as $item) {
+//         foreach ($item['attributevalues']['data'] as $attr) {
+//             $attr_id = $attr['attributekey_id'];
+//             // $attr_name = $wps_attributes[$attr_id];
+//             if (!isset($wps_attributes[$attr_id]['options'])) {
+//                 $wps_attributes[$attr_id]['options'] = [];
+//             }
+//             if (!in_array($attr['name'], $wps_attributes[$attr_id]['options'])) {
+//                 $wps_attributes[$attr_id]['options'][] = $attr['name'];
+//             }
+//         }
+//     }
+
+//     $allow_attributes = array_reduce($wps_attributes, function ($sum, $attr) {
+//         $sum[] = $attr;
+//         return $sum;
+//     }, []);
+
+//     return $allow_attributes;
+// }
 
 /**
  *
@@ -108,23 +161,39 @@ function get_wps_attributes($wps_product)
  */
 function update_product_attributes($woo_product, $wps_product, $report)
 {
-    global $WPS_SETTINGS;
-    $report->addLog('update_product_attributes()');
+    $supplier_key = 'wps';
+    $supplier = WooTools::get_supplier($supplier_key);
+    $supplier_product = $wps_product; //$supplier->get_product($product_id);
+    $supplier_attributes = $supplier->extract_attributes($supplier_product);
 
-    $attributes = $woo_product->get_attributes();
-    $new_attributes = get_wps_attributes($wps_product);
-    $new_attributes_names = array_map(fn($a) => $a['name'], $new_attributes);
-    $current_attribute_names = array_map(fn($a) => $a->get_name(), array_values($attributes));
-    $deletes = array_values(array_diff($current_attribute_names, $new_attributes_names));
-    $attributes = delete_attributes($attributes, $deletes, $report);
-    $woo_product->update_meta_data('_ci_additional_images', serialize(get_additional_images($wps_product)));
-    $woo_product->update_meta_data('_supplier_class', $WPS_SETTINGS['supplierClass']);
+    // this is a dummy attribute so that variable products with a single variation can be selected
+    $supplier_attributes['__required_attr'] = [
+        'name' => '__required_attr',
+        'options' => ['1'],
+        'slug' => '__required_attr',
+    ];
+    // $woo_product = $this->get_woo_product_from_supplier_product($supplier_key, $product_id);
+    WooTools::sync_attributes($woo_product, $supplier_attributes, $report);
 
-    foreach ($new_attributes as $new_attr) {
-        $attributes = upsert_attribute($attributes, $new_attr, $report);
-    }
+    // global $WPS_SETTINGS;
+    // global $SUPPLIERS;
+    // $supplier = $SUPPLIERS['wps'];
+    // $report->addLog('update_product_attributes()');
 
-    if ($report->getData('attribute_changes', false)) {
-        $woo_product->set_attributes($attributes);
-    }
+    // $attributes = $woo_product->get_attributes();
+    // $new_attributes = $supplier->extract_attributes($wps_product); // get_wps_attributes($wps_product);
+    // $new_attributes_names = array_map(fn($a) => $a['name'], $new_attributes);
+    // $current_attribute_names = array_map(fn($a) => $a->get_name(), array_values($attributes));
+    // $deletes = array_values(array_diff($current_attribute_names, $new_attributes_names));
+    // $attributes = delete_attributes($attributes, $deletes, $report);
+    // $woo_product->update_meta_data('_ci_additional_images', serialize(get_additional_images($wps_product)));
+    // $woo_product->update_meta_data('_supplier_class', $supplier->supplierClass);
+
+    // foreach ($new_attributes as $new_attr) {
+    //     $attributes = upsert_attribute($attributes, $new_attr, $report);
+    // }
+
+    // if ($report->getData('attribute_changes', false)) {
+    //     $woo_product->set_attributes($attributes);
+    // }
 }

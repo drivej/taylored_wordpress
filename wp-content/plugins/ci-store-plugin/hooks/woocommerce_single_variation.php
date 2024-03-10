@@ -9,7 +9,8 @@ function custom_single_variation($output)
     debug_filter('woocommerce_single_variation');
     // Get the variation image URL from meta data
 
-    print_r(['output' => $output, 'type' => gettype($output)]);
+    // print_r(['output' => $output, 'type' => gettype($output)]);
+    
     if (empty($output)) {
         return;
     }

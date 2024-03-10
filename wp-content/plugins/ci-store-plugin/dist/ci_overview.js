@@ -4379,6 +4379,17 @@ const useDebugLog = () => {
 ;// CONCATENATED MODULE: ./src/common/hooks/useScheduledEvents.tsx
 
 
+const useScheduledEventsCount = (query = { cmd: 'count', filter: '' }, options = {}) => {
+    const queryClient = useQueryClient();
+    const queryKey = ['wp_ajax_scheduled_events_api', query];
+    const data = useQuery(Object.assign({ queryKey, queryFn: () => {
+            return fetchWordpressAjax(Object.assign({ action: 'scheduled_events_api' }, query));
+        }, placeholderData: keepPreviousData, refetchInterval: 30000 }, options));
+    const refresh = () => {
+        queryClient.invalidateQueries({ queryKey });
+    };
+    return Object.assign(Object.assign({}, data), { refresh });
+};
 const useScheduledEvents_useScheduledEvents = (filter = '', options = {}) => {
     const queryClient = useQueryClient();
     const data = useQuery(Object.assign({ queryKey: ['wp_ajax_scheduled_events_api', filter], queryFn: () => {

@@ -23,6 +23,10 @@ include_once CI_STORE_PLUGIN . 'hooks/index.php';
 include_once CI_STORE_PLUGIN . 'admin/index.php';
 include_once CI_STORE_PLUGIN . 'utils/DebugLogAPI.php';
 include_once CI_STORE_PLUGIN . 'utils/admin_ajax.php';
+include_once CI_STORE_PLUGIN . 'utils/AjaxManager.php';
+include_once CI_STORE_PLUGIN . 'ajax/index.php';
+
+$API_Manager = new AjaxManager();
 
 // build debug API for wp-content/plugins/ci-store-plugin/ci-store-plugin-working/src/common/debug_log/DebugLog.tsx
 new DebugLogAPI();

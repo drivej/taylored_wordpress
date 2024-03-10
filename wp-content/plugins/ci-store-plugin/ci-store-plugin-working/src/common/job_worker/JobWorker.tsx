@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
 import { useEffect } from 'react';
+import { useDebug } from '../../utils/useDebug';
 import { useStopWatch } from '../../utils/useStopWatch';
 import { IWordpressAjaxParams } from '../../views/jobs/Jobs';
 import { useJobData } from '../hooks/useJob';
@@ -14,6 +15,7 @@ export function JobWorker<T>({ jobKey, args }: { jobKey: string; args?: T }) {
   const queryClient = useQueryClient();
   // const jobData = useJobStatus(jobKey);
   const jobData = useJobData(jobKey);
+  const debug = useDebug();
 
   const mutation = useMutation({
     mutationFn: (options: Partial<IWordpressAjaxParams>) => fetchWordpressAjax<string[]>({ action, ...(args ?? {}), ...options }),
@@ -85,7 +87,6 @@ export function JobWorker<T>({ jobKey, args }: { jobKey: string; args?: T }) {
 
   return (
     <div className='d-flex flex-column gap-3'>
-
       {/* <pre style={{ fontSize: 12 }}>{JSON.stringify(jobInfo.data, null, 2)}</pre> */}
       {isStalled ? <StalledMessage jobData={jobData.data} /> : isComplete ? <CompletedMessage jobData={jobData.data} /> : isRunning ? <RunningMessage jobData={jobData.data} /> : isStopping ? <StoppingMessage /> : wasStopped ? <StoppedMessage jobData={jobData.data} /> : ''}
       <div className='d-flex gap-3'>
@@ -124,7 +125,7 @@ export function JobWorker<T>({ jobKey, args }: { jobKey: string; args?: T }) {
 
       <RefetchTimer query={jobData} />
 
-      <pre style={{ fontSize: 12 }}>{JSON.stringify(jobData.data, null, 2)}</pre>
+      {debug ? <pre style={{ fontSize: 12 }}>{JSON.stringify(jobData.data, null, 2)}</pre> : null}
     </div>
   );
 }

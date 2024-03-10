@@ -194,6 +194,7 @@ class JobWorker
         $data['is_stopping'] = false;
         $data['is_stalled'] = false;
         $data['completed'] = gmdate("c");
+        $data['last_completed'] = gmdate("c");
         $this->put_data($data);
         return $data;
     }

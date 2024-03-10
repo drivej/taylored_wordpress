@@ -29,6 +29,11 @@ function custom_before_single_product()
     // display main image - this sucks right now
     echo '<div class="woocommerce-product-gallery__image"><img src="' . esc_url($src) . '" alt="' . esc_attr(get_the_title()) . '" class="wp-post-image" /></div>';
 
+    if (is_product()) {
+        // this helps variable products with a single variation act like simple products
+        wp_enqueue_script('custom_before_single_product_script', plugin_dir_url(dirname(__FILE__)) . 'js/custom_before_single_product_script.js', array('jquery'), null, true);
+        wp_enqueue_style('custom_before_single_product_style', plugin_dir_url(dirname(__FILE__)) . 'css/custom_before_single_product_style.css');
+    }
     // if ($additional_images) {
     //     // print_r(['test'=>$additional_images]);
     //     // Replace the default image with the first additional image

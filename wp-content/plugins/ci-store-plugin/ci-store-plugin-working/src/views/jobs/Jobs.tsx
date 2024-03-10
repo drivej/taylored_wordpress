@@ -108,7 +108,7 @@ export const Jobs = () => {
   const queryClient = useQueryClient();
 
   const updateJobs = () => {
-    queryClient.invalidateQueries({queryKey:['jobs']});
+    queryClient.invalidateQueries({ queryKey: ['jobs'] });
   };
 
   const mutationJob = useMutation({

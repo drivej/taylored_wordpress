@@ -2002,7 +2002,7 @@ function replaceData(prevData, data, options) {
   }
   return data;
 }
-function keepPreviousData(previousData) {
+function utils_keepPreviousData(previousData) {
   return previousData;
 }
 function addToEnd(items, item, max = 0) {
@@ -3557,7 +3557,7 @@ var react = __webpack_require__(294);
 var QueryClientContext = react.createContext(
   void 0
 );
-var useQueryClient = (queryClient) => {
+var QueryClientProvider_useQueryClient = (queryClient) => {
   const client = react.useContext(QueryClientContext);
   if (queryClient) {
     return queryClient;
@@ -4113,7 +4113,7 @@ var fetchOptimistic = (defaultedOptions, observer, errorResetBoundary) => observ
 
 function useBaseQuery(options, Observer, queryClient) {
   if (false) {}
-  const client = useQueryClient(queryClient);
+  const client = QueryClientProvider_useQueryClient(queryClient);
   const isRestoring = useIsRestoring();
   const errorResetBoundary = useQueryErrorResetBoundary();
   const defaultedOptions = client.defaultQueryOptions(options);
@@ -4164,7 +4164,7 @@ function useBaseQuery(options, Observer, queryClient) {
 // src/useQuery.ts
 
 
-function useQuery(options, queryClient) {
+function useQuery_useQuery(options, queryClient) {
   return useBaseQuery(options, QueryObserver, queryClient);
 }
 
@@ -4279,7 +4279,7 @@ var MutationObserver = class extends Subscribable {
 
 
 function useMutation(options, queryClient) {
-  const client = useQueryClient(queryClient);
+  const client = QueryClientProvider_useQueryClient(queryClient);
   const [observer] = react.useState(
     () => new MutationObserver(
       client,
@@ -4327,7 +4327,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 };
 
 // export async function fetchWordpressAjax<T,P = unknown>(params: IWordpressAjaxParams & ICronJobParams = { action: '' }) {
-function fetchWordpressAjax(params) {
+function fetchWordpressAjax_fetchWordpressAjax(params) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         const url = new URL(location.origin);
@@ -4353,18 +4353,18 @@ function fetchWordpressAjax(params) {
 
 
 const useDebugLog = () => {
-    const queryClient = useQueryClient();
+    const queryClient = QueryClientProvider_useQueryClient();
     const queryKey = ['debug_log_api'];
-    const query = useQuery({
+    const query = useQuery_useQuery({
         queryKey,
         queryFn: () => {
-            return fetchWordpressAjax({ action: `debug_log_api`, cmd: 'get_data' });
+            return fetchWordpressAjax_fetchWordpressAjax({ action: `debug_log_api`, cmd: 'get_data' });
         },
-        placeholderData: keepPreviousData,
+        placeholderData: utils_keepPreviousData,
         refetchInterval: 60000
     });
     const mutation = useMutation({
-        mutationFn: (options) => fetchWordpressAjax(Object.assign({ action: 'debug_log_api' }, options)),
+        mutationFn: (options) => fetchWordpressAjax_fetchWordpressAjax(Object.assign({ action: 'debug_log_api' }, options)),
         onSuccess: (data) => queryClient.setQueryData(queryKey, data)
     });
     const empty = () => {
@@ -4379,13 +4379,24 @@ const useDebugLog = () => {
 ;// CONCATENATED MODULE: ./src/common/hooks/useScheduledEvents.tsx
 
 
-const useScheduledEvents_useScheduledEvents = (filter = '', options = {}) => {
+const useScheduledEventsCount = (query = { cmd: 'count', filter: '' }, options = {}) => {
     const queryClient = useQueryClient();
-    const data = useQuery(Object.assign({ queryKey: ['wp_ajax_scheduled_events_api', filter], queryFn: () => {
-            return fetchWordpressAjax({ action: 'scheduled_events_api', filter });
+    const queryKey = ['wp_ajax_scheduled_events_api', query];
+    const data = useQuery(Object.assign({ queryKey, queryFn: () => {
+            return fetchWordpressAjax(Object.assign({ action: 'scheduled_events_api' }, query));
         }, placeholderData: keepPreviousData, refetchInterval: 30000 }, options));
+    const refresh = () => {
+        queryClient.invalidateQueries({ queryKey });
+    };
+    return Object.assign(Object.assign({}, data), { refresh });
+};
+const useScheduledEvents_useScheduledEvents = (filter = '', options = {}) => {
+    const queryClient = QueryClientProvider_useQueryClient();
+    const data = useQuery_useQuery(Object.assign({ queryKey: ['wp_ajax_scheduled_events_api', filter], queryFn: () => {
+            return fetchWordpressAjax_fetchWordpressAjax({ action: 'scheduled_events_api', filter });
+        }, placeholderData: utils_keepPreviousData, refetchInterval: 30000 }, options));
     const schedule = (event) => {
-        fetchWordpressAjax({
+        fetchWordpressAjax_fetchWordpressAjax({
             action: 'scheduled_events_api',
             cmd: 'schedule',
             hook_name: event.name,
@@ -4395,7 +4406,7 @@ const useScheduledEvents_useScheduledEvents = (filter = '', options = {}) => {
         });
     };
     const unschedule = (event) => {
-        fetchWordpressAjax({
+        fetchWordpressAjax_fetchWordpressAjax({
             action: 'scheduled_events_api',
             cmd: 'unschedule',
             hook_name: event.name,
@@ -4407,7 +4418,7 @@ const useScheduledEvents_useScheduledEvents = (filter = '', options = {}) => {
         });
     };
     const unscheduleAll = (hook_name) => {
-        fetchWordpressAjax({
+        fetchWordpressAjax_fetchWordpressAjax({
             action: 'scheduled_events_api',
             cmd: 'unschedule',
             hook_name
@@ -4416,13 +4427,13 @@ const useScheduledEvents_useScheduledEvents = (filter = '', options = {}) => {
         });
     };
     const precleanEvents = () => {
-        return fetchWordpressAjax({
+        return fetchWordpressAjax_fetchWordpressAjax({
             action: 'scheduled_events_api',
             cmd: 'preclean'
         });
     };
     const cleanEvents = () => {
-        return fetchWordpressAjax({
+        return fetchWordpressAjax_fetchWordpressAjax({
             action: 'scheduled_events_api',
             cmd: 'clean'
         });
@@ -4645,7 +4656,7 @@ var useDataFile_awaiter = (undefined && undefined.__awaiter) || function (thisAr
 };
 
 const useDataFile = (url, options = {}) => {
-    return useQuery(Object.assign({ queryKey: [url], queryFn: () => useDataFile_awaiter(void 0, void 0, void 0, function* () {
+    return useQuery_useQuery(Object.assign({ queryKey: [url], queryFn: () => useDataFile_awaiter(void 0, void 0, void 0, function* () {
             const u = new URL(url, window.location.href);
             u.searchParams.set('nocache', Date.now().toString());
             const r = yield fetch(u.href);
@@ -4658,9 +4669,9 @@ const useDataFile = (url, options = {}) => {
 
 
 const useJob = (jobKey, cmd = `status`, options = {}) => {
-    return useQuery(Object.assign({ queryKey: [jobKey, cmd], queryFn: () => {
-            return fetchWordpressAjax({ action: `${jobKey}_api`, cmd });
-        }, placeholderData: keepPreviousData }, options));
+    return useQuery_useQuery(Object.assign({ queryKey: [jobKey, cmd], queryFn: () => {
+            return fetchWordpressAjax_fetchWordpressAjax({ action: `${jobKey}_api`, cmd });
+        }, placeholderData: utils_keepPreviousData }, options));
 };
 const useJobStatus = (jobKey) => useJob(jobKey, 'status', {
     refetchInterval: 5000 //
@@ -4689,9 +4700,9 @@ const useJobLog = (jobKey) => {
     const queryKey = [jobKey, 'log'];
     const info = useJob(jobKey, 'info');
     const data = useDataFile((_a = info === null || info === void 0 ? void 0 : info.data) === null || _a === void 0 ? void 0 : _a.log_url, { enabled: info.isSuccess, refetchInterval: 5000, gcTime: 0 });
-    const queryClient = useQueryClient();
+    const queryClient = QueryClientProvider_useQueryClient();
     const mutation = useMutation({
-        mutationFn: (options) => fetchWordpressAjax(Object.assign({ action }, options)),
+        mutationFn: (options) => fetchWordpressAjax_fetchWordpressAjax(Object.assign({ action }, options)),
         onSuccess: (data) => queryClient.setQueryData(queryKey, data)
     });
     const empty = () => {
@@ -4732,6 +4743,12 @@ const JobLog = ({ jobKey }) => {
                     react.createElement("td", { style: { width: '6ch' } }, log.data.length - i),
                     react.createElement("td", { style: { width: '24ch' }, className: 'text-nowrap' }, line.timestamp),
                     react.createElement("td", null, JSON.stringify(Object.assign(Object.assign({}, line), { timestamp: undefined }), null, 2)))))) !== null && _c !== void 0 ? _c : null)))) : null));
+};
+
+;// CONCATENATED MODULE: ./src/utils/useDebug.ts
+
+const useDebug = () => {
+    return (0,react.useMemo)(() => new URLSearchParams(location.search).get('debug') === '1', []);
 };
 
 ;// CONCATENATED MODULE: ./src/utils/useStopWatch.tsx
@@ -4818,14 +4835,16 @@ function formatTimeAgo(seconds) {
 
 
 
+
 function JobWorker({ jobKey, args }) {
     var _a, _b, _c, _d, _e;
     const action = `${jobKey}_api`;
-    const queryClient = useQueryClient();
+    const queryClient = QueryClientProvider_useQueryClient();
     // const jobData = useJobStatus(jobKey);
     const jobData = useJobData(jobKey);
+    const debug = useDebug();
     const mutation = useMutation({
-        mutationFn: (options) => fetchWordpressAjax(Object.assign(Object.assign({ action }, (args !== null && args !== void 0 ? args : {})), options)),
+        mutationFn: (options) => fetchWordpressAjax_fetchWordpressAjax(Object.assign(Object.assign({ action }, (args !== null && args !== void 0 ? args : {})), options)),
         onSuccess: (data) => queryClient.setQueryData([jobKey], data)
     });
     const refresh = () => {
@@ -4891,7 +4910,7 @@ function JobWorker({ jobKey, args }) {
             react.createElement("div", { className: 'progress', role: 'progressbar', style: { width: percentComplete + '%' } },
                 react.createElement("div", { className: `progress-bar ${isRunning ? 'progress-bar-striped progress-bar-animated' : ''} bg-info` }))),
         react.createElement(RefetchTimer, { query: jobData }),
-        react.createElement("pre", { style: { fontSize: 12 } }, JSON.stringify(jobData.data, null, 2))));
+        debug ? react.createElement("pre", { style: { fontSize: 12 } }, JSON.stringify(jobData.data, null, 2)) : null));
 }
 const StalledMessage = ({ jobData }) => {
     const started = new Date(Date.parse(jobData.started)).getTime();
@@ -4948,6 +4967,7 @@ const StoppedMessage = ({ jobData }) => {
 
 
 
+
 const StockCheck = () => {
     const [since, setSince] = (0,react.useState)('');
     const jobKey = 'stock_check';
@@ -4955,15 +4975,32 @@ const StockCheck = () => {
     // const queryClient = useQueryClient();
     // const jobData = useJobStatus(jobKey);
     const jobData = useJobData(jobKey);
+    const debug = useDebug();
     (0,react.useEffect)(() => {
         var _a, _b, _c, _d, _e, _f;
-        if ((_a = jobData.data) === null || _a === void 0 ? void 0 : _a.completed) {
-            setSince((_b = jobData.data) === null || _b === void 0 ? void 0 : _b.completed);
+        if (jobData.isSuccess) {
+            if (!jobData.data.is_running) {
+                if ((_b = (_a = jobData.data) === null || _a === void 0 ? void 0 : _a.result) === null || _b === void 0 ? void 0 : _b.since) {
+                    setSince((_d = (_c = jobData.data) === null || _c === void 0 ? void 0 : _c.result) === null || _d === void 0 ? void 0 : _d.since); // already in the input format
+                }
+                else if ((_e = jobData.data) === null || _e === void 0 ? void 0 : _e.completed) {
+                    const dateObj = new Date(Date.parse(jobData.data.completed));
+                    const dateStr = [dateObj.getFullYear(), `${dateObj.getMonth()}`.padStart(2, '0'), `${dateObj.getDate()}`.padStart(2, '0')].join('-');
+                    setSince(dateStr);
+                }
+            }
+            else {
+                if ((_f = jobData.data) === null || _f === void 0 ? void 0 : _f.last_completed) {
+                    const dateObj = new Date(Date.parse(jobData.data.last_completed));
+                    const dateStr = [dateObj.getFullYear(), `${dateObj.getMonth()}`.padStart(2, '0'), `${dateObj.getDate()}`.padStart(2, '0')].join('-');
+                    setSince(dateStr);
+                }
+            }
         }
-        else if ((_d = (_c = jobData.data) === null || _c === void 0 ? void 0 : _c.result) === null || _d === void 0 ? void 0 : _d.since) {
-            setSince((_f = (_e = jobData.data) === null || _e === void 0 ? void 0 : _e.result) === null || _f === void 0 ? void 0 : _f.since);
-        }
-    }, [jobData.data]);
+    }, [jobData.isSuccess, jobData.data]);
+    (0,react.useEffect)(() => {
+        console.log('since', since);
+    }, [since]);
     // jobworker
     // ci_
     return (react.createElement("div", { className: 'p-3 d-flex flex-column gap-3' },
@@ -4972,10 +5009,12 @@ const StockCheck = () => {
             react.createElement("div", { className: 'input-group' },
                 react.createElement("span", { className: 'input-group-text' }, "Since"),
                 react.createElement("input", { className: 'form-control', type: 'date', value: since, onChange: (e) => setSince(e.currentTarget.value) }))),
+        react.createElement("pre", null, JSON.stringify(jobData.data, null, 2)),
         react.createElement(JobWorker, { jobKey: jobKey, args: { since } }),
-        react.createElement(ScheduledEventsTable, { filter: 'ci_import_product' }),
-        react.createElement(JobLog, { jobKey: jobKey }),
-        react.createElement(DebugLog, null)));
+        debug ? (react.createElement(react.Fragment, null,
+            react.createElement(ScheduledEventsTable, { filter: 'ci_import_product' }),
+            react.createElement(JobLog, { jobKey: jobKey }),
+            react.createElement(DebugLog, null))) : null));
 };
 
 ;// CONCATENATED MODULE: ./src/stock_check/index.tsx

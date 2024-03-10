@@ -21417,7 +21417,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 };
 
 // export async function fetchWordpressAjax<T,P = unknown>(params: IWordpressAjaxParams & ICronJobParams = { action: '' }) {
-function fetchWordpressAjax_fetchWordpressAjax(params) {
+function fetchWordpressAjax(params) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         const url = new URL(location.origin);
@@ -21449,16 +21449,10 @@ var IWooProductStatus;
     IWooProductStatus["DRAFT"] = "draft";
     IWooProductStatus["PENDING"] = "pending";
 })(IWooProductStatus || (IWooProductStatus = {}));
-const useAdminAPI = (cmd = '', options = {}) => {
+const useAdminAPI = (cmd = '', options = {}, queryProps = {}) => {
     const action = 'admin_api';
     const query = Object.assign({ action, cmd }, options);
-    return useQuery({
-        queryKey: [action, cmd],
-        queryFn: () => {
-            return fetchWordpressAjax(query);
-        },
-        placeholderData: keepPreviousData
-    });
+    return useQuery_useQuery(Object.assign({ queryKey: [action, cmd, ...Object.values(options)], queryFn: () => fetchWordpressAjax(query), placeholderData: utils_keepPreviousData }, queryProps));
 };
 const useWooProducts = ({ limit, page, status } = { limit: 10, page: 1, status: IWooProductStatus.PUBLISH }) => {
     //page: number = 1, per_page: number = 10, status: IWooProductStatus = IWooProductStatus.PUBLISH) => {
@@ -21471,41 +21465,24 @@ const useWooProducts = ({ limit, page, status } = { limit: 10, page: 1, status: 
     });
 };
 const useWooStats = () => {
-    return useQuery({
-        queryKey: ['admin_api', 'stats'],
-        queryFn: () => ProductAdmin.getStats()
-    });
+    return useAdminAPI('stats');
+    // return useQuery({
+    //   queryKey: ['admin_api', 'stats'],
+    //   queryFn: () => fetchWordpressAjax<IAdminResponse<IWooStats>>({ action: 'admin_api', cmd: 'stats' })
+    // });
 };
 const useSuppliers = () => {
     return useQuery_useQuery({
         queryKey: ['admin_api', 'suppliers'],
-        queryFn: () => ProductAdmin.getSuppliers()
+        queryFn: () => fetchWordpressAjax({ action: 'admin_api', cmd: 'suppliers' })
     });
 };
 class ProductAdmin {
     static deleteProduct(product_id) {
-        return fetchWordpressAjax_fetchWordpressAjax({ action: 'admin_api', cmd: 'delete_product', product_id });
-    }
-    static importProduct(props) {
-        return fetchWordpressAjax_fetchWordpressAjax(Object.assign({ action: 'admin_api', cmd: 'import_product' }, props));
-    }
-    static getProductReport({ sku }) {
-        return fetchWordpressAjax_fetchWordpressAjax({ action: 'admin_api', cmd: 'product_report', sku });
+        return fetchWordpressAjax({ action: 'admin_api', cmd: 'delete_product', product_id });
     }
     static getProducts({ limit, page, status } = { limit: 10, page: 1, status: IWooProductStatus.PUBLISH }) {
-        return fetchWordpressAjax_fetchWordpressAjax({ action: 'admin_api', cmd: 'products', page, limit, status });
-    }
-    static getWooProduct(props) {
-        return fetchWordpressAjax_fetchWordpressAjax(Object.assign({ action: 'admin_api', cmd: 'get_woo_product' }, props));
-    }
-    static getSupplierProduct(props) {
-        return fetchWordpressAjax_fetchWordpressAjax(Object.assign({ action: 'admin_api', cmd: 'get_supplier_product' }, props));
-    }
-    static getSuppliers() {
-        return fetchWordpressAjax_fetchWordpressAjax({ action: 'admin_api', cmd: 'suppliers' });
-    }
-    static getStats() {
-        return fetchWordpressAjax_fetchWordpressAjax({ action: 'admin_api', cmd: 'stats' });
+        return fetchWordpressAjax({ action: 'admin_api', cmd: 'products', page, limit, status });
     }
 }
 
@@ -21553,7 +21530,6 @@ const isBrowser = () => typeof window != 'undefined';
 
 
 
-console.log({ debounce: lodash.debounce });
 function getLocalStoreObject(id, defaultValue = null) {
     let val = defaultValue;
     if (isBrowser()) {
@@ -21619,31 +21595,36 @@ const ManageProducts = () => {
 };
 const ProductReportForm = () => {
     const store = useLocalStorage('product_report', { sku: '' });
-    const [sku, setSku] = (0,react.useState)(store.data.sku);
-    const [result, setResult] = (0,react.useState)({});
-    const onChange = (e) => {
-        setSku(e.currentTarget.value);
-    };
+    const [_sku, _setSku] = (0,react.useState)(store.data.sku);
+    const [sku, setSku] = (0,react.useState)(null);
+    // const [result, setResult] = useState({});
+    const report = useAdminAPI('product_report', { sku }, { enabled: !!sku });
     (0,react.useEffect)(() => {
         store.merge({ sku });
     }, [sku]);
+    const onChange = (e) => {
+        _setSku(e.currentTarget.value);
+    };
     const onClick = () => ManageProducts_awaiter(void 0, void 0, void 0, function* () {
-        let report = yield ProductAdmin.getProductReport({ sku });
-        setResult(report);
+        // let report = await ProductAdmin.getProductReport({ sku });
+        // setResult(report);
+        setSku(_sku);
     });
     return (react.createElement("div", null,
         react.createElement("div", { className: 'input-group' },
             react.createElement("input", { className: 'form-control', type: 'text', value: sku, onChange: onChange }),
             react.createElement("button", { className: 'btn btn-primary', onClick: onClick }, "Report")),
-        react.createElement("pre", null, JSON.stringify(result, null, 2))));
+        react.createElement("pre", null, JSON.stringify(report.data, null, 2))));
 };
 const ImportProductForm = () => {
     var _a, _b;
-    const store = useLocalStorage('product_data', { supplier_key: '', product_id: '' });
+    const queryClient = useQueryClient();
+    const store = useLocalStorage('product_data', { supplier_key: '', product_id: '', cmd: '' });
     const [product_id, setProductId] = (0,react.useState)(store.data.product_id);
-    const [result, setResult] = (0,react.useState)({});
     const suppliers = useSuppliers();
     const [supplier_key, setSupplierKey] = (0,react.useState)(store.data.supplier_key);
+    const [cmd, setCmd] = (0,react.useState)('');
+    const adminResult = useAdminAPI(cmd, { supplier_key, product_id }, { placeholderData: undefined });
     (0,react.useEffect)(() => {
         if (suppliers.isSuccess && !supplier_key) {
             setSupplierKey(suppliers.data.data[0].key);
@@ -21651,37 +21632,41 @@ const ImportProductForm = () => {
     }, [suppliers.isSuccess]);
     (0,react.useEffect)(() => {
         store.merge({ product_id, supplier_key });
-    }, [product_id, supplier_key]);
+    }, [product_id, supplier_key, cmd]);
     const onChange = (e) => {
         setProductId(e.currentTarget.value);
     };
-    const onClickImport = () => ManageProducts_awaiter(void 0, void 0, void 0, function* () {
-        let product = yield ProductAdmin.importProduct({ supplier_key: 'wps', product_id });
-        setResult(product);
-    });
-    const onClickData = () => ManageProducts_awaiter(void 0, void 0, void 0, function* () {
-        let product = yield ProductAdmin.getSupplierProduct({ supplier_key: 'wps', product_id });
-        setResult(product);
-    });
     const onChangeSupplier = (e) => {
         setSupplierKey(e.currentTarget.value);
     };
-    const onClickWooProduct = () => ManageProducts_awaiter(void 0, void 0, void 0, function* () {
-        let product = yield ProductAdmin.getWooProduct({ supplier_key: 'wps', product_id });
-        setResult(product);
-    });
-    return (react.createElement("div", null,
+    const onClick = (e) => {
+        setCmd(e.currentTarget.value);
+        queryClient.invalidateQueries({ queryKey: ['admin_api'] });
+    };
+    const commands = [
+        { key: 'get_supplier_product', name: 'Get Supplier Product' },
+        { key: 'get_woo_product', name: 'Get Woo Product' },
+        { key: 'import_product', name: 'Import Product' },
+        { key: 'update_variations', name: 'Update Variations' },
+        { key: 'delete_supplier_product', name: 'Delete Product' },
+        { key: 'create_product', name: 'Create Product' },
+        { key: 'get_product_status', name: 'Status' },
+        { key: 'get_product_attributes', name: 'Attributes' },
+        { key: 'get_product_variations', name: 'Variations' },
+        { key: 'delete_product_variations', name: 'Delete Variations' },
+        { key: 'sync_product_variations', name: 'Sync Variations' },
+        { key: 'sync_attributes', name: 'Sync Attributes' },
+        { key: 'sync_stock', name: 'Sync Stock' },
+        { key: 'clear_cache', name: 'Clear Cache' },
+        { key: 'test', name: 'Test' },
+        { key: 'stats', name: 'Stats' }
+    ];
+    return (react.createElement("div", { className: 'd-flex flex-column gap-2' },
         react.createElement("div", { className: 'input-group' },
             react.createElement("select", { className: 'form-select', onChange: onChangeSupplier, value: supplier_key }, suppliers.isSuccess ? (_b = (_a = suppliers === null || suppliers === void 0 ? void 0 : suppliers.data) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.map((s) => react.createElement("option", { value: s.key }, s.name)) : null),
-            react.createElement("input", { className: 'form-control', type: 'text', value: product_id, onChange: onChange }),
-            react.createElement("button", { className: 'btn btn-primary', onClick: onClickData },
-                "Get ",
-                supplier_key.toUpperCase(),
-                " Product"),
-            react.createElement("button", { className: 'btn btn-primary', onClick: onClickWooProduct }, "Get Woo Product"),
-            react.createElement("button", { className: 'btn btn-primary', onClick: onClickImport }, "Import Product")),
-        react.createElement("div", null),
-        react.createElement("pre", null, JSON.stringify(result, null, 2))));
+            react.createElement("input", { className: 'form-control', type: 'text', value: product_id, onChange: onChange })),
+        react.createElement("div", { className: 'd-flex gap-2 flex-wrap' }, commands.map((s) => (react.createElement("button", { title: s.key, className: `btn btn-sm ${s.key === cmd ? 'btn-primary' : 'btn-secondary'}`, value: s.key, onClick: onClick }, s.name)))),
+        adminResult.isLoading || adminResult.isFetching ? react.createElement("pre", null, JSON.stringify({ isLoading: true }, null, 2)) : react.createElement("pre", null, JSON.stringify(adminResult.data, null, 2))));
 };
 const DeleteProductsForm = () => {
     const queryClient = useQueryClient();

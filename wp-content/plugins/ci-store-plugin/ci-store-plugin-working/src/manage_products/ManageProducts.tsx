@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { IWooProductStatus, ProductAdmin, useSuppliers } from '../common/hooks/useAdminAPI';
+import { IWooProductStatus, ProductAdmin, useAdminAPI, useSuppliers } from '../common/hooks/useAdminAPI';
 import { formatDuration } from '../common/utils/formatDuration';
 import { useLocalStorage } from '../common/utils/useLocalStorage';
 
@@ -17,20 +17,23 @@ export const ManageProducts = () => {
 
 export const ProductReportForm = () => {
   const store = useLocalStorage('product_report', { sku: '' });
-  const [sku, setSku] = useState(store.data.sku);
-  const [result, setResult] = useState({});
-
-  const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    setSku(e.currentTarget.value);
-  };
+  const [_sku, _setSku] = useState(store.data.sku);
+  const [sku, setSku] = useState<string>(null);
+  // const [result, setResult] = useState({});
+  const report = useAdminAPI('product_report', { sku }, { enabled: !!sku });
 
   useEffect(() => {
     store.merge({ sku });
   }, [sku]);
 
+  const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    _setSku(e.currentTarget.value);
+  };
+
   const onClick = async () => {
-    let report = await ProductAdmin.getProductReport({ sku });
-    setResult(report);
+    // let report = await ProductAdmin.getProductReport({ sku });
+    // setResult(report);
+    setSku(_sku);
   };
 
   return (
@@ -41,17 +44,19 @@ export const ProductReportForm = () => {
           Report
         </button>
       </div>
-      <pre>{JSON.stringify(result, null, 2)}</pre>
+      <pre>{JSON.stringify(report.data, null, 2)}</pre>
     </div>
   );
 };
 
 export const ImportProductForm = () => {
-  const store = useLocalStorage('product_data', { supplier_key: '', product_id: '' });
+  const queryClient = useQueryClient();
+  const store = useLocalStorage('product_data', { supplier_key: '', product_id: '', cmd: '' });
   const [product_id, setProductId] = useState(store.data.product_id);
-  const [result, setResult] = useState({});
   const suppliers = useSuppliers();
   const [supplier_key, setSupplierKey] = useState(store.data.supplier_key);
+  const [cmd, setCmd] = useState('');
+  const adminResult = useAdminAPI(cmd, { supplier_key, product_id }, { placeholderData: undefined });
 
   useEffect(() => {
     if (suppliers.isSuccess && !supplier_key) {
@@ -61,50 +66,56 @@ export const ImportProductForm = () => {
 
   useEffect(() => {
     store.merge({ product_id, supplier_key });
-  }, [product_id, supplier_key]);
+  }, [product_id, supplier_key, cmd]);
 
   const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     setProductId(e.currentTarget.value);
-  };
-
-  const onClickImport = async () => {
-    let product = await ProductAdmin.importProduct({ supplier_key: 'wps', product_id });
-    setResult(product);
-  };
-
-  const onClickData = async () => {
-    let product = await ProductAdmin.getSupplierProduct({ supplier_key: 'wps', product_id });
-    setResult(product);
   };
 
   const onChangeSupplier: React.ChangeEventHandler<HTMLSelectElement> = (e) => {
     setSupplierKey(e.currentTarget.value);
   };
 
-  const onClickWooProduct = async () => {
-    let product = await ProductAdmin.getWooProduct({ supplier_key: 'wps', product_id });
-    setResult(product);
+  const onClick: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+    setCmd(e.currentTarget.value);
+    queryClient.invalidateQueries({ queryKey: ['admin_api'] });
   };
 
+  const commands = [
+    { key: 'get_supplier_product', name: 'Get Supplier Product' },
+    { key: 'get_woo_product', name: 'Get Woo Product' },
+    { key: 'import_product', name: 'Import Product' },
+    { key: 'update_variations', name: 'Update Variations' },
+    { key: 'delete_supplier_product', name: 'Delete Product' },
+    { key: 'create_product', name: 'Create Product' },
+    { key: 'get_product_status', name: 'Status' },
+    { key: 'get_product_attributes', name: 'Attributes' },
+    { key: 'get_product_variations', name: 'Variations' },
+    { key: 'delete_product_variations', name: 'Delete Variations' },
+    { key: 'sync_product_variations', name: 'Sync Variations' },
+    { key: 'sync_attributes', name: 'Sync Attributes' },
+    { key: 'sync_stock', name: 'Sync Stock' },
+    { key: 'clear_cache', name: 'Clear Cache' },
+    { key: 'test', name: 'Test' },
+    { key: 'stats', name: 'Stats' }
+  ];
+
   return (
-    <div>
+    <div className='d-flex flex-column gap-2'>
       <div className='input-group'>
         <select className='form-select' onChange={onChangeSupplier} value={supplier_key}>
           {suppliers.isSuccess ? suppliers?.data?.data?.map((s) => <option value={s.key}>{s.name}</option>) : null}
         </select>
         <input className='form-control' type='text' value={product_id} onChange={onChange} />
-        <button className='btn btn-primary' onClick={onClickData}>
-          Get {supplier_key.toUpperCase()} Product
-        </button>
-        <button className='btn btn-primary' onClick={onClickWooProduct}>
-          Get Woo Product
-        </button>
-        <button className='btn btn-primary' onClick={onClickImport}>
-          Import Product
-        </button>
       </div>
-      <div></div>
-      <pre>{JSON.stringify(result, null, 2)}</pre>
+      <div className='d-flex gap-2 flex-wrap'>
+        {commands.map((s) => (
+          <button title={s.key} className={`btn btn-sm ${s.key === cmd ? 'btn-primary' : 'btn-secondary'}`} value={s.key} onClick={onClick}>
+            {s.name}
+          </button>
+        ))}
+      </div>
+      {adminResult.isLoading || adminResult.isFetching ? <pre>{JSON.stringify({ isLoading: true }, null, 2)}</pre> : <pre>{JSON.stringify(adminResult.data, null, 2)}</pre>}
     </div>
   );
 };

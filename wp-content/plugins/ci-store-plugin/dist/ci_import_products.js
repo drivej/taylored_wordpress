@@ -3736,6 +3736,12 @@ function useMutation_noop() {
 }
 
 //# sourceMappingURL=useMutation.js.map
+;// CONCATENATED MODULE: ./src/utils/useDebug.ts
+
+const useDebug = () => {
+    return (0,react.useMemo)(() => new URLSearchParams(location.search).get('debug') === '1', []);
+};
+
 ;// CONCATENATED MODULE: ./src/utils/useStopWatch.tsx
 
 const useStopWatch = () => {
@@ -4440,6 +4446,17 @@ const useJobData = (jobKey) => {
 ;// CONCATENATED MODULE: ./src/common/hooks/useScheduledEvents.tsx
 
 
+const useScheduledEventsCount = (query = { cmd: 'count', filter: '' }, options = {}) => {
+    const queryClient = useQueryClient();
+    const queryKey = ['wp_ajax_scheduled_events_api', query];
+    const data = useQuery(Object.assign({ queryKey, queryFn: () => {
+            return fetchWordpressAjax(Object.assign({ action: 'scheduled_events_api' }, query));
+        }, placeholderData: keepPreviousData, refetchInterval: 30000 }, options));
+    const refresh = () => {
+        queryClient.invalidateQueries({ queryKey });
+    };
+    return Object.assign(Object.assign({}, data), { refresh });
+};
 const useScheduledEvents_useScheduledEvents = (filter = '', options = {}) => {
     const queryClient = useQueryClient();
     const data = useQuery(Object.assign({ queryKey: ['wp_ajax_scheduled_events_api', filter], queryFn: () => {
@@ -4700,12 +4717,14 @@ function formatTimeAgo(seconds) {
 
 
 
+
 function JobWorker({ jobKey, args }) {
     var _a, _b, _c, _d, _e;
     const action = `${jobKey}_api`;
     const queryClient = QueryClientProvider_useQueryClient();
     // const jobData = useJobStatus(jobKey);
     const jobData = useJobData(jobKey);
+    const debug = useDebug();
     const mutation = useMutation({
         mutationFn: (options) => fetchWordpressAjax_fetchWordpressAjax(Object.assign(Object.assign({ action }, (args !== null && args !== void 0 ? args : {})), options)),
         onSuccess: (data) => queryClient.setQueryData([jobKey], data)
@@ -4773,7 +4792,7 @@ function JobWorker({ jobKey, args }) {
             react.createElement("div", { className: 'progress', role: 'progressbar', style: { width: percentComplete + '%' } },
                 react.createElement("div", { className: `progress-bar ${isRunning ? 'progress-bar-striped progress-bar-animated' : ''} bg-info` }))),
         react.createElement(RefetchTimer, { query: jobData }),
-        react.createElement("pre", { style: { fontSize: 12 } }, JSON.stringify(jobData.data, null, 2))));
+        debug ? react.createElement("pre", { style: { fontSize: 12 } }, JSON.stringify(jobData.data, null, 2)) : null));
 }
 const StalledMessage = ({ jobData }) => {
     const started = new Date(Date.parse(jobData.started)).getTime();

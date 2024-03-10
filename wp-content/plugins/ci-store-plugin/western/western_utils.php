@@ -102,7 +102,7 @@ function build_western_image($img, $size = 200)
         return '';
     }
 
-    return implode('', ['http://', $img['domain'], $img['path'], $size . '_max', '/', $img['filename']]);
+    return implode('', ['https://', $img['domain'], $img['path'], $size . '_max', '/', $img['filename']]);
 };
 
 function resize_western_image($src, $size = 200)
