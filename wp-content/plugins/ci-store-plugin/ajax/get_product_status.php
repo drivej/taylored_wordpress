@@ -28,8 +28,10 @@ function get_product_status($params)
     $data['supplier']['id'] = $product_id;
     $data['supplier']['provider'] = $supplier->name;
     $data['supplier']['stock_status'] = $supplier->get_stock_status($product_id);
+    $data['supplier']['import_version'] = $supplier->import_version;
     $data['woo']['id'] = '';
     $data['woo']['stock_status'] = 'notfound';
+    $data['woo']['import_version'] = '0.0';
     // $data['woo_product_exists'] = false;
     // $data['check_is_available'] = $supplier->check_is_available($product_id);
     $supplier_product = $supplier->get_product($product_id);
@@ -56,6 +58,7 @@ function get_product_status($params)
                 $data['woo']['stock_status'] = $woo_product->get_stock_status();
                 $data['woo']['variations'] = count($woo_product->get_children());
                 $data['woo']['updated'] = date('Y-m-d H:i:s', strtotime($woo_product->get_date_modified()));
+                $data['woo']['import_version'] = $woo_product->get_meta('_ci_import_version', true);
             }
         }
     }

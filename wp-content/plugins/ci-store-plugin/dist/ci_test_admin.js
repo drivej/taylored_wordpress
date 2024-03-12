@@ -11106,18 +11106,24 @@ const TestAdmin = () => {
     const supplier_key = searchParams.get('supplier_key');
     return (react.createElement("div", { className: 'p-3 d-flex flex-column gap-2' },
         react.createElement("h3", null, "Test Admin"),
-        react.createElement(AdminForm, { name: 'Monkey Wrench', cmd: 'monkey_wrench', allowPolling: true }),
-        react.createElement(AdminForm, { name: 'Stock Update', cmd: 'update_products_stock_status', allowPolling: true },
-            react.createElement(SelectSupplier, null)),
         react.createElement(AdminForm, { name: 'Import Status', cmd: 'get_import_status', allowPolling: true },
-            react.createElement(SelectSupplier, null)),
-        react.createElement(AdminForm, { name: 'Cancel Import Products', cmd: 'cancel_import_products' },
             react.createElement(SelectSupplier, null)),
         react.createElement(AdminForm, { name: 'Import Products', cmd: 'import_products' },
             react.createElement(SelectSupplier, null),
+            react.createElement(SelectImportType, null),
             react.createElement(TextInput, { name: 'updated', defaultValue: '2020-01-01', type: 'date', style: { width: 150 } }),
+            react.createElement(PageSizeInput, null),
             react.createElement(CheckboxInput, { name: 'resume', checked: true })),
+        react.createElement(AdminForm, { name: 'Cancel Import Products', cmd: 'cancel_import_products' },
+            react.createElement(SelectSupplier, null)),
+        react.createElement(AdminForm, { name: 'WPS API', cmd: 'western_api', allowPolling: true },
+            react.createElement(TextInput, { name: 'url', defaultValue: '/' })),
+        react.createElement(AdminForm, { name: 'Stock Update', cmd: 'update_products_stock_status', allowPolling: true },
+            react.createElement(SelectSupplier, null)),
         react.createElement(AdminForm, { name: 'Import Product', cmd: 'import_product' },
+            react.createElement(SelectSupplier, null),
+            react.createElement(ProductInput, null)),
+        react.createElement(AdminForm, { name: 'Get Product Status', cmd: 'get_product_status', allowPolling: true },
             react.createElement(SelectSupplier, null),
             react.createElement(ProductInput, null)),
         react.createElement(AdminForm, { name: 'Get Product', cmd: 'get_product' },
@@ -11130,18 +11136,24 @@ const TestAdmin = () => {
                 react.createElement("div", { className: 'input-group' },
                     react.createElement("label", { className: 'input-group-text' }, "Max Pages"),
                     react.createElement(TextInput, { name: 'max_pages', defaultValue: '50', type: 'number', min: 1, max: 100, step: 1 })),
-                react.createElement("div", { className: 'input-group' },
-                    react.createElement("label", { className: 'input-group-text' }, "Page Size"),
-                    react.createElement(TextInput, { name: 'page_size', defaultValue: '50', type: 'number', min: 1, max: 100, step: 1 })))),
-        react.createElement(AdminForm, { name: 'Get Product Status', cmd: 'get_product_status', allowPolling: true },
-            react.createElement(SelectSupplier, null),
-            react.createElement(ProductInput, null)),
+                react.createElement(PageSizeInput, null))),
         react.createElement(AdminForm, { name: 'Import Product Status', cmd: 'get_import_product_status', allowPolling: true },
             react.createElement(SelectSupplier, null),
             react.createElement(ProductInput, null)),
         react.createElement(AdminForm, { name: 'Get Products Count', cmd: 'get_products_count' },
             react.createElement(SelectSupplier, null),
             react.createElement(TextInput, { name: 'updated', defaultValue: '2020-01-01', type: 'date', style: { width: 150 } }))));
+};
+const PageSizeInput = ({ initialValue = 20 }) => {
+    return (react.createElement("div", { className: 'input-group' },
+        react.createElement("label", { className: 'input-group-text' }, "Page Size"),
+        react.createElement(TextInput, { name: 'page_size', defaultValue: `${initialValue}`, type: 'number', min: 10, max: 100, step: 10 })));
+};
+const SelectImportType = () => {
+    return (react.createElement(SelectInput, { name: 'import_type', options: [
+            { name: 'Passive', value: 'passive' },
+            { name: 'Aggressive', value: 'aggressive' }
+        ] }));
 };
 const SelectSupplier = ({ initialValue = null }) => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -11158,6 +11170,14 @@ const SelectSupplier = ({ initialValue = null }) => {
     if (suppliers.isSuccess) {
         return (react.createElement("select", { name: 'supplier_key', className: 'form-select', value: value, onChange: onChange }, suppliers.data.map((s, i) => (react.createElement("option", { value: s.key }, s.name)))));
     }
+};
+const SelectInput = ({ name, options, initialValue = null }) => {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [value, setValue] = (0,react.useState)(initialValue !== null && initialValue !== void 0 ? initialValue : options[0].value);
+    const onChange = (e) => {
+        setValue(e.currentTarget.value);
+    };
+    return (react.createElement("select", { name: name, className: 'form-select', value: value, onChange: onChange }, options.map((s, i) => (react.createElement("option", { key: slugify(name, i), value: s.value }, s.name)))));
 };
 const ProductInput = () => {
     const [searchParams, setSearchParams] = useSearchParams();

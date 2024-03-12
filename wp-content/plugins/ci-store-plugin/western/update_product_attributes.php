@@ -3,7 +3,6 @@
 include_once __DIR__ . './../utils/print_utils.php';
 include_once __DIR__ . '/get_western_product.php';
 include_once __DIR__ . './../utils/Report.php';
-require_once __DIR__ . '/wps_settings.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/index.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
 
@@ -165,6 +164,7 @@ function update_product_attributes($woo_product, $wps_product, $report)
     $supplier = WooTools::get_supplier($supplier_key);
     $supplier_product = $wps_product; //$supplier->get_product($product_id);
     $supplier_attributes = $supplier->extract_attributes($supplier_product);
+    $supplier_variations = $supplier->extract_variations($supplier_product);
 
     // this is a dummy attribute so that variable products with a single variation can be selected
     $supplier_attributes['__required_attr'] = [
@@ -172,10 +172,17 @@ function update_product_attributes($woo_product, $wps_product, $report)
         'options' => ['1'],
         'slug' => '__required_attr',
     ];
+
+    $supplier_attributes['supplier_sku'] = [
+        'name' => 'SKU',
+        'options' => array_map(fn($v) => $v['supplier_sku'], $supplier_variations),
+        'slug' => 'supplier_sku',
+    ];
+
+    error_log(json_encode($supplier_attributes, JSON_PRETTY_PRINT));
     // $woo_product = $this->get_woo_product_from_supplier_product($supplier_key, $product_id);
     WooTools::sync_attributes($woo_product, $supplier_attributes, $report);
 
-    // global $WPS_SETTINGS;
     // global $SUPPLIERS;
     // $supplier = $SUPPLIERS['wps'];
     // $report->addLog('update_product_attributes()');

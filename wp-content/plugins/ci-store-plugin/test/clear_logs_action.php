@@ -18,7 +18,7 @@ function clear_logs_action()
             <button>Delete Scheduled Logs</button>
         </form>
     </div>
-    <?
+    <?php
 
     $scheduled_events = _get_cron_array();
 

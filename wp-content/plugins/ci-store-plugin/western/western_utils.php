@@ -131,7 +131,7 @@ function get_western_stock($wps_product_id)
     ]);
     $product = get_western('products/' . $wps_product_id, $params);
     // print_r($product);
-    return has_valid_items($product['data']);
+    return isset($product['data']) && has_valid_items($product['data']);
     // $items = $product['data']['items']['data'];
     // if (isset($items)) {
     //     $valid_items = array_filter($items, 'isValidItem');

@@ -16,4 +16,5 @@ pre.debug-data {
   font-size: 10px;
   background-color: #ccc;
   color: #000;
+  overflow: auto;
 }

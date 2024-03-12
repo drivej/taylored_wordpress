@@ -1,0 +1,118 @@
+/*
+
+general
+
+*/
+.d-none {
+  display: none;
+}
+.hello {
+  border: 5px solid blue;
+}
+/*
+
+woo
+
+*/
+.storefront-product-pagination .custom_modify_product_image {
+  max-width: 100px;
+  max-height: 100%;
+  width: 100%;
+  object-fit: contain;
+  object-position: center;
+  aspect-ratio: 1/1;
+}
+/* product images that fly in from the side */
+.storefront-product-pagination .custom-product-image {
+  padding: 10px;
+}
+.storefront-product-pagination .custom-product-image img {
+  object-fit: contain;
+  object-position: center;
+  aspect-ratio: 1/1;
+}
+/*
+
+CI Gallery
+
+*/
+.ci-gallery + .woocommerce-product-gallery {
+  display: none;
+}
+.ci-gallery {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+@media (min-width: 768px) {
+  .ci-gallery {
+    float: left;
+    width: 40% !important;
+  }
+}
+.ci-gallery .hero-caption {
+  font-size: 11px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: darkgrey;
+}
+.ci-gallery-hero-container {
+  border-radius: 4px;
+  overflow: hidden;
+  /* border: 1px solid lightgrey; */
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+.ci-gallery-hero {
+  background-position: center;
+  background-size: 115%;
+  backdrop-filter: blur(12px) saturate(90%) brightness(85%);
+}
+.ci-gallery-hero,
+.ci-gallery-hero:active,
+.ci-gallery-hero:focus {
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  object-fit: contain;
+  object-position: center;
+  aspect-ratio: 1/1;
+  border-radius: 4px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  outline: none;
+  user-select: none;
+}
+.ci-gallery-thumbnails {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.ci-gallery-thumbnail-container {
+  cursor: pointer;
+  padding: 5px;
+  width: 100px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  overflow: hidden;
+  transition: border 0.3s;
+}
+.ci-gallery-thumbnail-container:not(.selected):hover {
+  border: 1px solid grey;
+}
+.ci-gallery-thumbnail-container.selected {
+  border: 1px solid black;
+}
+.ci-gallery-thumbnail-container.filtered {
+  /* display: none; */
+  pointer-events: none;
+  opacity: 0.4;
+}
+.ci-gallery-thumbnail {
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  object-fit: contain;
+  object-position: center;
+  aspect-ratio: 1/1;
+}

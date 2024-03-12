@@ -25,7 +25,19 @@ function woo_product_action($sku)
             }
         }
 
-        printData(['meta' => $meta, 'variations' => ['count' => count($variations), 'data' => $variations], 'woo_product' => $woo_product]);
+        $image_id = $woo_product->get_image_id();
+        $post_thumbnail_src = wp_get_attachment_image_src($image_id, 'single-post-thumbnail');
+        $image_ids = $woo_product->get_gallery_image_ids();
+
+        printData([
+            'image_id' => $image_id,
+            'post_thumbnail_src' => $post_thumbnail_src, 
+            'image_ids' => $image_ids,
+            'meta' => $meta, 
+            'variations' => ['count' => count($variations), 
+            'data' => $variations],
+            'woo_product' => $woo_product
+        ]);
     } else {
         printLine('Product does not exist in woocommerce');
     }

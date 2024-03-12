@@ -5,7 +5,7 @@ class Supplier
     public string $key;
     public string $name;
     public string $supplierClass;
-    public string $import_version = '0.1';
+    public string $import_version = '0.0';
     public string $import_flag = '';
     public string $cancel_flag = '';
     public string $ping_flag = '';
@@ -108,18 +108,11 @@ class Supplier
         return 'instock';
     }
 
-    // public function import_product($supplier_product_id)
-    // {
-    //     $supplier_product = $this->get_product($supplier_product_id);
-    //     $woo_id = $this->get_woo_id($supplier_product_id);
-    //     $is_available = $this->check_is_available($supplier_product_id);
-
-    //     return [
-    //         'is_available' => $is_available,
-    //         'woo_id' => $woo_id,
-    //         'supplier_product' => $supplier_product,
-    //     ];
-    // }
+    public function import_product($supplier_product_id)
+    {
+        // placeholder
+        error_log('import_product() not defined for ' . $this->key);
+    }
 
     public function schedule_import_product($supplier_product_id)
     {

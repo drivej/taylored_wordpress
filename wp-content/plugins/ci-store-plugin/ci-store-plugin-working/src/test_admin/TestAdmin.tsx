@@ -15,27 +15,43 @@ export const TestAdmin = () => {
     <div className='p-3 d-flex flex-column gap-2'>
       <h3>Test Admin</h3>
 
-      <AdminForm name='Monkey Wrench' cmd='monkey_wrench' allowPolling={true}></AdminForm>
-
-      <AdminForm name='Stock Update' cmd='update_products_stock_status' allowPolling={true}>
+      <AdminForm name='Import Status' cmd='get_import_status' allowPolling={true}>
         <SelectSupplier />
       </AdminForm>
 
-      <AdminForm name='Import Status' cmd='get_import_status' allowPolling={true}>
+      <AdminForm name='Import Products' cmd='import_products'>
         <SelectSupplier />
+        <SelectImportType />
+        <TextInput name='updated' defaultValue='2020-01-01' type='date' style={{ width: 150 }} />
+        <PageSizeInput />
+        <CheckboxInput name='resume' checked={true} />
       </AdminForm>
 
       <AdminForm name='Cancel Import Products' cmd='cancel_import_products'>
         <SelectSupplier />
       </AdminForm>
 
-      <AdminForm name='Import Products' cmd='import_products'>
+      <AdminForm name='WPS API' cmd='western_api' allowPolling={true}>
+        <TextInput name='url' defaultValue='/' />
+      </AdminForm>
+      {/* 
+      <AdminForm name='Import Type' cmd='toggle_import_type' allowPolling={true}>
         <SelectSupplier />
-        <TextInput name='updated' defaultValue='2020-01-01' type='date' style={{ width: 150 }} />
-        <CheckboxInput name='resume' checked={true} />
+        <SelectImportType />
+      </AdminForm> */}
+
+      {/* <AdminForm name='Monkey Wrench' cmd='monkey_wrench' allowPolling={true}></AdminForm> */}
+
+      <AdminForm name='Stock Update' cmd='update_products_stock_status' allowPolling={true}>
+        <SelectSupplier />
       </AdminForm>
 
       <AdminForm name='Import Product' cmd='import_product'>
+        <SelectSupplier />
+        <ProductInput />
+      </AdminForm>
+
+      <AdminForm name='Get Product Status' cmd='get_product_status' allowPolling={true}>
         <SelectSupplier />
         <ProductInput />
       </AdminForm>
@@ -54,16 +70,8 @@ export const TestAdmin = () => {
             <label className='input-group-text'>Max Pages</label>
             <TextInput name='max_pages' defaultValue='50' type='number' min={1} max={100} step={1} />
           </div>
-          <div className='input-group'>
-            <label className='input-group-text'>Page Size</label>
-            <TextInput name='page_size' defaultValue='50' type='number' min={1} max={100} step={1} />
-          </div>
+          <PageSizeInput />
         </div>
-      </AdminForm>
-
-      <AdminForm name='Get Product Status' cmd='get_product_status' allowPolling={true}>
-        <SelectSupplier />
-        <ProductInput />
       </AdminForm>
 
       {/* <AdminForm name='Is Importing Product?' cmd='is_importing_product' allowPolling={true}>
@@ -92,6 +100,27 @@ export const TestAdmin = () => {
   );
 };
 
+const PageSizeInput = ({ initialValue = 20 }: { initialValue?: number }) => {
+  return (
+    <div className='input-group'>
+      <label className='input-group-text'>Page Size</label>
+      <TextInput name='page_size' defaultValue={`${initialValue}`} type='number' min={10} max={100} step={10} />
+    </div>
+  );
+};
+
+const SelectImportType = () => {
+  return (
+    <SelectInput
+      name='import_type'
+      options={[
+        { name: 'Passive', value: 'passive' },
+        { name: 'Aggressive', value: 'aggressive' }
+      ]}
+    />
+  );
+};
+
 const SelectSupplier = ({ initialValue = null }: { initialValue?: string }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const suppliers = useSuppliers();
@@ -116,6 +145,25 @@ const SelectSupplier = ({ initialValue = null }: { initialValue?: string }) => {
       </select>
     );
   }
+};
+
+const SelectInput = ({ name, options, initialValue = null }: { name: string; options: { name: string; value: string }[]; initialValue?: string }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [value, setValue] = useState(initialValue ?? options[0].value);
+
+  const onChange: React.ChangeEventHandler<HTMLSelectElement> = (e) => {
+    setValue(e.currentTarget.value);
+  };
+
+  return (
+    <select name={name} className='form-select' value={value} onChange={onChange}>
+      {options.map((s, i) => (
+        <option key={slugify(name, i)} value={s.value}>
+          {s.name}
+        </option>
+      ))}
+    </select>
+  );
 };
 
 const ProductInput = () => {

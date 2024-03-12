@@ -26,31 +26,31 @@ function import_product($params)
 {
     $supplier_key = \AjaxManager::get_param('supplier_key');
     $product_id = \AjaxManager::get_param('product_id');
-    $success = false;
+    // $success = false;
     error_log($supplier_key . ':' . $product_id);
 
     $report = new \Report();
     ci_import_product($supplier_key, $product_id, $report);
     return ['report' => $report];
 
-    if ($supplier_key && $product_id) {
-        $supplier = \CI\Admin\get_supplier($supplier_key);
-        if ($supplier) {
-            $is_scheduled = $supplier->is_import_product_scheduled($product_id);
+    // if ($supplier_key && $product_id) {
+    //     $supplier = \CI\Admin\get_supplier($supplier_key);
+    //     if ($supplier) {
+    //         $is_scheduled = $supplier->is_import_product_scheduled($product_id);
 
-            if (!$is_scheduled) {
-                $success = $supplier->schedule_import_product($product_id);
-            }
+    //         if (!$is_scheduled) {
+    //             $success = $supplier->schedule_import_product($product_id);
+    //         }
 
-            return [
-                'success' => $success,
-                'is_scheduled' => $is_scheduled,
-                'supplier_key' => $supplier_key,
-                'product_id' => $product_id,
-            ];
-        }
-    }
-    return ['error' => 'missing supplier/product'];
+    //         return [
+    //             'success' => $success,
+    //             'is_scheduled' => $is_scheduled,
+    //             'supplier_key' => $supplier_key,
+    //             'product_id' => $product_id,
+    //         ];
+    //     }
+    // }
+    // return ['error' => 'missing supplier/product'];
 }
 
 // function start_test()

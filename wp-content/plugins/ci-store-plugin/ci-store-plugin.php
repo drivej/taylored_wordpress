@@ -14,8 +14,16 @@
 // include_once __DIR__ . '/admin/stock_check.php';
 // include_once __DIR__ . '/admin/import_products.php';
 
-
 define('CI_STORE_PLUGIN', plugin_dir_path(__FILE__));
+define('CI_ERROR_LOG', CI_STORE_PLUGIN . 'logs/CI_ERROR_LOG.log');
+
+function ci_error_log($message)
+{
+    $t = current_time('mysql');
+    error_log($t . "\t" . $message . "\n", 3, CI_ERROR_LOG);
+}
+
+set_error_handler('ci_error_log');
 
 include_once CI_STORE_PLUGIN . 'test/index.php';
 include_once CI_STORE_PLUGIN . 'western/wps_ajax_handler.php';
@@ -64,16 +72,17 @@ add_action('admin_menu', 'create_admin_menu');
 function enqueue_custom_styles()
 {
     if (is_user_logged_in()) {
-        wp_enqueue_style('custom-logged-in-styles', plugins_url('css/ci-plugin.css', __FILE__));
+        wp_enqueue_style('custom-admin-styles', plugins_url('css/ci-admin.css', __FILE__));
         wp_enqueue_script('custom-logged-in-script', plugins_url('js/ci-plugin.js', __FILE__));
     }
+    wp_enqueue_style('custom-store-styles', plugins_url('css/ci-styles.css', __FILE__));
 }
 
-// add_action('wp_enqueue_scripts', 'enqueue_custom_styles');
+add_action('wp_enqueue_scripts', 'enqueue_custom_styles');
 
 function custom_enqueue_admin_styles()
 {
-    wp_enqueue_style('admin_styles', plugins_url('css/ci-plugin.css', __FILE__));
+    wp_enqueue_style('admin_styles', plugins_url('css/ci-admin.css', __FILE__));
 }
 
 // add_action('admin_head', 'custom_enqueue_admin_styles');

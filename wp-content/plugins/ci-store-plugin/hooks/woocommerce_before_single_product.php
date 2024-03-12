@@ -27,7 +27,7 @@ function custom_before_single_product()
     // $additional_images = get_post_meta(get_the_ID(), '_ci_additional_images', false);
 
     // display main image - this sucks right now
-    echo '<div class="woocommerce-product-gallery__image"><img src="' . esc_url($src) . '" alt="' . esc_attr(get_the_title()) . '" class="wp-post-image" /></div>';
+    // echo '<div class="woocommerce-product-gallery__image"><img src="' . esc_url($src) . '" alt="' . esc_attr(get_the_title()) . '" class="wp-post-image" /></div>';
 
     if (is_product()) {
         // this helps variable products with a single variation act like simple products

@@ -38,7 +38,7 @@ function render_ci_store_plugin_test()
     ?>
     <div class="p-3">
         <form id="ci_store_plugin_test_form">
-            <select name="cmd" value="<?=$cmd?>">
+            <select name="cmd">
                 <?
                 foreach($action_handlers as $action){
                     if(is_callable($action.'_action')){
@@ -87,7 +87,7 @@ function render_ci_store_plugin_test()
         $select.addEventListener('change', handleChangeSelect);
         handleChangeSelect({currentTarget: $select});
     </script>
-    <?
+    <?php
 
     if(is_callable($cmd.'_action')){
         call_user_func($cmd.'_action', $item_id);

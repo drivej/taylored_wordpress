@@ -1,5 +1,6 @@
 <?php
 
+include_once __DIR__ . '/woocommerce_before_add_to_cart_button.php';
 include_once __DIR__ . '/woocommerce_before_shop_loop_item.php';
 include_once __DIR__ . '/woocommerce_before_single_product_summary.php';
 include_once __DIR__ . '/woocommerce_before_single_product.php';

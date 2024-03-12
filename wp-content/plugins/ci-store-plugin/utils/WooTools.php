@@ -78,7 +78,7 @@ class WooTools
         $result = [];
         $changed = false;
         $woo_product_id = $woo_product->get_id();
-        $woo_variations = WooTools::get_variations($woo_product);
+        $woo_variations = WooTools::get_variations($woo_product, 'edit');
         $woo_skus = array_column($woo_variations, 'sku');
         $supplier_skus = array_column($supplier_variations, 'sku');
         $supplier_variation_lookup = WooTools::array_lookup($supplier_variations, 'sku');
@@ -102,6 +102,10 @@ class WooTools
 
         foreach ($inserts as $variation_sku) {
             $supplier_variation = $supplier_variation_lookup[$variation_sku];
+
+            if (!isset($supplier_variation['id'])) {
+                error_log('variation issue where $supplier_variation[id] is not set. ' . json_encode(['supplier_variation' => $supplier_variation, 'inserts' => $inserts]));
+            }
             // maybe orphaned variation exists
             $variation_id = wc_get_product_id_by_sku($variation_sku);
 
@@ -116,8 +120,10 @@ class WooTools
             $variation->set_status('publish');
             $variation->set_regular_price($supplier_variation['list_price']);
             $variation->set_stock_status('instock');
+            $variation->update_meta_data('_ci_import_version', $supplier_variation['import_version']);
             $variation->update_meta_data('_ci_supplier_key', 'wps');
             $variation->update_meta_data('_ci_product_id', $supplier_variation['id']);
+            $variation->update_meta_data('_ci_supplier_sku', isset($supplier_variation['supplier_sku']) ? $supplier_variation['supplier_sku'] : '');
             $variation->update_meta_data('_ci_additional_images', serialize($supplier_variation['images']));
             $variation->update_meta_data('_ci_import_timestamp', gmdate("c"));
             $variation->set_attributes($supplier_variation['attributes']);
@@ -149,6 +155,7 @@ class WooTools
 
         foreach ($updates as $variation_sku) {
             $supplier_variation = $supplier_variation_lookup[$variation_sku];
+            // error_log(json_encode($supplier_variation, JSON_PRETTY_PRINT));
             $variation_id = wc_get_product_id_by_sku($variation_sku);
             if ($variation_id) {
                 $variation = wc_get_product($variation_id);
@@ -157,9 +164,15 @@ class WooTools
                     $variation->set_status('publish');
                     $variation->set_regular_price($supplier_variation['list_price']);
                     $variation->set_stock_status('instock');
+                    $variation->update_meta_data('_ci_import_version', $supplier_variation['import_version']);
                     $variation->update_meta_data('_ci_additional_images', serialize($supplier_variation['images']));
                     $variation->update_meta_data('_ci_import_timestamp', gmdate("c"));
+                    $variation->update_meta_data('_ci_supplier_sku', $supplier_variation['supplier_sku']);
                     $variation->set_attributes($supplier_variation['attributes']);
+                    $variation->set_width($supplier_variation['width']);
+                    $variation->set_height($supplier_variation['height']);
+                    $variation->set_length($supplier_variation['length']);
+                    $variation->set_weight($supplier_variation['weight']);
                     $saved = $variation->save();
                     $result['actions'][] = 'update variation: sku=' . $variation_sku . ' id=' . $variation_id . ' saved=' . $saved;
                 }
@@ -171,6 +184,7 @@ class WooTools
             $woo_product->save();
             // wc_delete_product_transients($woo_product_id);
         }
+
         if ($report) {
             $report->addData('sync_variations', $result);
         }
@@ -195,6 +209,7 @@ class WooTools
         $changed = false;
         $woo_attributes_raw = $woo_product->get_attributes('edit');
         $woo_attributes = WooTools::get_attributes_data($woo_product);
+        $result['supplier_attributes'] = $supplier_attributes;
         $woo_names = array_column($woo_attributes, 'slug');
         $supplier_names = array_column($supplier_attributes, 'slug');
         $deletes = array_values(array_diff($woo_names, $supplier_names));
@@ -267,7 +282,7 @@ class WooTools
     /**
      * @param WC_Product_Variable $woo_product
      */
-    public static function get_variations($woo_product)
+    public static function get_variations($woo_product, $context = 'view')
     {
         $woo_variations = $woo_product->get_children();
         $variations = [];
@@ -275,11 +290,12 @@ class WooTools
             $woo_variation = wc_get_product_object('variation', $woo_variation_id);
             $variation = [];
             $variation['id'] = $woo_variation_id;
-            $variation['sku'] = $woo_variation->get_sku('edit');
-            $variation['name'] = $woo_variation->get_name('edit');
-            $variation['list_price'] = $woo_variation->get_regular_price('edit');
-            $variation['images'] = unserialize($woo_variation->get_meta('_ci_additional_images', true, 'edit'));
-            $variation['attributes'] = $woo_variation->get_attributes('edit');
+            $variation['sku'] = $woo_variation->get_sku($context);
+            $variation['name'] = $woo_variation->get_name($context);
+            $variation['list_price'] = $woo_variation->get_regular_price($context);
+            $variation['images'] = unserialize($woo_variation->get_meta('_ci_additional_images', true, $context));
+            $variation['attributes'] = $woo_variation->get_attributes($context);
+            $variation['supplier_sku'] = $woo_variation->get_meta('_ci_supplier_sku', true);
             $variations[] = $variation;
         }
         return $variations;

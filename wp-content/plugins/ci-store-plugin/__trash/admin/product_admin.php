@@ -1,7 +1,8 @@
 <?php
 
+// TODO: delete 
+
 // require_once __DIR__ . './../log/write_to_log_file.php';
-// include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/wps_settings.php';
 // include_once WP_PLUGIN_DIR . '/ci-store-plugin/config.php';
 // include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/print_utils.php';
 

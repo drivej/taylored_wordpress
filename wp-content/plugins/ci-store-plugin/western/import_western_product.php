@@ -4,7 +4,6 @@
 // require_once __DIR__ . './../western/get_western_products_page.php';
 // require_once __DIR__ . './../western/get_western_product.php';
 require_once __DIR__ . './../western/western_utils.php';
-require_once __DIR__ . './../western/wps_settings.php';
 require_once __DIR__ . '/update_product_attributes.php';
 require_once __DIR__ . '/update_product_taxonomy.php';
 require_once __DIR__ . '/update_product_variations.php';
@@ -32,7 +31,7 @@ function import_western_product($wps_product_id, $force_update = false, $report 
     $report->addData('wps_product_id', $wps_product_id);
 
     if (isset($wps_product['error'])) {
-        if ($wps_product['status_code'] === 404) {
+        if (isset($wps_product['status_code']) && $wps_product['status_code'] === 404) {
             $product_id = wc_get_product_id_by_sku($sku);
             if ($product_id) {
                 $report->addLog('404 ' . $wps_product_id);
@@ -106,14 +105,14 @@ function import_western_product($wps_product_id, $force_update = false, $report 
  */
 function product_needs_update_reasons($woo_product, $wps_product)
 {
-    global $WPS_SETTINGS;
+    $supplier = \CI\Admin\get_supplier('wps');
     $reasons = [];
     // $needs_update = false;
     $import_version = $woo_product->get_meta('_ci_import_version');
     // update if import version changes
-    if ($import_version != $WPS_SETTINGS['import_version']) {
+    if ($import_version != $supplier->import_version) {
         // $needs_update = true;
-        $reasons[] = 'import version updated from ' . $import_version . ' to ' . $WPS_SETTINGS['import_version'];
+        $reasons[] = 'import version updated from ' . $import_version . ' to ' . $supplier->import_version;
     }
     $imported = $woo_product->get_meta('_ci_import_timestamp');
     $date_imported = new DateTime($imported ? $imported : '2000-01-01 12:00:00');
@@ -138,11 +137,10 @@ function product_needs_update($woo_product, $wps_product)
 {
     $reasons = product_needs_update_reasons($woo_product, $wps_product);
     return (bool) count($reasons);
-    // global $WPS_SETTINGS;
     // $needs_update = false;
     // $import_version = $woo_product->get_meta('_ci_import_version');
     // // update if import version changes
-    // if ($import_version != $WPS_SETTINGS['import_version']) {
+    // if ($import_version != $WxPS_SETTINGS['import_version']) {
     //     $needs_update = true;
     // }
     // $imported = $woo_product->get_meta('_ci_import_timestamp');
@@ -190,6 +188,7 @@ function insert_western_product($wps_product, $report = new Report())
 function update_western_product($wps_product, $product_id, $report = new Report())
 {
     $report->addLog('update_western_product()');
+    $supplier = \CI\Admin\get_supplier('wps');
     $woo_product = wc_get_product_object('variable', $product_id);
     // $has_variations = count($wps_product['data']['items']['data']) > 0;
     // $is_variable = $product->is_type('variable');
@@ -200,7 +199,7 @@ function update_western_product($wps_product, $product_id, $report = new Report(
     $woo_product->set_status('publish');
     $woo_product->set_regular_price($first_item['list_price']);
     $woo_product->set_stock_status('instock');
-    
+    $woo_product->update_meta_data('_ci_import_version', $supplier->import_version);
     // $images = get_additional_images($wps_product);
     // $serialized_images = serialize($images);
     // $woo_product->update_meta_data('_ci_additional_images', $serialized_images);
@@ -331,6 +330,19 @@ function get_additional_images($wps_product)
     $images = array_map('process_images', $wps_product['data']['items']['data']);
     $images = array_filter($images, 'filter_images');
     return $images; //implode(',', $images);
+}
+
+function get_all_images($wps_product)
+{
+    if (is_countable($wps_product['data']['items']['data'])) {
+        $images = [];
+        foreach ($wps_product['data']['items']['data'] as $item) {
+            foreach ($item['images']['data'] as $image) {
+                $images[] = build_western_image($image);
+            }
+        }
+    }
+    return $images;
 }
 
 function process_images($item)

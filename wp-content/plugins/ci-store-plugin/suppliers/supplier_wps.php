@@ -1,7 +1,9 @@
 <?php
 
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Report.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/western_utils.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/import_western_product.php';
 
 class Supplier_WPS extends Supplier
 {
@@ -11,8 +13,13 @@ class Supplier_WPS extends Supplier
             'key' => 'wps',
             'name' => 'Western Power Sports',
             'supplierClass' => 'WooDropship\\Suppliers\\Western',
-            'import_version' => '0.1',
+            'import_version' => '0.2',
         ]);
+    }
+
+    public function import_product($supplier_product_id, $report = new Report())
+    {
+        import_western_product($supplier_product_id, false, $report);
     }
 
     public function get_api($path, $params = [])
@@ -71,7 +78,7 @@ class Supplier_WPS extends Supplier
                         $WESTERN_ATTRIBUTES_CACHE[$attr['id']] = $attr;
                     }
                 } else {
-                    error_log('get_attributes_from_product Warning ' . json_encode($res['data'], JSON_PRETTY_PRINT));
+                    error_log('get_attributes_from_product Warning ' . json_encode($res, JSON_PRETTY_PRINT));
                 }
                 if (is_array($res['data'])) {
                     array_push($data, ...$res['data']);
@@ -139,11 +146,25 @@ class Supplier_WPS extends Supplier
 
         foreach ($valid_items as $item) {
             $variation = [];
+            $variation['import_version'] = $this->import_version;
+            $variation['id'] = $item['id'];
             $variation['sku'] = $this->get_variation_sku($supplier_product['data']['id'], $item['id']);
+            $variation['supplier_sku'] = $item['sku'];
             $variation['name'] = $item['name'];
             $variation['list_price'] = $item['list_price'];
             $variation['images'] = get_item_images($item);
             $variation['attributes'] = [];
+
+            // put measures in there anyways - but the units may change
+            $variation['width'] = $item['width'];
+            $variation['height'] = $item['height'];
+            $variation['length'] = $item['length'];
+            $variation['weight'] = $item['weight'];
+
+            if ($item['unit_of_measurement_id'] !== 12) {
+                // TODO: need to resolve these unit issues
+                error_log('unit_of_measurement_id=' . $item['unit_of_measurement_id'] . ' nned to convert');
+            }
 
             foreach ($item['attributevalues']['data'] as $attr) {
                 $attr_id = $attr['attributekey_id'];
@@ -151,6 +172,7 @@ class Supplier_WPS extends Supplier
                 $attr_slug = $lookup_slug_by_id[$attr_id];
                 $variation['attributes'][$attr_slug] = $attr_value;
             }
+            $variation['attributes']['supplier_sku'] = $variation['supplier_sku'];
             // this is a dummy attribute so that variable products with a single variation can be selected
             $variation['attributes']['__required_attr'] = '1';
 
@@ -190,8 +212,15 @@ class Supplier_WPS extends Supplier
             ];
             $lookup_slug_by_id[$attr_id] = $attr['slug'];
         }
+        // create sku drop down
+        // $attributes['sku'] = [
+        //     'name' => 'SKU',
+        //     'options' => [],
+        //     'slug' => 'sku',
+        // ];
 
         $valid_items = array_filter($supplier_product['data']['items']['data'], 'isDeadItem');
+
         foreach ($valid_items as $item) {
             foreach ($item['attributevalues']['data'] as $item_attr) {
                 $attr_id = $item_attr['attributekey_id'];
@@ -203,16 +232,30 @@ class Supplier_WPS extends Supplier
                 }
                 $attributes[$attr_slug]['options'][$attr_value]++;
             }
+            error_log(json_encode(['item' => $item]));
+
+            // if (isset($item['sku'])) {
+            //     if (!isset($attributes['sku']['options'][$item['sku']])) {
+            //         $attributes['sku']['options'][$item['sku']] = 0;
+            //     }
+            //     $attributes['sku']['options'][$item['sku']]++;
+            // }
+            // $attributes['sku']['options'][$item['sku']] = 1;
         }
+
         $changes = [];
         $valid_items_count = count($valid_items);
+        error_log(json_encode(['attributes' => $attributes]));
         foreach ($attributes as $attr_slug => $attribute) {
+            // if($attr_slug!=='sku'){};
+
             foreach ($attribute['options'] as $attr_value => $option_count) {
                 if ($option_count === 0 || $option_count === $valid_items_count) {
                     unset($attribute['options'][$attr_value]);
                     $changes[] = "remove {$attr_slug} -> {$attr_value}";
                 }
             }
+
             if (count($attribute['options'])) {
                 $attributes[$attr_slug]['options'] = array_keys($attributes[$attr_slug]['options']);
             } else {
@@ -221,6 +264,7 @@ class Supplier_WPS extends Supplier
             }
         }
 
+        error_log(json_encode(['after_attributes' => array_values($attributes)]));
         return array_values($attributes);
 
         //['changes'=>$changes, 'valid_items_count'=>$valid_items_count, 'attributes' => array_values($attributes), 'lookup_slug_by_id' => $lookup_slug_by_id];
