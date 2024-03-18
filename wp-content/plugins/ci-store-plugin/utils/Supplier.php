@@ -23,6 +23,40 @@ class Supplier
         $this->import_report = 'ci_import_' . $this->key . '_report';
     }
 
+    public function get_update_action($supplier_product)
+    {
+        // WPS returns a differnt object depending on list or single product
+        if (!isset($supplier_product['data'])) {
+            $supplier_product = ['data' => $supplier_product];
+        }
+        $action = 'ignore';
+        $supplier_product_id = $supplier_product['data']['id'];
+        $supplier_updated = $this->extract_product_updated($supplier_product);
+        $sku = $this->get_product_sku($supplier_product_id);
+        $woo_product_id = wc_get_product_id_by_sku($sku);
+        $supplier_import_version = $this->import_version;
+        $is_available = $this->is_available($supplier_product);
+
+        if ($woo_product_id) {
+            $woo_import_version = get_post_meta($woo_product_id, '_ci_import_version', true);
+            $woo_updated_str = get_post_meta($woo_product_id, '_ci_import_timestamp', true);
+            $woo_updated = strtotime($woo_updated_str);
+            $is_stale = $woo_updated < $supplier_updated;
+            $is_deprecated = $supplier_import_version !== $woo_import_version;
+
+            if (!$is_available) {
+                $action = 'delete';
+            } else if ($is_stale || $is_deprecated) {
+                $action = 'update';
+            }
+        } else {
+            if ($is_available) {
+                $action = 'insert';
+            }
+        }
+        return $action;
+    }
+
     public function get_api($path, $params = [])
     {
         return [];
@@ -31,6 +65,11 @@ class Supplier
     public function get_product($product_id)
     {
         return [];
+    }
+
+    public function get_description($supplier_product)
+    {
+        return '';
     }
 
     public function get_product_sku($product_id)

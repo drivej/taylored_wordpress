@@ -10,36 +10,52 @@
  */
 
 // include_once __DIR__ . '/cronjob/index.php';
-// include_once __DIR__ . '/log/index.php';
 // include_once __DIR__ . '/admin/stock_check.php';
 // include_once __DIR__ . '/admin/import_products.php';
 
 define('CI_STORE_PLUGIN', plugin_dir_path(__FILE__));
-define('CI_ERROR_LOG', CI_STORE_PLUGIN . 'logs/CI_ERROR_LOG.log');
+define('CI_ERROR_LOG_FILEPATH', CI_STORE_PLUGIN . 'logs/CI_ERROR_LOG.log');
+define('CI_ERROR_LOG', CI_ERROR_LOG_FILEPATH);
 
-function ci_error_log($message)
+function ci_error_log($file, $line = null, $message = null)
 {
+    $spacer = "\n"; //"\n---\n";
     $t = current_time('mysql');
-    error_log($t . "\t" . $message . "\n", 3, CI_ERROR_LOG);
+    if ($line && $message) {
+        $parts = explode('/', $file);
+        $filename = end($parts);
+        $filename = substr($filename, -30);
+        $filename = str_pad($filename, 30, " ");
+        $ln = 'ln:' . str_pad($line, 3, " ", STR_PAD_LEFT);
+        if (is_object($message) || is_array($message)) {
+            $message = json_encode($message, JSON_PRETTY_PRINT);
+        }
+        error_log($t . "\t" . $filename . ":" . $ln . "\t" . $message . $spacer, 3, CI_ERROR_LOG);
+    } else {
+        if (is_object($file) || is_array($file)) {
+            $file = json_encode($file, JSON_PRETTY_PRINT);
+        }
+        error_log($t . "\t" . $file . $spacer, 3, CI_ERROR_LOG);
+    }
 }
 
 set_error_handler('ci_error_log');
 
-include_once CI_STORE_PLUGIN . 'test/index.php';
+// include_once CI_STORE_PLUGIN . 'test/index.php';
 include_once CI_STORE_PLUGIN . 'western/wps_ajax_handler.php';
 include_once CI_STORE_PLUGIN . 'hooks/index.php';
 include_once CI_STORE_PLUGIN . 'admin/index.php';
-include_once CI_STORE_PLUGIN . 'utils/DebugLogAPI.php';
-include_once CI_STORE_PLUGIN . 'utils/admin_ajax.php';
+// include_once CI_STORE_PLUGIN . 'utils/DebugLogAPI.php';
+// include_once CI_STORE_PLUGIN . 'utils/admin_ajax.php';
 include_once CI_STORE_PLUGIN . 'utils/AjaxManager.php';
 include_once CI_STORE_PLUGIN . 'ajax/index.php';
 
 $API_Manager = new AjaxManager();
 
 // build debug API for wp-content/plugins/ci-store-plugin/ci-store-plugin-working/src/common/debug_log/DebugLog.tsx
-new DebugLogAPI();
+// new DebugLogAPI();
 // build admin API
-new AdminAPI();
+// new AdminAPI();
 
 function create_admin_menu()
 {
@@ -73,16 +89,46 @@ function enqueue_custom_styles()
 {
     if (is_user_logged_in()) {
         wp_enqueue_style('custom-admin-styles', plugins_url('css/ci-admin.css', __FILE__));
-        wp_enqueue_script('custom-logged-in-script', plugins_url('js/ci-plugin.js', __FILE__));
+        // wp_enqueue_script('custom-logged-in-script', plugins_url('js/ci-plugin.js', __FILE__));
     }
-    wp_enqueue_style('custom-store-styles', plugins_url('css/ci-styles.css', __FILE__));
+    wp_enqueue_style('custom-store-styles', plugins_url('css/ci-styles.css', __FILE__), null, '0.2');
 }
 
 add_action('wp_enqueue_scripts', 'enqueue_custom_styles');
 
 function custom_enqueue_admin_styles()
 {
-    wp_enqueue_style('admin_styles', plugins_url('css/ci-admin.css', __FILE__));
+    wp_enqueue_style('admin_styles', plugins_url('css/ci-admin.css', __FILE__), null, '0.2');
 }
+
+//
+//
+// Remove Woo Commerce product gallery
+//
+//
+// function remove_woocommerce_gallery() {
+//     if (is_product()) {
+//         // Deregister WooCommerce gallery script
+//         wp_dequeue_script('flexslider');
+//         wp_deregister_script('flexslider');
+
+//         // Deregister WooCommerce gallery styles
+//         wp_dequeue_style('woocommerce_flexslider_css');
+//         wp_deregister_style('woocommerce_flexslider_css');
+//     }
+// }
+
+// add_action('wp_enqueue_scripts', 'remove_woocommerce_gallery', 100);
+
+remove_action('woocommerce_before_single_product_summary', 'woocommerce_show_product_images', 20);
+
+function remove_gallery_and_product_images()
+{
+    if (is_product()) {
+        remove_action('woocommerce_before_single_product_summary', 'woocommerce_show_product_images', 20);
+    }
+}
+
+add_action('loop_start', 'remove_gallery_and_product_images');
 
 // add_action('admin_head', 'custom_enqueue_admin_styles');

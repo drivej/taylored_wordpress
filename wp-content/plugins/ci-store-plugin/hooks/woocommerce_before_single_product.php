@@ -31,8 +31,8 @@ function custom_before_single_product()
 
     if (is_product()) {
         // this helps variable products with a single variation act like simple products
-        wp_enqueue_script('custom_before_single_product_script', plugin_dir_url(dirname(__FILE__)) . 'js/custom_before_single_product_script.js', array('jquery'), null, true);
-        wp_enqueue_style('custom_before_single_product_style', plugin_dir_url(dirname(__FILE__)) . 'css/custom_before_single_product_style.css');
+        wp_enqueue_script('custom_before_single_product_script', plugin_dir_url(dirname(__FILE__)) . 'js/custom_before_single_product_script.js', array('jquery'), '0.6', true);
+        wp_enqueue_style('custom_before_single_product_style', plugin_dir_url(dirname(__FILE__)) . 'css/custom_before_single_product_style.css', null, '0.2');
     }
     // if ($additional_images) {
     //     // print_r(['test'=>$additional_images]);

@@ -2,9 +2,10 @@
 
 namespace AjaxHandlers;
 
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/AjaxManager.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Report.php';
+require_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
+require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/AjaxManager.php';
+require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Report.php';
+require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
 
 function ci_import_products_page($supplier_key)
 {
@@ -13,40 +14,72 @@ function ci_import_products_page($supplier_key)
     $supplier->set_is_import_running(true);
     $report = $supplier->get_import_report();
     $isAggressive = isset($report['import_type']) && $report['import_type'] === 'aggressive';
+    $force_update = true;
 
     // fix page_size=0
     if (!is_numeric($report['page_size']) || $report['page_size'] < 10) {
         $supplier->update_import_report(['page_size' => 10]);
     }
-
+    ci_error_log('ci_import_products_page()' . json_encode(['cursor' => $report['cursor'], 'page_size' => $report['page_size'], 'updated' => $report['updated']]));
     $products = $supplier->get_products_page($report['cursor'], $report['page_size'], $report['updated']);
 
     // sometimes the data doesn't return anything - try again
     if (!isset($products['data'])) {
-        ci_error_log($supplier_key . ' api failed - sleep 10, the try again');
+        ci_error_log(__FILE__, __LINE__, $supplier_key . ' api failed - sleep 10, the try again');
         sleep(10);
         $products = $supplier->get_products_page($report['cursor'], $report['page_size'], $report['updated']);
     }
+
+    $cancelled = false;
 
     if (isset($products['data'])) {
         // schedule and event to import each product
         foreach ($products['data'] as $product) {
             if ($isAggressive) {
+                $action = $supplier->get_update_action($product); //
+                ci_error_log('ci_import_products_page() ' . $supplier_key . ':' . $product['id'] . ' ' . $action);
                 $product_report = new \Report();
-                $is_available = $supplier->is_available($product);
-                if ($is_available) {
-                    // only import available product
-                    $supplier->import_product($product['id'], $product_report);
-                } else {
-                    // delete product if it exists
-                    $sku = $supplier->get_product_sku($product['id']);
-                    $product_id = wc_get_product_id_by_sku($sku);
-                    if ($product_id) {
-                        $deleted = wp_delete_post($product_id, true);
-                        ci_error_log('deleted ' . $product_id . ' ' . ($deleted ? 'success' : 'failed'));
-                    }
+
+                switch ($action) {
+                    case 'insert':
+                        $supplier->import_product($product['id'], $force_update, $product_report);
+                        break;
+
+                    case 'update':
+                        $supplier->import_product($product['id'], $force_update, $product_report);
+                        break;
+
+                    case 'delete':
+                        $sku = $supplier->get_product_sku($product['id']);
+                        $product_id = wc_get_product_id_by_sku($sku);
+                        wp_delete_post($product_id, true);
+                        break;
+
+                    case 'ignore':
+                        break;
                 }
-                ci_error_log($supplier_key . ':' . $product['id'] . ' aggressive import ' . $product_report->getData('action'));
+
+                // if ($action !== 'ignore') {
+                // ci_error_log('ci_import_products_page() ' . $supplier_key . ':' . $product['id'] . ' ' . $action);
+                // }
+                // continue;
+
+                // $product_report = new \Report();
+                // $is_available = $supplier->is_available($product);
+                // if ($is_available) {
+                //     // only import available product
+                //     // check if product needs update
+                //     $supplier->import_product($product['id'], $force_update, $product_report);
+                // } else {
+                //     // delete product if it exists
+                //     $sku = $supplier->get_product_sku($product['id']);
+                //     $product_id = wc_get_product_id_by_sku($sku);
+                //     if ($product_id) {
+                //         $deleted = wp_delete_post($product_id, true);
+                //         ci_error_log(__FILE__, __LINE__, 'deleted ' . $product_id . ' ' . ($deleted ? 'success' : 'failed'));
+                //     }
+                // }
+                // ci_error_log(__FILE__, __LINE__, $supplier_key . ':' . $product['id'] . ' aggressive import ' . $product_report->getData('action'));
             } else {
                 $product_id = $product['id'];
                 $is_scheduled = (bool) wp_next_scheduled('ci_import_product', [$supplier_key, $product_id]);
@@ -54,33 +87,49 @@ function ci_import_products_page($supplier_key)
                     $scheduled = wp_schedule_single_event(time() + 1, 'ci_import_product', [$supplier_key, $product_id]);
                 }
             }
+
+            // escape hatch
+            if ($supplier->should_cancel_import()) {
+                $cancelled = true;
+                ci_error_log('ci_import_products_page() ABORTED');
+                break;
+            }
         }
 
         $cursor = $products['meta']['cursor']['next'];
 
-        $supplier->update_import_report([
-            'processed' => $report['processed'] + count($products['data']),
-            'cursor' => $cursor,
-        ]);
+        if (!$cancelled) {
+            $supplier->update_import_report([
+                'processed' => $report['processed'] + count($products['data']),
+                'cursor' => $cursor,
+            ]);
 
-        if (!$cursor) {
-            $supplier->update_import_report(['completed' => gmdate("c")]);
-            $supplier->set_is_import_running(false);
-        } else if ($supplier->should_cancel_import()) {
-            $supplier->set_is_import_running(false);
-        } else {
-            // schedule and event to load the next page of products
-            $scheduled = wp_schedule_single_event(time() + 1, 'ci_import_products_page', [$supplier_key]);
-            if (!$scheduled) {
+            if (!$cursor) {
+                $supplier->update_import_report(['completed' => gmdate("c")]);
                 $supplier->set_is_import_running(false);
-                $supplier->update_import_report(['error' => 'schedule failed']);
-                ci_error_log('ci_import_products_page() schedule failed');
+            } else if ($supplier->should_cancel_import()) {
+                $supplier->set_is_import_running(false);
+            } else {
+                // schedule and event to load the next page of products
+                $is_scheduled = (bool) wp_next_scheduled('ci_import_products_page', [$supplier_key]);
+                if (!$is_scheduled) {
+                    $scheduled = wp_schedule_single_event(time() + 1, 'ci_import_products_page', [$supplier_key]);
+                    if (!$scheduled) {
+                        $supplier->set_is_import_running(false);
+                        $supplier->update_import_report(['error' => 'schedule failed']);
+                        ci_error_log(__FILE__, __LINE__, 'ci_import_products_page() schedule failed');
+                    }
+                } else {
+                    ci_error_log(__FILE__, __LINE__, 'ci_import_products_page() schedule page import already scheduled - How did this duplicate?');
+                }
             }
+        } else {
+            $supplier->set_is_import_running(false);
         }
     } else {
         // try again
         $supplier->set_is_import_running(false);
-        ci_error_log('ci_import_products_page() product data empty');
+        ci_error_log(__FILE__, __LINE__, 'ci_import_products_page() product data empty');
     }
 
 }

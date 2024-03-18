@@ -6,14 +6,43 @@ import { IAjaxQuery } from '../common/hooks/useJob';
 import { useWordpressAjax } from '../common/hooks/useWordpressAjax';
 import { slugify } from '../components/store/slugify';
 import { IWordpressAjaxParams } from '../views/jobs/Jobs';
+import { Pre } from './Pre';
 
 export const TestAdmin = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const supplier_key = searchParams.get('supplier_key');
-
   return (
     <div className='p-3 d-flex flex-column gap-2'>
-      <h3>Test Admin</h3>
+      <header>
+        <p className='m-0'>CI Store</p>
+        <h3>Utilities</h3>
+      </header>
+
+      <AdminForm name='Monkey Wrench' cmd='monkey_wrench' allowPolling={true}>
+        <SelectSupplier />
+        <ProductInput />
+        {/* <TextInput name='custom' placeholder='custom...' defaultValue='' /> */}
+        <SelectInput
+          name='custom'
+          options={[
+            { name: 'none', value: '' },
+            { name: 'get_update_action', value: 'get_update_action' },
+            { name: 'update_product_attributes', value: 'update_product_attributes' },
+            { name: 'fix_attributes', value: 'fix_attributes' },
+            { name: 'select', value: 'select' },
+            { name: 'clean', value: 'clean' },
+            { name: 'flush', value: 'flush' },
+            { name: 'fix', value: 'fix' },
+            { name: 'explore', value: 'explore' },
+            { name: 'mock', value: 'mock' },
+            { name: 'sync', value: 'sync' },
+          ]}
+          initialValue='none'
+        />
+      </AdminForm>
+
+      <AdminForm name='View Attributes' cmd='view_attributes' RenderResult={CSVTable}>
+        <SelectSupplier />
+        <ProductInput />
+      </AdminForm>
 
       <AdminForm name='Import Status' cmd='get_import_status' allowPolling={true}>
         <SelectSupplier />
@@ -31,6 +60,10 @@ export const TestAdmin = () => {
         <SelectSupplier />
       </AdminForm>
 
+      <AdminForm name='Get Error Log' cmd='get_error_log' allowPolling={true} RenderResult={ErrorLogs}></AdminForm>
+
+      <AdminForm name='Clear Error Log' cmd='clear_error_log' allowPolling={true}></AdminForm>
+
       <AdminForm name='WPS API' cmd='western_api' allowPolling={true}>
         <TextInput name='url' defaultValue='/' />
       </AdminForm>
@@ -39,8 +72,6 @@ export const TestAdmin = () => {
         <SelectSupplier />
         <SelectImportType />
       </AdminForm> */}
-
-      {/* <AdminForm name='Monkey Wrench' cmd='monkey_wrench' allowPolling={true}></AdminForm> */}
 
       <AdminForm name='Stock Update' cmd='update_products_stock_status' allowPolling={true}>
         <SelectSupplier />
@@ -61,7 +92,7 @@ export const TestAdmin = () => {
         <ProductInput />
       </AdminForm>
 
-      <AdminForm name='Find Valid Product' cmd='find_valid_product'>
+      {/* <AdminForm name='Find Valid Product' cmd='find_valid_product'>
         <div className='d-flex flex-column gap-2'>
           <div>
             <SelectSupplier />
@@ -72,7 +103,7 @@ export const TestAdmin = () => {
           </div>
           <PageSizeInput />
         </div>
-      </AdminForm>
+      </AdminForm> */}
 
       {/* <AdminForm name='Is Importing Product?' cmd='is_importing_product' allowPolling={true}>
         <div className='input-group'>
@@ -98,6 +129,72 @@ export const TestAdmin = () => {
       </AdminForm> */}
     </div>
   );
+};
+
+const CSVTable = ({ data }: { data: { rows: string[][] } }) => {
+  if (data?.rows) {
+    const rows = data?.rows ?? [];
+
+    return (
+      <>
+        <table className='table table-sm border' style={{ fontSize: 11 }}>
+          <thead>
+            <tr>
+              {rows[0].map((r) => (
+                <td>{r}</td>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.slice(1).map((r) => (
+              <tr>
+                {r.map((c) => (
+                  <td>{c}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <Pre data={{...data, rows:undefined}} />
+      </>
+    );
+  }
+
+  return null;
+};
+
+const ErrorLogs = ({ data }: { data: string[] }) => {
+  if (data?.length) {
+    const parts = data.map((r) => r.split('\t'));
+    const cols = parts.reduce((n, r) => Math.max(n, r.length), 0);
+    return (
+      <div style={{ overflow: 'auto', maxHeight: 400, maxWidth: '100%' }}>
+        <table className='table table-sm'>
+          <tbody>
+            {parts.reverse().map((ln) => (
+              <>
+                <tr>
+                  <td colSpan={cols}>
+                    <div style={{ fontSize: 11 }} className='p-2 rounded border text-nowrap'>
+                      {ln[0]}
+                    </div>
+                  </td>
+                  <td>
+                    <div className='p-2 rounded border'>
+                      {ln.slice(1).map((r) => (
+                        <pre style={{ fontSize: 11, maxWidth: '100%', overflow: 'auto' }}>{r}</pre>
+                      ))}
+                    </div>
+                  </td>
+                </tr>
+              </>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+  return null;
 };
 
 const PageSizeInput = ({ initialValue = 20 }: { initialValue?: number }) => {
@@ -214,7 +311,7 @@ const useSuppliers = () => {
   return useWordpressAjax<{ key: string; name: string }[]>({ action: 'ci_api_handler', cmd: 'get_suppliers' });
 };
 
-const AdminForm = ({ name, cmd, allowPolling = false, children = null }: { name: string; cmd: string; allowPolling?: boolean; children?: React.ReactNode }) => {
+const AdminForm = ({ name, cmd, allowPolling = false, children = null, RenderResult = Pre }: { name: string; cmd: string; allowPolling?: boolean; children?: React.ReactNode; RenderResult?: React.ComponentType<{ data: unknown }> }) => {
   const $form = useRef<HTMLFormElement>(null);
   const [isPolling, setIsPolling] = useState(false);
   const [nonce, setNonce] = useState(0);
@@ -273,9 +370,9 @@ const AdminForm = ({ name, cmd, allowPolling = false, children = null }: { name:
           </label>
         ) : null}
       </form>
-      <div className='position-relative' style={{ flex: '1 1 auto' }}>
-        <pre style={{ fontSize: 11 }}>{JSON.stringify(data.data, null, 2)}</pre>
-
+      <div className='position-relative' style={{ flex: '1 1 auto', maxWidth: '100%', overflow: 'auto' }}>
+        {/* <pre style={{ fontSize: 11 }}>{JSON.stringify(data.data, null, 2)}</pre> */}
+        <RenderResult data={data.data} />
         <div className='spinner-border spinner-border-sm' role='status' style={{ pointerEvents: 'none', position: 'absolute', top: 16, right: 16, opacity: data.isFetching ? 1 : 0, transition: 'opacity 0.2s' }} />
 
         {/* <div className='position-absolute d-flex align-items-start justify-content-end' style={{ flex: 'auto', inset: 0, opacity: data.isFetching ? 1 : 0, transition: 'opacity 0.2s' }}>

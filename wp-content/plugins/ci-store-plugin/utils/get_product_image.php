@@ -9,8 +9,11 @@ function get_product_image($product)
 {
     $src = null;
     if (isset($product)) {
-        $serialized_data = $product->get_meta('_ci_additional_images', true);
-        $additional_images = unserialize($serialized_data);
+        $additional_images = $product->get_meta('_ci_additional_images', true);
+        // Always check if it needs to be serialized - there's no assumptions in woo, wp
+        if (is_serialized($additional_images)) {
+            $additional_images = unserialize($additional_images);
+        }
 
         if (!empty($additional_images) && is_array($additional_images)) {
             $src = reset($additional_images);

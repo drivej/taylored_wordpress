@@ -6,7 +6,7 @@ include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/FileCache.php';
 function do_test_schedule_event_action($a)
 {
     sleep(3);
-    error_log('do_test_schedule_event_action()');
+    ci_error_log('do_test_schedule_event_action()');
 }
 
 add_action('test_schedule_event', 'do_test_schedule_event_action', 12, 1);

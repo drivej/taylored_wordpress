@@ -18,26 +18,29 @@ include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
  */
 function import_western_product($wps_product_id, $force_update = false, $report = new Report())
 {
+    // if (!isset($report) || !method_exists($report, 'addLog')) {
+    //     ci_error_log('no report object');
+    //     return;
+    // }
     $supplier = \CI\Admin\get_supplier('wps');
-    $report->addLog('import_western_product()');
+    // $report->addLog('import_western_product()');
     $start_time = microtime(true);
     $action = '';
     $product_id = '';
     $sku = $supplier->get_product_sku($wps_product_id);
-    // $sku = get_western_sku($wps_product_id);
-
-    // try {
     $wps_product = $supplier->get_product($wps_product_id);
-    $report->addData('wps_product_id', $wps_product_id);
+    // $report->addData('wps_product_id', $wps_product_id);
 
     if (isset($wps_product['error'])) {
+        // api response error
         if (isset($wps_product['status_code']) && $wps_product['status_code'] === 404) {
+            // product not found by supplier
             $product_id = wc_get_product_id_by_sku($sku);
             if ($product_id) {
-                $report->addLog('404 ' . $wps_product_id);
+                // $report->addLog('404 ' . $wps_product_id);
                 $action = 'delete';
             } else {
-                $report->addLog('not found ' . $wps_product_id);
+                // $report->addLog('not found ' . $wps_product_id);
                 $action = 'ignore';
             }
         } else {
@@ -45,8 +48,8 @@ function import_western_product($wps_product_id, $force_update = false, $report 
         }
     } else {
         $product_id = wc_get_product_id_by_sku($sku);
-        $report->addData('product_sku', $sku);
-        $report->addData('product_id', $product_id);
+        // $report->addData('product_sku', $sku);
+        // $report->addData('product_id', $product_id);
         $is_valid = isValidProduct($wps_product);
 
         if ($is_valid) {
@@ -70,8 +73,6 @@ function import_western_product($wps_product_id, $force_update = false, $report 
         }
     }
 
-    // write_to_log_file("import_western_product() " . json_encode(['action' => $action, "wps_product_id" => $wps_product_id, "product_id" => $product_id]));
-
     switch ($action) {
         case 'insert':
             $product_id = insert_western_product($wps_product, $report);
@@ -87,16 +88,10 @@ function import_western_product($wps_product_id, $force_update = false, $report 
         default:
     }
 
-    $report->addData('action', $action);
-    $report->addData('product_id', $product_id);
-
-    // } catch (Exception $e) {
-    //     write_to_log_file("ERROR! import_western_product() " . json_encode(["wps_product_id" => $wps_product_id, 'e'=>$e]));
-    // }
+    // $report->addData('action', $action);
+    // $report->addData('product_id', $product_id);
     $end_time = microtime(true);
     $time_taken = $end_time - $start_time;
-    // write_to_log_file('import_western_product()' . json_encode(['wps_product_id' => $wps_product_id, 'action' => $action, 'time' => $time_taken]));
-    // return $report; //['wps_product_id' => $wps_product_id, 'product_id' => $product_id, 'action' => $action, 'sku' => $sku];
 }
 /**
  *
@@ -174,25 +169,25 @@ function insert_western_product($wps_product, $report = new Report())
     $product_id = $product->save();
     wp_set_object_terms($product_id, 'variable', 'product_type');
     update_product_attributes($product, $wps_product, $report);
-    if ($report->getData('attribute_changes')) {
+    // if ($report->getData('attribute_changes')) {
         $product->save();
-    }
+    // }
     // update_product_variations($product, $wps_product, $report);
     update_western_product($wps_product, $product_id, $report);
     // $product->save();
     // $report->addLog('save()');
-    $report->addLog('insert_western_product() sku:' . $sku . ' id: ' . $product_id);
+    // $report->addLog('insert_western_product() sku:' . $sku . ' id: ' . $product_id);
     return $product_id;
 }
 
 function update_western_product($wps_product, $product_id, $report = new Report())
 {
-    $report->addLog('update_western_product()');
+    // $report->addLog('update_western_product()');
     $supplier = \CI\Admin\get_supplier('wps');
     $woo_product = wc_get_product_object('variable', $product_id);
     // $has_variations = count($wps_product['data']['items']['data']) > 0;
     // $is_variable = $product->is_type('variable');
-    $report->addData('type', $woo_product->get_type());
+    // $report->addData('type', $woo_product->get_type());
 
     $first_item = $wps_product['data']['items']['data'][0];
     $woo_product->set_name($wps_product['data']['name']);
@@ -200,6 +195,7 @@ function update_western_product($wps_product, $product_id, $report = new Report(
     $woo_product->set_regular_price($first_item['list_price']);
     $woo_product->set_stock_status('instock');
     $woo_product->update_meta_data('_ci_import_version', $supplier->import_version);
+    $woo_product->set_description($supplier->get_description($wps_product));
     // $images = get_additional_images($wps_product);
     // $serialized_images = serialize($images);
     // $woo_product->update_meta_data('_ci_additional_images', $serialized_images);
@@ -215,6 +211,9 @@ function update_western_product($wps_product, $product_id, $report = new Report(
     update_product_variations($woo_product, $wps_product, $report);
     update_product_stock_status($woo_product, $wps_product, $report);
 
+    // TODO: do we need this?
+    // check skus os master to make sure any invalid variations don't make it to the sku list
+
     $woo_product->save();
     // }
     return $product_id;
@@ -222,7 +221,7 @@ function update_western_product($wps_product, $product_id, $report = new Report(
 
 function update_product_images($woo_product, $wps_product, $report)
 {
-    $report->addLog('update_product_images()');
+    // $report->addLog('update_product_images()');
     $images = get_additional_images($wps_product);
     $serialized_images = serialize($images);
     $woo_product->update_meta_data('_ci_additional_images', $serialized_images);
@@ -244,7 +243,7 @@ function update_product_stock_status($woo_product, $wps_product, $report)
 
     if ($woo_stock_status !== $wps_stock_status) {
         $woo_product->set_stock_status($wps_stock_status);
-        $report->addData('stock_status', $wps_stock_status);
+        // $report->addData('stock_status', $wps_stock_status);
     }
 }
 /**

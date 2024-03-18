@@ -537,7 +537,7 @@ class AdminAPI
 
             case 'import_product':
                 $report = new Report();
-                ci_import_product($supplier_key, $product_id, $report);
+                ci_import_product($supplier_key, $product_id, true, $report);
                 wp_send_json(['data' => $report]);
                 break;
 

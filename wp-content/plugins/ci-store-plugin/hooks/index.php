@@ -11,6 +11,7 @@ include_once __DIR__ . '/woocommerce_placeholder_img.php';
 include_once __DIR__ . '/woocommerce_product_get_image.php';
 include_once __DIR__ . '/woocommerce_product_thumbnails.php';
 include_once __DIR__ . '/woocommerce_single_product_image.php';
+include_once __DIR__ . '/woocommerce_single_product_summary.php';
 include_once __DIR__ . '/woocommerce_single_variation.php';
 include_once __DIR__ . '/wp_get_attachment_image_src.php';
 

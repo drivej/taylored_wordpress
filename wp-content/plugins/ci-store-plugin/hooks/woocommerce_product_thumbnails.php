@@ -114,7 +114,7 @@ $src = reset($additional_images);
 $src = wc_placeholder_img_src();
 }
 } else {
-error_log('');
+
 $src = wc_placeholder_img_src();
 }
 

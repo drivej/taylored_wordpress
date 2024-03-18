@@ -1,30 +1,30 @@
 <?php
 
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/ReactSubpage.php';
-require_once WP_PLUGIN_DIR . '/ci-store-plugin/actions/ProductImporter.php';
-require_once WP_PLUGIN_DIR . '/ci-store-plugin/actions/StockCheck.php';
+// require_once WP_PLUGIN_DIR . '/ci-store-plugin/actions/ProductImporter.php';
+// require_once WP_PLUGIN_DIR . '/ci-store-plugin/actions/StockCheck.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/LogFile.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/get_crons.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/western/import_western_product.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/admin/ci_import_product.php';
+// include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/get_crons.php';
 
 new ReactSubpage('overview', 'Overview', 'ci-store-plugin-page', 'ci-store_page_');
 
-new ProductImporter();
-new ReactSubpage('import_products', 'Import Products', 'ci-store-plugin-page', 'ci-store_page_');
+// new ProductImporter();
+// new ReactSubpage('import_products', 'Import Products', 'ci-store-plugin-page', 'ci-store_page_');
 
-$stock_check = new StockCheck();
-$stock_check->schedule('every_day');
-new ReactSubpage('stock_check', 'Stock Check', 'ci-store-plugin-page', 'ci-store_page_');
+// $stock_check = new StockCheck();
+// $stock_check->schedule('every_day');
+// new ReactSubpage('stock_check', 'Stock Check', 'ci-store-plugin-page', 'ci-store_page_');
 
-new ReactSubpage('manage_events', 'Manage Events', 'ci-store-plugin-page', 'ci-store_page_');
+// new ReactSubpage('manage_events', 'Manage Events', 'ci-store-plugin-page', 'ci-store_page_');
 
-new ReactSubpage('manage_products', 'Manage Products', 'ci-store-plugin-page', 'ci-store_page_');
+// new ReactSubpage('manage_products', 'Manage Products', 'ci-store-plugin-page', 'ci-store_page_');
 
-new ReactSubpage('test_admin', 'Test Admin', 'ci-store-plugin-page', 'ci-store_page_');
+new ReactSubpage('test_admin', 'Utilities', 'ci-store-plugin-page', 'ci-store_page_');
 
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/get_crons.php';
-
+/*
 function checkCleanCompletedScheduledEvents()
 {
     global $wpdb;
@@ -182,3 +182,4 @@ function process_products_batch($offset = 0, $batch_size = 100, $result = ['prod
         return $result;
     }
 }
+*/

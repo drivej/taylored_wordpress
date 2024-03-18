@@ -30,6 +30,7 @@ require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
  */
 function update_product_variations($woo_product, $supplier_product, $report)
 {
+    // ci_error_log(__FILE__, __LINE__, 'update_product_variations()');
     $supplier = WooTools::get_product_supplier($woo_product);
     $supplier_variations = $supplier->extract_variations($supplier_product);
     $result['sync'] = WooTools::sync_variations($woo_product, $supplier_variations, $report);
