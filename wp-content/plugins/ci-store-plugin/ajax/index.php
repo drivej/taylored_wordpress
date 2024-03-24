@@ -1,5 +1,7 @@
 <?php
 
+// require all the files in this folder
+
 $dir = __DIR__;
 
 // Get an array of file paths matching the pattern "*.php" in the current directory

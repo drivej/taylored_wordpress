@@ -31,55 +31,43 @@ function ci_import_products_page($supplier_key)
     }
 
     $cancelled = false;
+    $stalled = false;
 
     if (isset($products['data'])) {
         // schedule and event to import each product
+        $tally = ['insert' => [], 'update' => [], 'delete' => [], 'ignore' => []];
+        ci_error_log('Recieved ' . count($products['data']) . ' products');
+
         foreach ($products['data'] as $product) {
             if ($isAggressive) {
                 $action = $supplier->get_update_action($product); //
-                ci_error_log('ci_import_products_page() ' . $supplier_key . ':' . $product['id'] . ' ' . $action);
+                $product_id = $product['id'];
+                $tally[$action][] = $product_id;
+                ci_error_log('ci_import_products_page() ' . $supplier_key . ':' . $product_id . ' ' . $action);
                 $product_report = new \Report();
+                // $supplier->import_product($product['id'], $product_report);
 
                 switch ($action) {
                     case 'insert':
-                        $supplier->import_product($product['id'], $force_update, $product_report);
+                        $supplier->insert_product($product_id, $product_report);
                         break;
 
                     case 'update':
-                        $supplier->import_product($product['id'], $force_update, $product_report);
+                        $supplier->update_product($product_id, $product_report);
                         break;
 
                     case 'delete':
-                        $sku = $supplier->get_product_sku($product['id']);
-                        $product_id = wc_get_product_id_by_sku($sku);
-                        wp_delete_post($product_id, true);
+                        $supplier->delete_product($product_id, $product_report);
+                        // $sku = $supplier->get_product_sku($product['id']);
+                        // $product_id = wc_get_product_id_by_sku($sku);
+                        // wp_delete_post($product_id, true);
                         break;
 
                     case 'ignore':
                         break;
                 }
-
-                // if ($action !== 'ignore') {
-                // ci_error_log('ci_import_products_page() ' . $supplier_key . ':' . $product['id'] . ' ' . $action);
-                // }
-                // continue;
-
-                // $product_report = new \Report();
-                // $is_available = $supplier->is_available($product);
-                // if ($is_available) {
-                //     // only import available product
-                //     // check if product needs update
-                //     $supplier->import_product($product['id'], $force_update, $product_report);
-                // } else {
-                //     // delete product if it exists
-                //     $sku = $supplier->get_product_sku($product['id']);
-                //     $product_id = wc_get_product_id_by_sku($sku);
-                //     if ($product_id) {
-                //         $deleted = wp_delete_post($product_id, true);
-                //         ci_error_log(__FILE__, __LINE__, 'deleted ' . $product_id . ' ' . ($deleted ? 'success' : 'failed'));
-                //     }
-                // }
-                // ci_error_log(__FILE__, __LINE__, $supplier_key . ':' . $product['id'] . ' aggressive import ' . $product_report->getData('action'));
+                // let wp know we are alive
+                $supplier->ping();
             } else {
                 $product_id = $product['id'];
                 $is_scheduled = (bool) wp_next_scheduled('ci_import_product', [$supplier_key, $product_id]);
@@ -94,9 +82,29 @@ function ci_import_products_page($supplier_key)
                 ci_error_log('ci_import_products_page() ABORTED');
                 break;
             }
+
+            if ($supplier->should_stall_import()) {
+                $stalled = true;
+                ci_error_log('ci_import_products_page() FORCE STALLED');
+                break;
+            }
         }
 
+        // log pretty useful data
+        $useful_data = array_filter($tally, fn($v) => count($v));
+        $results = '';
+        foreach ($useful_data as $k => $v) {
+            $results .= "\n\t" . $k . ': (' . count($v) . ') ' . implode(',', $v);
+        }
+        ci_error_log('ci_import_products_page() ' . $results);
+
         $cursor = $products['meta']['cursor']['next'];
+
+        if ($stalled) {
+            ci_error_log('stall import');
+            $supplier->clear_stall_test();
+            return;
+        }
 
         if (!$cancelled) {
             $supplier->update_import_report([
@@ -131,123 +139,69 @@ function ci_import_products_page($supplier_key)
         $supplier->set_is_import_running(false);
         ci_error_log(__FILE__, __LINE__, 'ci_import_products_page() product data empty');
     }
-
 }
 
 add_action('ci_import_products_page', 'AjaxHandlers\ci_import_products_page', 10, 1);
 
-// function Xci_import_supplier_products_page($supplier_key) //, $updated)
-// {
-//     $supplier = \CI\Admin\get_supplier($supplier_key);
-//     $report = $supplier->get_import_report();
-//     $updated = $report['updated'];
-//     $cursor = $report['cursor'];
-//     $products_count = $supplier->get_products_count($updated);
-//     $supplier->update_import_report(['products_count' => $products_count]);
-//     $is_running = $supplier->set_is_import_running(true);
-
-//     update_option('ci_import_supplier_products_running', true);
-
-//     $processed = 0;
-//     $products = $supplier->get_products_page($cursor, 10, $updated);
-
-//     while ($is_running) {
-//         $supplier->update_import_report(['cursor' => $cursor]);
-
-//         if (isset($products['data'])) {
-//             foreach ($products['data'] as $product) {
-//                 $product_id = $product['id'];
-//                 $supplier->ping();
-//                 error_log('import product ' . $processed . ': ' . $product_id);
-//                 $processed++;
-//                 $supplier->update_import_report(['processed' => $processed, 'cursor' => $cursor]);
-
-//                 do_action('ci_import_product', $supplier_key, $product_id);
-
-//                 if ($supplier->should_cancel_import()) {
-//                     $is_running = false;
-//                     break;
-//                 }
-//             }
-//             $cursor = $products['meta']['cursor']['next'];
-//             if ($cursor) {
-//                 $products = $supplier->get_products_page($cursor, 10, $updated);
-//             } else {
-//                 break;
-//             }
-//         } else {
-//             break;
-//         }
-//         if ($supplier->should_cancel_import()) {
-//             $is_running = false;
-//             break;
-//         }
-//         sleep(3);
-//     }
-//     $supplier->set_is_import_running(false);
-// }
-
-// add_action('ci_import_products_event', 'AjaxHandlers\ci_import_products_event', 10, 1);
-
-function toggle_import_type($params)
+function stall_import($params)
 {
     $supplier_key = \AjaxManager::get_param('supplier_key', null, $params);
-    $import_type = \AjaxManager::get_param('import_type', null, $params);
     $supplier = \CI\Admin\get_supplier($supplier_key);
-    $supplier->update_import_report(['import_type' => $import_type]);
-    $report = $supplier->get_import_report();
-    return $report;
+    $supplier->stall_import();
+    return ['stall attempted'];
 }
 
 function import_products($params)
 {
     $supplier_key = \AjaxManager::get_param('supplier_key', null, $params);
-    $updated = \AjaxManager::get_param('updated', null, $params);
-    $resume = (bool) \AjaxManager::get_param('resume', null, $params);
-    $import_type = \AjaxManager::get_param('import_type', null, $params);
-    $page_size = \AjaxManager::get_param('page_size', 10, $params);
     $supplier = \CI\Admin\get_supplier($supplier_key);
-    $is_import_running = $supplier->is_import_running();
-    $is_import_scheduled = $supplier->is_import_scheduled();
-    $products_count = $supplier->get_products_count($updated);
-    $success = true;
-    $scheduled = false;
+    return $supplier->start_import_products();
+    /*
+$updated = \AjaxManager::get_param('updated', null, $params);
+$resume = (bool) \AjaxManager::get_param('resume', null, $params);
+$import_type = \AjaxManager::get_param('import_type', null, $params);
+$page_size = \AjaxManager::get_param('page_size', 10, $params);
+$cursor = \AjaxManager::get_param('cursor', '', $params);
+$is_import_running = $supplier->is_import_running();
+$is_import_scheduled = $supplier->is_import_scheduled();
+$products_count = -1;
+$scheduled = false;
 
-    if (!$is_import_running && !$is_import_scheduled) {
-        if (!$resume) {
-            $supplier->clear_import_report();
-            $products_count = $supplier->get_products_count($updated);
-            $supplier->update_import_report([
-                'updated' => $updated,
-                'products_count' => $products_count,
-                'cursor' => '',
-                'started' => gmdate("c"),
-                'page_size' => $page_size,
-                'import_type' => $import_type,
-            ]);
-        } else {
-            $supplier->update_import_report([
-                'import_type' => $import_type,
-                'page_size' => $page_size,
-            ]);
-        }
-        $scheduled = $supplier->schedule_import();
-    }
+if (!$is_import_running && !$is_import_scheduled) {
+if (!$resume) {
+$supplier->clear_import_report();
+$products_count = $supplier->get_products_count($updated);
+$supplier->update_import_report([
+'updated' => $updated,
+'products_count' => $products_count,
+'cursor' => $cursor,
+'started' => gmdate("c"),
+'page_size' => $page_size,
+'import_type' => $import_type,
+]);
+} else {
+$supplier->update_import_report([
+'import_type' => $import_type,
+'page_size' => $page_size,
+]);
+}
+$scheduled = $supplier->schedule_import();
+}
 
-    $report = $supplier->get_import_report();
+$report = $supplier->get_import_report();
 
-    return [
-        'supplier_key' => $supplier_key,
-        'is_import_running' => $is_import_running,
-        'is_import_scheduled' => $is_import_scheduled,
-        'updated' => $updated,
-        'products_count' => $products_count,
-        'resume' => $resume,
-        'scheduled' => $scheduled,
-        'import_type' => $import_type,
-        'report' => $report,
-        'success' => $success,
-    ];
+return [
+'supplier_key' => $supplier_key,
+'is_import_running' => $is_import_running,
+'is_import_scheduled' => $is_import_scheduled,
+'updated' => $updated,
+'products_count' => $products_count,
+'resume' => $resume,
+'scheduled' => $scheduled,
+'import_type' => $import_type,
+'report' => $report,
+];
+ */
 }
 
 // function Ximport_products($params)

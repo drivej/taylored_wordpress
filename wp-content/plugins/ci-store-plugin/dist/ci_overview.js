@@ -4245,9 +4245,9 @@ const useWordpressAjax = (query, options = {}) => useQuery(Object.assign({ query
 
 ;// CONCATENATED MODULE: ./src/test_admin/useImportStatus.tsx
 
-const useImportStatus = (supplier_key) => {
+const useImportStatus = (supplier_key, isPolling = false) => {
     const query = { action: 'ci_api_handler', cmd: 'get_import_status', supplier_key };
-    const data = useWordpressAjax(query, { enabled: !!supplier_key });
+    const data = useWordpressAjax(query, { enabled: !!supplier_key, refetchInterval: isPolling ? 60000 : null });
     return data;
 };
 
@@ -4259,7 +4259,16 @@ const useSuppliers = () => {
     return data;
 };
 
+;// CONCATENATED MODULE: ./src/test_admin/useTotalProducts.tsx
+
+const useTotalProducts = (supplier_key) => {
+    const query = { action: 'ci_api_handler', cmd: 'get_total_products', supplier_key };
+    const data = useWordpressAjax(query, { enabled: !!supplier_key });
+    return data;
+};
+
 ;// CONCATENATED MODULE: ./src/overview/Overview.tsx
+
 
 
 
@@ -4268,7 +4277,7 @@ const Overview = () => {
     // const data = useImportStatus();
     const suppliers = useSuppliers();
     if (suppliers.isSuccess) {
-        return (react.createElement("div", null, suppliers.data.map((supplier) => (react.createElement(SupplierImportStatus, { supplier: supplier })))));
+        return (react.createElement("div", { className: 'p-3 d-flex flex-column gap-2' }, suppliers.data.map((supplier) => (react.createElement(SupplierImportStatus, { supplier: supplier })))));
     }
     return null;
     // return (
@@ -4280,14 +4289,16 @@ const Overview = () => {
     // );
 };
 const SupplierImportStatus = ({ supplier }) => {
-    const status = useImportStatus(supplier.key);
+    var _a, _b, _c, _d, _e, _f;
+    const status = useImportStatus(supplier.key, true);
+    const totalProducts = useTotalProducts(supplier.key);
     const lastImport = react.useMemo(() => {
         if (status.isSuccess) {
             const started = new Date(Date.parse(status.data.report.started)).getTime();
             const ago = formatTimeAgo((Date.now() - started) / 1000);
             return ago;
         }
-        return '';
+        return '-';
     }, [status.isSuccess]);
     const lastCompleted = react.useMemo(() => {
         var _a;
@@ -4296,23 +4307,52 @@ const SupplierImportStatus = ({ supplier }) => {
             const ago = formatTimeAgo((Date.now() - completed) / 1000);
             return ago;
         }
-        return '';
+        return '-';
     }, [status.isSuccess]);
+    const percent_complete = (100 * ((_c = (_b = (_a = status.data) === null || _a === void 0 ? void 0 : _a.report) === null || _b === void 0 ? void 0 : _b.processed) !== null && _c !== void 0 ? _c : 0)) / ((_f = (_e = (_d = status.data) === null || _d === void 0 ? void 0 : _d.report) === null || _e === void 0 ? void 0 : _e.products_count) !== null && _f !== void 0 ? _f : 1);
+    const is_running = status.isSuccess ? status.data.is_running || status.data.is_scheduled : false;
     if (status.isSuccess) {
-        return (react.createElement("div", null,
-            react.createElement("h3", null, supplier.name),
-            react.createElement("p", null,
-                "Currently Importing: ",
-                status.data.is_import_running || status.data.is_import_scheduled ? 'Yes' : 'No'),
-            react.createElement("p", null,
-                "Products Processed: ",
-                status.data.report.processed),
-            react.createElement("p", null,
-                "Last Import Started: ",
-                lastImport),
-            react.createElement("p", null,
-                "Last Import Completed: ",
-                lastCompleted)));
+        return (react.createElement("div", { className: 'p-3 border rounded d-flex gap-3 w-100 shadow-sm' },
+            react.createElement("div", { className: 'w-100' },
+                react.createElement("h3", null, supplier.name),
+                react.createElement("hr", null),
+                react.createElement("div", { className: 'progress', role: 'progressbar' },
+                    react.createElement("div", { className: `progress-bar ${is_running ? 'progress-bar-striped progress-bar-animated' : ''}`, style: { width: `${percent_complete}%` } })),
+                react.createElement("div", { className: 'd-flex justify-content-between' },
+                    react.createElement("div", null),
+                    react.createElement("small", null,
+                        status.data.report.processed,
+                        " / ",
+                        status.data.report.products_count)),
+                react.createElement("p", null,
+                    "Currently Importing: ",
+                    is_running ? 'Yes' : 'No'),
+                react.createElement("p", null,
+                    "Products Processed: ",
+                    status.data.report.processed,
+                    " of ",
+                    status.data.report.products_count),
+                react.createElement("p", null,
+                    "Updated: ",
+                    status.data.report.update),
+                react.createElement("p", null,
+                    "Deleted: ",
+                    status.data.report.delete),
+                react.createElement("p", null,
+                    "Inserted: ",
+                    status.data.report.insert),
+                react.createElement("p", null,
+                    "Ignored: ",
+                    status.data.report.ignore),
+                react.createElement("p", null,
+                    "Last Import Started: ",
+                    lastImport),
+                react.createElement("p", null,
+                    "Last Import Completed: ",
+                    lastCompleted),
+                react.createElement("p", null,
+                    "Total Products: ",
+                    totalProducts.isLoading ? '...' : totalProducts.data.data.toLocaleString()))));
     }
     return null;
 };

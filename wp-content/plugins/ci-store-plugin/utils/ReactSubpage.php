@@ -46,7 +46,7 @@ class ReactSubpage
         $screen = $this->screen_prefix . $this->parent_slug . '-' . $this->key;
         // Check if the current screen is your desired subpage
         if ($current_screen && $current_screen->id === $screen) {
-            wp_enqueue_script('react-ui-script-' . $this->key, plugin_dir_url(__FILE__) . '../dist/ci_' . $this->key . '.js', array( 'wp-api' ), '1.2', true);
+            wp_enqueue_script('react-ui-script-' . $this->key, plugin_dir_url(__FILE__) . '../dist/ci_' . $this->key . '.js', array( 'wp-api' ), CI_VERSION, true);
         }
     }
 }

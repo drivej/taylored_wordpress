@@ -4,10 +4,10 @@ hide our dummy selector to make variable products act like simple products
 
 */
 tr:has(select#__required_attr) {
-  /* display: none; */
+  display: none;
 }
 .woocommerce-product-attributes-item.woocommerce-product-attributes-item--attribute___required_attr {
-  /* display: none; */
+  display: none;
 }
 /*
 

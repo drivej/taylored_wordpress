@@ -4059,3 +4059,1269 @@ Stack trace:
 #9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
 #10 {main}
   thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_single_product_summary.php on line 13
+[18-Mar-2024 17:25:31 UTC] PHP Fatal error:  Uncaught WC_Data_Exception: Invalid or duplicated SKU. in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php:943
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-product.php(831): WC_Data->error('product_invalid...', 'Invalid or dupl...', 400, Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/import_western_product.php(163): WC_Product->set_sku('MASTER_WPS_1679')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(42): insert_western_product(Array, Object(Report))
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(46): Supplier_WPS->insert_product(1679, Object(Report))
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php on line 943
+[18-Mar-2024 17:43:48 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[18-Mar-2024 19:41:08 UTC] PHP Fatal error:  Uncaught WC_Data_Exception: Invalid or duplicated SKU. in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php:943
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-product.php(831): WC_Data->error('product_invalid...', 'Invalid or dupl...', 400, Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(30): WC_Product->set_sku('MASTER_WPS_1787')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/import_western_product.php(20): Supplier->create_product(1787)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(42): insert_western_product(Array, Object(Report))
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(46): Supplier_WPS->insert_product(1787, Object(Report))
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#9 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php on line 943
+[18-Mar-2024 21:41:07 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[18-Mar-2024 21:41:07 UTC] Cron reschedule event error for hook: woocommerce_cleanup_logs, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"daily","args":[],"interval":86400}
+[18-Mar-2024 23:00:07 UTC] PHP Fatal error:  Uncaught WC_Data_Exception: Invalid or duplicated SKU. in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php:943
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-product.php(831): WC_Data->error('product_invalid...', 'Invalid or dupl...', 400, Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(30): WC_Product->set_sku('MASTER_WPS_1789')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(30): Supplier->create_product(1789)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(46): Supplier_WPS->insert_product(1789, Object(Report))
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php on line 943
+[18-Mar-2024 23:06:14 UTC] PHP Fatal error:  Uncaught Error: [] operator not supported for strings in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php:43
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#4 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php on line 43
+[18-Mar-2024 23:07:50 UTC] PHP Fatal error:  Uncaught Error: [] operator not supported for strings in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php:43
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#4 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php on line 43
+[18-Mar-2024 23:09:21 UTC] PHP Fatal error:  Uncaught Error: [] operator not supported for strings in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php:43
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#4 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php on line 43
+[18-Mar-2024 23:11:47 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wpdb.php on line 1987
+[18-Mar-2024 23:11:47 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wpdb.php on line 1987
+[18-Mar-2024 23:11:47 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wpdb.php on line 1987
+[18-Mar-2024 23:12:19 UTC] PHP Fatal error:  Uncaught Error: [] operator not supported for strings in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php:44
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#4 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php on line 44
+[18-Mar-2024 23:16:31 UTC] PHP Fatal error:  Uncaught WC_Data_Exception: Invalid or duplicated SKU. in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php:943
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-product.php(831): WC_Data->error('product_invalid...', 'Invalid or dupl...', 400, Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(30): WC_Product->set_sku('MASTER_WPS_1791')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(30): Supplier->create_product(1791)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(50): Supplier_WPS->insert_product(1791, Object(Report))
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php on line 943
+[18-Mar-2024 23:22:08 UTC] PHP Fatal error:  Uncaught ArgumentCountError: Too few arguments to function AjaxHandlers\{closure}(), 1 passed and exactly 2 expected in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php:108
+Stack trace:
+#0 [internal function]: AjaxHandlers\{closure}(Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(108): array_map(Object(Closure), Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#6 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php on line 108
+[18-Mar-2024 23:24:05 UTC] PHP Fatal error:  Uncaught ArgumentCountError: Too few arguments to function AjaxHandlers\{closure}(), 1 passed and exactly 2 expected in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php:109
+Stack trace:
+#0 [internal function]: AjaxHandlers\{closure}(Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(109): array_map(Object(Closure), Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#6 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php on line 109
+[18-Mar-2024 23:34:37 UTC] PHP Parse error:  syntax error, unexpected token ";", expecting ")" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 145
+[18-Mar-2024 23:34:40 UTC] PHP Parse error:  syntax error, unexpected token ";", expecting ")" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 145
+[18-Mar-2024 23:37:34 UTC] PHP Fatal error:  Uncaught WC_Data_Exception: Invalid or duplicated SKU. in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php:943
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-product.php(831): WC_Data->error('product_invalid...', 'Invalid or dupl...', 400, Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(31): WC_Product->set_sku('MASTER_WPS_1795')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(30): Supplier->create_product(1795)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(50): Supplier_WPS->insert_product(1795, Object(Report))
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php on line 943
+[18-Mar-2024 23:44:24 UTC] PHP Fatal error:  Uncaught WC_Data_Exception: Invalid or duplicated SKU. in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php:943
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-product.php(831): WC_Data->error('product_invalid...', 'Invalid or dupl...', 400, Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(31): WC_Product->set_sku('MASTER_WPS_1797')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(30): Supplier->create_product(1797)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(50): Supplier_WPS->insert_product(1797, Object(Report))
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php on line 943
+[19-Mar-2024 00:03:16 UTC] PHP Fatal error:  Uncaught WC_Data_Exception: Invalid or duplicated SKU. in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php:943
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-product.php(831): WC_Data->error('product_invalid...', 'Invalid or dupl...', 400, Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(31): WC_Product->set_sku('MASTER_WPS_6150')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(30): Supplier->create_product(6150)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(50): Supplier_WPS->insert_product(6150, Object(Report))
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php on line 943
+[19-Mar-2024 00:18:03 UTC] PHP Fatal error:  Uncaught TypeError: Cannot access offset of type string on string in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php:505
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php(23): Supplier_WPS->is_stale('4638')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\get_product_status(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
+#6 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php on line 505
+[19-Mar-2024 00:18:05 UTC] PHP Fatal error:  Uncaught TypeError: Cannot access offset of type string on string in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php:505
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php(23): Supplier_WPS->is_stale('4638')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\get_product_status(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
+#6 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php on line 505
+[19-Mar-2024 01:02:34 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[19-Mar-2024 01:02:34 UTC] Cron unschedule event error for hook: woocommerce_cancel_unpaid_orders, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":false,"args":[]}
+[19-Mar-2024 01:06:11 UTC] PHP Parse error:  syntax error, unexpected token "=", expecting "]" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php on line 36
+[19-Mar-2024 01:06:14 UTC] PHP Parse error:  syntax error, unexpected token "=", expecting "]" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php on line 36
+[19-Mar-2024 01:06:17 UTC] PHP Parse error:  syntax error, unexpected token "=", expecting "]" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php on line 36
+[19-Mar-2024 01:06:20 UTC] PHP Parse error:  syntax error, unexpected token "]" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php on line 38
+[19-Mar-2024 01:06:23 UTC] PHP Parse error:  syntax error, unexpected token "]" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php on line 38
+[19-Mar-2024 01:06:26 UTC] PHP Parse error:  syntax error, unexpected token "]" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php on line 38
+[19-Mar-2024 01:06:29 UTC] PHP Parse error:  syntax error, unexpected token "]" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php on line 38
+[19-Mar-2024 01:06:32 UTC] PHP Parse error:  syntax error, unexpected token "]" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php on line 38
+[19-Mar-2024 01:06:35 UTC] PHP Parse error:  syntax error, unexpected token "]" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php on line 38
+[19-Mar-2024 01:06:38 UTC] PHP Parse error:  syntax error, unexpected token "]" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php on line 38
+[19-Mar-2024 01:06:41 UTC] PHP Parse error:  syntax error, unexpected token "]" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php on line 38
+[19-Mar-2024 01:06:44 UTC] PHP Parse error:  syntax error, unexpected token "]" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php on line 38
+[19-Mar-2024 01:06:47 UTC] PHP Parse error:  syntax error, unexpected token "]" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php on line 38
+[19-Mar-2024 01:06:51 UTC] PHP Parse error:  syntax error, unexpected token "]" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php on line 38
+[19-Mar-2024 01:06:54 UTC] PHP Parse error:  syntax error, unexpected token "]" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php on line 38
+[19-Mar-2024 01:06:57 UTC] PHP Parse error:  syntax error, unexpected token "]" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php on line 38
+[19-Mar-2024 01:07:00 UTC] PHP Parse error:  syntax error, unexpected token "]" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php on line 38
+[19-Mar-2024 01:07:03 UTC] PHP Parse error:  syntax error, unexpected token "]" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php on line 38
+[19-Mar-2024 01:07:06 UTC] PHP Parse error:  syntax error, unexpected token "]" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php on line 38
+[19-Mar-2024 01:56:58 UTC] PHP Fatal error:  Uncaught WC_Data_Exception: Invalid or duplicated SKU. in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php:943
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-product.php(831): WC_Data->error('product_invalid...', 'Invalid or dupl...', 400, Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(31): WC_Product->set_sku('MASTER_WPS_6256')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(30): Supplier->create_product(6256)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(50): Supplier_WPS->insert_product(6256, Object(Report))
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php on line 943
+[19-Mar-2024 01:59:05 UTC] PHP Fatal error:  Uncaught WC_Data_Exception: Invalid or duplicated SKU. in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php:943
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-product.php(831): WC_Data->error('product_invalid...', 'Invalid or dupl...', 400, Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(31): WC_Product->set_sku('MASTER_WPS_6257')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(30): Supplier->create_product(6257)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(50): Supplier_WPS->insert_product(6257, Object(Report))
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php on line 943
+[19-Mar-2024 02:02:19 UTC] PHP Fatal error:  Uncaught WC_Data_Exception: Invalid or duplicated SKU. in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php:943
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-product.php(831): WC_Data->error('product_invalid...', 'Invalid or dupl...', 400, Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(31): WC_Product->set_sku('MASTER_WPS_7400')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(30): Supplier->create_product(7400)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(50): Supplier_WPS->insert_product(7400, Object(Report))
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php on line 943
+[19-Mar-2024 02:06:38 UTC] PHP Fatal error:  Uncaught WC_Data_Exception: Invalid or duplicated SKU. in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php:943
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-product.php(831): WC_Data->error('product_invalid...', 'Invalid or dupl...', 400, Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(31): WC_Product->set_sku('MASTER_WPS_7408')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(30): Supplier->create_product(7408)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(51): Supplier_WPS->insert_product(7408, Object(Report))
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php on line 943
+[19-Mar-2024 02:10:10 UTC] PHP Fatal error:  Uncaught WC_Data_Exception: Invalid or duplicated SKU. in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php:943
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-product.php(831): WC_Data->error('product_invalid...', 'Invalid or dupl...', 400, Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(31): WC_Product->set_sku('MASTER_WPS_7416')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(30): Supplier->create_product(7416)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(51): Supplier_WPS->insert_product(7416, Object(Report))
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php on line 943
+[19-Mar-2024 02:33:42 UTC] PHP Fatal error:  Uncaught WC_Data_Exception: Invalid or duplicated SKU. in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php:943
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-product.php(831): WC_Data->error('product_invalid...', 'Invalid or dupl...', 400, Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(31): WC_Product->set_sku('MASTER_WPS_7435')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(30): Supplier->create_product(7435)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(51): Supplier_WPS->insert_product(7435, Object(Report))
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php on line 943
+[19-Mar-2024 02:35:18 UTC] PHP Fatal error:  Uncaught WC_Data_Exception: Invalid or duplicated SKU. in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php:943
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-product.php(831): WC_Data->error('product_invalid...', 'Invalid or dupl...', 400, Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(31): WC_Product->set_sku('MASTER_WPS_7416')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(30): Supplier->create_product(7416)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(51): Supplier_WPS->insert_product(7416, Object(Report))
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php on line 943
+[19-Mar-2024 02:37:04 UTC] PHP Fatal error:  Uncaught WC_Data_Exception: Invalid or duplicated SKU. in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php:943
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-product.php(831): WC_Data->error('product_invalid...', 'Invalid or dupl...', 400, Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(31): WC_Product->set_sku('MASTER_WPS_7436')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(30): Supplier->create_product(7436)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(51): Supplier_WPS->insert_product(7436, Object(Report))
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php on line 943
+[19-Mar-2024 03:41:10 UTC] PHP Fatal error:  Uncaught TypeError: array_filter(): Argument #1 ($array) must be of type array, null given in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php:412
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(412): array_filter(NULL, 'isValidItem')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/update_product_attributes.php(87): Supplier_WPS->extract_attributes(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/import_western_product.php(41): update_product_attributes(Object(WC_Product_Variable), Array, Object(Report))
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(31): update_western_product(Array, 192799, Object(Report))
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(51): Supplier_WPS->insert_product(38755, Object(Report))
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#9 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php on line 412
+[19-Mar-2024 16:00:15 UTC] PHP Fatal error:  Cannot redeclare AjaxHandlers\get_import_status() (previously declared in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/expire_product.php:8) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_import_status.php on line 8
+[19-Mar-2024 16:01:15 UTC] PHP Fatal error:  Cannot redeclare AjaxHandlers\get_import_status() (previously declared in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/expire_product.php:8) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_import_status.php on line 8
+[19-Mar-2024 16:02:43 UTC] PHP Fatal error:  Cannot redeclare AjaxHandlers\get_import_status() (previously declared in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/expire_product.php:8) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_import_status.php on line 8
+[19-Mar-2024 16:03:43 UTC] PHP Fatal error:  Cannot redeclare AjaxHandlers\get_import_status() (previously declared in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/expire_product.php:8) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_import_status.php on line 8
+[19-Mar-2024 20:08:53 UTC] PHP Fatal error:  Uncaught InvalidArgumentException: Required options not defined: urlAuthorize, urlResourceOwnerDetails in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/vendor/league/oauth2-client/src/Provider/GenericProvider.php:152
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/vendor/league/oauth2-client/src/Provider/GenericProvider.php(92): League\OAuth2\Client\Provider\GenericProvider->assertRequiredOptions(Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_t14.php(12): League\OAuth2\Client\Provider\GenericProvider->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(4): include_once('/Users/jasoncon...')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(46): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/vendor/league/oauth2-client/src/Provider/GenericProvider.php on line 152
+[19-Mar-2024 20:09:00 UTC] PHP Fatal error:  Uncaught InvalidArgumentException: Required options not defined: urlAuthorize, urlResourceOwnerDetails in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/vendor/league/oauth2-client/src/Provider/GenericProvider.php:152
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/vendor/league/oauth2-client/src/Provider/GenericProvider.php(92): League\OAuth2\Client\Provider\GenericProvider->assertRequiredOptions(Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_t14.php(12): League\OAuth2\Client\Provider\GenericProvider->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(4): include_once('/Users/jasoncon...')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(46): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin.php(34): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/vendor/league/oauth2-client/src/Provider/GenericProvider.php on line 152
+[19-Mar-2024 20:09:00 UTC] PHP Fatal error:  Uncaught InvalidArgumentException: Required options not defined: urlAuthorize, urlResourceOwnerDetails in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/vendor/league/oauth2-client/src/Provider/GenericProvider.php:152
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/vendor/league/oauth2-client/src/Provider/GenericProvider.php(92): League\OAuth2\Client\Provider\GenericProvider->assertRequiredOptions(Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_t14.php(12): League\OAuth2\Client\Provider\GenericProvider->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(4): include_once('/Users/jasoncon...')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(46): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(13): require_once('/Users/jasoncon...')
+#12 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
+#13 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/vendor/league/oauth2-client/src/Provider/GenericProvider.php on line 152
+[21-Mar-2024 18:53:44 UTC] Cron unschedule event error for hook: ci_import_products_page, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":false,"args":["wps"]}
+[21-Mar-2024 18:54:52 UTC] PHP Fatal error:  Uncaught WC_Data_Exception: Invalid or duplicated SKU. in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php:943
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-product.php(831): WC_Data->error('product_invalid...', 'Invalid or dupl...', 400, Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(37): WC_Product->set_sku('MASTER_WPS_2789...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(30): Supplier->create_product(278934)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(52): Supplier_WPS->insert_product(278934, Object(Report))
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php on line 943
+[21-Mar-2024 19:24:51 UTC] PHP Fatal error:  Uncaught WC_Data_Exception: Invalid or duplicated SKU. in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php:943
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-product.php(831): WC_Data->error('product_invalid...', 'Invalid or dupl...', 400, Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(37): WC_Product->set_sku('MASTER_WPS_2929...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(30): Supplier->create_product(292985)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(52): Supplier_WPS->insert_product(292985, Object(Report))
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php on line 943
+[21-Mar-2024 20:04:41 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[21-Mar-2024 20:04:41 UTC] Cron unschedule event error for hook: ci_import_products_page, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":false,"args":["wps"]}
+[21-Mar-2024 20:08:06 UTC] PHP Fatal error:  Uncaught WC_Data_Exception: Invalid or duplicated SKU. in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php:943
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-product.php(831): WC_Data->error('product_invalid...', 'Invalid or dupl...', 400, Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(37): WC_Product->set_sku('MASTER_WPS_2978...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(30): Supplier->create_product(297823)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(52): Supplier_WPS->insert_product(297823, Object(Report))
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\ci_import_products_page('wps')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('ci_import_produ...', Array)
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-data.php on line 943
+[21-Mar-2024 21:27:59 UTC] PHP Fatal error:  Uncaught Error: Class "Supplier_t14" not found in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php:8
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once()
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#9 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php on line 8
+[21-Mar-2024 21:27:59 UTC] PHP Fatal error:  Uncaught Error: Class "Supplier_t14" not found in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php:8
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once()
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#9 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php on line 8
+[21-Mar-2024 21:28:02 UTC] PHP Fatal error:  Uncaught Error: Class "Supplier_t14" not found in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php:8
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once()
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#9 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php on line 8
+[21-Mar-2024 21:28:04 UTC] PHP Fatal error:  Uncaught Error: Class "Supplier_t14" not found in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php:8
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once()
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#9 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php on line 8
+[21-Mar-2024 21:28:05 UTC] PHP Fatal error:  Uncaught Error: Class "Supplier_t14" not found in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php:8
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once()
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#9 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php on line 8
+[21-Mar-2024 21:28:06 UTC] PHP Fatal error:  Uncaught Error: Class "Supplier_t14" not found in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php:8
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once()
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#9 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php on line 8
+[21-Mar-2024 21:28:07 UTC] PHP Fatal error:  Uncaught Error: Class "Supplier_t14" not found in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php:8
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once()
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#9 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php on line 8
+[21-Mar-2024 21:28:08 UTC] PHP Fatal error:  Uncaught Error: Class "Supplier_t14" not found in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php:8
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once()
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#9 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php on line 8
+[21-Mar-2024 21:28:09 UTC] PHP Fatal error:  Uncaught Error: Class "Supplier_t14" not found in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php:8
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once()
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#9 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php on line 8
+[21-Mar-2024 21:28:11 UTC] PHP Fatal error:  Uncaught Error: Class "Supplier_t14" not found in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php:8
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once()
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#9 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php on line 8
+[21-Mar-2024 21:28:11 UTC] PHP Fatal error:  Uncaught Error: Class "Supplier_t14" not found in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php:8
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once()
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin.php(34): require_once('/Users/jasoncon...')
+#9 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php on line 8
+[21-Mar-2024 21:28:11 UTC] PHP Notice:  Function is_embed was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[21-Mar-2024 21:28:11 UTC] PHP Notice:  Function is_search was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[21-Mar-2024 21:28:12 UTC] PHP Fatal error:  Uncaught Error: Class "Supplier_t14" not found in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php:8
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once()
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(13): require_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
+#10 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php on line 8
+[21-Mar-2024 21:28:12 UTC] PHP Notice:  Function is_embed was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[21-Mar-2024 21:28:12 UTC] PHP Notice:  Function is_search was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[21-Mar-2024 21:28:39 UTC] PHP Fatal error:  Uncaught Error: Class "Supplier_t14" not found in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php:8
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once()
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin.php(34): require_once('/Users/jasoncon...')
+#9 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php on line 8
+[21-Mar-2024 21:28:39 UTC] PHP Notice:  Function is_embed was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[21-Mar-2024 21:28:39 UTC] PHP Notice:  Function is_search was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[21-Mar-2024 21:28:39 UTC] PHP Fatal error:  Uncaught Error: Class "Supplier_t14" not found in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php:8
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once()
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(13): require_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
+#10 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php on line 8
+[21-Mar-2024 21:28:39 UTC] PHP Notice:  Function is_embed was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[21-Mar-2024 21:28:39 UTC] PHP Notice:  Function is_search was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[21-Mar-2024 21:28:40 UTC] PHP Fatal error:  Uncaught Error: Class "Supplier_t14" not found in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php:8
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once()
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin.php(34): require_once('/Users/jasoncon...')
+#9 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php on line 8
+[21-Mar-2024 21:28:40 UTC] PHP Notice:  Function is_embed was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[21-Mar-2024 21:28:40 UTC] PHP Notice:  Function is_search was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[21-Mar-2024 21:28:40 UTC] PHP Fatal error:  Uncaught Error: Class "Supplier_t14" not found in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php:8
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once()
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(13): require_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
+#10 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php on line 8
+[21-Mar-2024 21:28:40 UTC] PHP Notice:  Function is_embed was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[21-Mar-2024 21:28:40 UTC] PHP Notice:  Function is_search was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[22-Mar-2024 19:07:01 UTC] PHP Fatal error:  Uncaught Error: Call to undefined method Supplier_t14::extract_attributes() in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/monkey_wrench.php:104
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\monkey_wrench(Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
+#5 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/monkey_wrench.php on line 104
+[23-Mar-2024 03:44:03 UTC] Cron unschedule event error for hook: ci_import_products_page, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":false,"args":["wps"]}
+[23-Mar-2024 11:41:34 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wpdb.php on line 1987
+[23-Mar-2024 11:41:34 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wpdb.php on line 1987
+[23-Mar-2024 12:12:18 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:43
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(43): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 43
+[23-Mar-2024 12:13:18 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:43
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(43): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 43
+[23-Mar-2024 12:14:18 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:43
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(43): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 43
+[23-Mar-2024 12:15:18 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:43
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(43): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 43
+[23-Mar-2024 12:17:18 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:43
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(43): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 43
+[23-Mar-2024 12:18:19 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:43
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(43): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 43
+[23-Mar-2024 12:19:19 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:43
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(43): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 43
+[23-Mar-2024 12:20:19 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:43
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(43): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 43
+[23-Mar-2024 12:21:38 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:43
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(43): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 43
+[23-Mar-2024 12:22:38 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:43
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(43): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 43
+[23-Mar-2024 12:24:38 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:45
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(45): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 45
+[23-Mar-2024 12:26:38 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:45
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(45): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 45
+[23-Mar-2024 12:27:38 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:45
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(45): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 45
+[23-Mar-2024 12:29:39 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(46): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 46
+[23-Mar-2024 12:31:40 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(46): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 46
+[23-Mar-2024 12:33:41 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(46): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 46
+[23-Mar-2024 12:35:42 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(46): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 46
+[23-Mar-2024 12:39:40 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(46): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 46
+[23-Mar-2024 12:40:40 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(46): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 46
+[23-Mar-2024 12:41:41 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(46): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 46
+[23-Mar-2024 12:43:42 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(46): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 46
+[23-Mar-2024 12:45:43 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(46): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 46
+[23-Mar-2024 12:47:44 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_error_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(46): set_error_handler('wps_error_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 46
+[23-Mar-2024 12:49:45 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(46): set_error_handler('wps_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 46
+[23-Mar-2024 12:51:46 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(46): set_error_handler('wps_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 46
+[23-Mar-2024 12:54:47 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(46): set_error_handler('wps_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(22): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 46
+[23-Mar-2024 12:54:48 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(46): set_error_handler('wps_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin.php(34): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 46
+[23-Mar-2024 12:54:48 UTC] PHP Notice:  Function is_embed was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[23-Mar-2024 12:54:48 UTC] PHP Notice:  Function is_search was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[23-Mar-2024 12:54:49 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, function "wps_log" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(46): set_error_handler('wps_log')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(13): require_once('/Users/jasoncon...')
+#12 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
+#13 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 46
+[23-Mar-2024 12:54:49 UTC] PHP Notice:  Function is_embed was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[23-Mar-2024 12:54:49 UTC] PHP Notice:  Function is_search was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[23-Mar-2024 12:55:10 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, class Supplier_WPS does not have a method "log_flag" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(46): set_error_handler(Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin.php(34): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 46
+[23-Mar-2024 12:55:10 UTC] PHP Notice:  Function is_embed was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[23-Mar-2024 12:55:10 UTC] PHP Notice:  Function is_search was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[23-Mar-2024 12:55:10 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, class Supplier_WPS does not have a method "log_flag" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(46): set_error_handler(Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(13): require_once('/Users/jasoncon...')
+#12 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
+#13 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 46
+[23-Mar-2024 12:55:10 UTC] PHP Notice:  Function is_embed was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[23-Mar-2024 12:55:10 UTC] PHP Notice:  Function is_search was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[23-Mar-2024 12:55:59 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, class Supplier_WPS does not have a method "wps_log" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(46): set_error_handler(Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin.php(34): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 46
+[23-Mar-2024 12:55:59 UTC] PHP Notice:  Function is_embed was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[23-Mar-2024 12:55:59 UTC] PHP Notice:  Function is_search was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[23-Mar-2024 12:55:59 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, class Supplier_WPS does not have a method "wps_log" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(46): set_error_handler(Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(13): require_once('/Users/jasoncon...')
+#12 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
+#13 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 46
+[23-Mar-2024 12:55:59 UTC] PHP Notice:  Function is_embed was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[23-Mar-2024 12:55:59 UTC] PHP Notice:  Function is_search was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[23-Mar-2024 12:56:01 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, class Supplier_WPS does not have a method "wps_log" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(46): set_error_handler(Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin.php(34): require_once('/Users/jasoncon...')
+#12 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 46
+[23-Mar-2024 12:56:01 UTC] PHP Notice:  Function is_embed was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[23-Mar-2024 12:56:01 UTC] PHP Notice:  Function is_search was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[23-Mar-2024 12:56:01 UTC] PHP Fatal error:  Uncaught TypeError: set_error_handler(): Argument #1 ($callback) must be a valid callback or null, class Supplier_WPS does not have a method "wps_log" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(46): set_error_handler(Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(13): Supplier->__construct(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/index.php(7): Supplier_WPS->__construct()
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/get_supplier.php(5): require_once('/Users/jasoncon...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western.php(6): include_once('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/get_western_product.php(3): require_once('/Users/jasoncon...')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/wps_ajax_handler.php(3): include_once('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php(16): include_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-settings.php(473): include_once('/Users/jasoncon...')
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-config.php(104): require_once('/Users/jasoncon...')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-load.php(50): require_once('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(13): require_once('/Users/jasoncon...')
+#12 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
+#13 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php on line 46
+[23-Mar-2024 12:56:01 UTC] PHP Notice:  Function is_embed was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[23-Mar-2024 12:56:01 UTC] PHP Notice:  Function is_search was called incorrectly. Conditional query tags do not work before the query is run. Before then, they always return false. Please see <a>Debugging in WordPress</a> for more information. (This message was added in version 3.1.0.) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/functions.php on line 6031
+[23-Mar-2024 13:27:14 UTC] PHP Fatal error:  Uncaught Error: Object of class DateTime could not be converted to string in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(159): Supplier_WPS->start_import_products()
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\import_products(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
+#6 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php on line 46
+[23-Mar-2024 13:27:24 UTC] PHP Fatal error:  Uncaught Error: Object of class DateTime could not be converted to string in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(159): Supplier_WPS->start_import_products()
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\import_products(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
+#6 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php on line 46
+[23-Mar-2024 13:28:10 UTC] PHP Fatal error:  Uncaught Error: Object of class DateTime could not be converted to string in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php:46
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(159): Supplier_WPS->start_import_products()
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\import_products(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
+#6 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php on line 46
+[23-Mar-2024 13:49:09 UTC] PHP Fatal error:  Uncaught Exception: Failed to parse time string (1711201693) at position 7 (6): Unexpected character in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php:48
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(48): DateTime->__construct('1711201693')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_products.php(159): Supplier_WPS->start_import_products()
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\import_products(Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
+#7 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php on line 48
+[23-Mar-2024 14:18:09 UTC] PHP Fatal error:  Uncaught Error: Call to a member function clear_log() on null in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/manage_logs.php:22
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\clear_error_log(Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
+#5 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/manage_logs.php on line 22
+[23-Mar-2024 14:18:32 UTC] PHP Fatal error:  Uncaught Error: Call to a member function clear_log() on null in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/manage_logs.php:22
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\clear_error_log(Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
+#5 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/manage_logs.php on line 22
+[23-Mar-2024 14:27:54 UTC] PHP Fatal error:  Uncaught TypeError: Unsupported operand types: int + array in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php:169
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): Supplier_WPS->import_products_page()
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('wps_import_prod...', Array)
+#4 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php on line 169
+[23-Mar-2024 15:02:24 UTC] Cron unschedule event error for hook: wps_import_products_page, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":false,"args":[]}
+[23-Mar-2024 16:17:08 UTC] Cron unschedule event error for hook: wps_import_products_page, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":false,"args":[]}
+[23-Mar-2024 16:20:23 UTC] Cron unschedule event error for hook: wps_import_products_page, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":false,"args":[]}
+[23-Mar-2024 16:22:38 UTC] Cron unschedule event error for hook: wps_import_products_page, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":false,"args":[]}
+[23-Mar-2024 21:26:15 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[23-Mar-2024 21:30:22 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[23-Mar-2024 21:33:28 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[23-Mar-2024 22:41:58 UTC] PHP Fatal error:  Allowed memory size of 268435456 bytes exhausted (tried to allocate 20480 bytes) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wpdb.php on line 2320
+[23-Mar-2024 22:41:58 UTC] PHP Fatal error:  Allowed memory size of 268435456 bytes exhausted (tried to allocate 20480 bytes) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wpdb.php on line 2320
+[23-Mar-2024 22:43:36 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[23-Mar-2024 22:45:40 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[23-Mar-2024 23:11:15 UTC] PHP Fatal error:  Cannot redeclare AjaxHandlers\get_product() (previously declared in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/clear_import_report.php:8) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product.php on line 8
+[23-Mar-2024 23:11:51 UTC] PHP Fatal error:  Cannot redeclare AjaxHandlers\get_product() (previously declared in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/clear_import_report.php:8) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product.php on line 8

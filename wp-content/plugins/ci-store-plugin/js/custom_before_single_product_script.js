@@ -61,6 +61,7 @@
 let product_variations;
 
 const findVariations = (attributes) => {
+  const product_variations = woo_product_details?.variations ?? [];
   const attr_keys = Object.keys(attributes).filter((k) => attributes[k]);
   return product_variations.filter((v) => {
     Object.keys(attributes);

@@ -16,6 +16,15 @@ export const TestAdmin = () => {
         <h3>Utilities</h3>
       </header>
 
+      <AdminForm name='Stall Import Test' cmd='stall_import'>
+        <SelectSupplier />
+      </AdminForm>
+
+      <AdminForm name='Expire Product' cmd='expire_product'>
+        <SelectSupplier />
+        <ProductInput />
+      </AdminForm>
+
       <AdminForm name='Monkey Wrench' cmd='monkey_wrench' allowPolling={true}>
         <SelectSupplier />
         <ProductInput />
@@ -24,6 +33,7 @@ export const TestAdmin = () => {
           name='custom'
           options={[
             { name: 'none', value: '' },
+            { name: 'wp_get_schedules', value: 'wp_get_schedules' },
             { name: 'get_update_action', value: 'get_update_action' },
             { name: 'update_product_attributes', value: 'update_product_attributes' },
             { name: 'fix_attributes', value: 'fix_attributes' },
@@ -34,6 +44,7 @@ export const TestAdmin = () => {
             { name: 'explore', value: 'explore' },
             { name: 'mock', value: 'mock' },
             { name: 'sync', value: 'sync' },
+            { name: 'turn14', value: 'turn14' }
           ]}
           initialValue='none'
         />
@@ -50,28 +61,35 @@ export const TestAdmin = () => {
 
       <AdminForm name='Import Products' cmd='import_products'>
         <SelectSupplier />
-        <SelectImportType />
-        <TextInput name='updated' defaultValue='2020-01-01' type='date' style={{ width: 150 }} />
-        <PageSizeInput />
-        <CheckboxInput name='resume' checked={true} />
+        {/* <SelectImportType /> */}
+        {/* <TextInput name='updated' defaultValue='2020-01-01' type='date' style={{ width: 150 }} /> */}
+        {/* <div className='input-group'>
+          <label className='input-group-text'>Cursor</label>
+          <TextInput name='cursor' defaultValue='' style={{ width: 150 }} />
+        </div> */}
+        {/* <PageSizeInput /> */}
+        {/* <CheckboxInput name='resume' checked={true} /> */}
       </AdminForm>
 
       <AdminForm name='Cancel Import Products' cmd='cancel_import_products'>
         <SelectSupplier />
       </AdminForm>
 
-      <AdminForm name='Get Error Log' cmd='get_error_log' allowPolling={true} RenderResult={ErrorLogs}></AdminForm>
+      <AdminForm name='Clear Import Report' cmd='clear_import_report'>
+        <SelectSupplier />
+      </AdminForm>
 
-      <AdminForm name='Clear Error Log' cmd='clear_error_log' allowPolling={true}></AdminForm>
+      <AdminForm name='Get Log' cmd='get_log' allowPolling={true} RenderResult={ErrorLogs}>
+        <SelectSupplier />
+      </AdminForm>
+
+      <AdminForm name='Clear Error Log' cmd='clear_log'>
+        <SelectSupplier />
+      </AdminForm>
 
       <AdminForm name='WPS API' cmd='western_api' allowPolling={true}>
         <TextInput name='url' defaultValue='/' />
       </AdminForm>
-      {/* 
-      <AdminForm name='Import Type' cmd='toggle_import_type' allowPolling={true}>
-        <SelectSupplier />
-        <SelectImportType />
-      </AdminForm> */}
 
       <AdminForm name='Stock Update' cmd='update_products_stock_status' allowPolling={true}>
         <SelectSupplier />
@@ -90,6 +108,7 @@ export const TestAdmin = () => {
       <AdminForm name='Get Product' cmd='get_product'>
         <SelectSupplier />
         <ProductInput />
+        <CheckboxInput name='light' checked={false} />
       </AdminForm>
 
       {/* <AdminForm name='Find Valid Product' cmd='find_valid_product'>
@@ -155,7 +174,7 @@ const CSVTable = ({ data }: { data: { rows: string[][] } }) => {
             ))}
           </tbody>
         </table>
-        <Pre data={{...data, rows:undefined}} />
+        <Pre data={{ ...data, rows: undefined }} />
       </>
     );
   }
@@ -164,34 +183,22 @@ const CSVTable = ({ data }: { data: { rows: string[][] } }) => {
 };
 
 const ErrorLogs = ({ data }: { data: string[] }) => {
+  const $pre = useRef<HTMLPreElement>();
+
+  useEffect(() => {
+    if ($pre.current) {
+      $pre.current.scrollTop = 0;
+    }
+  }, [data, $pre.current]);
+
   if (data?.length) {
-    const parts = data.map((r) => r.split('\t'));
-    const cols = parts.reduce((n, r) => Math.max(n, r.length), 0);
     return (
-      <div style={{ overflow: 'auto', maxHeight: 400, maxWidth: '100%' }}>
-        <table className='table table-sm'>
-          <tbody>
-            {parts.reverse().map((ln) => (
-              <>
-                <tr>
-                  <td colSpan={cols}>
-                    <div style={{ fontSize: 11 }} className='p-2 rounded border text-nowrap'>
-                      {ln[0]}
-                    </div>
-                  </td>
-                  <td>
-                    <div className='p-2 rounded border'>
-                      {ln.slice(1).map((r) => (
-                        <pre style={{ fontSize: 11, maxWidth: '100%', overflow: 'auto' }}>{r}</pre>
-                      ))}
-                    </div>
-                  </td>
-                </tr>
-              </>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <pre ref={$pre} style={{ fontSize: 10, overflow: 'auto', maxHeight: 400, maxWidth: '100%' }}>
+        {data
+          .map((r, i) => `${i} ${r}`)
+          .reverse()
+          .join('\n')}
+      </pre>
     );
   }
   return null;
@@ -278,7 +285,7 @@ const TextInput = ({ name, defaultValue = '', type = 'text', ...props }: { name:
   return <input {...props} type={type} className='form-control' name={name} value={value} onChange={onChange} />;
 };
 
-const CheckboxInput = ({ name, checked: isChecked = false, type = 'text' }: { name: string; checked: boolean } & React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>) => {
+const CheckboxInput = ({ name, checked: isChecked = false }: { name: string; checked: boolean } & React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>) => {
   const [value, setValue] = useState(isChecked ? '1' : '0');
   const [checked, setChecked] = useState(isChecked);
 
@@ -287,12 +294,10 @@ const CheckboxInput = ({ name, checked: isChecked = false, type = 'text' }: { na
     setValue(e.currentTarget.checked ? '1' : '0');
   };
 
-  const uid = useRef(~~(Math.random() * 10000));
-  const id = slugify(`${name}_checkbox`, uid.current);
-
   return (
     <label>
-      <input type='checkbox' name={name} value={value} checked={checked} onChange={onChange} />
+      <input type='hidden' name={name} value={value} />
+      <input type='checkbox' checked={checked} onChange={onChange} />
       {name}
     </label>
   );
@@ -344,9 +349,9 @@ const AdminForm = ({ name, cmd, allowPolling = false, children = null, RenderRes
     setIsPolling((p) => !p);
   };
 
-  // const clearData = () => {
-  //   queryClient.removeQueries({queryKey:[query]});
-  // }
+  const clearData = () => {
+    queryClient.setQueryData([query], null);
+  };
 
   return (
     <div className='p-3 border rounded d-flex gap-3 w-100'>
@@ -359,25 +364,20 @@ const AdminForm = ({ name, cmd, allowPolling = false, children = null, RenderRes
           <button className='btn btn-primary' title={name} disabled={disabled}>
             {name}
           </button>
-          {/* <button className='btn btn-secondary' type='button' onClick={clearData}>
+          <button className='btn btn-secondary' type='button' onClick={clearData}>
             Clear
-          </button> */}
+          </button>
         </div>
         {allowPolling ? (
-          <label>
+          <label style={{ width: 'fit-content' }}>
             <input type='checkbox' checked={isPolling} onChange={togglePolling} />
             Poll
           </label>
         ) : null}
       </form>
       <div className='position-relative' style={{ flex: '1 1 auto', maxWidth: '100%', overflow: 'auto' }}>
-        {/* <pre style={{ fontSize: 11 }}>{JSON.stringify(data.data, null, 2)}</pre> */}
         <RenderResult data={data.data} />
         <div className='spinner-border spinner-border-sm' role='status' style={{ pointerEvents: 'none', position: 'absolute', top: 16, right: 16, opacity: data.isFetching ? 1 : 0, transition: 'opacity 0.2s' }} />
-
-        {/* <div className='position-absolute d-flex align-items-start justify-content-end' style={{ flex: 'auto', inset: 0, opacity: data.isFetching ? 1 : 0, transition: 'opacity 0.2s' }}>
-          <div className='spinner-border spinner-border-sm' role='status' />
-        </div> */}
       </div>
     </div>
   );

@@ -472,10 +472,6 @@ class WooTools
         $result['inserts'] = $inserts;
         $result['updates'] = $updates;
 
-        // ci_error_log(__FILE__, __LINE__, json_encode(['supplier_attributes' => $supplier_attributes], JSON_PRETTY_PRINT));
-        // ci_error_log(__FILE__, __LINE__, json_encode(['woo_attributes' => $woo_attributes], JSON_PRETTY_PRINT));
-        // ci_error_log(__FILE__, __LINE__, json_encode(['updates' => $updates, 'inserts' => $inserts, 'deletes' => $deletes], JSON_PRETTY_PRINT));
-
         foreach ($inserts as $attr_slug) {
             $result['actions'][] = 'insert ' . $attr_slug;
             $attr = $supplier_lookup[$attr_slug];

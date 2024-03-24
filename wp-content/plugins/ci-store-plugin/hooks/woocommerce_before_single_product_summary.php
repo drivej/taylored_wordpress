@@ -25,9 +25,10 @@ function custom_modify_before_single_product_summary()
     $first_fullsize_src = '';
     $first_largesize_src = '';
 
-    debug_data($variations);
-    
+    // debug_data($variations);
+
     // ci_error_log(__FILE__, __LINE__, json_encode($variations, JSON_PRETTY_PRINT));
+    // TODO: This will only work for WPS
 
     foreach ($variations as $variation) {
         foreach ($variation['images'] as $i => $image) {
@@ -52,7 +53,7 @@ function custom_modify_before_single_product_summary()
             }
         }
     }
-    // print_r($src);
+
     print '
     <div class="ci-gallery">
         <a href="' . $first_largesize_src . '" target="_blank" class="ci-gallery-hero-container">

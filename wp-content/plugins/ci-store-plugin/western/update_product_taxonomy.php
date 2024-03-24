@@ -10,7 +10,7 @@ function update_product_taxonomy($product, $wps_product, $report)
 {
     // $report->addLog('update_product_taxonomy()');
     $taxonomy_terms = [];
-    $items = $wps_product['data']['items']['data'];
+    $items = isset($wps_product['data']['items']['data']) ? $wps_product['data']['items']['data'] : [];
 
     // collect taxonomy from each WPS item
     if (isset($items)) {

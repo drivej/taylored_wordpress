@@ -11113,11 +11113,17 @@ const TestAdmin = () => {
         react.createElement("header", null,
             react.createElement("p", { className: 'm-0' }, "CI Store"),
             react.createElement("h3", null, "Utilities")),
+        react.createElement(AdminForm, { name: 'Stall Import Test', cmd: 'stall_import' },
+            react.createElement(SelectSupplier, null)),
+        react.createElement(AdminForm, { name: 'Expire Product', cmd: 'expire_product' },
+            react.createElement(SelectSupplier, null),
+            react.createElement(ProductInput, null)),
         react.createElement(AdminForm, { name: 'Monkey Wrench', cmd: 'monkey_wrench', allowPolling: true },
             react.createElement(SelectSupplier, null),
             react.createElement(ProductInput, null),
             react.createElement(SelectInput, { name: 'custom', options: [
                     { name: 'none', value: '' },
+                    { name: 'wp_get_schedules', value: 'wp_get_schedules' },
                     { name: 'get_update_action', value: 'get_update_action' },
                     { name: 'update_product_attributes', value: 'update_product_attributes' },
                     { name: 'fix_attributes', value: 'fix_attributes' },
@@ -11128,6 +11134,7 @@ const TestAdmin = () => {
                     { name: 'explore', value: 'explore' },
                     { name: 'mock', value: 'mock' },
                     { name: 'sync', value: 'sync' },
+                    { name: 'turn14', value: 'turn14' }
                 ], initialValue: 'none' })),
         react.createElement(AdminForm, { name: 'View Attributes', cmd: 'view_attributes', RenderResult: CSVTable },
             react.createElement(SelectSupplier, null),
@@ -11135,15 +11142,15 @@ const TestAdmin = () => {
         react.createElement(AdminForm, { name: 'Import Status', cmd: 'get_import_status', allowPolling: true },
             react.createElement(SelectSupplier, null)),
         react.createElement(AdminForm, { name: 'Import Products', cmd: 'import_products' },
-            react.createElement(SelectSupplier, null),
-            react.createElement(SelectImportType, null),
-            react.createElement(TextInput, { name: 'updated', defaultValue: '2020-01-01', type: 'date', style: { width: 150 } }),
-            react.createElement(PageSizeInput, null),
-            react.createElement(CheckboxInput, { name: 'resume', checked: true })),
+            react.createElement(SelectSupplier, null)),
         react.createElement(AdminForm, { name: 'Cancel Import Products', cmd: 'cancel_import_products' },
             react.createElement(SelectSupplier, null)),
-        react.createElement(AdminForm, { name: 'Get Error Log', cmd: 'get_error_log', allowPolling: true, RenderResult: ErrorLogs }),
-        react.createElement(AdminForm, { name: 'Clear Error Log', cmd: 'clear_error_log', allowPolling: true }),
+        react.createElement(AdminForm, { name: 'Clear Import Report', cmd: 'clear_import_report' },
+            react.createElement(SelectSupplier, null)),
+        react.createElement(AdminForm, { name: 'Get Log', cmd: 'get_log', allowPolling: true, RenderResult: ErrorLogs },
+            react.createElement(SelectSupplier, null)),
+        react.createElement(AdminForm, { name: 'Clear Error Log', cmd: 'clear_log' },
+            react.createElement(SelectSupplier, null)),
         react.createElement(AdminForm, { name: 'WPS API', cmd: 'western_api', allowPolling: true },
             react.createElement(TextInput, { name: 'url', defaultValue: '/' })),
         react.createElement(AdminForm, { name: 'Stock Update', cmd: 'update_products_stock_status', allowPolling: true },
@@ -11156,7 +11163,8 @@ const TestAdmin = () => {
             react.createElement(ProductInput, null)),
         react.createElement(AdminForm, { name: 'Get Product', cmd: 'get_product' },
             react.createElement(SelectSupplier, null),
-            react.createElement(ProductInput, null)),
+            react.createElement(ProductInput, null),
+            react.createElement(CheckboxInput, { name: 'light', checked: false })),
         react.createElement(AdminForm, { name: 'Import Product Status', cmd: 'get_import_product_status', allowPolling: true },
             react.createElement(SelectSupplier, null),
             react.createElement(ProductInput, null)),
@@ -11178,27 +11186,27 @@ const CSVTable = ({ data }) => {
     return null;
 };
 const ErrorLogs = ({ data }) => {
+    const $pre = (0,react.useRef)();
+    (0,react.useEffect)(() => {
+        if ($pre.current) {
+            $pre.current.scrollTop = 0;
+        }
+    }, [data, $pre.current]);
     if (data === null || data === void 0 ? void 0 : data.length) {
-        const parts = data.map((r) => r.split('\t'));
-        const cols = parts.reduce((n, r) => Math.max(n, r.length), 0);
-        return (react.createElement("div", { style: { overflow: 'auto', maxHeight: 400, maxWidth: '100%' } },
-            react.createElement("table", { className: 'table table-sm' },
-                react.createElement("tbody", null, parts.reverse().map((ln) => (react.createElement(react.Fragment, null,
-                    react.createElement("tr", null,
-                        react.createElement("td", { colSpan: cols },
-                            react.createElement("div", { style: { fontSize: 11 }, className: 'p-2 rounded border text-nowrap' }, ln[0])),
-                        react.createElement("td", null,
-                            react.createElement("div", { className: 'p-2 rounded border' }, ln.slice(1).map((r) => (react.createElement("pre", { style: { fontSize: 11, maxWidth: '100%', overflow: 'auto' } }, r)))))))))))));
+        return (react.createElement("pre", { ref: $pre, style: { fontSize: 10, overflow: 'auto', maxHeight: 400, maxWidth: '100%' } }, data
+            .map((r, i) => `${i} ${r}`)
+            .reverse()
+            .join('\n')));
     }
     return null;
 };
 const PageSizeInput = ({ initialValue = 20 }) => {
-    return (react.createElement("div", { className: 'input-group' },
-        react.createElement("label", { className: 'input-group-text' }, "Page Size"),
-        react.createElement(TextInput, { name: 'page_size', defaultValue: `${initialValue}`, type: 'number', min: 10, max: 100, step: 10 })));
+    return (React.createElement("div", { className: 'input-group' },
+        React.createElement("label", { className: 'input-group-text' }, "Page Size"),
+        React.createElement(TextInput, { name: 'page_size', defaultValue: `${initialValue}`, type: 'number', min: 10, max: 100, step: 10 })));
 };
 const SelectImportType = () => {
-    return (react.createElement(SelectInput, { name: 'import_type', options: [
+    return (React.createElement(SelectInput, { name: 'import_type', options: [
             { name: 'Passive', value: 'passive' },
             { name: 'Aggressive', value: 'aggressive' }
         ] }));
@@ -11239,17 +11247,16 @@ const TextInput = (_a) => {
     };
     return react.createElement("input", Object.assign({}, props, { type: type, className: 'form-control', name: name, value: value, onChange: onChange }));
 };
-const CheckboxInput = ({ name, checked: isChecked = false, type = 'text' }) => {
+const CheckboxInput = ({ name, checked: isChecked = false }) => {
     const [value, setValue] = (0,react.useState)(isChecked ? '1' : '0');
     const [checked, setChecked] = (0,react.useState)(isChecked);
     const onChange = (e) => {
         setChecked(e.currentTarget.checked);
         setValue(e.currentTarget.checked ? '1' : '0');
     };
-    const uid = (0,react.useRef)(~~(Math.random() * 10000));
-    const id = slugify(`${name}_checkbox`, uid.current);
     return (react.createElement("label", null,
-        react.createElement("input", { type: 'checkbox', name: name, value: value, checked: checked, onChange: onChange }),
+        react.createElement("input", { type: 'hidden', name: name, value: value }),
+        react.createElement("input", { type: 'checkbox', checked: checked, onChange: onChange }),
         name));
     // return (
     //   <div className='btn-group' role='group'>
@@ -11292,9 +11299,9 @@ const AdminForm = ({ name, cmd, allowPolling = false, children = null, RenderRes
         updateQuery();
         setIsPolling((p) => !p);
     };
-    // const clearData = () => {
-    //   queryClient.removeQueries({queryKey:[query]});
-    // }
+    const clearData = () => {
+        queryClient.setQueryData([query], null);
+    };
     return (react.createElement("div", { className: 'p-3 border rounded d-flex gap-3 w-100' },
         react.createElement("form", { ref: $form, onSubmit: handleSubmit, className: 'd-flex flex-column gap-2', style: { flex: '0 0 300px' } },
             react.createElement("p", { className: 'm-0' }, cmd),
@@ -11302,8 +11309,9 @@ const AdminForm = ({ name, cmd, allowPolling = false, children = null, RenderRes
             react.createElement("input", { type: 'hidden', className: 'form-control', name: 'cmd', value: cmd }),
             children,
             react.createElement("div", { className: 'input-group' },
-                react.createElement("button", { className: 'btn btn-primary', title: name, disabled: disabled }, name)),
-            allowPolling ? (react.createElement("label", null,
+                react.createElement("button", { className: 'btn btn-primary', title: name, disabled: disabled }, name),
+                react.createElement("button", { className: 'btn btn-secondary', type: 'button', onClick: clearData }, "Clear")),
+            allowPolling ? (react.createElement("label", { style: { width: 'fit-content' } },
                 react.createElement("input", { type: 'checkbox', checked: isPolling, onChange: togglePolling }),
                 "Poll")) : null),
         react.createElement("div", { className: 'position-relative', style: { flex: '1 1 auto', maxWidth: '100%', overflow: 'auto' } },

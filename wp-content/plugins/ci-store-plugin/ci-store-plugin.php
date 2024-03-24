@@ -8,14 +8,17 @@
  * Author URI: http://www.contentointeractive.com
  * License: GPL2
  */
-
-// include_once __DIR__ . '/cronjob/index.php';
-// include_once __DIR__ . '/admin/stock_check.php';
-// include_once __DIR__ . '/admin/import_products.php';
-
 define('CI_STORE_PLUGIN', plugin_dir_path(__FILE__));
 define('CI_ERROR_LOG_FILEPATH', CI_STORE_PLUGIN . 'logs/CI_ERROR_LOG.log');
 define('CI_ERROR_LOG', CI_ERROR_LOG_FILEPATH);
+define('CI_VERSION', '0.0.7'); // enqueued scripts get this version - update to bust the cache
+
+include_once CI_STORE_PLUGIN . 'western/wps_ajax_handler.php';
+include_once CI_STORE_PLUGIN . 'hooks/index.php';
+include_once CI_STORE_PLUGIN . 'utils/AjaxManager.php';
+include_once CI_STORE_PLUGIN . 'ajax/index.php';
+include_once CI_STORE_PLUGIN . 'suppliers/index.php';
+require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/ReactSubpage.php';
 
 function ci_error_log($file, $line = null, $message = null)
 {
@@ -41,14 +44,8 @@ function ci_error_log($file, $line = null, $message = null)
 
 set_error_handler('ci_error_log');
 
-// include_once CI_STORE_PLUGIN . 'test/index.php';
-include_once CI_STORE_PLUGIN . 'western/wps_ajax_handler.php';
-include_once CI_STORE_PLUGIN . 'hooks/index.php';
-include_once CI_STORE_PLUGIN . 'admin/index.php';
-// include_once CI_STORE_PLUGIN . 'utils/DebugLogAPI.php';
-// include_once CI_STORE_PLUGIN . 'utils/admin_ajax.php';
-include_once CI_STORE_PLUGIN . 'utils/AjaxManager.php';
-include_once CI_STORE_PLUGIN . 'ajax/index.php';
+// if importing, file a stall check 
+$SUPPLIERS['wps']->schedule_stall_check();
 
 $API_Manager = new AjaxManager();
 
@@ -56,6 +53,9 @@ $API_Manager = new AjaxManager();
 // new DebugLogAPI();
 // build admin API
 // new AdminAPI();
+
+new ReactSubpage('overview', 'Overview', 'ci-store-plugin-page', 'ci-store_page_');
+new ReactSubpage('test_admin', 'Utilities', 'ci-store-plugin-page', 'ci-store_page_');
 
 function create_admin_menu()
 {
@@ -91,14 +91,14 @@ function enqueue_custom_styles()
         wp_enqueue_style('custom-admin-styles', plugins_url('css/ci-admin.css', __FILE__));
         // wp_enqueue_script('custom-logged-in-script', plugins_url('js/ci-plugin.js', __FILE__));
     }
-    wp_enqueue_style('custom-store-styles', plugins_url('css/ci-styles.css', __FILE__), null, '0.2');
+    wp_enqueue_style('custom-store-styles', plugins_url('css/ci-styles.css', __FILE__), null, CI_VERSION);
 }
 
 add_action('wp_enqueue_scripts', 'enqueue_custom_styles');
 
 function custom_enqueue_admin_styles()
 {
-    wp_enqueue_style('admin_styles', plugins_url('css/ci-admin.css', __FILE__), null, '0.2');
+    wp_enqueue_style('admin_styles', plugins_url('css/ci-admin.css', __FILE__), null, CI_VERSION);
 }
 
 //

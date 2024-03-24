@@ -9,6 +9,8 @@ function get_import_status($params)
 {
     $supplier_key = \AjaxManager::get_param('supplier_key', null, $params);
     $supplier = \CI\Admin\get_supplier($supplier_key);
+    return $supplier->get_import_status();
+    
     $is_import_running = $supplier->is_import_running();
     $is_import_scheduled = $supplier->is_import_scheduled();
     $is_stalled = $is_import_running && $supplier->is_import_stalled();
@@ -20,6 +22,7 @@ function get_import_status($params)
         'is_import_scheduled' => $is_import_scheduled,
         'is_import_running' => $is_import_running,
         'is_stalled' => $is_stalled,
+        'seconds_since_last_ping' => $supplier->seconds_since_last_ping(),
         'should_cancel_import' => $should_cancel_import,
         'report' => $report,
     ];

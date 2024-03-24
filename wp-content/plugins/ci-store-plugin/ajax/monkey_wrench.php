@@ -112,8 +112,24 @@ function monkey_wrench($params)
     //
     // test
     //
-    if (empty($custom)) {
-        return 'That wasn\'t so productive';
+
+    if ($custom === 'wp_get_schedules') {
+        return wp_get_schedules();
+    }
+
+    if ($custom === 'turn14') {
+        $supplier = \CI\Admin\get_supplier('t14');
+        $response = $supplier->getAccessToken();
+        $brands = $supplier->get_api('/brands');
+        // $clientId = 'df98c919f33c6144f06bcfc287b984f809e33322';
+        // $clientSecret = '021320311e77c7f7e661d697227f80ae45b548a9';
+
+        // $query_string = http_build_query(['client_id' => $clientId, 'client_secret' => $clientSecret, 'grant_type' => 'client_credentials']);
+        // $remote_url = 'https://api.turn14.com/v1/token?' . $query_string;
+
+        // $response = wp_safe_remote_request($remote_url, ['method'=>'POST', 'body'=>['client_id' => $clientId, 'client_secret' => $clientSecret, 'grant_type' => 'client_credentials']]);
+
+        return ['token' => $response, 'brands' => $brands];
     }
 
     if ($custom === 'get_update_action') {
@@ -269,243 +285,7 @@ function monkey_wrench($params)
         return ['report' => $report];
     }
 
-    // if ($custom === 'update') {
-
-    //     foreach ($supplier_variations as $supplier_variation) {
-    //         $variation = supplier_variation_to_object($supplier_variation, $woo_product_id, $report);
-    //         $variation_sku = $variation->get_sku('edit');
-
-    //         try {
-    //             $saved = $variation->save();
-    //             $report->addLog($variation_sku . ' save success??');
-    //         } catch (\Exception $e) {
-    //             $saved = false;
-    //             $report->addLog($variation_sku . ' save failed' . $e);
-    //         }
-    //     }
-    //     return ['report' => $report];
-    // }
-
-    // $woo_variations = \WooTools::get_variations($woo_product, 'edit');
-
-    // foreach($woo_children as $i=>$woo_variation_id){
-    //     $variation = new \WC_Product_Variation($woo_variation_id);
-    //     $actions[] = $variation->get_data();
-    //     $attributes = $variation->get_attributes();
-    //     $actions[] = 'related sku '.$supplier_variations[$i]['sku'];
-
-    //     foreach($attributes as $attr_slug=>$attr_value){
-    //         $actions[] = 'test '.$attr_slug.'='.$attr_value;
-    //     }
-
-    //     foreach($supplier_variations as $supplier_variation){
-    //         $actions[] = ['supp_att'=>$supplier_variation];
-    //     }
-    // }
-
-    // return ['woo_children' => $woo_children, 'actions'=>$actions];
-
-    // $lookup_woo_variation_by_sku = [];
-
-    // if ($woo_product) {
-    //     // $woo_product->get_children();
-    //     $woo_variations = \WooTools::get_variations($woo_product, 'edit');
-    //     foreach ($woo_variations as $woo_variation) {
-    //         $lookup_woo_variation_by_sku[$woo_variation['sku']] = $woo_variation;
-    //     }
-    // }
-
-    // return ['lookup_woo_variation_by_sku' => $lookup_woo_variation_by_sku, 'cleaned' => $cleaned];
-
-    // get lookup os woo skus to check if they exist or not
-
-    foreach ($supplier_variations as $supplier_variation) {
-        $variation_sku = $supplier_variation['sku'];
-
-        $variation_id = wc_get_product_id_by_sku($variation_sku);
-        $actions[] = $variation_sku . ' id=' . $variation_id;
-
-        // $variation_exists = array_key_exists($variation_sku, $lookup_woo_variation_by_sku);
-        // $variation_exists = sku_exists($variation_sku);
-        // $info[$variation_sku] = ['exists' => $variation_exists];
-        // $actions[] = 'sku $variation_exists=' . ($variation_exists ? 'Yes' : 'No');
-        $variation = null;
-
-        if ($variation_id) {
-
-            $variation = new \WC_Product_Variation($variation_id);
-            $actions[] = $variation_sku . ' get_sku=' . $variation->get_sku();
-            $actions[] = $variation_sku . ' get_attributes=' . json_encode($variation->get_attributes(), JSON_PRETTY_PRINT);
-
-            // $variation->set_attributes(['__required_attr'=>1]);
-            // $variation->save();
-            continue;
-            // continue;
-            // $variations = wc_get_products(['sku' => $variation_sku]);
-            // // $variations = $query->get_products();
-            // $variation = reset($variations);
-            // $actions[] = 'update sku ' . $variation_sku;
-            // continue;
-            // $info[$variation_sku]['action'] = $variations;
-
-            // $info[$variation->get_id()] = $variation;
-
-            // $variation_id = wc_get_product_id_by_sku($variation_sku);
-            // if ($variation_id) {
-            //     $variation = wc_get_product($variation_id);
-            // }
-            $variation = new \WC_Product_Variation($variation_id);
-            if ($variation) {
-                $actions[] = $variation_sku . ' pulled variation sku ' . $variation_sku;
-            } else {
-                $actions[] = $variation_sku . ' failed pulled variation sku ' . $variation_sku;
-                continue;
-            }
-        } else {
-            $variation = new \WC_Product_Variation();
-            $variation->set_parent_id($woo_product_id);
-            try {
-                // Attempt to set the SKU
-                $variation->set_sku($supplier_variation['sku']);
-            } catch (\Exception $e) {
-                $actions[] = $variation_sku . ' Could not set_sku of ' . $supplier_variation['sku'] . $e;
-                // Handle the exception
-                // echo 'Error setting SKU: ' . $e->getMessage();
-                // continue;
-            }
-            $actions[] = 'insert sku ' . $variation_sku;
-        }
-        continue;
-
-        // $variation = new \WC_Product_Variation();
-        $variation->set_status('publish');
-        $variation->set_stock_status('instock');
-        $variation->set_regular_price($supplier_variation['list_price']);
-        $variation->update_meta_data('_ci_supplier_key', 'wps');
-        $variation->update_meta_data('_ci_product_id', $supplier_variation['id']);
-        $variation->update_meta_data('_ci_supplier_sku', isset($supplier_variation['supplier_sku']) ? $supplier_variation['supplier_sku'] : '');
-        $variation->update_meta_data('_ci_additional_images', serialize($supplier_variation['images']));
-        $variation->update_meta_data('_ci_import_version', $supplier_variation['import_version']);
-        $variation->update_meta_data('_ci_import_timestamp', gmdate("c"));
-
-        $attributes = [];
-        foreach ($supplier_variation['attributes'] as $attr_name => $attr_value) {
-            // $actions[] = ['attr_name'=>$attr_name, 'attr_variation'=>$attr_value];
-            $attr = new \WC_Product_Attribute();
-            $attr->set_id(0);
-            $attr->set_name($attr_name);
-            $attr->set_visible(true);
-            $attr->is_taxonomy(true);
-            $attr->set_options([$attr_value]);
-            $attr->set_variation(true);
-            // $attributes[] = $attr;
-            $attributes[$attr_name] = $attr_value;
-        }
-        // $actions[] = [$variation_sku.'_attributes'=>$attributes];
-
-        // continue;
-        try {
-            // Attempt to set the SKU
-            $variation->set_attributes($attributes);
-            $actions[] = $variation_sku . ' set_attributes success ' . $supplier_variation['sku'];
-            // continue;
-        } catch (\Exception $e) {
-            $actions[] = $variation_sku . ' set_attributes failed ' . $supplier_variation['sku'] . $e;
-            // $actions[] = $attributes;
-            // Handle the exception
-            // echo 'Error setting SKU: ' . $e->getMessage();
-            // continue;
-        }
-        // continue;
-
-        try {
-            // $saved = $variation->save();
-            $actions[] = $variation_sku . ' save success??';
-        } catch (\Exception $e) {
-            $saved = false;
-            $actions[] = $variation_sku . ' save failed' . $e;
-            // $actions[] = $attributes;
-            // Handle the exception
-            // echo 'Error setting SKU: ' . $e->getMessage();
-            // continue;
-        }
-        $actions[] = $variation_sku . ' saved ' . ($saved ? 'saved' : 'not saved');
-
-        break;
-    }
-
-    return [
-        // 'cleaned' => $cleaned,
-        'woo_product_id' => $woo_product_id,
-        'woo_children' => $woo_children,
-        'actions' => $actions,
-        'errors' => $errors,
-        'info' => $info,
-        'woo_variations' => $woo_variations,
-        // 'lookup_woo_variation_by_sku' => $lookup_woo_variation_by_sku,
-        'master_attributes' => $master_attributes,
-        'supplier_key' => $supplier_key,
-        'supplier_product_id' => $supplier_product_id,
-        'supplier_variations' => count($supplier_variations),
-        'saved' => $saved,
-    ];
-    //
-    //
-    //
-    //
-    //
-    $report = new \Report();
-    $wps_product_id = 326440; //26;
-    $supplier = \CI\Admin\get_supplier('wps');
-    $supplier_product = $supplier->get_product($wps_product_id);
-    $sku = $supplier->get_product_sku($wps_product_id);
-    $woo_product_id = wc_get_product_id_by_sku($sku);
-    $woo_product = wc_get_product_object('variable', $woo_product_id);
-
-    // $placeholder_id = 180499;
-    // set_post_thumbnail($woo_product_id, $placeholder_id);
-
-    // $existing_gallery_image_ids = get_post_meta($woo_product_id, '_product_image_gallery', true);
-
-    // $woo_product->set_width();
-
-    $dimensions = $woo_product->get_dimensions();
-    return ['d' => $dimensions];
-
-    // return ['existing_gallery_image_ids' => $existing_gallery_image_ids];
-    /////
-    $wps_product_id = 326440; //26;
-    $report = new \Report();
-
-    $supplier = \CI\Admin\get_supplier('wps');
-
-    $sku = $supplier->get_product_sku($wps_product_id);
-    $supplier_product = $supplier->get_product($wps_product_id);
-
-    $imgs = get_additional_images($supplier_product);
-    $imgs = get_all_images($supplier_product);
-    return ['imgs' => $imgs];
-
-    $valid_items = array_filter($supplier_product['data']['items']['data'], 'isValidItem');
-    $variations = [];
-
-    foreach ($valid_items as $item) {
-        $variation = [];
-        $variation['sku'] = $supplier->get_variation_sku($supplier_product['data']['id'], $item['id']);
-        $variation['images'] = get_item_images($item);
-        $variations[] = $variation;
-    }
-
-    return ['variations' => $variations];
-
-    /////
-
-    $woo_product_id = wc_get_product_id_by_sku($sku);
-    $woo_product = wc_get_product_object('variable', $woo_product_id);
-    $supplier_variations = $supplier->extract_variations($supplier_product);
-    \WooTools::sync_variations($woo_product, $supplier_variations, $report);
-    // get_western_attributes_from_product( $supplier_product)
-    return ['report' => $report];
+    return 'That wasn\'t so productive';
 }
 
 // get_western_attributes_from_product

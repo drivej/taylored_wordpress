@@ -7,8 +7,6 @@ include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/import_western_product.ph
 
 class Supplier_WPS extends Supplier
 {
-    public bool $deep_debug = false;
-
     public function __construct()
     {
         parent::__construct([
@@ -17,21 +15,247 @@ class Supplier_WPS extends Supplier
             'supplierClass' => 'WooDropship\\Suppliers\\Western',
             'import_version' => '0.3',
         ]);
+
+        $this->deep_debug = false;
     }
 
-    public function import_product($supplier_product_id, $force = false, $report = new Report())
+    public function start_import_products()
     {
-        if ($this->deep_debug) {
-            ci_error_log('import_product()');
+        $result = [];
+        $result = $this->get_import_status();
+
+        if ($result['is_stalled']) {
+            $result['error'] = 'import stalled';
         }
 
-        import_western_product($supplier_product_id, $force, $report);
+        if ($result['is_running']) {
+            $result['error'] = 'import running';
+        }
+
+        if ($result['is_scheduled']) {
+            $result['error'] = 'import scheduled';
+        }
+
+        if (isset($result['error'])) {
+            return $result;
+        }
+
+        $should_schedule_import = true;
+
+        if ($result['started_hours_ago'] < 48) {
+            $should_schedule_import = false;
+            $result['error'] = 'started ' . $result['started_hours_ago'] . ' hours ago';
+        }
+
+        if ($should_schedule_import) {
+            $updated = $result['last_started']->format('Y-m-d'); // updated since
+            // $this->clear_import_report();
+            $products_count = $this->get_products_count($updated);
+            $result['report'] = $this->update_import_report([
+                'processed' => 0,
+                'delete' => 0,
+                'update' => 0,
+                'ignore' => 0,
+                'insert' => 0,
+                'error' => 0,
+                'updated' => $updated,
+                'products_count' => $products_count,
+                'cursor' => '',
+                'started' => gmdate("c"),
+                'page_size' => 100,
+            ]);
+            $result['scheduled'] = $this->schedule_import();
+        }
+        $result['should_schedule_import'] = $should_schedule_import;
+        return $result;
+    }
+
+    public function import_products_page()
+    {
+        $this->ping();
+        $this->set_is_import_running(true);
+        $report = $this->get_import_report();
+        $label = $this->key . '_import_products_page()';
+
+        // fix page_size=0
+        if (!is_numeric($report['page_size']) || $report['page_size'] < 10) {
+            $this->update_import_report(['page_size' => 10]);
+        }
+        $this->log($label . json_encode(['cursor' => $report['cursor'], 'page_size' => $report['page_size'], 'updated' => $report['updated']]));
+        $products = $this->get_products_page($report['cursor'], $report['page_size'], $report['updated']);
+
+        // sometimes the data doesn't return anything - try again
+        if (!isset($products['data'])) {
+            $this->log($label . ' api failed - sleep 10, the try again');
+            sleep(10);
+            $products = $this->get_products_page($report['cursor'], $report['page_size'], $report['updated']);
+        }
+
+        $cancelled = false;
+        $stalled = false;
+
+        if (isset($products['data'])) {
+            $tally = ['insert' => [], 'update' => [], 'delete' => [], 'ignore' => []];
+            $this->log($label . ' Recieved ' . count($products['data']) . ' products');
+
+            foreach ($products['data'] as $product) {
+                $action = $this->get_update_action($product); //
+                $product_id = $product['id'];
+                $tally[$action][] = $product_id;
+                $this->log($label . ' ' . $this->key . ':' . $product_id . ' ' . $action);
+                $product_report = new \Report();
+
+                switch ($action) {
+                    case 'insert':
+                        $this->insert_product($product_id, $product_report);
+                        break;
+
+                    case 'update':
+                        $this->update_product($product_id, $product_report);
+                        break;
+
+                    case 'delete':
+                        $this->delete_product($product_id, $product_report);
+                        break;
+
+                    case 'ignore':
+                        break;
+                }
+                // let wp know we are alive
+                $this->ping();
+
+                // escape hatch
+                if ($this->should_cancel_import()) {
+                    $cancelled = true;
+                    $this->log($label . ' ABORTED');
+                    break;
+                }
+
+                // for testing
+                if ($this->should_stall_import()) {
+                    $stalled = true;
+                    $this->log($label . ' FORCE STALLED');
+                    break;
+                }
+            }
+
+            // log pretty useful data
+            $useful_data = array_filter($tally, fn($v) => count($v));
+            $results = '';
+            foreach ($useful_data as $k => $v) {
+                $results .= "\n\t" . $k . ': (' . count($v) . ') ' . implode(',', $v);
+            }
+            $this->log($label . ' ' . $results);
+
+            $cursor = $products['meta']['cursor']['next'];
+
+            if ($stalled) {
+                $this->log($label . ' stall import');
+                $this->clear_stall_test();
+                return;
+            }
+
+            if (!$cancelled) {
+                $this->update_import_report([
+                    'processed' => $report['processed'] + count($products['data']),
+                    'cursor' => $cursor,
+                    'delete' => $report['delete'] + count($tally['delete']),
+                    'update' => $report['update'] + count($tally['update']),
+                    'ignore' => $report['ignore'] + count($tally['ignore']),
+                    'insert' => $report['insert'] + count($tally['insert']),
+                ]);
+
+                if (!$cursor) {
+                    $this->update_import_report(['completed' => gmdate("c")]);
+                    $this->set_is_import_running(false);
+                } else if ($this->should_cancel_import()) {
+                    $this->set_is_import_running(false);
+                } else {
+                    // schedule and event to load the next page of products
+                    $flag = $this->import_products_page_flag;
+                    $is_scheduled = (bool) wp_next_scheduled($flag);
+                    if (!$is_scheduled) {
+                        $scheduled = wp_schedule_single_event(time(), $flag);
+                        if (!$scheduled) {
+                            $this->set_is_import_running(false);
+                            $this->update_import_report(['error' => 'schedule failed']);
+                            $this->log($label . ' schedule failed');
+                        }
+                    } else {
+                        $this->log($label . ' schedule page import already scheduled - How did this duplicate?');
+                    }
+                }
+            } else {
+                $this->set_is_import_running(false);
+            }
+        } else {
+            // try again
+            $this->set_is_import_running(false);
+            $this->log($label . ' product data empty');
+        }
+    }
+
+    public function insert_product($supplier_product_id, $report = new Report())
+    {
+        if ($this->deep_debug) {
+            ci_error_log('insert_product()');
+        }
+        $supplier_product = $this->get_product($supplier_product_id);
+
+        if ($supplier_product) {
+            $product_id = $this->create_product($supplier_product_id);
+            update_western_product($supplier_product, $product_id, $report);
+        }
+    }
+
+    public function update_product($supplier_product_id, $report = new Report())
+    {
+        if ($this->deep_debug) {
+            ci_error_log('update_product()');
+        }
+        $supplier_product = $this->get_product($supplier_product_id);
+        $woo_product_id = $this->get_woo_id($supplier_product_id);
+        update_western_product($supplier_product, $woo_product_id, $report);
+
+        // $woo_product = wc_get_product_object('variable', $supplier_product_id);
+        // // $has_variations = count($wps_product['data']['items']['data']) > 0;
+        // // $is_variable = $product->is_type('variable');
+        // // $report->addData('type', $woo_product->get_type());
+
+        // $first_item = $supplier_product['data']['items']['data'][0];
+        // $woo_product->set_name($supplier_product['data']['name']);
+        // $woo_product->set_status('publish');
+        // $woo_product->set_regular_price($first_item['list_price']);
+        // $woo_product->set_stock_status('instock');
+        // $woo_product->update_meta_data('_ci_import_version', $this->import_version);
+        // $woo_product->set_description($this->get_description($supplier_product));
+
+        // update_product_images($woo_product, $supplier_product, $report);
+        // update_product_taxonomy($woo_product, $supplier_product, $report);
+        // update_product_attributes($woo_product, $supplier_product, $report);
+        // update_product_variations($woo_product, $supplier_product, $report);
+        // update_product_stock_status($woo_product, $supplier_product, $report);
+
+        // // TODO: do we need this?
+        // // check skus os master to make sure any invalid variations don't make it to the sku list
+
+        // $woo_product->save();
+        // }
+        // return $product_id;
+
     }
 
     public function get_api($path, $params = [])
     {
+        if (!isset($path)) {
+            ci_error_log('WPS.get_api() ERROR path not set path=' . $path . '' . 'params=' . json_encode($params));
+            return ['error' => 'path not set'];
+        }
         $query_string = http_build_query($params);
         $remote_url = implode("/", ["http://api.wps-inc.com", trim($path, '/')]) . '?' . $query_string;
+        if ($this->deep_debug) {
+            ci_error_log('get_api() ' . $path . '?' . urldecode($query_string));
+        }
         $response = wp_safe_remote_request($remote_url, ['headers' => [
             'Authorization' => "Bearer aybfeye63PtdiOsxMbd5f7ZAtmjx67DWFAQMYn6R",
             'Content-Type' => 'application/json',
@@ -95,7 +319,7 @@ class Supplier_WPS extends Supplier
         $cursor = '';
         $data = [];
         // ci_error_log(['TEST1' => $ids]);
-        
+
         if (count($ids) === 1) {
             // handle request for single item
             // ci_error_log(__FILE__, __LINE__, 'QUERY attributekeys/' . implode(',', $ids));
@@ -114,7 +338,7 @@ class Supplier_WPS extends Supplier
             // ci_error_log(['TEST2.1' => $res]);
 
             // $attributes[] = $res['data'];
-        } else {
+        } else if (count($ids)) {
             // ci_error_log('TEST3');
             // handle request for multiple items
             // gather data with pagination
@@ -175,6 +399,23 @@ class Supplier_WPS extends Supplier
         return $product;
     }
 
+    public function get_product_light($product_id)
+    {
+        if ($this->deep_debug) {
+            ci_error_log('get_product_light()');
+        }
+        $params = [];
+        $params['include'] = implode(',', [
+            'items',
+            'items:filter(status_id|NLA|ne)',
+        ]);
+        $product = $this->get_api('products/' . $product_id, $params);
+        if (isset($product['status_code']) && $product['status_code'] === 404) {
+            return null; // product doesn't exist
+        }
+        return $product;
+    }
+
     public function extract_product_name($supplier_product)
     {
         if ($this->deep_debug) {
@@ -200,7 +441,7 @@ class Supplier_WPS extends Supplier
 
         $items = isset($supplier_product['data']['items']['data']) && is_array($supplier_product['data']['items']['data']) ? $supplier_product['data']['items']['data'] : [];
 
-        $attr_keys = $supplier_product['data']['attributekeys']['data'];
+        $attr_keys = isset($supplier_product['data']['attributekeys']['data']) ? $supplier_product['data']['attributekeys']['data'] : [];
         $lookup_slug_by_id = [];
 
         foreach ($attr_keys as $attr_id => $attr) {
@@ -219,13 +460,13 @@ class Supplier_WPS extends Supplier
             $variation['supplier_sku'] = $item['sku'];
             $variation['name'] = $item['name'];
             $variation['list_price'] = $item['list_price'];
-            $variation['images'] = get_item_images($item);
+            $variation['images'] = $this->get_item_images($item);
             $variation['meta_data'] = [];
             $variation['meta_data'][] = ['key' => '_ci_import_version', 'value' => $this->import_version];
             $variation['meta_data'][] = ['key' => '_ci_supplier_key', 'value' => $this->key];
             $variation['meta_data'][] = ['key' => '_ci_product_id', 'value' => $supplier_product['data']['id']];
             $variation['meta_data'][] = ['key' => '_ci_supplier_sku', 'value' => $item['sku']];
-            $variation['meta_data'][] = ['key' => '_ci_additional_images', 'value' => get_item_images($item)];
+            $variation['meta_data'][] = ['key' => '_ci_additional_images', 'value' => $this->get_item_images($item)];
             $variation['meta_data'][] = ['key' => '_ci_import_timestamp', 'value' => gmdate("c")];
 
             $variation['attributes'] = [];
@@ -312,6 +553,16 @@ class Supplier_WPS extends Supplier
         return $variations;
     }
 
+    public function get_item_images($item)
+    {
+        if (isset($item['images']['data'])) {
+            if (count($item['images']['data'])) {
+                return array_map('build_western_image', $item['images']['data']);
+            }
+        }
+        return null;
+    }
+
     public function extract_attributes($supplier_product)
     {
         if ($this->deep_debug) {
@@ -338,7 +589,9 @@ class Supplier_WPS extends Supplier
             $lookup_slug_by_id[$attr_id] = $attr['slug'];
         }
 
-        $valid_items = array_filter($supplier_product['data']['items']['data'], 'isValidItem');
+        $items = isset($supplier_product['data']['items']['data']) ? $supplier_product['data']['items']['data'] : [];
+
+        $valid_items = array_filter($items, 'isValidItem');
 
         foreach ($valid_items as $item) {
             foreach ($item['attributevalues']['data'] as $item_attr) {
@@ -385,12 +638,12 @@ class Supplier_WPS extends Supplier
         $valid_skus = array_map(fn($v) => $v['sku'], $valid_items);
 
         // if (count($valid_skus)) {
-            // if there's only 1 sku, we don't need a sku selector
-            $attributes['supplier_sku'] = [
-                'name' => 'supplier_sku',
-                'options' => array_map(fn($v) => $v['sku'], $valid_items),
-                'slug' => 'supplier_sku',
-            ];
+        // if there's only 1 sku, we don't need a sku selector
+        $attributes['supplier_sku'] = [
+            'name' => 'supplier_sku',
+            'options' => array_map(fn($v) => $v['sku'], $valid_items),
+            'slug' => 'supplier_sku',
+        ];
         // }
 
         return array_values($attributes);
@@ -421,23 +674,6 @@ class Supplier_WPS extends Supplier
             return strtotime($supplier_product['data']['updated_at']);
         }
         return null;
-    }
-
-    public function is_stale($supplier_product)
-    {
-        if ($this->deep_debug) {
-            ci_error_log('is_stale()');
-        }
-
-        $supplier_updated = $this->extract_product_updated($supplier_product);
-        $woo_product = $this->get_woo_product($supplier_product['data']['id']);
-        if ($woo_product) {
-            $woo_updated = $woo_product->get_date_modified();
-            if ($woo_updated) {
-                return $woo_updated->getTimestamp() < $supplier_updated;
-            }
-        }
-        return true;
     }
 
     public function check_is_available($product_id)
