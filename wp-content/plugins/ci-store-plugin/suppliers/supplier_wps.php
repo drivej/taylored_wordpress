@@ -1,5 +1,11 @@
 <?php
+/*
 
+https://www.wps-inc.com/data-depot/v4/api/introduction
+
+// TODO: incliude WPS tags as Woo tags - currently they're in early development
+
+ */
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Report.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/western_utils.php';
@@ -42,7 +48,7 @@ class Supplier_WPS extends Supplier
 
         $should_schedule_import = true;
 
-        if ($result['started_hours_ago'] < 48) {
+        if (!$result['is_stopped'] && $result['started_hours_ago'] < 48) {
             $should_schedule_import = false;
             $result['error'] = 'started ' . $result['started_hours_ago'] . ' hours ago';
         }
@@ -57,11 +63,12 @@ class Supplier_WPS extends Supplier
                 'update' => 0,
                 'ignore' => 0,
                 'insert' => 0,
-                'error' => 0,
+                'error' => '',
                 'updated' => $updated,
                 'products_count' => $products_count,
                 'cursor' => '',
                 'started' => gmdate("c"),
+                'stopped' => '',
                 'page_size' => 100,
             ]);
             $result['scheduled'] = $this->schedule_import();
@@ -75,18 +82,17 @@ class Supplier_WPS extends Supplier
         $this->ping();
         $this->set_is_import_running(true);
         $report = $this->get_import_report();
-        $label = $this->key . '_import_products_page()';
 
         // fix page_size=0
         if (!is_numeric($report['page_size']) || $report['page_size'] < 10) {
             $this->update_import_report(['page_size' => 10]);
         }
-        $this->log($label . json_encode(['cursor' => $report['cursor'], 'page_size' => $report['page_size'], 'updated' => $report['updated']]));
+        $this->log(json_encode(['cursor' => $report['cursor'], 'page_size' => $report['page_size'], 'updated' => $report['updated']]));
         $products = $this->get_products_page($report['cursor'], $report['page_size'], $report['updated']);
 
         // sometimes the data doesn't return anything - try again
         if (!isset($products['data'])) {
-            $this->log($label . ' api failed - sleep 10, the try again');
+            $this->log('api failed - sleep 10, the try again');
             sleep(10);
             $products = $this->get_products_page($report['cursor'], $report['page_size'], $report['updated']);
         }
@@ -96,13 +102,13 @@ class Supplier_WPS extends Supplier
 
         if (isset($products['data'])) {
             $tally = ['insert' => [], 'update' => [], 'delete' => [], 'ignore' => []];
-            $this->log($label . ' Recieved ' . count($products['data']) . ' products');
+            $this->log('Recieved ' . count($products['data']) . ' products');
 
             foreach ($products['data'] as $product) {
                 $action = $this->get_update_action($product); //
                 $product_id = $product['id'];
                 $tally[$action][] = $product_id;
-                $this->log($label . ' ' . $this->key . ':' . $product_id . ' ' . $action);
+                $this->log($product_id . ' ' . $action);
                 $product_report = new \Report();
 
                 switch ($action) {
@@ -127,14 +133,14 @@ class Supplier_WPS extends Supplier
                 // escape hatch
                 if ($this->should_cancel_import()) {
                     $cancelled = true;
-                    $this->log($label . ' ABORTED');
+                    $this->log('Import cancelled');
                     break;
                 }
 
                 // for testing
                 if ($this->should_stall_import()) {
                     $stalled = true;
-                    $this->log($label . ' FORCE STALLED');
+                    $this->log('Import force stalled');
                     break;
                 }
             }
@@ -145,12 +151,11 @@ class Supplier_WPS extends Supplier
             foreach ($useful_data as $k => $v) {
                 $results .= "\n\t" . $k . ': (' . count($v) . ') ' . implode(',', $v);
             }
-            $this->log($label . ' ' . $results);
+            $this->log($results);
 
             $cursor = $products['meta']['cursor']['next'];
 
             if ($stalled) {
-                $this->log($label . ' stall import');
                 $this->clear_stall_test();
                 return;
             }
@@ -179,26 +184,30 @@ class Supplier_WPS extends Supplier
                         if (!$scheduled) {
                             $this->set_is_import_running(false);
                             $this->update_import_report(['error' => 'schedule failed']);
-                            $this->log($label . ' schedule failed');
+                            $this->log('schedule failed');
                         }
                     } else {
-                        $this->log($label . ' schedule page import already scheduled - How did this duplicate?');
+                        $this->log('schedule page import already scheduled - How did this duplicate?');
                     }
                 }
             } else {
                 $this->set_is_import_running(false);
             }
         } else {
-            // try again
+            // failed after trying to load the page again - this is an error
             $this->set_is_import_running(false);
-            $this->log($label . ' product data empty');
+            $this->update_import_report([
+                'stopped' => gmdate("c"),
+                'error' => 'Product page data empty',
+            ]);
+            $this->log('Product page data empty');
         }
     }
 
     public function insert_product($supplier_product_id, $report = new Report())
     {
         if ($this->deep_debug) {
-            ci_error_log('insert_product()');
+            $this->log('insert_product()');
         }
         $supplier_product = $this->get_product($supplier_product_id);
 
@@ -211,7 +220,7 @@ class Supplier_WPS extends Supplier
     public function update_product($supplier_product_id, $report = new Report())
     {
         if ($this->deep_debug) {
-            ci_error_log('update_product()');
+            $this->log('update_product()');
         }
         $supplier_product = $this->get_product($supplier_product_id);
         $woo_product_id = $this->get_woo_id($supplier_product_id);
@@ -248,13 +257,13 @@ class Supplier_WPS extends Supplier
     public function get_api($path, $params = [])
     {
         if (!isset($path)) {
-            ci_error_log('WPS.get_api() ERROR path not set path=' . $path . '' . 'params=' . json_encode($params));
+            $this->log('WPS.get_api() ERROR path not set path=' . $path . '' . 'params=' . json_encode($params));
             return ['error' => 'path not set'];
         }
         $query_string = http_build_query($params);
         $remote_url = implode("/", ["http://api.wps-inc.com", trim($path, '/')]) . '?' . $query_string;
         if ($this->deep_debug) {
-            ci_error_log('get_api() ' . $path . '?' . urldecode($query_string));
+            $this->log('get_api() ' . $path . '?' . urldecode($query_string));
         }
         $response = wp_safe_remote_request($remote_url, ['headers' => [
             'Authorization' => "Bearer aybfeye63PtdiOsxMbd5f7ZAtmjx67DWFAQMYn6R",
@@ -274,7 +283,7 @@ class Supplier_WPS extends Supplier
     public function get_description($supplier_product)
     {
         if ($this->deep_debug) {
-            ci_error_log('get_description()');
+            $this->log('get_description()');
         }
 
         $htm = [];
@@ -294,7 +303,7 @@ class Supplier_WPS extends Supplier
     public function get_products_count($updated = '2020-01-01')
     {
         if ($this->deep_debug) {
-            ci_error_log('get_products_count()');
+            $this->log('get_products_count()');
         }
 
         $params = [];
@@ -307,7 +316,7 @@ class Supplier_WPS extends Supplier
     public function get_attributes_from_product($supplier_product) // wps_product
     {
         if ($this->deep_debug) {
-            ci_error_log('get_attributes_from_product()');
+            $this->log('get_attributes_from_product()');
         }
 
         // this is a utility because the attribute data is not entirely in the product request
@@ -318,28 +327,28 @@ class Supplier_WPS extends Supplier
 
         $cursor = '';
         $data = [];
-        // ci_error_log(['TEST1' => $ids]);
+        // $this->log(['TEST1' => $ids]);
 
         if (count($ids) === 1) {
             // handle request for single item
-            // ci_error_log(__FILE__, __LINE__, 'QUERY attributekeys/' . implode(',', $ids));
+            // $this->log(__FILE__, __LINE__, 'QUERY attributekeys/' . implode(',', $ids));
             $res = get_western('attributekeys/' . implode(',', $ids));
-            // ci_error_log(['TEST2' => $res]);
-            // ci_error_log(['TEST2.2' => is_countable($res)]);
-            // ci_error_log(['TEST2.2.1' => reset($ids)]);
+            // $this->log(['TEST2' => $res]);
+            // $this->log(['TEST2.2' => is_countable($res)]);
+            // $this->log(['TEST2.2.1' => reset($ids)]);
             try {
                 // this explodes if another product exists with the same sku
                 $res['data']['slug'] = sanitize_title($res['data']['name']);
                 $WESTERN_ATTRIBUTES_CACHE[$ids[0]] = $res['data'];
             } catch (\Exception $e) {
-                // ci_error_log('CAUGHT!!! get_attributes_from_product()', $res);
+                // $this->log('CAUGHT!!! get_attributes_from_product()', $res);
 
             }
-            // ci_error_log(['TEST2.1' => $res]);
+            // $this->log(['TEST2.1' => $res]);
 
             // $attributes[] = $res['data'];
         } else if (count($ids)) {
-            // ci_error_log('TEST3');
+            // $this->log('TEST3');
             // handle request for multiple items
             // gather data with pagination
             while (isset($cursor)) {
@@ -350,7 +359,7 @@ class Supplier_WPS extends Supplier
                         $WESTERN_ATTRIBUTES_CACHE[$attr['id']] = $attr;
                     }
                 } else {
-                    ci_error_log(__FILE__, __LINE__, 'get_attributes_from_product Warning ' . json_encode($res, JSON_PRETTY_PRINT));
+                    $this->log(__FILE__, __LINE__, 'get_attributes_from_product Warning ' . json_encode($res, JSON_PRETTY_PRINT));
                 }
                 if (is_array($res['data'])) {
                     array_push($data, ...$res['data']);
@@ -367,10 +376,34 @@ class Supplier_WPS extends Supplier
         return array_reduce($valid_ids, 'reduce_ids', []);
     }
 
+    public function extract_product_tags($supplier_product)
+    {
+        $product_tags = [];
+        // make WPS product_type from each item a product_tag
+        if (is_countable($supplier_product['items']['data'])) {
+            foreach ($supplier_product['items']['data'] as $item) {
+                // WPS product_type
+                if (isset($item['product_type']) && !empty($item['product_type'])) {
+                    $product_tags[] = sanitize_title($item['product_type']);
+                }
+                // WPS taxonomy terms
+                if (is_countable($item['taxonomyterms']['data'])) {
+                    foreach ($item['taxonomyterms']['data'] as $term) {
+                        $product_tags[] = sanitize_title($term['slug']);
+                    }
+                }
+            }
+        }
+
+        // save product tags
+        $product_tags = array_unique($product_tags);
+        return $product_tags;
+    }
+
     public function get_product($product_id)
     {
         if ($this->deep_debug) {
-            ci_error_log('get_product()');
+            $this->log('get_product()');
         }
 
         $params = [];
@@ -389,7 +422,8 @@ class Supplier_WPS extends Supplier
         ]);
         $product = $this->get_api('products/' . $product_id, $params);
         if (isset($product['status_code']) && $product['status_code'] === 404) {
-            return null; // product doesn't exist
+            $product['data'] = ['id' => $product_id];
+            return $product; //['error' => 'not found', 'status_code' => 404]; // product doesn't exist
         }
         // // remove items that are not valid
         // $initial_count = count($product['data']['items']['data']);
@@ -402,7 +436,7 @@ class Supplier_WPS extends Supplier
     public function get_product_light($product_id)
     {
         if ($this->deep_debug) {
-            ci_error_log('get_product_light()');
+            $this->log('get_product_light()');
         }
         $params = [];
         $params['include'] = implode(',', [
@@ -419,7 +453,7 @@ class Supplier_WPS extends Supplier
     public function extract_product_name($supplier_product)
     {
         if ($this->deep_debug) {
-            ci_error_log('extract_product_name()');
+            $this->log('extract_product_name()');
         }
 
         return isset($supplier_product['data']['name']) ? $supplier_product['data']['name'] : 'error';
@@ -428,15 +462,15 @@ class Supplier_WPS extends Supplier
     public function extract_variations($supplier_product)
     {
         if ($this->deep_debug) {
-            ci_error_log('extract_variations()');
+            $this->log('extract_variations()');
         }
 
         if (!isset($supplier_product['data']['attributekeys']['data'])) {
-            ci_error_log(__FILE__, __LINE__, 'ERROR: extract_variations ' . json_encode(['supplier_product' => $supplier_product], JSON_PRETTY_PRINT));
+            $this->log(__FILE__, __LINE__, 'ERROR: extract_variations ' . json_encode(['supplier_product' => $supplier_product], JSON_PRETTY_PRINT));
         }
 
         if (!isset($supplier_product['data']['items']['data'])) {
-            ci_error_log(__FILE__, __LINE__, 'ERROR: extract_variations ' . json_encode(['supplier_product' => $supplier_product], JSON_PRETTY_PRINT));
+            $this->log(__FILE__, __LINE__, 'ERROR: extract_variations ' . json_encode(['supplier_product' => $supplier_product], JSON_PRETTY_PRINT));
         }
 
         $items = isset($supplier_product['data']['items']['data']) && is_array($supplier_product['data']['items']['data']) ? $supplier_product['data']['items']['data'] : [];
@@ -479,7 +513,7 @@ class Supplier_WPS extends Supplier
 
             if ($item['unit_of_measurement_id'] !== 12) {
                 // TODO: need to resolve these unit issues
-                ci_error_log(__FILE__, __LINE__, 'unit_of_measurement_id=' . $item['unit_of_measurement_id'] . ' nned to convert');
+                $this->log(__FILE__, __LINE__, 'unit_of_measurement_id=' . $item['unit_of_measurement_id'] . ' nned to convert');
             }
 
             foreach ($item['attributevalues']['data'] as $attr) {
@@ -508,7 +542,7 @@ class Supplier_WPS extends Supplier
         foreach ($attr_count as $attr_slug => $attr_values) {
             foreach ($attr_values as $attr_value => $attr_tally) {
                 if ($attr_tally === $validItemsCount) {
-                    // ci_error_log('Need to delete attr ' . $attr_slug . ' value ' . $attr_value);
+                    // $this->log('Need to delete attr ' . $attr_slug . ' value ' . $attr_value);
 
                     foreach ($variations as $variation) {
                         unset($variation['attributes'][$attr_slug]);
@@ -532,7 +566,7 @@ class Supplier_WPS extends Supplier
 
             if (count($missing)) {
                 // TODO: troggle this to see if product resolves nicely or not
-                // ci_error_log(__FILE__, __LINE__, 'Skip variation. ' . $variation['sku'] . ' is missing attributes ' . implode(',', $missing));
+                // $this->log(__FILE__, __LINE__, 'Skip variation. ' . $variation['sku'] . ' is missing attributes ' . implode(',', $missing));
                 // $variations[$i]['__delete'] = true;
                 // no need to continue, this variation is junked
                 continue;
@@ -548,7 +582,7 @@ class Supplier_WPS extends Supplier
 
         $variations = array_filter($variations, fn($v) => $v['__delete'] === false);
 
-        // ci_error_log(['attr_count' => $attr_count, 'valid_items' => count($valid_items)]);
+        // $this->log(['attr_count' => $attr_count, 'valid_items' => count($valid_items)]);
 
         return $variations;
     }
@@ -566,7 +600,7 @@ class Supplier_WPS extends Supplier
     public function extract_attributes($supplier_product)
     {
         if ($this->deep_debug) {
-            ci_error_log('extract_attributes()');
+            $this->log('extract_attributes()');
         }
 
         if (!$supplier_product) {
@@ -579,7 +613,7 @@ class Supplier_WPS extends Supplier
 
         foreach ($attr_keys as $attr_id => $attr) {
             if (!isset($attr['name']) || !isset($attr['slug'])) {
-                ci_error_log(__FILE__, __LINE__, 'Error', $attr_keys);
+                $this->log(__FILE__, __LINE__, 'Error', $attr_keys);
             }
             $attributes[$attr['slug']] = [
                 'name' => $attr['name'],
@@ -652,7 +686,7 @@ class Supplier_WPS extends Supplier
     public function is_available($supplier_product)
     {
         if ($this->deep_debug) {
-            ci_error_log('is_available()');
+            $this->log('is_available()');
         }
 
         // this function doesn't need all the product data so for efficiency, try to use the minimal required
@@ -666,7 +700,7 @@ class Supplier_WPS extends Supplier
     public function extract_product_updated($supplier_product)
     {
         if ($this->deep_debug) {
-            ci_error_log('extract_product_updated()');
+            $this->log('extract_product_updated()');
         }
 
         if (isset($supplier_product['data']['updated_at'])) {
@@ -679,7 +713,7 @@ class Supplier_WPS extends Supplier
     public function check_is_available($product_id)
     {
         if ($this->deep_debug) {
-            ci_error_log('check_is_available()');
+            $this->log('check_is_available()');
         }
 
         $params = [];
@@ -697,7 +731,7 @@ class Supplier_WPS extends Supplier
     public function get_stock_status($product_id)
     {
         if ($this->deep_debug) {
-            ci_error_log('get_stock_status()');
+            $this->log('get_stock_status()');
         }
 
         $status = 'notfound';
@@ -728,7 +762,7 @@ class Supplier_WPS extends Supplier
     public function get_products_page($cursor = '', $size = 10, $updated = '2020-01-01')
     {
         if ($this->deep_debug) {
-            ci_error_log('get_products_page()');
+            $this->log('get_products_page()');
         }
 
         $params = [];
@@ -744,5 +778,10 @@ class Supplier_WPS extends Supplier
         $params['fields[products]'] = 'id,name,updated_at';
 
         return $this->get_api('products', $params);
+    }
+
+    public function resize_image($src, $size = 200)
+    {
+        return str_replace('200_max', $size . '_max', $src);
     }
 }

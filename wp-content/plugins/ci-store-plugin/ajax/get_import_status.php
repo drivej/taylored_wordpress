@@ -9,42 +9,9 @@ function get_import_status($params)
 {
     $supplier_key = \AjaxManager::get_param('supplier_key', null, $params);
     $supplier = \CI\Admin\get_supplier($supplier_key);
-    return $supplier->get_import_status();
-    
-    $is_import_running = $supplier->is_import_running();
-    $is_import_scheduled = $supplier->is_import_scheduled();
-    $is_stalled = $is_import_running && $supplier->is_import_stalled();
-    $report = $supplier->get_import_report();
-    $should_cancel_import = $supplier->should_cancel_import();
-
-    return [
-        'supplier' => $supplier_key,
-        'is_import_scheduled' => $is_import_scheduled,
-        'is_import_running' => $is_import_running,
-        'is_stalled' => $is_stalled,
-        'seconds_since_last_ping' => $supplier->seconds_since_last_ping(),
-        'should_cancel_import' => $should_cancel_import,
-        'report' => $report,
-    ];
-
-    if ($supplier_key) {
-        $supplier = \CI\Admin\get_supplier($supplier_key);
-        $is_import_running = $supplier->is_import_running();
-        $is_import_scheduled = $supplier->is_import_scheduled();
-        $last_ping = $supplier->seconds_since_last_ping();
-        $is_stalled = $supplier->is_import_stalled();
-        $report = $supplier->get_import_report();
-        $should_cancel_import = $supplier->should_cancel_import();
-        return [
-            'is_stalled' => $is_stalled,
-            'last_ping' => $last_ping,
-            'report' => $report,
-            'should_cancel_import' => $should_cancel_import,
-            'is_import_scheduled' => $is_import_scheduled,
-            'is_import_running' => $is_import_running,
-            'supplier' => $supplier_key,
-        ];
-    } else {
-        return ['error' => 'no supplier'];
-    }
+    $status = $supplier->get_import_status();
+    $status['last_started'] = $status['last_started']->format(\DateTime::ATOM);
+    $status['last_completed'] = $status['last_completed']->format(\DateTime::ATOM);
+    $status['last_stopped'] = $status['last_stopped']->format(\DateTime::ATOM);
+    return $status;
 }

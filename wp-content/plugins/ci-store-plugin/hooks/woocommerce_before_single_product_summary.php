@@ -2,7 +2,7 @@
 
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/debug_hook.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/western_utils.php';
+// include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/western_utils.php';
 
 function custom_modify_before_single_product_summary()
 {
@@ -12,31 +12,23 @@ function custom_modify_before_single_product_summary()
     if (!$product->get_meta('_ci_supplier_key')) {
         return;
     }
-    // global $dummy_gallery;
-    // print $dummy_gallery;
-    // return;
 
-    // $src = get_product_image($product);
+    // remove built in gallery
+    remove_action('woocommerce_before_single_product_summary', 'woocommerce_show_product_images', 20);
+
     $variations = WooTools::get_variations($product);
-
-    // $images = unserialize($product->get_meta('_ci_additional_images', true));
-
+    $supplier = WooTools::get_product_supplier($product);
     $htm = '';
     $first_fullsize_src = '';
     $first_largesize_src = '';
-
-    // debug_data($variations);
-
-    // ci_error_log(__FILE__, __LINE__, json_encode($variations, JSON_PRETTY_PRINT));
-    // TODO: This will only work for WPS
+    $has_images = false;
 
     foreach ($variations as $variation) {
         foreach ($variation['images'] as $i => $image) {
-            // foreach ($images as $i => $image) {
-            // $variation = ['sku' => ''];
-            $thumb_src = resize_western_image($image, 200);
-            $fullsize_src = resize_western_image($image, 500);
-            $largesize_src = resize_western_image($image, 1000);
+            $has_images = true;
+            $thumb_src = $supplier->resize_image($image, 200);
+            $fullsize_src = $supplier->resize_image($image, 500);
+            $largesize_src = $supplier->resize_image($image, 1000);
             $htm .= '<div
               title="SKU: ' . $variation['supplier_sku'] . '"
               data-fullsize="' . $fullsize_src . '"
@@ -54,6 +46,11 @@ function custom_modify_before_single_product_summary()
         }
     }
 
+    if (!$has_images) {
+        $first_largesize_src = "";
+        $first_fullsize_src = wc_placeholder_img_src();
+    }
+
     print '
     <div class="ci-gallery">
         <a href="' . $first_largesize_src . '" target="_blank" class="ci-gallery-hero-container">
@@ -64,6 +61,7 @@ function custom_modify_before_single_product_summary()
             ' . $htm . '
         </div>
     </div>';
+
 }
 
 add_action('woocommerce_before_single_product_summary', 'custom_modify_before_single_product_summary');
