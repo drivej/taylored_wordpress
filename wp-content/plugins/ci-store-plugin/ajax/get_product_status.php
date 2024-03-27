@@ -21,21 +21,27 @@ function get_product_status($params)
     }
 
     $supplier_product = $supplier->get_product($product_id);
-    $woo_product = $supplier->get_woo_product($product_id);
-    $woo_product_id = $woo_product->get_id();
-
-    $woo_product_updated = $woo_product->get_meta('_ci_import_timestamp');
+    $is_available = $supplier->is_available($supplier_product);
     $supplier_product_updated = $supplier->extract_product_updated($supplier_product);
     $supplier_product_updated = wp_date('Y-m-d H:i:s', ($supplier_product_updated));
-
     $update_action = $supplier->get_update_action($supplier_product);
-    $is_available = $supplier->is_available($supplier_product);
-    $import_version = $woo_product->get_meta('_ci_import_version', true);
-
     $is_stale = $supplier->is_stale($supplier_product);
-    $is_deprecated = $supplier->is_deprecated($woo_product_id);
+
+    $woo_product = $supplier->get_woo_product($product_id);
+    $woo_product_id = 0;
+    $woo_product_updated = '';
+    $import_version = '';
+    $is_deprecated = '';
+
+    if($woo_product){
+        $woo_product_id = $woo_product->get_id();
+        $woo_product_updated = $woo_product->get_meta('_ci_import_timestamp');
+        $import_version = $woo_product->get_meta('_ci_import_version', true);
+        $is_deprecated = $supplier->is_deprecated($woo_product_id);
+    }
 
     return [
+        'woo_product_id' => $woo_product_id,
         'woo_product_updated' => $woo_product_updated,
         'supplier_product_updated' => $supplier_product_updated,
         // 'imported_time'=>$imported_time,
