@@ -48,10 +48,10 @@ class Supplier_WPS extends Supplier
 
         $should_schedule_import = true;
 
-        if (!$result['is_stopped'] && $result['started_hours_ago'] < 48) {
-            $should_schedule_import = false;
-            $result['error'] = 'started ' . $result['started_hours_ago'] . ' hours ago';
-        }
+        // if (!$result['is_stopped'] && $result['started_hours_ago'] < 48) {
+        //     $should_schedule_import = false;
+        //     $result['error'] = 'started ' . $result['started_hours_ago'] . ' hours ago';
+        // }
 
         if ($should_schedule_import) {
             $updated = $result['last_started']->format('Y-m-d'); // updated since
@@ -690,7 +690,7 @@ class Supplier_WPS extends Supplier
         }
 
         // this function doesn't need all the product data so for efficiency, try to use the minimal required
-        if (isset($supplier_product['data']['items']['data'])) {
+        if (isset($supplier_product['data']['items']['data']) && is_countable($supplier_product['data']['items']['data'])) {
             $valid_items = array_filter($supplier_product['data']['items']['data'], 'isValidItem');
             return (bool) count($valid_items);
         }

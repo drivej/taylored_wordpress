@@ -7886,15 +7886,15 @@ if (false) {}
  *
  * @see https://reactrouter.com/hooks/use-href
  */
-function dist_useHref(to, _temp) {
+function useHref(to, _temp) {
   let {
     relative
   } = _temp === void 0 ? {} : _temp;
-  !useInRouterContext() ?  false ? 0 : UNSAFE_invariant(false) : void 0;
+  !useInRouterContext() ?  false ? 0 : invariant(false) : void 0;
   let {
     basename,
     navigator
-  } = React.useContext(NavigationContext);
+  } = react.useContext(NavigationContext);
   let {
     hash,
     pathname,
@@ -7909,7 +7909,7 @@ function dist_useHref(to, _temp) {
   // basename which allows the basename to have full control over the presence
   // of a trailing slash on root links
   if (basename !== "/") {
-    joinedPathname = pathname === "/" ? basename : joinPaths([basename, pathname]);
+    joinedPathname = pathname === "/" ? basename : router_joinPaths([basename, pathname]);
   }
   return navigator.createHref({
     pathname: joinedPathname,
@@ -7990,7 +7990,7 @@ function useIsomorphicLayoutEffect(cb) {
  *
  * @see https://reactrouter.com/hooks/use-navigate
  */
-function dist_useNavigate() {
+function useNavigate() {
   let {
     isDataRoute
   } = react.useContext(RouteContext);
@@ -8044,7 +8044,7 @@ function useNavigateUnstable() {
   }, [basename, navigator, routePathnamesJson, locationPathname, dataRouterContext]);
   return navigate;
 }
-const OutletContext = /*#__PURE__*/(/* unused pure expression or super */ null && (React.createContext(null)));
+const OutletContext = /*#__PURE__*/react.createContext(null);
 
 /**
  * Returns the context (if provided) for the child route at this level of the route
@@ -8062,9 +8062,9 @@ function useOutletContext() {
  * @see https://reactrouter.com/hooks/use-outlet
  */
 function useOutlet(context) {
-  let outlet = React.useContext(RouteContext).outlet;
+  let outlet = react.useContext(RouteContext).outlet;
   if (outlet) {
-    return /*#__PURE__*/React.createElement(OutletContext.Provider, {
+    return /*#__PURE__*/react.createElement(OutletContext.Provider, {
       value: context
     }, outlet);
   }
@@ -8096,12 +8096,12 @@ function dist_useResolvedPath(to, _temp2) {
   } = _temp2 === void 0 ? {} : _temp2;
   let {
     matches
-  } = React.useContext(RouteContext);
+  } = react.useContext(RouteContext);
   let {
     pathname: locationPathname
   } = dist_useLocation();
-  let routePathnamesJson = JSON.stringify(UNSAFE_getPathContributingMatches(matches).map(match => match.pathnameBase));
-  return React.useMemo(() => resolveTo(to, JSON.parse(routePathnamesJson), locationPathname, relative === "path"), [to, routePathnamesJson, locationPathname, relative]);
+  let routePathnamesJson = JSON.stringify(getPathContributingMatches(matches).map(match => match.pathnameBase));
+  return react.useMemo(() => router_resolveTo(to, JSON.parse(routePathnamesJson), locationPathname, relative === "path"), [to, routePathnamesJson, locationPathname, relative]);
 }
 
 /**
@@ -8772,7 +8772,7 @@ function Navigate(_ref4) {
   let {
     pathname: locationPathname
   } = dist_useLocation();
-  let navigate = dist_useNavigate();
+  let navigate = useNavigate();
 
   // Resolve the path outside of the effect so that when effects run twice in
   // StrictMode they navigate to the same place
@@ -9313,36 +9313,36 @@ function getFormSubmissionInfo(target, basename) {
   };
 }
 
-const _excluded = (/* unused pure expression or super */ null && (["onClick", "relative", "reloadDocument", "replace", "state", "target", "to", "preventScrollReset", "unstable_viewTransition"])),
-  _excluded2 = (/* unused pure expression or super */ null && (["aria-current", "caseSensitive", "className", "end", "style", "to", "unstable_viewTransition", "children"])),
+const _excluded = ["onClick", "relative", "reloadDocument", "replace", "state", "target", "to", "preventScrollReset", "unstable_viewTransition"],
+  _excluded2 = ["aria-current", "caseSensitive", "className", "end", "style", "to", "unstable_viewTransition", "children"],
   _excluded3 = (/* unused pure expression or super */ null && (["fetcherKey", "navigate", "reloadDocument", "replace", "state", "method", "action", "onSubmit", "relative", "preventScrollReset", "unstable_viewTransition"]));
 function createBrowserRouter(routes, opts) {
-  return router_createRouter({
-    basename: opts == null ? void 0 : opts.basename,
-    future: react_router_dom_dist_extends({}, opts == null ? void 0 : opts.future, {
-      v7_prependBasename: true
-    }),
-    history: router_createBrowserHistory({
-      window: opts == null ? void 0 : opts.window
-    }),
-    hydrationData: (opts == null ? void 0 : opts.hydrationData) || parseHydrationData(),
-    routes,
-    mapRouteProperties: mapRouteProperties,
-    window: opts == null ? void 0 : opts.window
-  }).initialize();
-}
-function createHashRouter(routes, opts) {
   return createRouter({
     basename: opts == null ? void 0 : opts.basename,
     future: react_router_dom_dist_extends({}, opts == null ? void 0 : opts.future, {
       v7_prependBasename: true
     }),
-    history: createHashHistory({
+    history: createBrowserHistory({
       window: opts == null ? void 0 : opts.window
     }),
     hydrationData: (opts == null ? void 0 : opts.hydrationData) || parseHydrationData(),
     routes,
     mapRouteProperties: UNSAFE_mapRouteProperties,
+    window: opts == null ? void 0 : opts.window
+  }).initialize();
+}
+function createHashRouter(routes, opts) {
+  return router_createRouter({
+    basename: opts == null ? void 0 : opts.basename,
+    future: react_router_dom_dist_extends({}, opts == null ? void 0 : opts.future, {
+      v7_prependBasename: true
+    }),
+    history: router_createHashHistory({
+      window: opts == null ? void 0 : opts.window
+    }),
+    hydrationData: (opts == null ? void 0 : opts.hydrationData) || parseHydrationData(),
+    routes,
+    mapRouteProperties: mapRouteProperties,
     window: opts == null ? void 0 : opts.window
   }).initialize();
 }
@@ -9735,7 +9735,7 @@ const dist_ABSOLUTE_URL_REGEX = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
 /**
  * The public API for rendering a history-aware `<a>`.
  */
-const Link = /*#__PURE__*/(/* unused pure expression or super */ null && (React.forwardRef(function LinkWithRef(_ref7, ref) {
+const Link = /*#__PURE__*/react.forwardRef(function LinkWithRef(_ref7, ref) {
   let {
       onClick,
       relative,
@@ -9750,7 +9750,7 @@ const Link = /*#__PURE__*/(/* unused pure expression or super */ null && (React.
     rest = _objectWithoutPropertiesLoose(_ref7, _excluded);
   let {
     basename
-  } = React.useContext(UNSAFE_NavigationContext);
+  } = react.useContext(NavigationContext);
   // Rendered into <a href> for absolute URLs
   let absoluteHref;
   let isExternal = false;
@@ -9762,7 +9762,7 @@ const Link = /*#__PURE__*/(/* unused pure expression or super */ null && (React.
       try {
         let currentUrl = new URL(window.location.href);
         let targetUrl = to.startsWith("//") ? new URL(currentUrl.protocol + to) : new URL(to);
-        let path = stripBasename(targetUrl.pathname, basename);
+        let path = router_stripBasename(targetUrl.pathname, basename);
         if (targetUrl.origin === currentUrl.origin && path != null) {
           // Strip the protocol/origin/basename for same-origin absolute URLs
           to = path + targetUrl.search + targetUrl.hash;
@@ -9796,19 +9796,19 @@ const Link = /*#__PURE__*/(/* unused pure expression or super */ null && (React.
   return (
     /*#__PURE__*/
     // eslint-disable-next-line jsx-a11y/anchor-has-content
-    React.createElement("a", react_router_dom_dist_extends({}, rest, {
+    react.createElement("a", react_router_dom_dist_extends({}, rest, {
       href: absoluteHref || href,
       onClick: isExternal || reloadDocument ? onClick : handleClick,
       ref: ref,
       target: target
     }))
   );
-})));
+});
 if (false) {}
 /**
  * A `<Link>` wrapper that knows if it's "active" or not.
  */
-const NavLink = /*#__PURE__*/(/* unused pure expression or super */ null && (React.forwardRef(function NavLinkWithRef(_ref8, ref) {
+const NavLink = /*#__PURE__*/react.forwardRef(function NavLinkWithRef(_ref8, ref) {
   let {
       "aria-current": ariaCurrentProp = "page",
       caseSensitive = false,
@@ -9820,14 +9820,14 @@ const NavLink = /*#__PURE__*/(/* unused pure expression or super */ null && (Rea
       children
     } = _ref8,
     rest = _objectWithoutPropertiesLoose(_ref8, _excluded2);
-  let path = useResolvedPath(to, {
+  let path = dist_useResolvedPath(to, {
     relative: rest.relative
   });
-  let location = useLocation();
-  let routerState = React.useContext(UNSAFE_DataRouterStateContext);
+  let location = dist_useLocation();
+  let routerState = react.useContext(DataRouterStateContext);
   let {
     navigator
-  } = React.useContext(UNSAFE_NavigationContext);
+  } = react.useContext(NavigationContext);
   let isTransitioning = routerState != null &&
   // Conditional usage is OK here because the usage of a data router is static
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -9860,7 +9860,7 @@ const NavLink = /*#__PURE__*/(/* unused pure expression or super */ null && (Rea
     className = [classNameProp, isActive ? "active" : null, isPending ? "pending" : null, isTransitioning ? "transitioning" : null].filter(Boolean).join(" ");
   }
   let style = typeof styleProp === "function" ? styleProp(renderProps) : styleProp;
-  return /*#__PURE__*/React.createElement(Link, react_router_dom_dist_extends({}, rest, {
+  return /*#__PURE__*/react.createElement(Link, react_router_dom_dist_extends({}, rest, {
     "aria-current": ariaCurrent,
     className: className,
     ref: ref,
@@ -9868,7 +9868,7 @@ const NavLink = /*#__PURE__*/(/* unused pure expression or super */ null && (Rea
     to: to,
     unstable_viewTransition: unstable_viewTransition
   }), typeof children === "function" ? children(renderProps) : children);
-})));
+});
 if (false) {}
 /**
  * A `@remix-run/router`-aware `<form>`. It behaves like a normal form except
@@ -9960,8 +9960,8 @@ function dist_getDataRouterConsoleError(hookName) {
   return hookName + " must be used within a data router.  See https://reactrouter.com/routers/picking-a-router.";
 }
 function dist_useDataRouterContext(hookName) {
-  let ctx = React.useContext(UNSAFE_DataRouterContext);
-  !ctx ?  false ? 0 : UNSAFE_invariant(false) : void 0;
+  let ctx = react.useContext(DataRouterContext);
+  !ctx ?  false ? 0 : invariant(false) : void 0;
   return ctx;
 }
 function dist_useDataRouterState(hookName) {
@@ -9985,16 +9985,16 @@ function useLinkClickHandler(to, _temp) {
     unstable_viewTransition
   } = _temp === void 0 ? {} : _temp;
   let navigate = useNavigate();
-  let location = useLocation();
-  let path = useResolvedPath(to, {
+  let location = dist_useLocation();
+  let path = dist_useResolvedPath(to, {
     relative
   });
-  return React.useCallback(event => {
+  return react.useCallback(event => {
     if (shouldProcessLinkClick(event, target)) {
       event.preventDefault();
       // If the URL hasn't changed, a regular <a> will do a replace instead of
       // a push, so do the same here unless the replace prop is explicitly set
-      let replace = replaceProp !== undefined ? replaceProp : createPath(location) === createPath(path);
+      let replace = replaceProp !== undefined ? replaceProp : router_createPath(location) === router_createPath(path);
       navigate(to, {
         replace,
         state,
@@ -10019,7 +10019,7 @@ function useSearchParams(defaultInit) {
   // Once we call that we want those to take precedence, otherwise you can't
   // remove a param with setSearchParams({}) if it has an initial value
   getSearchParamsForLocation(location.search, hasSetSearchParamsRef.current ? null : defaultSearchParamsRef.current), [location.search]);
-  let navigate = dist_useNavigate();
+  let navigate = useNavigate();
   let setSearchParams = react.useCallback((nextInit, navigateOptions) => {
     const newSearchParams = createSearchParams(typeof nextInit === "function" ? nextInit(searchParams) : nextInit);
     hasSetSearchParamsRef.current = true;
@@ -10397,19 +10397,19 @@ function useViewTransitionState(to, opts) {
   if (opts === void 0) {
     opts = {};
   }
-  let vtContext = React.useContext(ViewTransitionContext);
-  !(vtContext != null) ?  false ? 0 : UNSAFE_invariant(false) : void 0;
+  let vtContext = react.useContext(ViewTransitionContext);
+  !(vtContext != null) ?  false ? 0 : invariant(false) : void 0;
   let {
     basename
   } = dist_useDataRouterContext(dist_DataRouterHook.useViewTransitionState);
-  let path = useResolvedPath(to, {
+  let path = dist_useResolvedPath(to, {
     relative: opts.relative
   });
   if (!vtContext.isTransitioning) {
     return false;
   }
-  let currentPath = stripBasename(vtContext.currentLocation.pathname, basename) || vtContext.currentLocation.pathname;
-  let nextPath = stripBasename(vtContext.nextLocation.pathname, basename) || vtContext.nextLocation.pathname;
+  let currentPath = router_stripBasename(vtContext.currentLocation.pathname, basename) || vtContext.currentLocation.pathname;
+  let nextPath = router_stripBasename(vtContext.nextLocation.pathname, basename) || vtContext.nextLocation.pathname;
   // Transition is active if we're going to or coming from the indicated
   // destination.  This ensures that other PUSH navigations that reverse
   // an indicated transition apply.  I.e., on the list view you have:
@@ -10423,7 +10423,7 @@ function useViewTransitionState(to, opts) {
   // We should apply the transition because it's indicated as active going
   // from /list -> /details/1 and therefore should be active on the reverse
   // (even though this isn't strictly a POP reverse)
-  return matchPath(path.pathname, nextPath) != null || matchPath(path.pathname, currentPath) != null;
+  return router_matchPath(path.pathname, nextPath) != null || router_matchPath(path.pathname, currentPath) != null;
 }
 //#endregion
 
@@ -11109,27 +11109,27 @@ var __rest = (undefined && undefined.__rest) || function (s, e) {
 
 
 const UtilitiesPage = () => {
-    return (react.createElement("div", { className: 'p-3 d-flex flex-column gap-2' },
-        react.createElement("header", null,
-            react.createElement("p", { className: 'm-0' }, "CI Store"),
-            react.createElement("h3", null, "Utilities")),
-        react.createElement(AdminForm, { name: 'Pause Patch', cmd: 'pause_patch' }),
-        react.createElement(AdminForm, { name: 'Resume Patch', cmd: 'resume_patch' }),
-        react.createElement(AdminForm, { name: 'Patch Status', cmd: 'get_patch_status', allowPolling: true }),
-        react.createElement(AdminForm, { name: 'Run Patch', cmd: 'run_patch' },
-            react.createElement(SelectInput, { name: 'patch_action', options: [
+    return (React.createElement("div", { className: 'p-3 d-flex flex-column gap-2' },
+        React.createElement("header", null,
+            React.createElement("p", { className: 'm-0' }, "CI Store"),
+            React.createElement("h3", null, "Utilities")),
+        React.createElement(AdminForm, { name: 'Pause Patch', cmd: 'pause_patch' }),
+        React.createElement(AdminForm, { name: 'Resume Patch', cmd: 'resume_patch' }),
+        React.createElement(AdminForm, { name: 'Patch Status', cmd: 'get_patch_status', allowPolling: true }),
+        React.createElement(AdminForm, { name: 'Run Patch', cmd: 'run_patch' },
+            React.createElement(SelectInput, { name: 'patch_action', options: [
                     { name: 'tags', value: 'tags' },
                     { name: 'deletes', value: 'deletes' }
                 ], initialValue: 'tags' })),
-        react.createElement(AdminForm, { name: 'Stall Import Test', cmd: 'stall_import' },
-            react.createElement(SelectSupplier, null)),
-        react.createElement(AdminForm, { name: 'Expire Product', cmd: 'expire_product' },
-            react.createElement(SelectSupplier, null),
-            react.createElement(ProductInput, null)),
-        react.createElement(AdminForm, { name: 'Monkey Wrench', cmd: 'monkey_wrench', allowPolling: true },
-            react.createElement(SelectSupplier, null),
-            react.createElement(ProductInput, null),
-            react.createElement(SelectInput, { name: 'custom', options: [
+        React.createElement(AdminForm, { name: 'Stall Import Test', cmd: 'stall_import' },
+            React.createElement(SelectSupplier, null)),
+        React.createElement(AdminForm, { name: 'Expire Product', cmd: 'expire_product' },
+            React.createElement(SelectSupplier, null),
+            React.createElement(ProductInput, null)),
+        React.createElement(AdminForm, { name: 'Monkey Wrench', cmd: 'monkey_wrench', allowPolling: true },
+            React.createElement(SelectSupplier, null),
+            React.createElement(ProductInput, null),
+            React.createElement(SelectInput, { name: 'custom', options: [
                     { name: 'none', value: '' },
                     { name: 'wp_get_schedules', value: 'wp_get_schedules' },
                     { name: 'get_update_action', value: 'get_update_action' },
@@ -11144,42 +11144,43 @@ const UtilitiesPage = () => {
                     { name: 'sync', value: 'sync' },
                     { name: 'turn14', value: 'turn14' }
                 ], initialValue: 'none' })),
-        react.createElement(AdminForm, { name: 'View Attributes', cmd: 'view_attributes', RenderResult: CSVTable },
-            react.createElement(SelectSupplier, null),
-            react.createElement(ProductInput, null)),
-        react.createElement(AdminForm, { name: 'Import Status', cmd: 'get_import_status', allowPolling: true },
-            react.createElement(SelectSupplier, null)),
-        react.createElement(AdminForm, { name: 'Import Products', cmd: 'import_products' },
-            react.createElement(SelectSupplier, null),
-            react.createElement(TextInput, { name: 'updated', defaultValue: '2020-01-01', type: 'date', style: { width: 150 } })),
-        react.createElement(AdminForm, { name: 'Cancel Import Products', cmd: 'cancel_import_products' },
-            react.createElement(SelectSupplier, null)),
-        react.createElement(AdminForm, { name: 'Clear Import Report', cmd: 'clear_import_report' },
-            react.createElement(SelectSupplier, null)),
-        react.createElement(AdminForm, { name: 'Get Log', cmd: 'get_log', allowPolling: true, RenderResult: ErrorLogs },
-            react.createElement(SelectSupplier, null)),
-        react.createElement(AdminForm, { name: 'Clear Error Log', cmd: 'clear_log' },
-            react.createElement(SelectSupplier, null)),
-        react.createElement(AdminForm, { name: 'WPS API', cmd: 'western_api', allowPolling: true },
-            react.createElement(TextInput, { name: 'url', defaultValue: '/' })),
-        react.createElement(AdminForm, { name: 'Stock Update', cmd: 'update_products_stock_status', allowPolling: true },
-            react.createElement(SelectSupplier, null)),
-        react.createElement(AdminForm, { name: 'Import Product', cmd: 'import_product' },
-            react.createElement(SelectSupplier, null),
-            react.createElement(ProductInput, null)),
-        react.createElement(AdminForm, { name: 'Get Product Status', cmd: 'get_product_status', allowPolling: true },
-            react.createElement(SelectSupplier, null),
-            react.createElement(ProductInput, null)),
-        react.createElement(AdminForm, { name: 'Get Product', cmd: 'get_product' },
-            react.createElement(SelectSupplier, null),
-            react.createElement(ProductInput, null),
-            react.createElement(CheckboxInput, { name: 'light', checked: false })),
-        react.createElement(AdminForm, { name: 'Import Product Status', cmd: 'get_import_product_status', allowPolling: true },
-            react.createElement(SelectSupplier, null),
-            react.createElement(ProductInput, null)),
-        react.createElement(AdminForm, { name: 'Get Products Count', cmd: 'get_products_count' },
-            react.createElement(SelectSupplier, null),
-            react.createElement(TextInput, { name: 'updated', defaultValue: '2020-01-01', type: 'date', style: { width: 150 } }))));
+        React.createElement(AdminForm, { name: 'View Attributes', cmd: 'view_attributes', RenderResult: CSVTable },
+            React.createElement(SelectSupplier, null),
+            React.createElement(ProductInput, null)),
+        React.createElement(AdminForm, { name: 'Import Status', cmd: 'get_import_status', allowPolling: true },
+            React.createElement(SelectSupplier, null)),
+        React.createElement(AdminForm, { name: 'Import Products', cmd: 'import_products' },
+            React.createElement(SelectSupplier, null),
+            React.createElement(TextInput, { name: 'updated', defaultValue: '2020-01-01', type: 'date', style: { width: 150 } }),
+            React.createElement(CheckboxInput, { name: 'reset', checked: false })),
+        React.createElement(AdminForm, { name: 'Cancel Import Products', cmd: 'cancel_import_products' },
+            React.createElement(SelectSupplier, null)),
+        React.createElement(AdminForm, { name: 'Clear Import Report', cmd: 'clear_import_report' },
+            React.createElement(SelectSupplier, null)),
+        React.createElement(AdminForm, { name: 'Get Log', cmd: 'get_log', allowPolling: true, RenderResult: ErrorLogs },
+            React.createElement(SelectSupplier, null)),
+        React.createElement(AdminForm, { name: 'Clear Error Log', cmd: 'clear_log' },
+            React.createElement(SelectSupplier, null)),
+        React.createElement(AdminForm, { name: 'WPS API', cmd: 'western_api', allowPolling: true },
+            React.createElement(TextInput, { name: 'url', defaultValue: '/' })),
+        React.createElement(AdminForm, { name: 'Stock Update', cmd: 'update_products_stock_status', allowPolling: true },
+            React.createElement(SelectSupplier, null)),
+        React.createElement(AdminForm, { name: 'Import Product', cmd: 'import_product' },
+            React.createElement(SelectSupplier, null),
+            React.createElement(ProductInput, null)),
+        React.createElement(AdminForm, { name: 'Get Product Status', cmd: 'get_product_status', allowPolling: true },
+            React.createElement(SelectSupplier, null),
+            React.createElement(ProductInput, null)),
+        React.createElement(AdminForm, { name: 'Get Product', cmd: 'get_product' },
+            React.createElement(SelectSupplier, null),
+            React.createElement(ProductInput, null),
+            React.createElement(CheckboxInput, { name: 'light', checked: false })),
+        React.createElement(AdminForm, { name: 'Import Product Status', cmd: 'get_import_product_status', allowPolling: true },
+            React.createElement(SelectSupplier, null),
+            React.createElement(ProductInput, null)),
+        React.createElement(AdminForm, { name: 'Get Products Count', cmd: 'get_products_count' },
+            React.createElement(SelectSupplier, null),
+            React.createElement(TextInput, { name: 'updated', defaultValue: '2020-01-01', type: 'date', style: { width: 150 } }))));
 };
 const CSVTable = ({ data }) => {
     var _a;
@@ -11328,6 +11329,123 @@ const AdminForm = ({ name, cmd, allowPolling = false, children = null, RenderRes
             react.createElement("div", { className: 'spinner-border spinner-border-sm', role: 'status', style: { pointerEvents: 'none', position: 'absolute', top: 16, right: 16, opacity: data.isFetching ? 1 : 0, transition: 'opacity 0.2s' } }))));
 };
 
+;// CONCATENATED MODULE: ./src/utilities/ImportPage.tsx
+
+
+const ImportPage = () => {
+    return (react.createElement(react.Fragment, null,
+        react.createElement(AdminForm, { name: 'Import Status', cmd: 'get_import_status', allowPolling: true },
+            react.createElement(SelectSupplier, null)),
+        react.createElement(AdminForm, { name: 'Import Products', cmd: 'import_products' },
+            react.createElement(SelectSupplier, null),
+            react.createElement(TextInput, { name: 'updated', defaultValue: '2020-01-01', type: 'date', style: { width: 150 } }),
+            react.createElement(CheckboxInput, { name: 'reset', checked: false })),
+        react.createElement(AdminForm, { name: 'Cancel Import Products', cmd: 'cancel_import_products' },
+            react.createElement(SelectSupplier, null)),
+        react.createElement(AdminForm, { name: 'Clear Import Report', cmd: 'clear_import_report' },
+            react.createElement(SelectSupplier, null)),
+        react.createElement(AdminForm, { name: 'Get Log', cmd: 'get_log', allowPolling: true, RenderResult: ErrorLogs },
+            react.createElement(SelectSupplier, null)),
+        react.createElement(AdminForm, { name: 'Clear Error Log', cmd: 'clear_log' },
+            react.createElement(SelectSupplier, null))));
+};
+
+;// CONCATENATED MODULE: ./src/utilities/MiscPage.tsx
+
+
+const MiscPage = () => {
+    return (react.createElement(react.Fragment, null,
+        react.createElement(AdminForm, { name: 'Stall Import Test', cmd: 'stall_import' },
+            react.createElement(SelectSupplier, null)),
+        react.createElement(AdminForm, { name: 'Expire Product', cmd: 'expire_product' },
+            react.createElement(SelectSupplier, null),
+            react.createElement(ProductInput, null)),
+        react.createElement(AdminForm, { name: 'View Attributes', cmd: 'view_attributes', RenderResult: CSVTable },
+            react.createElement(SelectSupplier, null),
+            react.createElement(ProductInput, null)),
+        react.createElement(AdminForm, { name: 'Get Log', cmd: 'get_log', allowPolling: true, RenderResult: ErrorLogs },
+            react.createElement(SelectSupplier, null)),
+        react.createElement(AdminForm, { name: 'Clear Error Log', cmd: 'clear_log' },
+            react.createElement(SelectSupplier, null)),
+        react.createElement(AdminForm, { name: 'WPS API', cmd: 'western_api', allowPolling: true },
+            react.createElement(TextInput, { name: 'url', defaultValue: '/' })),
+        react.createElement(AdminForm, { name: 'Stock Update', cmd: 'update_products_stock_status', allowPolling: true },
+            react.createElement(SelectSupplier, null)),
+        react.createElement(AdminForm, { name: 'Import Product', cmd: 'import_product' },
+            react.createElement(SelectSupplier, null),
+            react.createElement(ProductInput, null)),
+        react.createElement(AdminForm, { name: 'Get Product Status', cmd: 'get_product_status', allowPolling: true },
+            react.createElement(SelectSupplier, null),
+            react.createElement(ProductInput, null)),
+        react.createElement(AdminForm, { name: 'Get Product', cmd: 'get_product' },
+            react.createElement(SelectSupplier, null),
+            react.createElement(ProductInput, null),
+            react.createElement(CheckboxInput, { name: 'light', checked: false })),
+        react.createElement(AdminForm, { name: 'Import Product Status', cmd: 'get_import_product_status', allowPolling: true },
+            react.createElement(SelectSupplier, null),
+            react.createElement(ProductInput, null)),
+        react.createElement(AdminForm, { name: 'Get Products Count', cmd: 'get_products_count' },
+            react.createElement(SelectSupplier, null),
+            react.createElement(TextInput, { name: 'updated', defaultValue: '2020-01-01', type: 'date', style: { width: 150 } }))));
+};
+
+;// CONCATENATED MODULE: ./src/utilities/MonkeyWrench.tsx
+
+
+const MonkeyWrenchPage = () => {
+    return (react.createElement(react.Fragment, null,
+        react.createElement(AdminForm, { name: 'Monkey Wrench', cmd: 'monkey_wrench', allowPolling: true },
+            react.createElement(SelectSupplier, null),
+            react.createElement(ProductInput, null),
+            react.createElement(SelectInput, { name: 'custom', options: [
+                    { name: 'none', value: '' },
+                    { name: 'wp_get_schedules', value: 'wp_get_schedules' },
+                    { name: 'get_update_action', value: 'get_update_action' },
+                    { name: 'update_product_attributes', value: 'update_product_attributes' },
+                    { name: 'fix_attributes', value: 'fix_attributes' },
+                    { name: 'select', value: 'select' },
+                    { name: 'clean', value: 'clean' },
+                    { name: 'flush', value: 'flush' },
+                    { name: 'fix', value: 'fix' },
+                    { name: 'explore', value: 'explore' },
+                    { name: 'mock', value: 'mock' },
+                    { name: 'sync', value: 'sync' },
+                    { name: 'turn14', value: 'turn14' }
+                ], initialValue: 'none' }))));
+};
+
+;// CONCATENATED MODULE: ./src/utilities/PatchPage.tsx
+
+
+const PatchPage = () => {
+    return (react.createElement(react.Fragment, null,
+        react.createElement(AdminForm, { name: 'Pause Patch', cmd: 'pause_patch' }),
+        react.createElement(AdminForm, { name: 'Resume Patch', cmd: 'resume_patch' }),
+        react.createElement(AdminForm, { name: 'Patch Status', cmd: 'get_patch_status', allowPolling: true }),
+        react.createElement(AdminForm, { name: 'Run Patch', cmd: 'run_patch' },
+            react.createElement(SelectInput, { name: 'patch_action', options: [
+                    { name: 'tags', value: 'tags' },
+                    { name: 'deletes', value: 'deletes' }
+                ], initialValue: 'tags' }))));
+};
+
+;// CONCATENATED MODULE: ./src/utilities/UtilitiesRoot.tsx
+
+
+const UtilitiesRoot = () => {
+    const className = ({ isActive, isPending }) => (isActive ? 'btn btn-primary' : 'btn btn-light');
+    return (react.createElement("div", { className: 'p-3 d-flex flex-column gap-2' },
+        react.createElement("header", null,
+            react.createElement("p", { className: 'm-0' }, "CI Store"),
+            react.createElement("h3", null, "Utilities")),
+        react.createElement("nav", { className: 'd-flex gap-1' },
+            react.createElement(NavLink, { to: '/import', className: className }, "Import"),
+            react.createElement(NavLink, { to: '/patch', className: className }, "Patch"),
+            react.createElement(NavLink, { to: '/monkeywrench', className: className }, "Monkey Wrench"),
+            react.createElement(NavLink, { to: '/misc', className: className }, "Misc")),
+        react.createElement(Outlet, null)));
+};
+
 ;// CONCATENATED MODULE: ./src/utilities/index.tsx
 
 
@@ -11335,10 +11453,33 @@ const AdminForm = ({ name, cmd, allowPolling = false, children = null, RenderRes
 
 
 
-const router = createBrowserRouter([
+
+
+
+
+const router = createHashRouter([
     {
-        path: '*',
-        element: react.createElement(UtilitiesPage, null)
+        path: '/',
+        element: react.createElement(UtilitiesRoot, null),
+        errorElement: react.createElement("div", null, "Error"),
+        children: [
+            {
+                path: 'patch',
+                element: react.createElement(PatchPage, null)
+            },
+            {
+                path: 'import',
+                element: react.createElement(ImportPage, null)
+            },
+            {
+                path: 'monkeywrench',
+                element: react.createElement(MonkeyWrenchPage, null)
+            },
+            {
+                path: 'misc',
+                element: react.createElement(MiscPage, null)
+            }
+        ]
     }
 ]);
 const render = (id) => {

@@ -480,11 +480,13 @@ class Supplier
         'update' => 0,
         'ignore' => 0,
         'insert' => 0,
-        'error' => 0,
+        'error' => '',
         'cursor' => '',
-        'page_size' => 10,
+        'page_size' => 50,
         'updated' => '',
-        // 'started' => '',
+        'started' => '',
+        'stopped' => '',
+        'completed' => '',
     ];
 
     // TODO: prob don't need this

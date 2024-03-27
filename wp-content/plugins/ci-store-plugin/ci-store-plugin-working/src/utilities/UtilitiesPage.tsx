@@ -91,7 +91,7 @@ export const UtilitiesPage = () => {
           <TextInput name='cursor' defaultValue='' style={{ width: 150 }} />
         </div> */}
         {/* <PageSizeInput /> */}
-        {/* <CheckboxInput name='resume' checked={true} /> */}
+        <CheckboxInput name='reset' checked={false} />
       </AdminForm>
 
       <AdminForm name='Cancel Import Products' cmd='cancel_import_products'>
@@ -173,7 +173,7 @@ export const UtilitiesPage = () => {
   );
 };
 
-const CSVTable = ({ data }: { data: { rows: string[][] } }) => {
+export const CSVTable = ({ data }: { data: { rows: string[][] } }) => {
   if (data?.rows) {
     const rows = data?.rows ?? [];
 
@@ -205,7 +205,7 @@ const CSVTable = ({ data }: { data: { rows: string[][] } }) => {
   return null;
 };
 
-const ErrorLogs = ({ data }: { data: string[] }) => {
+export const ErrorLogs = ({ data }: { data: string[] }) => {
   const $pre = useRef<HTMLPreElement>();
 
   useEffect(() => {
@@ -227,7 +227,7 @@ const ErrorLogs = ({ data }: { data: string[] }) => {
   return null;
 };
 
-const PageSizeInput = ({ initialValue = 20 }: { initialValue?: number }) => {
+export const PageSizeInput = ({ initialValue = 20 }: { initialValue?: number }) => {
   return (
     <div className='input-group'>
       <label className='input-group-text'>Page Size</label>
@@ -236,7 +236,7 @@ const PageSizeInput = ({ initialValue = 20 }: { initialValue?: number }) => {
   );
 };
 
-const SelectImportType = () => {
+export const SelectImportType = () => {
   return (
     <SelectInput
       name='import_type'
@@ -248,7 +248,7 @@ const SelectImportType = () => {
   );
 };
 
-const SelectSupplier = ({ initialValue = null }: { initialValue?: string }) => {
+export const SelectSupplier = ({ initialValue = null }: { initialValue?: string }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const suppliers = useSuppliers();
   const [value, setValue] = useState(initialValue);
@@ -274,7 +274,7 @@ const SelectSupplier = ({ initialValue = null }: { initialValue?: string }) => {
   }
 };
 
-const SelectInput = ({ name, options, initialValue = null }: { name: string; options: { name: string; value: string }[]; initialValue?: string }) => {
+export const SelectInput = ({ name, options, initialValue = null }: { name: string; options: { name: string; value: string }[]; initialValue?: string }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [value, setValue] = useState(initialValue ?? options[0].value);
 
@@ -293,12 +293,12 @@ const SelectInput = ({ name, options, initialValue = null }: { name: string; opt
   );
 };
 
-const ProductInput = () => {
+export const ProductInput = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   return <TextInput name='product_id' defaultValue={searchParams.get('supplier_product_id')} />;
 };
 
-const TextInput = ({ name, defaultValue = '', type = 'text', ...props }: { name: string; defaultValue: string } & React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>) => {
+export const TextInput = ({ name, defaultValue = '', type = 'text', ...props }: { name: string; defaultValue: string } & React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>) => {
   const [value, setValue] = useState(defaultValue);
 
   const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -308,7 +308,7 @@ const TextInput = ({ name, defaultValue = '', type = 'text', ...props }: { name:
   return <input {...props} type={type} className='form-control' name={name} value={value} onChange={onChange} />;
 };
 
-const CheckboxInput = ({ name, checked: isChecked = false }: { name: string; checked: boolean } & React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>) => {
+export const CheckboxInput = ({ name, checked: isChecked = false }: { name: string; checked: boolean } & React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>) => {
   const [value, setValue] = useState(isChecked ? '1' : '0');
   const [checked, setChecked] = useState(isChecked);
 
@@ -335,11 +335,11 @@ const CheckboxInput = ({ name, checked: isChecked = false }: { name: string; che
   // );
 };
 
-const useSuppliers = () => {
+export const useSuppliers = () => {
   return useWordpressAjax<{ key: string; name: string }[]>({ action: 'ci_api_handler', cmd: 'get_suppliers' });
 };
 
-const AdminForm = ({ name, cmd, allowPolling = false, children = null, RenderResult = Pre }: { name: string; cmd: string; allowPolling?: boolean; children?: React.ReactNode; RenderResult?: React.ComponentType<{ data: unknown }> }) => {
+export const AdminForm = ({ name, cmd, allowPolling = false, children = null, RenderResult = Pre }: { name: string; cmd: string; allowPolling?: boolean; children?: React.ReactNode; RenderResult?: React.ComponentType<{ data: unknown }> }) => {
   const $form = useRef<HTMLFormElement>(null);
   const [isPolling, setIsPolling] = useState(false);
   const [nonce, setNonce] = useState(0);

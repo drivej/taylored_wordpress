@@ -5662,3 +5662,34 @@ Stack trace:
 [26-Mar-2024 23:11:45 UTC] WordPress database error Duplicate entry '215093-56' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215093, 56) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
 [27-Mar-2024 03:26:57 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wpdb.php on line 1987
 [27-Mar-2024 03:26:57 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wpdb.php on line 1987
+[27-Mar-2024 12:20:05 UTC] Cron unschedule event error for hook: wps_import_products_page, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":false,"args":[]}
+[27-Mar-2024 12:22:52 UTC] Cron unschedule event error for hook: wps_import_products_page, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":false,"args":[]}
+[27-Mar-2024 14:27:33 UTC] PHP Fatal error:  Uncaught Error: Cannot use object of type WC_Product_Variable as array in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php:693
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/run_patch.php(62): Supplier_WPS->is_available(Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxHandlers\patch_page()
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('run_patch_page', Array)
+#5 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php on line 693
+[27-Mar-2024 14:59:08 UTC] PHP Fatal error:  Uncaught Error: Call to a member function get_id() on null in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php:25
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\get_product_status(Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
+#5 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php on line 25
+[27-Mar-2024 14:59:20 UTC] PHP Fatal error:  Uncaught Error: Call to a member function get_id() on null in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php:25
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\get_product_status(Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
+#5 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php on line 25
+[27-Mar-2024 20:20:22 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wpdb.php on line 1987
+[27-Mar-2024 20:20:22 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wpdb.php on line 1987
