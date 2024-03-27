@@ -7,9 +7,9 @@ interface IImportStatus {
   is_running: boolean;
   is_scheduled: boolean;
   is_cancelled: boolean;
-  // is_import_scheduled: boolean;
-  // is_import_running: boolean;
   should_cancel_import: boolean;
+  now: string;
+  next_import: string;
   report: {
     products_count: number;
     processed: number;
@@ -22,7 +22,7 @@ interface IImportStatus {
     page_size: string;
     updated: string;
     started: string;
-    // import_type: string;
+    stopped: string;
     completed: string;
   };
 }

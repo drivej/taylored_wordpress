@@ -24,11 +24,18 @@ export function formatTimeAgo(seconds: number) {
     { label: 'minute', seconds: 60 }
   ];
 
+  let isFuture = seconds < 0;
+  seconds = Math.abs(seconds);
+
   for (const interval of intervals) {
     const count = Math.floor(seconds / interval.seconds);
 
     if (count >= 1) {
-      return count === 1 ? `${count} ${interval.label} ago` : `${count} ${interval.label}s ago`;
+      if (isFuture) {
+        return count === 1 ? `in ${count} ${interval.label}` : `in ${count} ${interval.label}s`;
+      } else {
+        return count === 1 ? `${count} ${interval.label} ago` : `${count} ${interval.label}s ago`;
+      }
     }
   }
 

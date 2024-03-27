@@ -27,7 +27,7 @@ function update_western_product($wps_product, $product_id, $report = new Report(
     $supplier = \CI\Admin\get_supplier('wps');
 
     if (!isset($wps_product['data']['items']['data'])) {
-        ci_error_log('update_western_product() Product data is bad. product_id=' . $product_id . ' wps_product=' . json_encode($wps_product));
+        $supplier->log('update_western_product() Product data is bad. product_id=' . $product_id . ' wps_product=' . json_encode($wps_product));
         return;
     }
 

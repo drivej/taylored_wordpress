@@ -1,5 +1,6 @@
 <?php
-
+// TODO: delete
+/*
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/admin/ci_import_product.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Report.php';
@@ -651,3 +652,4 @@ class AdminAPI
     }
 
 }
+*/

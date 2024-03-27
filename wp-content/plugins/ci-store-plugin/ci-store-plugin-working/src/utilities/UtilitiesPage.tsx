@@ -8,13 +8,36 @@ import { slugify } from '../components/store/slugify';
 import { IWordpressAjaxParams } from '../views/jobs/Jobs';
 import { Pre } from './Pre';
 
-export const TestAdmin = () => {
+export const UtilitiesPage = () => {
   return (
     <div className='p-3 d-flex flex-column gap-2'>
       <header>
         <p className='m-0'>CI Store</p>
         <h3>Utilities</h3>
       </header>
+
+      <AdminForm name='Pause Patch' cmd='pause_patch'>
+        {/* <SelectSupplier /> */}
+      </AdminForm>
+
+      <AdminForm name='Resume Patch' cmd='resume_patch'>
+        {/* <SelectSupplier /> */}
+      </AdminForm>
+
+      <AdminForm name='Patch Status' cmd='get_patch_status' allowPolling={true}>
+        {/* <SelectSupplier /> */}
+      </AdminForm>
+
+      <AdminForm name='Run Patch' cmd='run_patch'>
+        <SelectInput
+          name='patch_action'
+          options={[
+            { name: 'tags', value: 'tags' },
+            { name: 'deletes', value: 'deletes' }
+          ]}
+          initialValue='tags'
+        />
+      </AdminForm>
 
       <AdminForm name='Stall Import Test' cmd='stall_import'>
         <SelectSupplier />
@@ -62,7 +85,7 @@ export const TestAdmin = () => {
       <AdminForm name='Import Products' cmd='import_products'>
         <SelectSupplier />
         {/* <SelectImportType /> */}
-        {/* <TextInput name='updated' defaultValue='2020-01-01' type='date' style={{ width: 150 }} /> */}
+        <TextInput name='updated' defaultValue='2020-01-01' type='date' style={{ width: 150 }} />
         {/* <div className='input-group'>
           <label className='input-group-text'>Cursor</label>
           <TextInput name='cursor' defaultValue='' style={{ width: 150 }} />

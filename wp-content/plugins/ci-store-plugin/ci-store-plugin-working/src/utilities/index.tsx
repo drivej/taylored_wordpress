@@ -5,12 +5,12 @@ import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import { TestAdmin } from './TestAdmin';
+import { UtilitiesPage } from './UtilitiesPage';
 
 const router = createBrowserRouter([
   {
     path: '*',
-    element: <TestAdmin />
+    element: <UtilitiesPage />
   }
 ]);
 

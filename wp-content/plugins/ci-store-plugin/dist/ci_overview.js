@@ -3606,10 +3606,17 @@ function formatTimeAgo(seconds) {
         { label: 'hour', seconds: 3600 },
         { label: 'minute', seconds: 60 }
     ];
+    let isFuture = seconds < 0;
+    seconds = Math.abs(seconds);
     for (const interval of intervals) {
         const count = Math.floor(seconds / interval.seconds);
         if (count >= 1) {
-            return count === 1 ? `${count} ${interval.label} ago` : `${count} ${interval.label}s ago`;
+            if (isFuture) {
+                return count === 1 ? `in ${count} ${interval.label}` : `in ${count} ${interval.label}s`;
+            }
+            else {
+                return count === 1 ? `${count} ${interval.label} ago` : `${count} ${interval.label}s ago`;
+            }
         }
     }
     return '<1 min ago';
@@ -4243,7 +4250,7 @@ function fetchWordpressAjax(params) {
 
 const useWordpressAjax = (query, options = {}) => useQuery(Object.assign({ queryKey: [query], queryFn: () => fetchWordpressAjax(query), placeholderData: keepPreviousData }, options));
 
-;// CONCATENATED MODULE: ./src/test_admin/useImportStatus.tsx
+;// CONCATENATED MODULE: ./src/utilities/useImportStatus.tsx
 
 const useImportStatus = (supplier_key, isPolling = false) => {
     const query = { action: 'ci_api_handler', cmd: 'get_import_status', supplier_key };
@@ -4251,7 +4258,7 @@ const useImportStatus = (supplier_key, isPolling = false) => {
     return data;
 };
 
-;// CONCATENATED MODULE: ./src/test_admin/useSuppliers.tsx
+;// CONCATENATED MODULE: ./src/utilities/useSuppliers.tsx
 
 const useSuppliers = () => {
     const query = { action: 'ci_api_handler', cmd: 'get_suppliers' };
@@ -4259,7 +4266,7 @@ const useSuppliers = () => {
     return data;
 };
 
-;// CONCATENATED MODULE: ./src/test_admin/useTotalProducts.tsx
+;// CONCATENATED MODULE: ./src/utilities/useTotalProducts.tsx
 
 const useTotalProducts = (supplier_key) => {
     const query = { action: 'ci_api_handler', cmd: 'get_total_products', supplier_key };
@@ -4289,35 +4296,32 @@ const Overview = () => {
     // );
 };
 const SupplierImportStatus = ({ supplier }) => {
-    var _a, _b, _c, _d, _e, _f;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
     const status = useImportStatus(supplier.key, true);
     const totalProducts = useTotalProducts(supplier.key);
-    const lastImport = react.useMemo(() => {
-        if (status.isSuccess) {
-            const started = new Date(Date.parse(status.data.report.started)).getTime();
-            const ago = formatTimeAgo((Date.now() - started) / 1000);
-            return ago;
+    const getAgo = (dateStr) => {
+        if (dateStr) {
+            const t = new Date(Date.parse(dateStr)).getTime();
+            return formatTimeAgo((Date.now() - t) / 1000);
         }
         return '-';
-    }, [status.isSuccess]);
-    const lastCompleted = react.useMemo(() => {
-        var _a;
-        if (status.isSuccess && ((_a = status.data.report) === null || _a === void 0 ? void 0 : _a.completed)) {
-            const completed = new Date(Date.parse(status.data.report.completed)).getTime();
-            const ago = formatTimeAgo((Date.now() - completed) / 1000);
-            return ago;
-        }
-        return '-';
-    }, [status.isSuccess]);
-    const percent_complete = (100 * ((_c = (_b = (_a = status.data) === null || _a === void 0 ? void 0 : _a.report) === null || _b === void 0 ? void 0 : _b.processed) !== null && _c !== void 0 ? _c : 0)) / ((_f = (_e = (_d = status.data) === null || _d === void 0 ? void 0 : _d.report) === null || _e === void 0 ? void 0 : _e.products_count) !== null && _f !== void 0 ? _f : 1);
+    };
+    const lastStarted = status.isSuccess ? getAgo((_b = (_a = status.data) === null || _a === void 0 ? void 0 : _a.report) === null || _b === void 0 ? void 0 : _b.started) : '...';
+    const lastCompleted = status.isSuccess ? getAgo((_d = (_c = status.data) === null || _c === void 0 ? void 0 : _c.report) === null || _d === void 0 ? void 0 : _d.completed) : '...';
+    const nextImport = status.isSuccess ? getAgo((_e = status.data) === null || _e === void 0 ? void 0 : _e.next_import) : '...';
+    const lastStopped = getAgo((_g = (_f = status.data) === null || _f === void 0 ? void 0 : _f.report) === null || _g === void 0 ? void 0 : _g.stopped);
+    const percent_complete = (100 * ((_k = (_j = (_h = status.data) === null || _h === void 0 ? void 0 : _h.report) === null || _j === void 0 ? void 0 : _j.processed) !== null && _k !== void 0 ? _k : 0)) / ((_o = (_m = (_l = status.data) === null || _l === void 0 ? void 0 : _l.report) === null || _m === void 0 ? void 0 : _m.products_count) !== null && _o !== void 0 ? _o : 1);
     const is_running = status.isSuccess ? status.data.is_running || status.data.is_scheduled : false;
     if (status.isSuccess) {
         return (react.createElement("div", { className: 'p-3 border rounded d-flex gap-3 w-100 shadow-sm' },
             react.createElement("div", { className: 'w-100' },
-                react.createElement("h3", null, supplier.name),
+                react.createElement("div", { className: 'w-100 d-flex align-items-center gap-3' },
+                    react.createElement("h3", { className: 'm-0' }, supplier.name),
+                    react.createElement("div", { style: { flex: '1 1 min-content' } }, is_running ? (react.createElement("div", { className: 'spinner-border spinner-border-sm', role: 'status' },
+                        react.createElement("span", { className: 'visually-hidden' }, "Loading..."))) : null)),
                 react.createElement("hr", null),
                 react.createElement("div", { className: 'progress', role: 'progressbar' },
-                    react.createElement("div", { className: `progress-bar ${is_running ? 'progress-bar-striped progress-bar-animated' : ''}`, style: { width: `${percent_complete}%` } })),
+                    react.createElement("div", { className: `progress-bar ${is_running ? 'progress-bar-striped progress-bar-animated' : 'bg-secondary'}`, style: { width: `${percent_complete}%` } })),
                 react.createElement("div", { className: 'd-flex justify-content-between' },
                     react.createElement("div", null),
                     react.createElement("small", null,
@@ -4345,11 +4349,17 @@ const SupplierImportStatus = ({ supplier }) => {
                     "Ignored: ",
                     status.data.report.ignore),
                 react.createElement("p", null,
-                    "Last Import Started: ",
-                    lastImport),
+                    "Last Started: ",
+                    lastStarted),
                 react.createElement("p", null,
-                    "Last Import Completed: ",
+                    "Last Completed: ",
                     lastCompleted),
+                react.createElement("p", null,
+                    "Last Stopped: ",
+                    lastStopped),
+                react.createElement("p", null,
+                    "Next Import: ",
+                    nextImport),
                 react.createElement("p", null,
                     "Total Products: ",
                     totalProducts.isLoading ? '...' : totalProducts.data.data.toLocaleString()))));

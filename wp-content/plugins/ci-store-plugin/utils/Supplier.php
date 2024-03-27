@@ -18,6 +18,8 @@ class Supplier
     public string $log_flag = '';
     public string $log_path = '';
     public string $start_import_products_flag = '';
+    public string $daily_import_flag = '';
+    public string $start_daily_import_flag = '';
 
     public bool $deep_debug = false;
 
@@ -39,10 +41,14 @@ class Supplier
         $this->stall_check_action = $this->key . '_stall_check';
         $this->log_flag = $this->key . '_log';
         $this->log_path = CI_STORE_PLUGIN . 'logs/' . strtoupper($this->key) . '_LOG.log';
+        $this->daily_import_flag = $this->key . '_daily_import';
+        $this->start_daily_import_flag = $this->key . '_start_daily_import';
 
         add_action($this->stall_check_action, array($this, 'stall_check'));
         add_action($this->start_import_products_flag, array($this, 'start_import_products'), 10);
         add_action($this->import_products_page_flag, array($this, 'import_products_page'), 10);
+        add_action('wp', array($this, 'schedule_daily_import'));
+        add_action($this->start_daily_import_flag, array($this, 'start_daily_import'), 10);
         set_error_handler([$this, 'log']);
     }
 
@@ -61,7 +67,7 @@ class Supplier
     public function log($file, $line = null, $message = null)
     {
         $spacer = "\n"; //"\n---\n";
-        $t = current_time('mysql');
+        $t = gmdate("c");
         if ($line && $message) {
             $parts = explode('/', $file);
             $filename = end($parts);
@@ -118,6 +124,12 @@ class Supplier
     }
 
     // placeholder
+    public function resize_image($src, $size = 200)
+    {
+        return $src;
+    }
+
+    // placeholder
     public function insert_product($supplier_product_id, $report = new Report())
     {
         $this->log('insert_product() not defined for ' . $this->key);
@@ -152,6 +164,11 @@ class Supplier
     }
     // placeholder
     public function extract_variations($supplier_product)
+    {
+        return [];
+    }
+    // placeholder
+    public function extract_product_tags($supplier_product)
     {
         return [];
     }
@@ -246,6 +263,13 @@ class Supplier
     public function get_update_action($supplier_product)
     {
         // WPS returns a differnt object depending on list or single product
+        if (isset($supplier_product['error']) && $supplier_product['status_code'] === 404) {
+            // supplier product no longer exists
+            $supplier_product_id = $supplier_product['data']['id'];
+            $sku = $this->get_product_sku($supplier_product_id);
+            $woo_product_id = wc_get_product_id_by_sku($sku);
+            return $woo_product_id ? 'delete' : 'ignore';
+        }
         if (!isset($supplier_product['data'])) {
             $supplier_product = ['data' => $supplier_product];
         }
@@ -436,13 +460,13 @@ class Supplier
         }
     }
 
-    public function schedule_daily_import()
-    {
-        $is_scheduled = (bool) wp_next_scheduled($this->import_products_page_flag);
-        if (!$is_scheduled) {
-            return wp_schedule_event(time(), 'daily', $this->import_products_page_flag);
-        }
-    }
+    // public function schedule_daily_import()
+    // {
+    //     $is_scheduled = (bool) wp_next_scheduled($this->import_products_page_flag);
+    //     if (!$is_scheduled) {
+    //         return wp_schedule_event(time(), 'daily', $this->import_products_page_flag);
+    //     }
+    // }
 
     public function unschedule_import()
     {
@@ -463,27 +487,6 @@ class Supplier
         // 'started' => '',
     ];
 
-    public function get_import_status()
-    {
-        $report = $this->get_import_report();
-        $now = new DateTime();
-        $last_completed = isset($report['completed']) && !empty($report['completed']) ? new DateTime($report['completed']) : new DateTime('2020-01-01', new DateTimeZone('UTC'));
-        $last_started = isset($report['started']) && !empty($report['started']) ? new DateTime($report['started']) : new DateTime('2020-01-01', new DateTimeZone('UTC'));
-        $interval = $now->diff($last_started);
-        $started_hours_ago = $interval->h + ($interval->days * 24);
-
-        return [
-            'is_stalled' => $this->is_import_stalled(),
-            'is_running' => $this->is_import_running(),
-            'is_scheduled' => $this->is_import_scheduled(),
-            'is_cancelled' => $this->should_cancel_import(),
-            'last_started' => $last_started,
-            'last_completed' => $last_completed,
-            'started_hours_ago' => $started_hours_ago,
-            'report' => $report,
-        ];
-    }
-
     // TODO: prob don't need this
     public function clear_import_report()
     {
@@ -491,6 +494,35 @@ class Supplier
         $report = $this->get_import_report();
         $update = array_replace($report, $this->empty_report);
         update_option($this->import_report, $update);
+    }
+
+    public function get_import_status()
+    {
+        $report = $this->get_import_report();
+        $now = new DateTime();
+        $last_completed = isset($report['completed']) && !empty($report['completed']) ? new DateTime($report['completed']) : new DateTime('2020-01-01', new DateTimeZone('UTC'));
+        $last_started = isset($report['started']) && !empty($report['started']) ? new DateTime($report['started']) : new DateTime('2020-01-01', new DateTimeZone('UTC'));
+        $last_stopped = isset($report['stopped']) && !empty($report['stopped']) ? new DateTime($report['stopped']) : new DateTime('2020-01-01', new DateTimeZone('UTC'));
+        $interval = $now->diff($last_started);
+        $started_hours_ago = $interval->h + ($interval->days * 24);
+        $is_running = $this->is_import_running();
+        $is_scheduled = $this->is_import_scheduled();
+        $is_stopped = !$is_running && !$is_scheduled && ($last_stopped > $last_started) && ($last_stopped > $last_completed);
+        $next_import = $this->get_next_daily_import_time();
+
+        return [
+            'is_stalled' => $this->is_import_stalled(),
+            'is_running' => $is_running,
+            'is_scheduled' => $is_scheduled,
+            'is_cancelled' => $this->should_cancel_import(),
+            'is_stopped' => $is_stopped,
+            'last_started' => $last_started,
+            'last_completed' => $last_completed,
+            'last_stopped' => $last_stopped,
+            'started_hours_ago' => $started_hours_ago,
+            'report' => $report,
+            'next_import' => $next_import,
+        ];
     }
 
     public function get_import_report()
@@ -574,6 +606,40 @@ class Supplier
 
         $total_count = (int) $wpdb->get_var($query);
         return $total_count;
+    }
+
+    public function schedule_daily_import()
+    {
+        if (!wp_next_scheduled($this->daily_import_flag)) {
+            wp_schedule_event(strtotime('02:00:00'), 'daily', $this->daily_import_flag);
+        }
+    }
+
+    public function start_daily_import()
+    {
+        $this->log('start_daily_import()');
+        if (!$this->is_importing()) {
+            $this->start_import_products();
+        }
+    }
+
+    public function get_next_daily_import_time()
+    {
+        $next_run_timestamp = wp_next_scheduled($this->daily_import_flag);
+        if ($next_run_timestamp) {
+            // Convert timestamp to a readable date/time format
+            $next_run_datetime = new DateTime();
+            $next_run_datetime->setTimestamp($next_run_timestamp);
+            $next_run_datetime->setTimezone(new DateTimeZone('UTC'));
+
+            // Format the DateTime object to the desired format
+            $next_run_time_formatted = $next_run_datetime->format('Y-m-d\TH:i:sP');
+
+            // $next_run_time = gmdate( 'Y-m-d H:i:s', $next_run_timestamp );//date('Y-m-d H:i:s', $next_run_timestamp);
+            return $next_run_time_formatted;
+        } else {
+            return null;
+        }
     }
 
 }

@@ -5325,3 +5325,340 @@ Stack trace:
 [23-Mar-2024 22:45:40 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
 [23-Mar-2024 23:11:15 UTC] PHP Fatal error:  Cannot redeclare AjaxHandlers\get_product() (previously declared in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/clear_import_report.php:8) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product.php on line 8
 [23-Mar-2024 23:11:51 UTC] PHP Fatal error:  Cannot redeclare AjaxHandlers\get_product() (previously declared in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/clear_import_report.php:8) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product.php on line 8
+[24-Mar-2024 16:07:51 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[24-Mar-2024 16:09:05 UTC] PHP Parse error:  syntax error, unexpected variable "$status" in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_import_status.php on line 15
+[24-Mar-2024 17:16:24 UTC] PHP Fatal error:  Uncaught Error: Call to a member function get_meta() on string in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php:129
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): remove_gallery_and_product_images(Object(WP_Query))
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-query.php(3683): do_action_ref_array('loop_start', Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/query.php(1005): WP_Query->the_post()
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/templates/single-product.php(35): the_post()
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template-loader.php(106): include('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(19): require_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
+#9 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php on line 129
+[24-Mar-2024 17:17:48 UTC] PHP Fatal error:  Uncaught Error: Call to a member function get_meta() on string in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php:129
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): remove_gallery_and_product_images(Object(WP_Query))
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-query.php(3683): do_action_ref_array('loop_start', Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/query.php(1005): WP_Query->the_post()
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/templates/single-product.php(35): the_post()
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template-loader.php(106): include('/Users/jasoncon...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(19): require_once('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
+#9 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ci-store-plugin.php on line 129
+[25-Mar-2024 19:26:56 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[25-Mar-2024 19:28:57 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[26-Mar-2024 13:29:23 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[26-Mar-2024 13:33:26 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[26-Mar-2024 13:39:29 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[26-Mar-2024 14:04:03 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wpdb.php on line 1987
+[26-Mar-2024 14:04:07 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wpdb.php on line 1987
+[26-Mar-2024 14:04:07 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wpdb.php on line 1987
+[26-Mar-2024 16:51:00 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[26-Mar-2024 20:03:54 UTC] Cron reschedule event error for hook: wc_admin_unsnooze_admin_notes, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"hourly","args":[],"interval":3600}
+[26-Mar-2024 20:15:58 UTC] PHP Fatal error:  Uncaught TypeError: call_user_func_array(): Argument #1 ($callback) must be a valid callback, function "patch_page" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php:324
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('run_patch_page', Array)
+#3 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php on line 324
+[26-Mar-2024 20:18:52 UTC] PHP Fatal error:  Uncaught TypeError: call_user_func_array(): Argument #1 ($callback) must be a valid callback, function "patch_page" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php:324
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('run_patch_page', Array)
+#3 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php on line 324
+[26-Mar-2024 20:19:49 UTC] PHP Fatal error:  Uncaught TypeError: call_user_func_array(): Argument #1 ($callback) must be a valid callback, function "patch_page" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php:324
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/run_patch.php(94): do_action('run_patch_page')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\run_patch(Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php on line 324
+[26-Mar-2024 20:20:02 UTC] PHP Fatal error:  Uncaught TypeError: call_user_func_array(): Argument #1 ($callback) must be a valid callback, function "patch_page" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php:324
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('run_patch_page', Array)
+#3 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php on line 324
+[26-Mar-2024 20:20:34 UTC] PHP Fatal error:  Uncaught TypeError: call_user_func_array(): Argument #1 ($callback) must be a valid callback, function "\patch_page" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php:324
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/run_patch.php(94): do_action('run_patch_page')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\run_patch(Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php on line 324
+[26-Mar-2024 20:20:35 UTC] PHP Fatal error:  Uncaught TypeError: call_user_func_array(): Argument #1 ($callback) must be a valid callback, function "\patch_page" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php:324
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/run_patch.php(94): do_action('run_patch_page')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\run_patch(Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php on line 324
+[26-Mar-2024 20:21:31 UTC] PHP Fatal error:  Uncaught TypeError: call_user_func_array(): Argument #1 ($callback) must be a valid callback, function "patch_page" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php:324
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('run_patch_page', Array)
+#3 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php on line 324
+[26-Mar-2024 20:22:11 UTC] PHP Fatal error:  Uncaught TypeError: call_user_func_array(): Argument #1 ($callback) must be a valid callback, function "patch_page" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php:324
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/run_patch.php(94): do_action('run_patch_page')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\run_patch(Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php on line 324
+[26-Mar-2024 20:22:14 UTC] PHP Fatal error:  Uncaught TypeError: call_user_func_array(): Argument #1 ($callback) must be a valid callback, function "patch_page" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php:324
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/run_patch.php(94): do_action('run_patch_page')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\run_patch(Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php on line 324
+[26-Mar-2024 20:22:54 UTC] PHP Fatal error:  Uncaught TypeError: call_user_func_array(): Argument #1 ($callback) must be a valid callback, class "AjaxHandlers" not found in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php:324
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/run_patch.php(94): do_action('run_patch_page')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\run_patch(Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php on line 324
+[26-Mar-2024 20:22:54 UTC] PHP Fatal error:  Uncaught TypeError: call_user_func_array(): Argument #1 ($callback) must be a valid callback, class "AjaxHandlers" not found in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php:324
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('run_patch_page', Array)
+#3 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php on line 324
+[26-Mar-2024 20:23:15 UTC] PHP Fatal error:  Uncaught TypeError: call_user_func_array(): Argument #1 ($callback) must be a valid callback, array must have exactly two members in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php:324
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/run_patch.php(94): do_action('run_patch_page')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\run_patch(Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php on line 324
+[26-Mar-2024 20:23:54 UTC] PHP Fatal error:  Uncaught TypeError: call_user_func_array(): Argument #1 ($callback) must be a valid callback, array must have exactly two members in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php:324
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/run_patch.php(94): do_action('AjaxHandlers\\ru...')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\run_patch(Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php on line 324
+[26-Mar-2024 20:25:04 UTC] PHP Fatal error:  Uncaught TypeError: call_user_func_array(): Argument #1 ($callback) must be a valid callback, array must have exactly two members in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php:324
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/run_patch.php(94): do_action('run_patch_page')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\run_patch(Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php on line 324
+[26-Mar-2024 20:25:06 UTC] PHP Fatal error:  Uncaught TypeError: call_user_func_array(): Argument #1 ($callback) must be a valid callback, array must have exactly two members in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php:324
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/run_patch.php(94): do_action('run_patch_page')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\run_patch(Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php on line 324
+[26-Mar-2024 20:32:08 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[26-Mar-2024 21:18:31 UTC] Cron unschedule event error for hook: run_patch_page, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":false,"args":[]}
+[26-Mar-2024 21:28:36 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[26-Mar-2024 21:34:39 UTC] Cron unschedule event error for hook: run_patch_page, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":false,"args":[]}
+[26-Mar-2024 22:22:55 UTC] PHP Fatal error:  Uncaught TypeError: unserialize(): Argument #1 ($data) must be of type string, array given in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_cart_item_thumbnail.php:19
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_cart_item_thumbnail.php(19): unserialize(Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): custom_modify_cart_item_thumbnail('<div class="cus...', Array, '54ee3f93839e324...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(205): WP_Hook->apply_filters('<div class="cus...', Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/templates/cart/mini-cart.php(41): apply_filters('woocommerce_car...', '<div class="cus...', Array, '54ee3f93839e324...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/wc-core-functions.php(345): include('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/wc-template-functions.php(2291): wc_get_template('cart/mini-cart....', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/class-wc-ajax.php(224): woocommerce_mini_cart()
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): WC_AJAX::get_refreshed_fragments('')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/class-wc-ajax.php(96): do_action('wc_ajax_get_ref...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): WC_AJAX::do_wc_ajax('')
+#12 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters(false, Array)
+#13 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#14 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template-loader.php(13): do_action('template_redire...')
+#15 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(19): require_once('/Users/jasoncon...')
+#16 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
+#17 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_cart_item_thumbnail.php on line 19
+[26-Mar-2024 22:23:04 UTC] PHP Fatal error:  Uncaught TypeError: unserialize(): Argument #1 ($data) must be of type string, array given in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_cart_item_thumbnail.php:19
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_cart_item_thumbnail.php(19): unserialize(Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): custom_modify_cart_item_thumbnail('<div class="cus...', Array, '54ee3f93839e324...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(205): WP_Hook->apply_filters('<div class="cus...', Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/templates/cart/mini-cart.php(41): apply_filters('woocommerce_car...', '<div class="cus...', Array, '54ee3f93839e324...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/wc-core-functions.php(345): include('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/wc-template-functions.php(2291): wc_get_template('cart/mini-cart....', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/class-wc-ajax.php(224): woocommerce_mini_cart()
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): WC_AJAX::get_refreshed_fragments('')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/class-wc-ajax.php(96): do_action('wc_ajax_get_ref...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): WC_AJAX::do_wc_ajax('')
+#12 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters(false, Array)
+#13 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#14 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template-loader.php(13): do_action('template_redire...')
+#15 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(19): require_once('/Users/jasoncon...')
+#16 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
+#17 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_cart_item_thumbnail.php on line 19
+[26-Mar-2024 22:23:06 UTC] PHP Fatal error:  Uncaught TypeError: unserialize(): Argument #1 ($data) must be of type string, array given in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_cart_item_thumbnail.php:19
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_cart_item_thumbnail.php(19): unserialize(Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): custom_modify_cart_item_thumbnail('<div class="cus...', Array, '54ee3f93839e324...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(205): WP_Hook->apply_filters('<div class="cus...', Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/templates/cart/cart.php(77): apply_filters('woocommerce_car...', '<div class="cus...', Array, '54ee3f93839e324...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/wc-core-functions.php(345): include('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/shortcodes/class-wc-shortcode-cart.php(101): wc_get_template('cart/cart.php')
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/class-wc-shortcodes.php(72): WC_Shortcode_Cart::output(Array)
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/class-wc-shortcodes.php(85): WC_Shortcodes::shortcode_wrapper(Array)
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/shortcodes.php(433): WC_Shortcodes::cart('', '', 'woocommerce_car...')
+#9 [internal function]: do_shortcode_tag(Array)
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/shortcodes.php(273): preg_replace_callback('/\\[(\\[?)(woocom...', 'do_shortcode_ta...', '[woocommerce_ca...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): do_shortcode('[woocommerce_ca...')
+#12 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(205): WP_Hook->apply_filters('[woocommerce_ca...', Array)
+#13 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/post-template.php(256): apply_filters('the_content', '<!-- wp:shortco...')
+#14 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/themes/storefront/inc/storefront-template-functions.php(352): the_content()
+#15 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): storefront_page_content('')
+#16 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#17 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#18 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/themes/storefront/content-page.php(18): do_action('storefront_page')
+#19 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template.php(792): require('/Users/jasoncon...')
+#20 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template.php(725): load_template('/Users/jasoncon...', false, Array)
+#21 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/general-template.php(206): locate_template(Array, true, false, Array)
+#22 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/themes/storefront/page.php(24): get_template_part('content', 'page')
+#23 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template-loader.php(106): include('/Users/jasoncon...')
+#24 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(19): require_once('/Users/jasoncon...')
+#25 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
+#26 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_cart_item_thumbnail.php on line 19
+[26-Mar-2024 22:23:06 UTC] PHP Fatal error:  Uncaught TypeError: unserialize(): Argument #1 ($data) must be of type string, array given in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_cart_item_thumbnail.php:19
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_cart_item_thumbnail.php(19): unserialize(Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): custom_modify_cart_item_thumbnail('<div class="cus...', Array, '54ee3f93839e324...')
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(205): WP_Hook->apply_filters('<div class="cus...', Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/templates/cart/mini-cart.php(41): apply_filters('woocommerce_car...', '<div class="cus...', Array, '54ee3f93839e324...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/wc-core-functions.php(345): include('/Users/jasoncon...')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/wc-template-functions.php(2291): wc_get_template('cart/mini-cart....', Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/class-wc-ajax.php(224): woocommerce_mini_cart()
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): WC_AJAX::get_refreshed_fragments('')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/class-wc-ajax.php(96): do_action('wc_ajax_get_ref...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): WC_AJAX::do_wc_ajax('')
+#12 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters(false, Array)
+#13 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#14 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template-loader.php(13): do_action('template_redire...')
+#15 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(19): require_once('/Users/jasoncon...')
+#16 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
+#17 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_cart_item_thumbnail.php on line 19
+[26-Mar-2024 23:11:41 UTC] Cron unschedule event error for hook: run_patch_page, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":false,"args":[]}
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215020-53' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215020, 53) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215025-53' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215025, 53) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215025-56' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215025, 56) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215028-83' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215028, 83) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215028-53' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215028, 53) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215036-83' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215036, 83) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215036-53' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215036, 53) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215040-83' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215040, 83) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215040-53' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215040, 53) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215042-83' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215042, 83) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215042-53' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215042, 53) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215045-83' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215045, 83) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215045-53' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215045, 53) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215047-83' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215047, 83) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215047-53' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215047, 53) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215049-83' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215049, 83) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215049-53' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215049, 53) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215051-83' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215051, 83) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215051-53' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215051, 53) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215055-83' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215055, 83) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215055-53' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215055, 53) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215061-83' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215061, 83) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215061-53' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215061, 53) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215064-83' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215064, 83) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215064-53' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215064, 53) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215067-83' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215067, 83) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:44 UTC] WordPress database error Duplicate entry '215067-53' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215067, 53) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:45 UTC] WordPress database error Duplicate entry '215070-83' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215070, 83) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:45 UTC] WordPress database error Duplicate entry '215070-53' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215070, 53) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:45 UTC] WordPress database error Duplicate entry '215073-83' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215073, 83) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:45 UTC] WordPress database error Duplicate entry '215073-53' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215073, 53) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:45 UTC] WordPress database error Duplicate entry '215076-83' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215076, 83) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:45 UTC] WordPress database error Duplicate entry '215076-53' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215076, 53) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:45 UTC] WordPress database error Duplicate entry '215085-59' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215085, 59) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:45 UTC] WordPress database error Duplicate entry '215085-53' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215085, 53) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:45 UTC] WordPress database error Duplicate entry '215087-59' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215087, 59) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:45 UTC] WordPress database error Duplicate entry '215087-53' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215087, 53) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:45 UTC] WordPress database error Duplicate entry '215089-59' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215089, 59) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:45 UTC] WordPress database error Duplicate entry '215089-53' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215089, 53) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:45 UTC] WordPress database error Duplicate entry '215091-59' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215091, 59) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:45 UTC] WordPress database error Duplicate entry '215091-53' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215091, 53) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:45 UTC] WordPress database error Duplicate entry '215093-85' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215093, 85) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:45 UTC] WordPress database error Duplicate entry '215093-53' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215093, 53) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[26-Mar-2024 23:11:45 UTC] WordPress database error Duplicate entry '215093-56' for key 'PRIMARY' for query INSERT INTO `wp_term_relationships` (`object_id`, `term_taxonomy_id`) VALUES (215093, 56) made by do_action_ref_array('run_patch_page'), WP_Hook->do_action, WP_Hook->apply_filters, AjaxHandlers\patch_page, wp_set_object_terms
+[27-Mar-2024 03:26:57 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wpdb.php on line 1987
+[27-Mar-2024 03:26:57 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wpdb.php on line 1987
