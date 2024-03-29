@@ -13,6 +13,9 @@ export const UtilitiesRoot = () => {
         <NavLink to='/import' className={className}>
           Import
         </NavLink>
+        <NavLink to='/products' className={className}>
+          Products
+        </NavLink>
         <NavLink to='/patch' className={className}>
           Patch
         </NavLink>

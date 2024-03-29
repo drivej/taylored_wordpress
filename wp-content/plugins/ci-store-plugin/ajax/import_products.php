@@ -30,11 +30,13 @@ function unschedule_daily_import($params)
 function import_products($params)
 {
     $updated = \AjaxManager::get_param('updated', null, $params);
-    $import_type = (bool) \AjaxManager::get_param('import_type', 'resume', $params); // reset | resume
+    $import_type = \AjaxManager::get_param('import_type', 'resume', $params); // reset | resume
+    $patch = \AjaxManager::get_param('patch', null, $params);
     $supplier_key = \AjaxManager::get_param('supplier_key', null, $params);
     $supplier = \CI\Admin\get_supplier($supplier_key);
 
     $is_importing = $supplier->is_importing();
+
     if ($is_importing) {
         return ['is_importing' => $is_importing];
     }
@@ -43,7 +45,12 @@ function import_products($params)
         $supplier->clear_import_report();
         $dt = new \DateTime('2020-01-01', new \DateTimeZone('UTC'));
         $last_started = $dt->format('Y-m-d\TH:i:sP');
-        $supplier->update_import_report(['updated' => $updated, 'started' => $last_started, 'completed' => '']);
+        $supplier->update_import_report([
+            'updated' => $updated,
+            'started' => $last_started,
+            'completed' => '',
+            'patch' => $patch,
+        ]);
         return $supplier->start_import_products();
     } else {
         $resumed = $supplier->resume_import();

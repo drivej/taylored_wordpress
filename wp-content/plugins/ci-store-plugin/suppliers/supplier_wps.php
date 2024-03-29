@@ -95,6 +95,7 @@ class Supplier_WPS extends Supplier
                 'update' => 0,
                 'ignore' => 0,
                 'insert' => 0,
+                'patched' => 0,
                 'error' => '',
                 'updated' => $updated,
                 'products_count' => $products_count,
@@ -133,30 +134,52 @@ class Supplier_WPS extends Supplier
         $stalled = false;
 
         if (isset($products['data'])) {
-            $tally = ['insert' => [], 'update' => [], 'delete' => [], 'ignore' => []];
+            $tally = ['insert' => [], 'update' => [], 'delete' => [], 'ignore' => [], 'patched' => []];
             $this->log('Recieved ' . count($products['data']) . ' products');
 
             foreach ($products['data'] as $product) {
                 $action = $this->get_update_action($product); //
                 $product_id = $product['id'];
-                $tally[$action][] = $product_id;
-                $this->log($this->key . ':' . $product_id . ' ' . $action);
 
-                switch ($action) {
-                    case 'insert':
-                        $this->insert_product($product_id);
-                        break;
+                if ($report['patch']) {
+                    //
+                    // Begin:Patch
+                    //
+                    if ($action === 'update' || $action === 'ignore') {
+                        // eficient availability check
+                        $is_available = $this->is_available(['data' => $product]);
+                        if ($is_available) {
+                            $this->patch($report['patch'], $product_id);
+                            $action = 'patch';
+                        } else {
+                            $action = 'ignore';
+                        }
+                        $tally[$action][] = $product_id;
+                        $this->log($this->key . ':' . $product_id . ' ' . $action);
+                    }
+                    //
+                    // End: Patch
+                    //
+                } else {
+                    $tally[$action][] = $product_id;
+                    $this->log($this->key . ':' . $product_id . ' ' . $action);
 
-                    case 'update':
-                        $this->update_product($product_id);
-                        break;
+                    switch ($action) {
+                        case 'insert':
+                            $this->insert_product($product_id);
+                            break;
 
-                    case 'delete':
-                        $this->delete_product($product_id);
-                        break;
+                        case 'update':
+                            $this->update_product($product_id);
+                            break;
 
-                    case 'ignore':
-                        break;
+                        case 'delete':
+                            $this->delete_product($product_id);
+                            break;
+
+                        case 'ignore':
+                            break;
+                    }
                 }
                 // let wp know we are alive
                 $this->ping();
@@ -199,6 +222,7 @@ class Supplier_WPS extends Supplier
                     'update' => $report['update'] + count($tally['update']),
                     'ignore' => $report['ignore'] + count($tally['ignore']),
                     'insert' => $report['insert'] + count($tally['insert']),
+                    'patched' => $report['patched'] + count($tally['patched']),
                 ]);
 
                 if (!$cursor) {
@@ -232,6 +256,35 @@ class Supplier_WPS extends Supplier
                 'error' => 'Product page data empty',
             ]);
             $this->log('Product page data empty');
+        }
+    }
+
+    public function patch($patch, $supplier_product_id)
+    {
+        $supplier_product = $this->get_product($supplier_product_id);
+        if (!$supplier_product) {
+            $this->log('patch() API Error' . $supplier_product_id);
+            return;
+        }
+        $is_available = $this->is_available($supplier_product);
+
+        if (!$is_available) {
+            $this->log('patch() Product not available wps:' . $supplier_product_id);
+            return;
+        }
+
+        $supplier_product_id = $supplier_product['data']['id'];
+        $woo_product_id = $this->get_woo_id($supplier_product_id);
+
+        if (!$woo_product_id) {
+            $this->log('patch() wps:' . $supplier_product_id . ' no woo product found for update');
+            return;
+        }
+
+        $woo_product = wc_get_product_object('variable', $woo_product_id);
+
+        if ($patch === 'tags') {
+            $this->update_product_taxonomy($woo_product, $supplier_product);
         }
     }
 
@@ -322,8 +375,9 @@ class Supplier_WPS extends Supplier
     public function update_product_taxonomy($woo_product, $wps_product)
     {
         $tags = $this->extract_product_tags($wps_product);
+        $tag_ids = $this->get_tag_ids($tags);
         $woo_id = $woo_product->get_id();
-        wp_set_object_terms($woo_id, $tags, 'product_tag', true);
+        wp_set_object_terms($woo_id, $tag_ids, 'product_tag', true);
     }
 
     public function update_product_attributes($woo_product, $supplier_product)
@@ -468,24 +522,45 @@ class Supplier_WPS extends Supplier
     public function extract_product_tags($supplier_product)
     {
         $product_tags = [];
+        $tag_slugs = [];
         // make WPS product_type from each item a product_tag
-        if (is_countable($supplier_product['items']['data'])) {
-            foreach ($supplier_product['items']['data'] as $item) {
+        if (is_countable($supplier_product['data']['items']['data'])) {
+            foreach ($supplier_product['data']['items']['data'] as $item) {
                 // WPS product_type
                 if (isset($item['product_type']) && !empty($item['product_type'])) {
-                    $product_tags[] = sanitize_title($item['product_type']);
+                    $name = $item['product_type'];
+                    $slug = sanitize_title($name);
+                    if (!isset($tag_slugs[$slug])) {
+                        $product_tags[] = ['name' => $name, 'slug' => $slug];
+                        $tag_slugs[$slug] = true;
+                    }
                 }
                 // WPS taxonomy terms
                 if (is_countable($item['taxonomyterms']['data'])) {
                     foreach ($item['taxonomyterms']['data'] as $term) {
-                        $product_tags[] = sanitize_title($term['slug']);
+                        $name = $term['name'];
+                        $slug = sanitize_title($name);
+                        if (!isset($tag_slugs[$slug])) {
+                            $product_tags[] = ['name' => $name, 'slug' => $slug];
+                            $tag_slugs[$slug] = true;
+                        }
                     }
                 }
             }
         }
 
-        // save product tags
-        $product_tags = array_unique($product_tags);
+        // get only unique tags
+        return $product_tags;
+        // $unique_tags = [];
+
+        // foreach ($$product_tags as $tag) {
+        //     if (!isset($unique_tags[$tag['slug']])) {
+        //         $unique_tags[$tag['slug']] = $tag;
+        //     }
+        // }
+
+        // $product_tags = array_values($unique_tags);
+
         return $product_tags;
     }
 

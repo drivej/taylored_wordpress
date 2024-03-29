@@ -4296,7 +4296,7 @@ const Overview = () => {
     // );
 };
 const SupplierImportStatus = ({ supplier }) => {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
     const status = useImportStatus(supplier.key, true);
     const totalProducts = useTotalProducts(supplier.key);
     const getAgo = (dateStr) => {
@@ -4306,11 +4306,12 @@ const SupplierImportStatus = ({ supplier }) => {
         }
         return '-';
     };
-    const lastStarted = status.isSuccess ? getAgo((_b = (_a = status.data) === null || _a === void 0 ? void 0 : _a.report) === null || _b === void 0 ? void 0 : _b.started) : '...';
-    const lastCompleted = status.isSuccess ? getAgo((_d = (_c = status.data) === null || _c === void 0 ? void 0 : _c.report) === null || _d === void 0 ? void 0 : _d.completed) : '...';
-    const nextImport = status.isSuccess ? getAgo((_e = status.data) === null || _e === void 0 ? void 0 : _e.next_import) : '...';
-    const lastStopped = getAgo((_g = (_f = status.data) === null || _f === void 0 ? void 0 : _f.report) === null || _g === void 0 ? void 0 : _g.stopped);
-    const percent_complete = (100 * ((_k = (_j = (_h = status.data) === null || _h === void 0 ? void 0 : _h.report) === null || _j === void 0 ? void 0 : _j.processed) !== null && _k !== void 0 ? _k : 0)) / ((_o = (_m = (_l = status.data) === null || _l === void 0 ? void 0 : _l.report) === null || _m === void 0 ? void 0 : _m.products_count) !== null && _o !== void 0 ? _o : 1);
+    const patch = (_b = (_a = status.data) === null || _a === void 0 ? void 0 : _a.report) === null || _b === void 0 ? void 0 : _b.patch;
+    const lastStarted = status.isSuccess ? getAgo((_d = (_c = status.data) === null || _c === void 0 ? void 0 : _c.report) === null || _d === void 0 ? void 0 : _d.started) : '...';
+    const lastCompleted = status.isSuccess ? getAgo((_f = (_e = status.data) === null || _e === void 0 ? void 0 : _e.report) === null || _f === void 0 ? void 0 : _f.completed) : '...';
+    const nextImport = status.isSuccess ? getAgo((_g = status.data) === null || _g === void 0 ? void 0 : _g.next_import) : '...';
+    const lastStopped = getAgo((_j = (_h = status.data) === null || _h === void 0 ? void 0 : _h.report) === null || _j === void 0 ? void 0 : _j.stopped);
+    const percent_complete = (100 * ((_m = (_l = (_k = status.data) === null || _k === void 0 ? void 0 : _k.report) === null || _l === void 0 ? void 0 : _l.processed) !== null && _m !== void 0 ? _m : 0)) / ((_q = (_p = (_o = status.data) === null || _o === void 0 ? void 0 : _o.report) === null || _p === void 0 ? void 0 : _p.products_count) !== null && _q !== void 0 ? _q : 1);
     const is_running = status.isSuccess ? status.data.is_running || status.data.is_scheduled : false;
     if (status.isSuccess) {
         return (react.createElement("div", { className: 'p-3 border rounded d-flex gap-3 w-100 shadow-sm' },
@@ -4336,18 +4337,25 @@ const SupplierImportStatus = ({ supplier }) => {
                     status.data.report.processed,
                     " of ",
                     status.data.report.products_count),
-                react.createElement("p", null,
-                    "Updated: ",
-                    status.data.report.update),
-                react.createElement("p", null,
-                    "Deleted: ",
-                    status.data.report.delete),
-                react.createElement("p", null,
-                    "Inserted: ",
-                    status.data.report.insert),
-                react.createElement("p", null,
-                    "Ignored: ",
-                    status.data.report.ignore),
+                patch ? (react.createElement(react.Fragment, null,
+                    react.createElement("p", null,
+                        "Patch: ",
+                        patch),
+                    react.createElement("p", null,
+                        "Patched: ",
+                        status.data.report.patched))) : (react.createElement(react.Fragment, null,
+                    react.createElement("p", null,
+                        "Updated: ",
+                        status.data.report.update),
+                    react.createElement("p", null,
+                        "Deleted: ",
+                        status.data.report.delete),
+                    react.createElement("p", null,
+                        "Inserted: ",
+                        status.data.report.insert),
+                    react.createElement("p", null,
+                        "Ignored: ",
+                        status.data.report.ignore))),
                 react.createElement("p", null,
                     "Last Started: ",
                     lastStarted),

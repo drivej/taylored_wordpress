@@ -41,6 +41,7 @@ const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
     return '-';
   };
 
+  const patch = status.data?.report?.patch;
   const lastStarted = status.isSuccess ? getAgo(status.data?.report?.started) : '...';
   const lastCompleted = status.isSuccess ? getAgo(status.data?.report?.completed) : '...';
   const nextImport = status.isSuccess ? getAgo(status.data?.next_import) : '...';
@@ -76,15 +77,24 @@ const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
           <p>
             Products Processed: {status.data.report.processed} of {status.data.report.products_count}
           </p>
-          <p>Updated: {status.data.report.update}</p>
-          <p>Deleted: {status.data.report.delete}</p>
-          <p>Inserted: {status.data.report.insert}</p>
-          <p>Ignored: {status.data.report.ignore}</p>
+          {patch ? (
+            <>
+              <p>Patch: {patch}</p>
+              <p>Patched: {status.data.report.patched}</p>
+            </>
+          ) : (
+            <>
+              <p>Updated: {status.data.report.update}</p>
+              <p>Deleted: {status.data.report.delete}</p>
+              <p>Inserted: {status.data.report.insert}</p>
+              <p>Ignored: {status.data.report.ignore}</p>
+            </>
+          )}
+
           <p>Last Started: {lastStarted}</p>
           <p>Last Completed: {lastCompleted}</p>
           <p>Last Stopped: {lastStopped}</p>
           <p>Next Import: {nextImport}</p>
-          {/* <p>Test: {test}</p> */}
           <p>Total Products: {totalProducts.isLoading ? '...' : totalProducts.data.data.toLocaleString()}</p>
         </div>
       </div>

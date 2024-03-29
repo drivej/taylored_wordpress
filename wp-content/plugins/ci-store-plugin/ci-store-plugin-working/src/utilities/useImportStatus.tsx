@@ -17,6 +17,7 @@ interface IImportStatus {
     update: number;
     ignore: number;
     insert: number;
+    patched: number;
     error: string;
     cursor: null;
     page_size: string;
@@ -24,6 +25,7 @@ interface IImportStatus {
     started: string;
     stopped: string;
     completed: string;
+    patch: string;
   };
 }
 

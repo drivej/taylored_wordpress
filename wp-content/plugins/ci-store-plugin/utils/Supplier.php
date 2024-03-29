@@ -177,6 +177,32 @@ class Supplier
     {
         return [];
     }
+    /**
+     * Retrieves WooCommerce tag IDs based on provided tags array.
+     *
+     * @param array $tags An array containing tags data with 'name' and 'slug' keys.
+     * @return array An array containing WooCommerce tag IDs.
+     */
+    public function get_tag_ids($tags)
+    {
+        foreach ($tags as $i => $tag) {
+            $woo_tag = get_term_by('slug', $tag['slug'], 'product_tag');
+            if ($woo_tag) {
+                $tags[$i]['woo'] = $woo_tag; //
+                $tags[$i]['woo_term_id'] = $woo_tag->term_id; //
+                if ($woo_tag->name !== $tag['name']) {
+                    $update = wp_update_term($woo_tag->term_id, 'product_tag', ['name' => $tag['name']]);
+                    $tags[$i]['update'] = $update;
+                }
+            } else {
+                $woo_tag = wp_insert_term($tag['name'], 'product_tag', ['slug' => $tag['slug']]);
+                $tags[$i]['woo_term_id'] = $woo_tag->term_id; //
+            }
+        }
+
+        return array_map(fn($tag) => $tag['woo_term_id'], $tags);
+    }
+
     // placeholder
     public function extract_product_tags($supplier_product)
     {
@@ -238,32 +264,29 @@ class Supplier
         return $product_import_version !== $this->import_version;
     }
 
-    public function import_product($supplier_product_id, $report)
+    public function import_product($supplier_product_id)
     {
         $product = $this->get_product_light($supplier_product_id);
         $action = $this->get_update_action($product);
         if ($this->deep_debug) {
             $this->log('import_product() ' . $this->key . ':' . $supplier_product_id . ' ' . $action);
         }
-        if ($report) {
-            $report->addData('action', $action);
-        }
         switch ($action) {
             case 'insert':
-                $this->insert_product($supplier_product_id, $report);
+                $this->insert_product($supplier_product_id);
                 break;
             case 'update':
-                $this->update_product($supplier_product_id, $report);
+                $this->update_product($supplier_product_id);
                 break;
             case 'delete':
-                $this->delete_product($supplier_product_id, $report);
+                $this->delete_product($supplier_product_id);
                 break;
             case 'ignore':
                 break;
         }
     }
 
-    public function delete_product($supplier_product_id, $report = new Report())
+    public function delete_product($supplier_product_id)
     {
         $sku = $this->get_product_sku($supplier_product_id);
         $woo_product_id = wc_get_product_id_by_sku($sku);
@@ -470,14 +493,6 @@ class Supplier
         }
     }
 
-    // public function schedule_daily_import()
-    // {
-    //     $is_scheduled = (bool) wp_next_scheduled($this->import_products_page_flag);
-    //     if (!$is_scheduled) {
-    //         return wp_schedule_event(time(), 'daily', $this->import_products_page_flag);
-    //     }
-    // }
-
     public function unschedule_import()
     {
         return wp_clear_scheduled_hook($this->import_products_page_flag);
@@ -490,8 +505,10 @@ class Supplier
         'update' => 0,
         'ignore' => 0,
         'insert' => 0,
+        'patched' => 0,
         'error' => '',
         'cursor' => '',
+        'patch' => '',
         'page_size' => 50,
         'updated' => '',
         'started' => '',

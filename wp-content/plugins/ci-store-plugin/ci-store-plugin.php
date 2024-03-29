@@ -11,7 +11,7 @@
 define('CI_STORE_PLUGIN', plugin_dir_path(__FILE__));
 define('CI_ERROR_LOG_FILEPATH', CI_STORE_PLUGIN . 'logs/CI_ERROR_LOG.log');
 define('CI_ERROR_LOG', CI_ERROR_LOG_FILEPATH);
-define('CI_VERSION', '0.0.18'); // enqueued scripts get this version - update to bust the cache
+define('CI_VERSION', '0.0.21'); // enqueued scripts get this version - update to bust the cache
 
 include_once CI_STORE_PLUGIN . 'hooks/index.php';
 include_once CI_STORE_PLUGIN . 'utils/AjaxManager.php';
@@ -20,7 +20,7 @@ include_once CI_STORE_PLUGIN . 'suppliers/index.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/ReactSubpage.php';
 
 // if importing, file a stall check
-$SUPPLIERS['wps']->schedule_stall_check();
+// $SUPPLIERS['wps']->schedule_stall_check();
 
 // this creates all the ajax endpoints for the react pages to use
 $API_Manager = new AjaxManager();

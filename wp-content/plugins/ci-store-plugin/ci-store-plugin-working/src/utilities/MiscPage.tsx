@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { AdminForm, CSVTable, CheckboxInput, ErrorLogs, ProductInput, SelectInput, SelectSupplier, TextInput } from './UtilitiesPage';
+import { AdminForm, CSVTable, CheckboxInput, ErrorLogs, ProductInput, SelectSupplier, TextInput } from './UtilitiesPage';
 
 export const MiscPage = () => {
   return (
     <>
-      <AdminForm name='Set Product Visibility' cmd='product_visibility'>
-        {/* <SelectSupplier /> */}
+      {/* <AdminForm name='Set Product Visibility' cmd='product_visibility'>
         <ProductInput />
         <SelectInput
           name='visible'
@@ -15,7 +14,7 @@ export const MiscPage = () => {
           ]}
           initialValue='visible'
         />
-      </AdminForm>
+      </AdminForm> */}
 
       <AdminForm name='Stall Import Test' cmd='stall_import'>
         <SelectSupplier />
@@ -55,10 +54,10 @@ export const MiscPage = () => {
         <SelectSupplier />
       </AdminForm>
 
-      <AdminForm name='Update Product' cmd='update_product' RenderResult={ErrorLogs}>
+      {/* <AdminForm name='Update Product' cmd='update_product' RenderResult={ErrorLogs}>
         <SelectSupplier />
         <ProductInput />
-      </AdminForm>
+      </AdminForm> */}
 
       <AdminForm name='Import Product' cmd='import_product'>
         <SelectSupplier />

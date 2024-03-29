@@ -10,6 +10,7 @@ import { LogsPage } from './LogsPage';
 import { MiscPage } from './MiscPage';
 import { MonkeyWrenchPage } from './MonkeyWrench';
 import { PatchPage } from './PatchPage';
+import { ProductsPage } from './ProductsPage';
 import { UtilitiesRoot } from './UtilitiesRoot';
 
 const router = createHashRouter([
@@ -29,6 +30,10 @@ const router = createHashRouter([
       {
         path: 'monkeywrench',
         element: <MonkeyWrenchPage />
+      },
+      {
+        path: 'products',
+        element: <ProductsPage />
       },
       {
         path: 'misc',

@@ -11339,6 +11339,10 @@ const ImportPage = () => {
         react.createElement(AdminForm, { name: 'Import Products', cmd: 'import_products' },
             react.createElement(SelectSupplier, null),
             react.createElement(TextInput, { name: 'updated', defaultValue: '2020-01-01', type: 'date', style: { width: 150 } }),
+            react.createElement(SelectInput, { name: 'patch', options: [
+                    { name: 'none', value: '' },
+                    { name: 'tags', value: 'tags' }
+                ], initialValue: '' }),
             react.createElement(SelectInput, { name: 'import_type', options: [
                     { name: 'resume', value: 'resume' },
                     { name: 'reset', value: 'reset' }
@@ -11369,12 +11373,6 @@ const LogsPage = () => {
 
 const MiscPage = () => {
     return (react.createElement(react.Fragment, null,
-        react.createElement(AdminForm, { name: 'Set Product Visibility', cmd: 'product_visibility' },
-            react.createElement(ProductInput, null),
-            react.createElement(SelectInput, { name: 'visible', options: [
-                    { name: 'visible', value: '1' },
-                    { name: 'hidden', value: '0' }
-                ], initialValue: 'visible' })),
         react.createElement(AdminForm, { name: 'Stall Import Test', cmd: 'stall_import' },
             react.createElement(SelectSupplier, null)),
         react.createElement(AdminForm, { name: 'Expire Product', cmd: 'expire_product' },
@@ -11395,9 +11393,6 @@ const MiscPage = () => {
             react.createElement(SelectSupplier, null)),
         react.createElement(AdminForm, { name: 'Unschedule Daily Import', cmd: 'unschedule_daily_import' },
             react.createElement(SelectSupplier, null)),
-        react.createElement(AdminForm, { name: 'Update Product', cmd: 'update_product', RenderResult: ErrorLogs },
-            react.createElement(SelectSupplier, null),
-            react.createElement(ProductInput, null)),
         react.createElement(AdminForm, { name: 'Import Product', cmd: 'import_product' },
             react.createElement(SelectSupplier, null),
             react.createElement(ProductInput, null)),
@@ -11454,6 +11449,37 @@ const PatchPage = () => {
                 ], initialValue: 'tags' }))));
 };
 
+;// CONCATENATED MODULE: ./src/utilities/ProductsPage.tsx
+
+
+const ProductsPage = () => {
+    return (react.createElement(react.Fragment, null,
+        react.createElement(AdminForm, { name: 'Get Product', cmd: 'get_product' },
+            react.createElement(SelectSupplier, null),
+            react.createElement(ProductInput, null),
+            react.createElement(CheckboxInput, { name: 'light', checked: false })),
+        react.createElement(AdminForm, { name: 'Update Product', cmd: 'update_product' },
+            react.createElement(SelectSupplier, null),
+            react.createElement(ProductInput, null)),
+        react.createElement(AdminForm, { name: 'Extract Product Tags', cmd: 'extract_product_tags' },
+            react.createElement(SelectSupplier, null),
+            react.createElement(ProductInput, null)),
+        react.createElement(AdminForm, { name: 'View Attributes', cmd: 'view_attributes', RenderResult: CSVTable },
+            react.createElement(SelectSupplier, null),
+            react.createElement(ProductInput, null)),
+        react.createElement(AdminForm, { name: 'WPS API', cmd: 'western_api', allowPolling: true },
+            react.createElement(TextInput, { name: 'url', defaultValue: '/' })),
+        react.createElement(AdminForm, { name: 'Import Product', cmd: 'import_product' },
+            react.createElement(SelectSupplier, null),
+            react.createElement(ProductInput, null)),
+        react.createElement(AdminForm, { name: 'Get Product Status', cmd: 'get_product_status', allowPolling: true },
+            react.createElement(SelectSupplier, null),
+            react.createElement(ProductInput, null)),
+        react.createElement(AdminForm, { name: 'Import Product Status', cmd: 'get_import_product_status', allowPolling: true },
+            react.createElement(SelectSupplier, null),
+            react.createElement(ProductInput, null))));
+};
+
 ;// CONCATENATED MODULE: ./src/utilities/UtilitiesRoot.tsx
 
 
@@ -11465,6 +11491,7 @@ const UtilitiesRoot = () => {
             react.createElement("h3", null, "Utilities")),
         react.createElement("nav", { className: 'd-flex gap-1' },
             react.createElement(NavLink, { to: '/import', className: className }, "Import"),
+            react.createElement(NavLink, { to: '/products', className: className }, "Products"),
             react.createElement(NavLink, { to: '/patch', className: className }, "Patch"),
             react.createElement(NavLink, { to: '/monkeywrench', className: className }, "Monkey Wrench"),
             react.createElement(NavLink, { to: '/logs', className: className }, "Logs"),
@@ -11473,6 +11500,7 @@ const UtilitiesRoot = () => {
 };
 
 ;// CONCATENATED MODULE: ./src/utilities/index.tsx
+
 
 
 
@@ -11501,6 +11529,10 @@ const router = createHashRouter([
             {
                 path: 'monkeywrench',
                 element: react.createElement(MonkeyWrenchPage, null)
+            },
+            {
+                path: 'products',
+                element: react.createElement(ProductsPage, null)
             },
             {
                 path: 'misc',

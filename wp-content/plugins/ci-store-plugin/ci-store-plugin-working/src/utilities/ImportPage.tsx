@@ -18,7 +18,14 @@ export const ImportPage = () => {
         </div> */}
         {/* <PageSizeInput /> */}
         {/* <CheckboxInput name='reset' checked={false} /> */}
-
+        <SelectInput
+          name='patch'
+          options={[
+            { name: 'none', value: '' },
+            { name: 'tags', value: 'tags' }
+          ]}
+          initialValue=''
+        />
         <SelectInput
           name='import_type'
           options={[
