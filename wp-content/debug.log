@@ -5693,3 +5693,84 @@ Stack trace:
   thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_product_status.php on line 25
 [27-Mar-2024 20:20:22 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wpdb.php on line 1987
 [27-Mar-2024 20:20:22 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wpdb.php on line 1987
+[28-Mar-2024 21:14:15 UTC] PHP Fatal error:  Cannot redeclare build_western_image() (previously declared in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php:14) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/western_utils.php on line 99
+[28-Mar-2024 21:15:15 UTC] PHP Fatal error:  Cannot redeclare build_western_image() (previously declared in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php:14) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/western_utils.php on line 99
+[28-Mar-2024 21:17:13 UTC] PHP Fatal error:  Cannot redeclare build_western_image() (previously declared in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php:14) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/western_utils.php on line 99
+[28-Mar-2024 21:17:14 UTC] PHP Fatal error:  Cannot redeclare build_western_image() (previously declared in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php:14) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/western_utils.php on line 99
+[28-Mar-2024 21:17:14 UTC] PHP Fatal error:  Cannot redeclare build_western_image() (previously declared in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php:14) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/western/western_utils.php on line 99
+[28-Mar-2024 21:50:22 UTC] PHP Fatal error:  Uncaught TypeError: array_filter(): Argument #2 ($callback) must be a valid callback or null, function "isValidItem" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php:749
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(749): array_filter(Array, 'isValidItem')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(286): Supplier_WPS->is_available(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(118): Supplier->get_update_action(Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): Supplier_WPS->import_products_page()
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('wps_import_prod...', Array)
+#7 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php on line 749
+[28-Mar-2024 22:23:14 UTC] PHP Fatal error:  Uncaught TypeError: array_filter(): Argument #2 ($callback) must be a valid callback or null, function "isValidItem" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php:762
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(762): array_filter(Array, 'isValidItem')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(821): Supplier_WPS->is_available(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_before_single_product.php(54): Supplier_WPS->get_stock_status('441802')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): custom_before_single_product('')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/templates/content-single-product.php(27): do_action('woocommerce_bef...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template.php(792): require('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/wc-core-functions.php(284): load_template('/Users/jasoncon...', false)
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/templates/single-product.php(37): wc_get_template_part('content', 'single-product')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template-loader.php(106): include('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(19): require_once('/Users/jasoncon...')
+#12 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
+#13 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php on line 762
+[28-Mar-2024 22:25:59 UTC] PHP Fatal error:  Uncaught TypeError: array_filter(): Argument #2 ($callback) must be a valid callback or null, non-static method WPSTools::isValidItem() cannot be called statically in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php:774
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(774): array_filter(Array, 'WPSTools::isVal...')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(833): Supplier_WPS->is_available(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_before_single_product.php(54): Supplier_WPS->get_stock_status('441802')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): custom_before_single_product('')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/templates/content-single-product.php(27): do_action('woocommerce_bef...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template.php(792): require('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/wc-core-functions.php(284): load_template('/Users/jasoncon...', false)
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/templates/single-product.php(37): wc_get_template_part('content', 'single-product')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template-loader.php(106): include('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(19): require_once('/Users/jasoncon...')
+#12 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
+#13 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php on line 774
+[28-Mar-2024 22:26:55 UTC] PHP Fatal error:  Uncaught TypeError: array_filter(): Argument #2 ($callback) must be a valid callback or null, non-static method WPSTools::isValidItem() cannot be called statically in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php:774
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(774): array_filter(Array, Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(833): Supplier_WPS->is_available(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_before_single_product.php(54): Supplier_WPS->get_stock_status('441802')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): custom_before_single_product('')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/templates/content-single-product.php(27): do_action('woocommerce_bef...')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template.php(792): require('/Users/jasoncon...')
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/wc-core-functions.php(284): load_template('/Users/jasoncon...', false)
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/templates/single-product.php(37): wc_get_template_part('content', 'single-product')
+#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template-loader.php(106): include('/Users/jasoncon...')
+#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(19): require_once('/Users/jasoncon...')
+#12 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
+#13 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php on line 774
+[28-Mar-2024 22:29:25 UTC] PHP Fatal error:  Uncaught TypeError: array_reduce(): Argument #2 ($callback) must be a valid callback, function "reduce_ids" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php:450
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(450): array_reduce(Array, 'reduce_ids', Array)
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(506): Supplier_WPS->get_attributes_from_product(Array)
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php(224): Supplier_WPS->get_product('441802')
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/Supplier.php(243): Supplier_WPS->insert_product('441802', Object(Report))
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/import_product.php(17): Supplier->import_product('441802', Object(Report))
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\import_product(Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
+#10 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/supplier_wps.php on line 450

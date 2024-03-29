@@ -73,14 +73,14 @@ class WooTools
         return $new_attribute;
     }
 
-    public static function fix_variations($supplier_variations, $parent_id, $report = new Report())
+    public static function fix_variations($supplier_variations, $parent_id)
     {
         foreach ($supplier_variations as $supplier_variation) {
-            WooTools::fix_variation($supplier_variation, $parent_id, $report);
+            WooTools::fix_variation($supplier_variation, $parent_id);
         }
     }
 
-    public static function fix_variation($supplier_variation, $parent_id, $report = new Report())
+    public static function fix_variation($supplier_variation, $parent_id)
     {
         // TODO: should we delete these rogue variations or try to recover them?
         $variation_id = wc_get_product_id_by_sku($supplier_variation['sku']);
@@ -95,15 +95,15 @@ class WooTools
                     // $report->addLog('fix_variation() ERROR Corrected variation id=' . $variation_id . ', sku=' . $supplier_variation['sku'] . ' with parent_id=0 to parent_id= ' . $parent_id);
                     $saved = $obj->save();
                     // if ($report) {
-                        // $report->addLog('fix_variation() ERROR No parent. Repaired. Save ' . $variation_id . ' with parent ' . $parent_id . ' result: '($saved ? 'Yes' : 'Failed'));
+                    // $report->addLog('fix_variation() ERROR No parent. Repaired. Save ' . $variation_id . ' with parent ' . $parent_id . ' result: '($saved ? 'Yes' : 'Failed'));
                     // } else {
-                        // ci_error_log('fix_variation() report is not set??');
+                    // ci_error_log('fix_variation() report is not set??');
                     // }
                 } else if ($this_parent_id !== $parent_id) {
                     // if ($report) {
-                        // $report->addLog('fix_variation() ERROR This sku is owned by a different parent id=' . $this_parent_id);
+                    // $report->addLog('fix_variation() ERROR This sku is owned by a different parent id=' . $this_parent_id);
                     // } else {
-                        // ci_error_log('fix_variation() report is not set?? (2)');
+                    // ci_error_log('fix_variation() report is not set?? (2)');
                     // }
                     // ci_error_log('fix_variation() ERROR sku ' . $supplier_variation['sku'] . 'belongs to the wrong parent. Woo id ' . $parent_id . ' is claiming it but it has parent id ' . $this_parent_id);
                 } else {
@@ -207,13 +207,13 @@ class WooTools
         return $success ? $variation : null;
     }
 
-    public static function sync_variations($woo_product, $supplier_variations, $report = new Report(), $commit = true)
+    public static function sync_variations($woo_product, $supplier_variations)
     {
         // $report->addLog('do_sync_variations()');
         $parent_id = $woo_product->get_id();
 
         // necessary evil
-        WooTools::fix_variations($supplier_variations, $parent_id, $report);
+        WooTools::fix_variations($supplier_variations, $parent_id);
 
         $supplier_skus = array_column($supplier_variations, 'sku');
         $woo_variations = WooTools::get_variations_objects($woo_product);
@@ -223,19 +223,12 @@ class WooTools
         $inserts = array_values(array_diff($supplier_skus, $woo_skus));
         $updates = array_values(array_diff($woo_skus, $deletes, $inserts));
 
-        // $report->addData('supplier_skus', $supplier_skus);
-        // $report->addData('woo_skus', $woo_skus);
-        // $report->addData('deletes', $deletes);
-        // $report->addData('inserts', $inserts);
-        // $report->addData('updates', $updates);
-
         // delete variations
         if (count($deletes)) {
             foreach ($woo_variations as $woo_variation) {
                 $sku = $woo_variation->get_sku('edit');
                 if (in_array($sku, $deletes)) {
-                    $deleted = $commit ? $woo_variation->delete(true) : false;
-                    // $report->addLog('Delete variation ' . $sku . ' ' . ($commit ? ($deleted ? 'Success' : 'Failed') : 'Skip Commit'));
+                    $deleted = $woo_variation->delete(true);
                 }
             }
         }
@@ -244,13 +237,9 @@ class WooTools
         if (count($inserts)) {
             foreach ($supplier_variations as $supplier_variation) {
                 if (in_array($supplier_variation['sku'], $inserts)) {
-                    $woo_variation = WooTools::supplier_variation_to_object($supplier_variation, $parent_id, $report);
+                    $woo_variation = WooTools::supplier_variation_to_object($supplier_variation, $parent_id);
                     if ($woo_variation) {
-                        // $variation_sku = $woo_variation->get_sku('edit');
-                        $saved = $commit ? $woo_variation->save() : false;
-                        // $report->addLog('Insert variation ' . $variation_sku . ' ' . ($commit ? ($saved ? 'Success' : 'Failed') : 'Skip Commit'));
-                    } else {
-                        // $report->addLog('Insert variation ' . $supplier_variation['sku'] . ' Failed to create WC_Product_Variation()');
+                        $saved = $woo_variation->save();
                     }
                 }
             }
@@ -263,10 +252,9 @@ class WooTools
                     $variation_id = wc_get_product_id_by_sku($supplier_variation['sku']);
                     if ($variation_id) {
                         $woo_variation = new WC_Product_Variation($variation_id);
-                        WooTools::update_variation_props($woo_variation, $supplier_variation, $report);
-                        $saved = $commit ? $woo_variation->save() : false;
+                        WooTools::update_variation_props($woo_variation, $supplier_variation);
+                        $saved = $woo_variation->save();
                     }
-                    // $report->addLog('Update variation ' . $variation_id . ' ' . ($commit ? ($saved ? 'Success' : 'Failed') : 'Skip Commit'));
                 }
             }
         }
@@ -284,7 +272,7 @@ class WooTools
      * @param Report   $report
      * }
      */
-    public static function sync_attributes($woo_product, $supplier_attributes, $report = null)
+    public static function sync_attributes($woo_product, $supplier_attributes)
     {
         $result = [];
         $changed = false;
@@ -338,10 +326,6 @@ class WooTools
         }
 
         $result['changed'] = $changed;
-
-        if ($report) {
-            // $report->addData('attributes_result', $result);
-        }
     }
 
     public static function delete_product_variations($woo_product)
@@ -400,5 +384,14 @@ class WooTools
             $variations[] = new WC_Product_Variation($woo_variation_id);
         }
         return $variations;
+    }
+
+    public static function set_product_visibility($woo_id, $visible = true)
+    {
+        if ($visible) {
+            wp_set_object_terms($woo_id, [], 'product_visibility');
+        } else {
+            wp_set_post_terms($woo_id, ['exclude-from-search', 'exclude-from-catalog'], 'product_visibility');
+        }
     }
 }

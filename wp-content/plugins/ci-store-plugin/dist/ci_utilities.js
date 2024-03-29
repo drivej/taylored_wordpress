@@ -11339,7 +11339,10 @@ const ImportPage = () => {
         react.createElement(AdminForm, { name: 'Import Products', cmd: 'import_products' },
             react.createElement(SelectSupplier, null),
             react.createElement(TextInput, { name: 'updated', defaultValue: '2020-01-01', type: 'date', style: { width: 150 } }),
-            react.createElement(CheckboxInput, { name: 'reset', checked: false })),
+            react.createElement(SelectInput, { name: 'import_type', options: [
+                    { name: 'resume', value: 'resume' },
+                    { name: 'reset', value: 'reset' }
+                ], initialValue: 'resume' })),
         react.createElement(AdminForm, { name: 'Cancel Import Products', cmd: 'cancel_import_products' },
             react.createElement(SelectSupplier, null)),
         react.createElement(AdminForm, { name: 'Clear Import Report', cmd: 'clear_import_report' },
@@ -11350,11 +11353,28 @@ const ImportPage = () => {
             react.createElement(SelectSupplier, null))));
 };
 
+;// CONCATENATED MODULE: ./src/utilities/LogsPage.tsx
+
+
+const LogsPage = () => {
+    return (react.createElement(react.Fragment, null,
+        react.createElement(AdminForm, { name: 'Get Log', cmd: 'get_log', allowPolling: true, RenderResult: ErrorLogs },
+            react.createElement(SelectSupplier, null)),
+        react.createElement(AdminForm, { name: 'Clear Log', cmd: 'clear_log' },
+            react.createElement(SelectSupplier, null))));
+};
+
 ;// CONCATENATED MODULE: ./src/utilities/MiscPage.tsx
 
 
 const MiscPage = () => {
     return (react.createElement(react.Fragment, null,
+        react.createElement(AdminForm, { name: 'Set Product Visibility', cmd: 'product_visibility' },
+            react.createElement(ProductInput, null),
+            react.createElement(SelectInput, { name: 'visible', options: [
+                    { name: 'visible', value: '1' },
+                    { name: 'hidden', value: '0' }
+                ], initialValue: 'visible' })),
         react.createElement(AdminForm, { name: 'Stall Import Test', cmd: 'stall_import' },
             react.createElement(SelectSupplier, null)),
         react.createElement(AdminForm, { name: 'Expire Product', cmd: 'expire_product' },
@@ -11371,6 +11391,13 @@ const MiscPage = () => {
             react.createElement(TextInput, { name: 'url', defaultValue: '/' })),
         react.createElement(AdminForm, { name: 'Stock Update', cmd: 'update_products_stock_status', allowPolling: true },
             react.createElement(SelectSupplier, null)),
+        react.createElement(AdminForm, { name: 'Schedule Daily Import', cmd: 'schedule_daily_import' },
+            react.createElement(SelectSupplier, null)),
+        react.createElement(AdminForm, { name: 'Unschedule Daily Import', cmd: 'unschedule_daily_import' },
+            react.createElement(SelectSupplier, null)),
+        react.createElement(AdminForm, { name: 'Update Product', cmd: 'update_product', RenderResult: ErrorLogs },
+            react.createElement(SelectSupplier, null),
+            react.createElement(ProductInput, null)),
         react.createElement(AdminForm, { name: 'Import Product', cmd: 'import_product' },
             react.createElement(SelectSupplier, null),
             react.createElement(ProductInput, null)),
@@ -11401,14 +11428,12 @@ const MonkeyWrenchPage = () => {
                     { name: 'none', value: '' },
                     { name: 'wp_get_schedules', value: 'wp_get_schedules' },
                     { name: 'get_update_action', value: 'get_update_action' },
-                    { name: 'update_product_attributes', value: 'update_product_attributes' },
-                    { name: 'fix_attributes', value: 'fix_attributes' },
+                    // { name: 'fix_attributes', value: 'fix_attributes' },
                     { name: 'select', value: 'select' },
                     { name: 'clean', value: 'clean' },
                     { name: 'flush', value: 'flush' },
                     { name: 'fix', value: 'fix' },
                     { name: 'explore', value: 'explore' },
-                    { name: 'mock', value: 'mock' },
                     { name: 'sync', value: 'sync' },
                     { name: 'turn14', value: 'turn14' }
                 ], initialValue: 'none' }))));
@@ -11442,11 +11467,13 @@ const UtilitiesRoot = () => {
             react.createElement(NavLink, { to: '/import', className: className }, "Import"),
             react.createElement(NavLink, { to: '/patch', className: className }, "Patch"),
             react.createElement(NavLink, { to: '/monkeywrench', className: className }, "Monkey Wrench"),
+            react.createElement(NavLink, { to: '/logs', className: className }, "Logs"),
             react.createElement(NavLink, { to: '/misc', className: className }, "Misc")),
         react.createElement(Outlet, null)));
 };
 
 ;// CONCATENATED MODULE: ./src/utilities/index.tsx
+
 
 
 
@@ -11478,6 +11505,10 @@ const router = createHashRouter([
             {
                 path: 'misc',
                 element: react.createElement(MiscPage, null)
+            },
+            {
+                path: 'logs',
+                element: react.createElement(LogsPage, null)
             }
         ]
     }

@@ -6,6 +6,7 @@ import { createRoot } from 'react-dom/client';
 
 import { RouterProvider, createHashRouter } from 'react-router-dom';
 import { ImportPage } from './ImportPage';
+import { LogsPage } from './LogsPage';
 import { MiscPage } from './MiscPage';
 import { MonkeyWrenchPage } from './MonkeyWrench';
 import { PatchPage } from './PatchPage';
@@ -32,6 +33,10 @@ const router = createHashRouter([
       {
         path: 'misc',
         element: <MiscPage />
+      },
+      {
+        path: 'logs',
+        element: <LogsPage />
       }
     ]
   }

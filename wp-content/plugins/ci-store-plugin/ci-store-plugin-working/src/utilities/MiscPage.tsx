@@ -1,9 +1,22 @@
 import * as React from 'react';
-import { AdminForm, CSVTable, CheckboxInput, ErrorLogs, ProductInput, SelectSupplier, TextInput } from './UtilitiesPage';
+import { AdminForm, CSVTable, CheckboxInput, ErrorLogs, ProductInput, SelectInput, SelectSupplier, TextInput } from './UtilitiesPage';
 
 export const MiscPage = () => {
   return (
     <>
+      <AdminForm name='Set Product Visibility' cmd='product_visibility'>
+        {/* <SelectSupplier /> */}
+        <ProductInput />
+        <SelectInput
+          name='visible'
+          options={[
+            { name: 'visible', value: '1' },
+            { name: 'hidden', value: '0' }
+          ]}
+          initialValue='visible'
+        />
+      </AdminForm>
+
       <AdminForm name='Stall Import Test' cmd='stall_import'>
         <SelectSupplier />
       </AdminForm>
@@ -32,6 +45,19 @@ export const MiscPage = () => {
 
       <AdminForm name='Stock Update' cmd='update_products_stock_status' allowPolling={true}>
         <SelectSupplier />
+      </AdminForm>
+
+      <AdminForm name='Schedule Daily Import' cmd='schedule_daily_import'>
+        <SelectSupplier />
+      </AdminForm>
+
+      <AdminForm name='Unschedule Daily Import' cmd='unschedule_daily_import'>
+        <SelectSupplier />
+      </AdminForm>
+
+      <AdminForm name='Update Product' cmd='update_product' RenderResult={ErrorLogs}>
+        <SelectSupplier />
+        <ProductInput />
       </AdminForm>
 
       <AdminForm name='Import Product' cmd='import_product'>

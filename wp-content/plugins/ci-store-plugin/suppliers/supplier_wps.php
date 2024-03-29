@@ -7,9 +7,42 @@ https://www.wps-inc.com/data-depot/v4/api/introduction
 
  */
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Report.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/western_utils.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/import_western_product.php';
+// include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Report.php';
+// include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/western_utils.php';
+// include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/import_western_product.php';
+
+// 441802
+
+class WPSTools
+{
+    public static function build_western_image_url($img, $size = 200)
+    {
+        if (!isset($img)) {
+            return '';
+        }
+        return implode('', ['https://', $img['domain'], $img['path'], $size . '_max', '/', $img['filename']]);
+    }
+
+    public static function isValidItem($item)
+    {
+        $status_ids = ['DIR', 'NEW', 'STK'];
+        return in_array($item['status_id'], $status_ids);
+    }
+
+    public static function reduce_to_keys($sum, $id)
+    {
+        global $WESTERN_ATTRIBUTES_CACHE;
+        $sum[$WESTERN_ATTRIBUTES_CACHE[$id]['name']] = $WESTERN_ATTRIBUTES_CACHE[$id];
+        return $sum;
+    }
+
+    public static function reduce_ids($sum, $id)
+    {
+        global $WESTERN_ATTRIBUTES_CACHE;
+        $sum[$id] = $WESTERN_ATTRIBUTES_CACHE[$id];
+        return $sum;
+    }
+}
 
 class Supplier_WPS extends Supplier
 {
@@ -55,7 +88,6 @@ class Supplier_WPS extends Supplier
 
         if ($should_schedule_import) {
             $updated = $result['last_started']->format('Y-m-d'); // updated since
-            // $this->clear_import_report();
             $products_count = $this->get_products_count($updated);
             $result['report'] = $this->update_import_report([
                 'processed' => 0,
@@ -108,20 +140,19 @@ class Supplier_WPS extends Supplier
                 $action = $this->get_update_action($product); //
                 $product_id = $product['id'];
                 $tally[$action][] = $product_id;
-                $this->log($product_id . ' ' . $action);
-                $product_report = new \Report();
+                $this->log($this->key . ':' . $product_id . ' ' . $action);
 
                 switch ($action) {
                     case 'insert':
-                        $this->insert_product($product_id, $product_report);
+                        $this->insert_product($product_id);
                         break;
 
                     case 'update':
-                        $this->update_product($product_id, $product_report);
+                        $this->update_product($product_id);
                         break;
 
                     case 'delete':
-                        $this->delete_product($product_id, $product_report);
+                        $this->delete_product($product_id);
                         break;
 
                     case 'ignore':
@@ -204,54 +235,107 @@ class Supplier_WPS extends Supplier
         }
     }
 
-    public function insert_product($supplier_product_id, $report = new Report())
+    public function insert_product($supplier_product_id)
     {
-        if ($this->deep_debug) {
-            $this->log('insert_product()');
-        }
         $supplier_product = $this->get_product($supplier_product_id);
-
-        if ($supplier_product) {
-            $product_id = $this->create_product($supplier_product_id);
-            update_western_product($supplier_product, $product_id, $report);
+        if (!$supplier_product) {
+            $this->log('insert_product() API Error' . $supplier_product_id);
+            return;
         }
+        $is_available = $this->is_available($supplier_product);
+
+        if (!$is_available) {
+            $this->log('insert_product() Product not available wps:' . $supplier_product_id);
+            return;
+        }
+        $product_id = $this->create_product($supplier_product_id);
+        $this->log('create_product() wps:' . $supplier_product_id . ' => woo:' . $product_id);
+        $this->update_product_action($supplier_product);
     }
 
-    public function update_product($supplier_product_id, $report = new Report())
+    public function update_product($supplier_product_id)
     {
-        if ($this->deep_debug) {
-            $this->log('update_product()');
-        }
         $supplier_product = $this->get_product($supplier_product_id);
+        if (!$supplier_product) {
+            $this->log('update_product() API Error' . $supplier_product_id);
+            return;
+        }
+        $is_available = $this->is_available($supplier_product);
+
+        if (!$is_available) {
+            $this->log('update_product() Product not available wps:' . $supplier_product_id);
+            return;
+        }
+        $this->update_product_action($supplier_product);
+    }
+
+    public function update_product_action($supplier_product)
+    {
+        $supplier_product_id = $supplier_product['data']['id'];
         $woo_product_id = $this->get_woo_id($supplier_product_id);
-        update_western_product($supplier_product, $woo_product_id, $report);
 
-        // $woo_product = wc_get_product_object('variable', $supplier_product_id);
-        // // $has_variations = count($wps_product['data']['items']['data']) > 0;
-        // // $is_variable = $product->is_type('variable');
-        // // $report->addData('type', $woo_product->get_type());
+        if (!$woo_product_id) {
+            $this->log('wps:' . $supplier_product_id . ' no woo product found for update');
+            return;
+        }
 
-        // $first_item = $supplier_product['data']['items']['data'][0];
-        // $woo_product->set_name($supplier_product['data']['name']);
-        // $woo_product->set_status('publish');
-        // $woo_product->set_regular_price($first_item['list_price']);
-        // $woo_product->set_stock_status('instock');
-        // $woo_product->update_meta_data('_ci_import_version', $this->import_version);
-        // $woo_product->set_description($this->get_description($supplier_product));
+        $woo_product = wc_get_product_object('variable', $woo_product_id);
+        $first_item = $supplier_product['data']['items']['data'][0];
+        $woo_product->set_name($supplier_product['data']['name']);
+        $woo_product->set_status('publish');
+        $woo_product->set_regular_price($first_item['list_price']);
+        $woo_product->set_stock_status('instock');
+        $woo_product->update_meta_data('_ci_import_version', $this->import_version);
+        $woo_product->update_meta_data('_ci_import_timestamp', gmdate("c"));
+        $woo_product->set_description($this->get_description($supplier_product));
 
-        // update_product_images($woo_product, $supplier_product, $report);
-        // update_product_taxonomy($woo_product, $supplier_product, $report);
-        // update_product_attributes($woo_product, $supplier_product, $report);
-        // update_product_variations($woo_product, $supplier_product, $report);
-        // update_product_stock_status($woo_product, $supplier_product, $report);
+        $this->update_product_images($woo_product, $supplier_product);
+        $this->update_product_taxonomy($woo_product, $supplier_product);
+        $this->update_product_attributes($woo_product, $supplier_product);
+        $this->update_product_variations($woo_product, $supplier_product);
 
-        // // TODO: do we need this?
-        // // check skus os master to make sure any invalid variations don't make it to the sku list
+        $woo_id = $woo_product->save();
+        if (!$woo_id) {
+            $this->log('wps:' . $supplier_product_id . ' save failed for woo:' . $woo_id);
+        }
+        // $this->log('update_product_action() ' . $this->key . ':' . $supplier_product['data']['id'].' => woo:'.$woo_id);
+    }
 
-        // $woo_product->save();
-        // }
-        // return $product_id;
+    public function update_product_images($woo_product, $supplier_product)
+    {
+        $images = [];
+        if (isset($supplier_product['data']['items']['data'])) {
+            $items = $supplier_product['data']['items']['data'];
+            foreach ($items as $item) {
+                if (isset($item['images']['data'])) {
+                    if (count($item['images']['data']) && isset($item['images']['data'][0])) {
+                        // show only the first image of each variation
+                        $images[] = WPSTools::build_western_image_url($item['images']['data'][0]);
+                    }
+                }
+            }
+        }
+        $serialized_images = serialize($images);
+        $woo_product->update_meta_data('_ci_additional_images', $serialized_images);
+    }
 
+    public function update_product_taxonomy($woo_product, $wps_product)
+    {
+        $tags = $this->extract_product_tags($wps_product);
+        $woo_id = $woo_product->get_id();
+        wp_set_object_terms($woo_id, $tags, 'product_tag', true);
+    }
+
+    public function update_product_attributes($woo_product, $supplier_product)
+    {
+        $supplier_attributes = $this->extract_attributes($supplier_product);
+        WooTools::sync_attributes($woo_product, $supplier_attributes);
+    }
+
+    public function update_product_variations($woo_product, $supplier_product)
+    {
+        $supplier_variations = $this->extract_variations($supplier_product);
+        WooTools::sync_variations($woo_product, $supplier_variations);
     }
 
     public function get_api($path, $params = [])
@@ -313,6 +397,8 @@ class Supplier_WPS extends Supplier
         return $result['data']['count'] ?? -1;
     }
 
+    public array $WESTERN_ATTRIBUTES_CACHE = [];
+
     public function get_attributes_from_product($supplier_product) // wps_product
     {
         if ($this->deep_debug) {
@@ -320,39 +406,42 @@ class Supplier_WPS extends Supplier
         }
 
         // this is a utility because the attribute data is not entirely in the product request
-        global $WESTERN_ATTRIBUTES_CACHE;
-        $attribute_ids = get_western_attributes_tally_from_product($supplier_product);
+        $attribute_ids = [];
+
+        if (isset($product['data']['items']['data'])) {
+            foreach ($product['data']['items']['data'] as $item) {
+                foreach ($item['attributevalues']['data'] as $attr) {
+                    if (!array_key_exists($attr['attributekey_id'], $attribute_ids)) {
+                        $attribute_ids[$attr['attributekey_id']] = 0;
+                    }
+                    $attribute_ids[$attr['attributekey_id']]++;
+                }
+            }
+        }
+
         $all_ids = array_keys($attribute_ids);
-        $ids = array_values(array_filter($all_ids, fn($id) => !array_key_exists($id, $WESTERN_ATTRIBUTES_CACHE)));
+        $ids = array_values(array_filter($all_ids, fn($id) => !array_key_exists($id, $this->WESTERN_ATTRIBUTES_CACHE)));
 
         $cursor = '';
         $data = [];
-        // $this->log(['TEST1' => $ids]);
 
         if (count($ids) === 1) {
             // handle request for single item
-            // $this->log(__FILE__, __LINE__, 'QUERY attributekeys/' . implode(',', $ids));
-            $res = get_western('attributekeys/' . implode(',', $ids));
-            // $this->log(['TEST2' => $res]);
-            // $this->log(['TEST2.2' => is_countable($res)]);
-            // $this->log(['TEST2.2.1' => reset($ids)]);
+            $res = $this->get_api('attributekeys/' . implode(',', $ids));
             try {
                 // this explodes if another product exists with the same sku
                 $res['data']['slug'] = sanitize_title($res['data']['name']);
-                $WESTERN_ATTRIBUTES_CACHE[$ids[0]] = $res['data'];
+                $this->WESTERN_ATTRIBUTES_CACHE[$ids[0]] = $res['data'];
             } catch (\Exception $e) {
                 // $this->log('CAUGHT!!! get_attributes_from_product()', $res);
 
             }
-            // $this->log(['TEST2.1' => $res]);
-
             // $attributes[] = $res['data'];
         } else if (count($ids)) {
-            // $this->log('TEST3');
             // handle request for multiple items
             // gather data with pagination
             while (isset($cursor)) {
-                $res = get_western('attributekeys/' . implode(',', $ids), ['page[size]' => 20, 'page[cursor]' => $cursor]);
+                $res = $this->get_api('attributekeys/' . implode(',', $ids), ['page[size]' => 20, 'page[cursor]' => $cursor]);
                 if (isset($res['data'])) {
                     foreach ($res['data'] as $attr) {
                         $attr['slug'] = sanitize_title($attr['name']);
@@ -373,7 +462,7 @@ class Supplier_WPS extends Supplier
         }
 
         $valid_ids = array_filter($all_ids, fn($id) => array_key_exists($id, $WESTERN_ATTRIBUTES_CACHE));
-        return array_reduce($valid_ids, 'reduce_ids', []);
+        return array_reduce($valid_ids, ['WPSTools', 'reduce_ids'], []);
     }
 
     public function extract_product_tags($supplier_product)
@@ -482,7 +571,7 @@ class Supplier_WPS extends Supplier
             $lookup_slug_by_id[$attr_id] = $attr['slug'];
         }
 
-        $valid_items = array_filter($items, 'isValidItem');
+        $valid_items = array_filter($items, ['WPSTools', 'isValidItem']);
         $variations = [];
         $attr_count = [];
 
@@ -581,9 +670,6 @@ class Supplier_WPS extends Supplier
         }
 
         $variations = array_filter($variations, fn($v) => $v['__delete'] === false);
-
-        // $this->log(['attr_count' => $attr_count, 'valid_items' => count($valid_items)]);
-
         return $variations;
     }
 
@@ -591,7 +677,7 @@ class Supplier_WPS extends Supplier
     {
         if (isset($item['images']['data'])) {
             if (count($item['images']['data'])) {
-                return array_map('build_western_image', $item['images']['data']);
+                return array_map('WPSTools::build_western_image_url', $item['images']['data']);
             }
         }
         return null;
@@ -625,7 +711,7 @@ class Supplier_WPS extends Supplier
 
         $items = isset($supplier_product['data']['items']['data']) ? $supplier_product['data']['items']['data'] : [];
 
-        $valid_items = array_filter($items, 'isValidItem');
+        $valid_items = array_filter($items, ['WPSTools', 'isValidItem']);
 
         foreach ($valid_items as $item) {
             foreach ($item['attributevalues']['data'] as $item_attr) {
@@ -688,10 +774,13 @@ class Supplier_WPS extends Supplier
         if ($this->deep_debug) {
             $this->log('is_available()');
         }
+        if ($supplier_product['status_code'] === 404) {
+            return false;
+        }
 
         // this function doesn't need all the product data so for efficiency, try to use the minimal required
         if (isset($supplier_product['data']['items']['data']) && is_countable($supplier_product['data']['items']['data'])) {
-            $valid_items = array_filter($supplier_product['data']['items']['data'], 'isValidItem');
+            $valid_items = array_filter($supplier_product['data']['items']['data'], ['WPSTools', 'isValidItem']);
             return (bool) count($valid_items);
         }
         return false;

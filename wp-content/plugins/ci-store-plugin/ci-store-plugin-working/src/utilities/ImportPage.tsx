@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { AdminForm, CheckboxInput, ErrorLogs, SelectSupplier, TextInput } from './UtilitiesPage';
+import { AdminForm, ErrorLogs, SelectInput, SelectSupplier, TextInput } from './UtilitiesPage';
 
 export const ImportPage = () => {
   return (
@@ -17,7 +17,16 @@ export const ImportPage = () => {
           <TextInput name='cursor' defaultValue='' style={{ width: 150 }} />
         </div> */}
         {/* <PageSizeInput /> */}
-        <CheckboxInput name='reset' checked={false} />
+        {/* <CheckboxInput name='reset' checked={false} /> */}
+
+        <SelectInput
+          name='import_type'
+          options={[
+            { name: 'resume', value: 'resume' },
+            { name: 'reset', value: 'reset' }
+          ]}
+          initialValue='resume'
+        />
       </AdminForm>
 
       <AdminForm name='Cancel Import Products' cmd='cancel_import_products'>

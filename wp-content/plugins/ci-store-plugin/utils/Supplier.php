@@ -58,6 +58,16 @@ class Supplier
         return ['error' => 'start_import_products() undefined'];
     }
 
+    public function resume_import()
+    {
+        $scheduled = false;
+        $is_scheduled = (bool) wp_next_scheduled($this->import_products_page_flag);
+        if (!$is_scheduled) {
+            $scheduled = wp_schedule_single_event(time(), $this->import_products_page_flag);
+        }
+        return $scheduled;
+    }
+
     // placeholder
     public function import_products_page()
     {
@@ -130,12 +140,12 @@ class Supplier
     }
 
     // placeholder
-    public function insert_product($supplier_product_id, $report = new Report())
+    public function insert_product($supplier_product_id)
     {
         $this->log('insert_product() not defined for ' . $this->key);
     }
     // placeholder
-    public function update_product($supplier_product_id, $report = new Report())
+    public function update_product($supplier_product_id)
     {
         $this->log('update_product() not defined for ' . $this->key);
     }
@@ -612,9 +622,25 @@ class Supplier
 
     public function schedule_daily_import()
     {
-        if (!wp_next_scheduled($this->daily_import_flag)) {
-            wp_schedule_event(strtotime('02:00:00'), 'daily', $this->daily_import_flag);
+        $next = wp_next_scheduled($this->daily_import_flag);
+        if (!$next) {
+            $this->log($this->key . ' schedule daily import');
+            date_default_timezone_set('UTC');
+            // Schedule the event for daily execution at 2:00am EST
+            $est_time = time(); //strtotime('02:00:00 -0500');
+            return wp_schedule_event($est_time, 'daily', $this->daily_import_flag);
         }
+        return $next;
+    }
+
+    public function unschedule_daily_import()
+    {
+        $next = wp_next_scheduled($this->daily_import_flag);
+        if ($next) {
+            $this->log($this->key . ' unschedule daily import');
+            return wp_unschedule_event($next, $this->daily_import_flag);
+        }
+        return $next;
     }
 
     public function start_daily_import()

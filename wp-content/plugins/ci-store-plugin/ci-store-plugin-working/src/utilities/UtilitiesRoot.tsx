@@ -19,6 +19,9 @@ export const UtilitiesRoot = () => {
         <NavLink to='/monkeywrench' className={className}>
           Monkey Wrench
         </NavLink>
+        <NavLink to='/logs' className={className}>
+          Logs
+        </NavLink>
         <NavLink to='/misc' className={className}>
           Misc
         </NavLink>

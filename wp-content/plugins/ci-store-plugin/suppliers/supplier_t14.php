@@ -91,25 +91,6 @@ class Supplier_t14 extends Supplier
 
     public function get_product($product_id)
     {
-        // $params = [];
-        // $params['include'] = implode(',', [
-        //     'features', //
-        //     'tags',
-        //     'attributekeys',
-        //     'attributevalues',
-        //     'items',
-        //     'items.images',
-        //     'items.inventory',
-        //     'items.attributevalues',
-        //     'items.taxonomyterms',
-        //     'taxonomyterms',
-        //     'items:filter(status_id|NLA|ne)',
-        // ]);
-        // $product = $this->get_api('products/' . $product_id, $params);
-        // if(isset($product['status_code']) && $product['status_code']===404){
-        //     return null; // product doesn't exist
-        // }
-        // $product['data']['attributekeys']['data'] = get_western_attributes_from_product($product);
-        return []; //$product;
+        return [];
     }
 }

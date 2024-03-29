@@ -6,8 +6,6 @@ require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/AjaxManager.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Report.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/western_utils.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/update_product_attributes.php';
 
 function sku_exists($sku)
 {
@@ -21,7 +19,7 @@ function sku_exists($sku)
     return true;
 }
 
-function update_variation_props($variation, $supplier_variation, $report = new \Report())
+function update_variation_props($variation, $supplier_variation)
 {
     // we assume that the sku, parent_id are set - this is for fast updates
     $variation->set_status('publish');
@@ -30,7 +28,7 @@ function update_variation_props($variation, $supplier_variation, $report = new \
     $variation->set_attributes($supplier_variation['attributes']);
 }
 
-function populate_variation($variation, $supplier_variation, $parent_id, $report = new \Report())
+function populate_variation($variation, $supplier_variation, $parent_id)
 {
     try {
         // this explodes if another product exists with the same sku
@@ -54,46 +52,18 @@ function populate_variation($variation, $supplier_variation, $parent_id, $report
     return true;
 }
 
-function supplier_variation_to_object($supplier_variation, $parent_id, $report = new \Report())
+function supplier_variation_to_object($supplier_variation, $parent_id)
 {
-    // $report->addLog('wps_item_to_variation_object()');
     $variation = new \WC_Product_Variation();
-
-    $success = populate_variation($variation, $supplier_variation, $parent_id, $report);
-
-    // try {
-    //     // this explodes if another product exists with the same sku
-    //     $variation->set_sku($supplier_variation['sku']);
-    // } catch (\Exception $e) {
-    //     $report->addLog('set_sku failed sku=' . $supplier_variation['sku']);
-    //     return null;
-    // }
-
-    // $variation->set_parent_id($parent_id);
-    // $variation->set_status('publish');
-    // $variation->set_stock_status('instock');
-    // $variation->set_regular_price($supplier_variation['list_price']);
-    // foreach ($supplier_variation['meta_data'] as $meta) {
-    //     $variation->update_meta_data($meta['key'], $meta['value']);
-    // }
-    // $variation->set_attributes($supplier_variation['attributes']);
-
-    // $report->addLog('Create variation for parent ' . $parent_id . ' ' . ($success ? 'Success' : 'Failed'));
-
+    $success = populate_variation($variation, $supplier_variation, $parent_id);
     return $success ? $variation : null;
-    // return $actions;
 
 }
 
 function monkey_wrench($params)
 {
     $report = new \Report();
-    $info = [];
-    $errors = [];
-    $actions = [];
-    $saved = false;
     $woo_variations = [];
-
     $supplier_key = \AjaxManager::get_param('supplier_key');
     $supplier_product_id = \AjaxManager::get_param('product_id');
     $custom = \AjaxManager::get_param('custom');
@@ -121,41 +91,20 @@ function monkey_wrench($params)
         $supplier = \CI\Admin\get_supplier('t14');
         $response = $supplier->getAccessToken();
         $brands = $supplier->get_api('/brands');
-        // $clientId = 'df98c919f33c6144f06bcfc287b984f809e33322';
-        // $clientSecret = '021320311e77c7f7e661d697227f80ae45b548a9';
-
-        // $query_string = http_build_query(['client_id' => $clientId, 'client_secret' => $clientSecret, 'grant_type' => 'client_credentials']);
-        // $remote_url = 'https://api.turn14.com/v1/token?' . $query_string;
-
-        // $response = wp_safe_remote_request($remote_url, ['method'=>'POST', 'body'=>['client_id' => $clientId, 'client_secret' => $clientSecret, 'grant_type' => 'client_credentials']]);
-
         return ['token' => $response, 'brands' => $brands];
     }
 
     if ($custom === 'get_update_action') {
         $update_action = $supplier->get_update_action($supplier_product);
-        // $woo_import_version = $woo_product ? $woo_product->get_meta('_ci_import_version') : '';
-        // $woo_updated_str = 'red'; //get_post_meta($woo_product_id, '_ci_import_version', true);
-        // $woo_updated = date('Y-m-d H:i:s', strtotime($woo_product->get_date_modified()));
-
-        // $date_imported_str = $woo_product->get_meta('_ci_import_timestamp');
-        // $woo_updated = ''; //new \DateTime($woo_updated_str || '2000-01-01 12:00:00');
-
-        return [
-            // 'params' => $params,
-            'update_action' => $update_action,
-            // 'woo_import_version' => $woo_import_version,
-            // 'woo_updated_str' => $woo_updated_str,
-            // 'woo_updated' => $woo_updated
-        ];
+        return ['update_action' => $update_action];
     }
 
-    if ($custom === 'update_product_attributes') {
-        $b = array_map(fn($a) => $a->get_data(), $woo_product->get_attributes('edit'));
-        update_product_attributes($woo_product, $supplier_product, $report);
-        $a = array_map(fn($a) => $a->get_data(), $woo_product->get_attributes('edit'));
-        return ['before' => $b, 'after' => $a, 'report' => $report];
-    }
+    // if ($custom === 'update_product_attributes') {
+        // $b = array_map(fn($a) => $a->get_data(), $woo_product->get_attributes('edit'));
+        // update_product_attributes($woo_product, $supplier_product, $report);
+        // $a = array_map(fn($a) => $a->get_data(), $woo_product->get_attributes('edit'));
+        // return ['before' => $b, 'after' => $a, 'report' => $report];
+    // }
 
     if ($custom === 'fix_attributes') {
 
@@ -267,25 +216,14 @@ function monkey_wrench($params)
     // mock up what would happen if we updated
     //
     if ($custom === 'fix') {
-        \WooTools::fix_variations($supplier_variations, $woo_product_id, $report);
-        return ['report' => $report];
+        \WooTools::fix_variations($supplier_variations, $woo_product_id);
+        return ['fix_variations' => '?'];
     }
 
     if ($custom === 'sync') {
-        // do_sync_variations($woo_product, $supplier_variations, $report = new \Report());
-        \WooTools::sync_variations($woo_product, $supplier_variations, $report = new \Report(), true);
-        return ['report' => $report];
-    }
-
-    if ($custom === 'mock') {
-        \WooTools::sync_variations($woo_product, $supplier_variations, $report = new \Report(), false);
-        // foreach ($supplier_variations as $supplier_variation) {
-        //     $variation = supplier_variation_to_object($supplier_variation, $woo_product_id, $report);
-        // }
-        return ['report' => $report];
+        \WooTools::sync_variations($woo_product, $supplier_variations);
+        return ['report' => '?'];
     }
 
     return 'That wasn\'t so productive';
 }
-
-// get_western_attributes_from_product
