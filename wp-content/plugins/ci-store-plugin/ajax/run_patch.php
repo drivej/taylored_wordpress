@@ -1,5 +1,5 @@
 <?php
-
+/*
 namespace AjaxHandlers;
 
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
@@ -18,7 +18,11 @@ function patch_page()
         update_patch_status(['running' => false, 'reason' => 'paused', 'pause_request' => false]);
         return;
     }
-
+    //
+    //
+    // patch deletes
+    //
+    //
     if ($status['action'] === 'deletes') {
 
         update_patch_status(['stage' => 'get woo products']);
@@ -164,6 +168,14 @@ function patch_page()
         }
         return;
     }
+    //
+    //
+    // patch attributes
+    //
+    //
+    if ($status['action'] === 'attributes') {
+        update_patch_status(['running' => false, 'reason' => 'test']);
+    }
 }
 
 add_action('run_patch_page', __NAMESPACE__ . '\\patch_page');
@@ -274,196 +286,6 @@ function run_patch($params)
         }
     }
     return ['is_scheduled' => $is_scheduled, 'scheduled' => $scheduled, 'status' => $status];
-/*
-if($supplier_product_id){
-$supplier_product = $supplier->get_product($supplier_product_id);
-$supplier_variations = $supplier->extract_variations($supplier_product);
-$woo_product_id = $supplier->get_woo_id($supplier_product_id);
-$master_attributes = $supplier->extract_attributes($supplier_product);
-$woo_product = $supplier->get_woo_product($supplier_product_id);
 }
 
-// $woo_variations = \WooTools::get_variations($woo_product, 'edit');
-
-// get variations manually to avoid loading all the data at once
-$woo_children = $woo_product ? $woo_product->get_children() : []; // removed get_children with false
-$woo_has_children = count($woo_children);
-//
-// test
-//
-
-if ($custom === 'wp_get_schedules') {
-return wp_get_schedules();
-}
-
-if ($custom === 'turn14') {
-$supplier = \CI\Admin\get_supplier('t14');
-$response = $supplier->getAccessToken();
-$brands = $supplier->get_api('/brands');
-// $clientId = 'df98c919f33c6144f06bcfc287b984f809e33322';
-// $clientSecret = '021320311e77c7f7e661d697227f80ae45b548a9';
-
-// $query_string = http_build_query(['client_id' => $clientId, 'client_secret' => $clientSecret, 'grant_type' => 'client_credentials']);
-// $remote_url = 'https://api.turn14.com/v1/token?' . $query_string;
-
-// $response = wp_safe_remote_request($remote_url, ['method'=>'POST', 'body'=>['client_id' => $clientId, 'client_secret' => $clientSecret, 'grant_type' => 'client_credentials']]);
-
-return ['token' => $response, 'brands' => $brands];
-}
-
-if ($custom === 'get_update_action') {
-$update_action = $supplier->get_update_action($supplier_product);
-// $woo_import_version = $woo_product ? $woo_product->get_meta('_ci_import_version') : '';
-// $woo_updated_str = 'red'; //get_post_meta($woo_product_id, '_ci_import_version', true);
-// $woo_updated = date('Y-m-d H:i:s', strtotime($woo_product->get_date_modified()));
-
-// $date_imported_str = $woo_product->get_meta('_ci_import_timestamp');
-// $woo_updated = ''; //new \DateTime($woo_updated_str || '2000-01-01 12:00:00');
-
-return [
-// 'params' => $params,
-'update_action' => $update_action,
-// 'woo_import_version' => $woo_import_version,
-// 'woo_updated_str' => $woo_updated_str,
-// 'woo_updated' => $woo_updated
-];
-}
-
-if ($custom === 'update_product_attributes') {
-$b = array_map(fn($a) => $a->get_data(), $woo_product->get_attributes('edit'));
-update_product_attributes($woo_product, $supplier_product, $report);
-$a = array_map(fn($a) => $a->get_data(), $woo_product->get_attributes('edit'));
-return ['before' => $b, 'after' => $a, 'report' => $report];
-}
-
-if ($custom === 'fix_attributes') {
-
-// $a = $woo_product->get_attributes();
-// $r = [];
-// foreach($a as $at){
-//     $r[] = $at->get_data();
-// }
-// return ['a'=>$r];
-
-$master_attributes = $supplier->extract_attributes($supplier_product);
-$master_slugs = array_column($master_attributes, 'slug');
-$notes = [];
-
-foreach ($supplier_variations as $i => $variation) {
-$variation_slugs = array_keys($variation['attributes']);
-
-// check for missing attributes - this is cause my bad data from the 3rd party - nobody's perfect!
-$missing = array_diff($master_slugs, $variation_slugs);
-$supplier_variations[$i]['missing'] = $missing;
-
-if (count($missing)) {
-$notes[] = $variation['sku'] . 'is missing attributes ' . implode(',', $missing);
-$supplier_variations[$i]['delete'] = true;
-continue;
-}
-// chcek for attributes that don't need to be there
-$deletes = array_diff($variation_slugs, $master_slugs);
-$supplier_variations[$i]['deletes'] = $deletes;
-
-foreach ($deletes as $attr_slug) {
-$notes[] = $variation['sku'] . ' has extra attributes ' . implode(',', $deletes);
-unset($supplier_variations[$i]['attributes'][$attr_slug]);
-}
-}
-
-$supplier_variations = array_filter($supplier_variations, fn($v) => $v['delete'] !== true);
-
-return ['notes' => $notes, 'master_slugs' => $master_slugs, 'supplier_variations' => $supplier_variations];
-
-$variations = [];
-$woo_variations = \WooTools::get_variations_objects($woo_product);
-foreach ($woo_variations as $woo_variation) {
-$sku = $woo_variation->get_sku();
-$attributes = $woo_variation->get_attributes('edit');
-$variations[$sku] = $attributes;
-}
-// foreach ($supplier_variations as $supplier_variation) {
-//     $woo_variation = \WooTools::supplier_variation_to_object($supplier_variation, $woo_product_id, $report);
-// }
-
-return ['$master_attributes' => $master_attributes, 'variations' => $variations, 'supplier_variations' => $supplier_variations];
-}
-//
-// clean variations - removes variations with empy SKU
-//
-if ($custom === 'clean') {
-if ($woo_has_children) {
-$cleaned = \WooTools::cleanup_variations($woo_product->get_id());
-$woo_children_after = $woo_product->get_children();
-return ['cleaned' => $cleaned, 'woo_children' => $woo_children, 'woo_children_after' => $woo_children_after];
-} else {
-return 'Nothing to clean';
-}
-}
-//
-// delete all variations
-//
-if ($custom === 'flush') {
-if ($woo_has_children) {
-$delete = \WooTools::delete_variations($woo_product->get_id());
-$woo_children_after = $woo_product->get_children(false);
-return ['delete' => $delete, 'woo_children' => $woo_children, 'woo_children_after' => $woo_children_after];
-} else {
-return 'Nothing to clean';
-}
-}
-//
-// explore the variations data
-//
-if ($custom === 'explore') {
-if (isset($supplier_product['data']['items']['data'])) {
-$action[] = 'Found ' . count($supplier_product['data']['items']['data']) . ' unfiltered supplier children';
-}
-$action[] = 'Found ' . count($supplier_variations) . ' valid supplier children';
-
-if ($woo_has_children) {
-$action[] = 'Found ' . $woo_has_children . ' woo children';
-$woo_variations = [];
-
-foreach ($woo_children as $i => $woo_variation_id) {
-$variation = new \WC_Product_Variation($woo_variation_id);
-$woo_variations[] = $variation->get_data();
-$woo_variation_sku = $variation->get_sku('edit');
-
-if ($woo_variation_sku) {
-$action[] = 'Variation ' . $woo_variation_id . ' has sku sku=' . $woo_variation_sku;
-} else {
-$action[] = 'Variation ' . $woo_variation_id . ' has an empty sku sku=' . $woo_variation_sku;
-}
-}
-} else {
-$action[] = 'No woo children found';
-}
-
-return ['woo_product_id' => $woo_product_id, 'action' => $action];
-}
-//
-// mock up what would happen if we updated
-//
-if ($custom === 'fix') {
-\WooTools::fix_variations($supplier_variations, $woo_product_id, $report);
-return ['report' => $report];
-}
-
-if ($custom === 'sync') {
-// do_sync_variations($woo_product, $supplier_variations, $report = new \Report());
-\WooTools::sync_variations($woo_product, $supplier_variations, $report = new \Report(), true);
-return ['report' => $report];
-}
-
-if ($custom === 'mock') {
-\WooTools::sync_variations($woo_product, $supplier_variations, $report = new \Report(), false);
-// foreach ($supplier_variations as $supplier_variation) {
-//     $variation = supplier_variation_to_object($supplier_variation, $woo_product_id, $report);
-// }
-return ['report' => $report];
-}
-
-return 'That wasn\'t so productive';
- */
-}
+*/

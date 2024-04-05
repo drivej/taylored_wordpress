@@ -12,6 +12,23 @@ function custom_before_single_product()
     $is_product = is_product();
 
     if ($is_product) {
+
+        // expose product data
+        wp_enqueue_script('product-details-script', plugin_dir_url(__FILE__) . '/js/product-details.js', array('jquery'), CI_VERSION, true);
+
+        // Pass product data and variations to the script using wp_localize_script()
+        global $product;
+        $product_data = array(
+            'id' => $product->get_id(),
+            'name' => $product->get_name(),
+            'attributes' => array_map(fn($a) => $a->get_data(), $product->get_attributes()),
+            'variations' => $product->get_available_variations(),
+            'version' => CI_VERSION,
+        );
+        wp_localize_script('product-details-script', 'woo_product_details', $product_data);
+
+
+
         wp_enqueue_script('custom_before_single_product_script', plugin_dir_url(dirname(__FILE__)) . 'js/custom_before_single_product_script.js', array('jquery'), CI_VERSION, true);
         wp_enqueue_style('custom_before_single_product_style', plugin_dir_url(dirname(__FILE__)) . 'css/custom_before_single_product_style.css', null, CI_VERSION);
 

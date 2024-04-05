@@ -22,6 +22,7 @@ function custom_modify_before_single_product_summary()
     $first_fullsize_src = '';
     $first_largesize_src = '';
     $has_images = false;
+    $images = []; // key is $image;
 
     foreach ($variations as $variation) {
         foreach ($variation['images'] as $i => $image) {
@@ -29,21 +30,44 @@ function custom_modify_before_single_product_summary()
             $thumb_src = $supplier->resize_image($image, 200);
             $fullsize_src = $supplier->resize_image($image, 500);
             $largesize_src = $supplier->resize_image($image, 1000);
-            $htm .= '<div
-              title="SKU: ' . $variation['supplier_sku'] . '"
-              data-fullsize="' . $fullsize_src . '"
-              data-largesize="' . $largesize_src . '"
-              data-sku="' . $variation['supplier_sku'] . '"
-              class="ci-gallery-thumbnail-container"
-            >';
-            $htm .= '<figure><img class="ci-gallery-thumbnail" src="' . $thumb_src . '" />';
-            $htm .= '</div>';
+
+            if (!isset($images[$image])) {
+                $images[$image] = ['skus' => []];
+            }
+
+            $images[$image]['skus'][] = $variation['supplier_sku'];
+
+            // $htm .= '<div
+            //   title="SKU: ' . $variation['supplier_sku'] . '"
+            //   data-fullsize="' . $fullsize_src . '"
+            //   data-largesize="' . $largesize_src . '"
+            //   data-sku="' . $variation['supplier_sku'] . '"
+            //   class="ci-gallery-thumbnail-container"
+            // >';
+            // $htm .= '<img class="ci-gallery-thumbnail" src="' . $thumb_src . '" />';
+            // $htm .= '</div>';
 
             if ($i === 0) {
                 $first_fullsize_src = $fullsize_src;
                 $first_largesize_src = $largesize_src;
             }
         }
+    }
+
+    foreach ($images as $image => $info) {
+        $thumb_src = $supplier->resize_image($image, 200);
+        $fullsize_src = $supplier->resize_image($image, 500);
+        $largesize_src = $supplier->resize_image($image, 1000);
+
+        $htm .= '<div
+              title="SKU: ' . $variation['supplier_sku'] . '"
+              data-fullsize="' . $fullsize_src . '"
+              data-largesize="' . $largesize_src . '"
+              data-sku="' . implode(',', $info['skus']) . '"
+              class="ci-gallery-thumbnail-container"
+            >';
+        $htm .= '<img class="ci-gallery-thumbnail" src="' . $thumb_src . '" />';
+        $htm .= '</div>';
     }
 
     if (!$has_images) {
@@ -53,9 +77,11 @@ function custom_modify_before_single_product_summary()
 
     print '
     <div class="ci-gallery">
-        <a href="' . $first_largesize_src . '" target="_blank" class="ci-gallery-hero-container">
+        <div data-largeimg="' . $first_largesize_src . '" target="_blank" class="ci-gallery-hero-container">
           <img class="ci-gallery-hero" data-note="custom_modify_before_single_product_summary" src="' . $first_fullsize_src . '" />
-        </a>
+          <div class="ci-left-arrow"></div>
+          <div class="ci-right-arrow"></div>
+        </div>
         <div class="hero-caption"></div>
         <div class="ci-gallery-thumbnails">
             ' . $htm . '

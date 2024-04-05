@@ -11,7 +11,7 @@
 define('CI_STORE_PLUGIN', plugin_dir_path(__FILE__));
 define('CI_ERROR_LOG_FILEPATH', CI_STORE_PLUGIN . 'logs/CI_ERROR_LOG.log');
 define('CI_ERROR_LOG', CI_ERROR_LOG_FILEPATH);
-define('CI_VERSION', '0.0.21'); // enqueued scripts get this version - update to bust the cache
+define('CI_VERSION', '0.0.26'); // enqueued scripts get this version - update to bust the cache
 
 include_once CI_STORE_PLUGIN . 'hooks/index.php';
 include_once CI_STORE_PLUGIN . 'utils/AjaxManager.php';
@@ -57,7 +57,7 @@ function enqueue_custom_styles()
 
 add_action('wp_enqueue_scripts', 'enqueue_custom_styles');
 
-function custom_enqueue_admin_styles()
-{
-    wp_enqueue_style('admin_styles', plugins_url('css/ci-admin.css', __FILE__), null, CI_VERSION);
-}
+// function custom_enqueue_admin_styles()
+// {
+//     wp_enqueue_style('admin_styles', plugins_url('css/ci-admin.css', __FILE__), null, CI_VERSION);
+// }

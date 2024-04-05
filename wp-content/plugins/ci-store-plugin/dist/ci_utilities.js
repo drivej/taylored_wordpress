@@ -11193,7 +11193,7 @@ const CSVTable = ({ data }) => {
                 react.createElement("tbody", null, rows.slice(1).map((r) => (react.createElement("tr", null, r.map((c) => (react.createElement("td", null, c)))))))),
             react.createElement(Pre, { data: Object.assign(Object.assign({}, data), { rows: undefined }) })));
     }
-    return null;
+    return react.createElement(Pre, { data: data });
 };
 const ErrorLogs = ({ data }) => {
     const $pre = (0,react.useRef)();
@@ -11339,10 +11339,13 @@ const ImportPage = () => {
         react.createElement(AdminForm, { name: 'Import Products', cmd: 'import_products' },
             react.createElement(SelectSupplier, null),
             react.createElement(TextInput, { name: 'updated', defaultValue: '2020-01-01', type: 'date', style: { width: 150 } }),
-            react.createElement(SelectInput, { name: 'patch', options: [
-                    { name: 'none', value: '' },
-                    { name: 'tags', value: 'tags' }
-                ], initialValue: '' }),
+            react.createElement("div", { className: 'input-group' },
+                react.createElement("label", { className: 'input-group-text' }, "Patch"),
+                react.createElement(SelectInput, { name: 'patch', options: [
+                        { name: 'none', value: '' },
+                        { name: 'tags', value: 'tags' },
+                        { name: 'attributes', value: 'attributes' }
+                    ], initialValue: '' })),
             react.createElement(SelectInput, { name: 'import_type', options: [
                     { name: 'resume', value: 'resume' },
                     { name: 'reset', value: 'reset' }
@@ -11434,21 +11437,6 @@ const MonkeyWrenchPage = () => {
                 ], initialValue: 'none' }))));
 };
 
-;// CONCATENATED MODULE: ./src/utilities/PatchPage.tsx
-
-
-const PatchPage = () => {
-    return (react.createElement(react.Fragment, null,
-        react.createElement(AdminForm, { name: 'Pause Patch', cmd: 'pause_patch' }),
-        react.createElement(AdminForm, { name: 'Resume Patch', cmd: 'resume_patch' }),
-        react.createElement(AdminForm, { name: 'Patch Status', cmd: 'get_patch_status', allowPolling: true }),
-        react.createElement(AdminForm, { name: 'Run Patch', cmd: 'run_patch' },
-            react.createElement(SelectInput, { name: 'patch_action', options: [
-                    { name: 'tags', value: 'tags' },
-                    { name: 'deletes', value: 'deletes' }
-                ], initialValue: 'tags' }))));
-};
-
 ;// CONCATENATED MODULE: ./src/utilities/ProductsPage.tsx
 
 
@@ -11492,7 +11480,6 @@ const UtilitiesRoot = () => {
         react.createElement("nav", { className: 'd-flex gap-1' },
             react.createElement(NavLink, { to: '/import', className: className }, "Import"),
             react.createElement(NavLink, { to: '/products', className: className }, "Products"),
-            react.createElement(NavLink, { to: '/patch', className: className }, "Patch"),
             react.createElement(NavLink, { to: '/monkeywrench', className: className }, "Monkey Wrench"),
             react.createElement(NavLink, { to: '/logs', className: className }, "Logs"),
             react.createElement(NavLink, { to: '/misc', className: className }, "Misc")),
@@ -11511,17 +11498,16 @@ const UtilitiesRoot = () => {
 
 
 
-
 const router = createHashRouter([
     {
         path: '/',
         element: react.createElement(UtilitiesRoot, null),
         errorElement: react.createElement("div", null, "Error"),
         children: [
-            {
-                path: 'patch',
-                element: react.createElement(PatchPage, null)
-            },
+            // {
+            //   path: 'patch',
+            //   element: <PatchPage />
+            // },
             {
                 path: 'import',
                 element: react.createElement(ImportPage, null)

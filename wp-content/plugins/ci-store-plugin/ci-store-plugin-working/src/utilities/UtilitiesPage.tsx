@@ -202,7 +202,7 @@ export const CSVTable = ({ data }: { data: { rows: string[][] } }) => {
     );
   }
 
-  return null;
+  return <Pre data={data} />;
 };
 
 export const ErrorLogs = ({ data }: { data: string[] }) => {

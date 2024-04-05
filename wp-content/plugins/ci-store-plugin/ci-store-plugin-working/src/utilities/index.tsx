@@ -9,7 +9,6 @@ import { ImportPage } from './ImportPage';
 import { LogsPage } from './LogsPage';
 import { MiscPage } from './MiscPage';
 import { MonkeyWrenchPage } from './MonkeyWrench';
-import { PatchPage } from './PatchPage';
 import { ProductsPage } from './ProductsPage';
 import { UtilitiesRoot } from './UtilitiesRoot';
 
@@ -19,10 +18,10 @@ const router = createHashRouter([
     element: <UtilitiesRoot />,
     errorElement: <div>Error</div>,
     children: [
-      {
-        path: 'patch',
-        element: <PatchPage />
-      },
+      // {
+      //   path: 'patch',
+      //   element: <PatchPage />
+      // },
       {
         path: 'import',
         element: <ImportPage />

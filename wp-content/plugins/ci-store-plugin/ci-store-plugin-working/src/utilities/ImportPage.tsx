@@ -18,14 +18,18 @@ export const ImportPage = () => {
         </div> */}
         {/* <PageSizeInput /> */}
         {/* <CheckboxInput name='reset' checked={false} /> */}
-        <SelectInput
-          name='patch'
-          options={[
-            { name: 'none', value: '' },
-            { name: 'tags', value: 'tags' }
-          ]}
-          initialValue=''
-        />
+        <div className='input-group'>
+          <label className='input-group-text'>Patch</label>
+          <SelectInput
+            name='patch'
+            options={[
+              { name: 'none', value: '' },
+              { name: 'tags', value: 'tags' },
+              { name: 'attributes', value: 'attributes' }
+            ]}
+            initialValue=''
+          />
+        </div>
         <SelectInput
           name='import_type'
           options={[
