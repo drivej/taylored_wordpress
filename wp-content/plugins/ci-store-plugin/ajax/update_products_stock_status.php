@@ -34,7 +34,6 @@ add_action('ci_update_products_stock_status', 'AjaxHandlers\ci_update_products_s
 //             foreach ($products['data'] as $product) {
 //                 $product_id = $product['id'];
 //                 $supplier->ping();
-//                 error_log('import product ' . $processed . ': ' . $product_id);
 //                 $processed++;
 //                 $supplier->update_import_report(['processed' => $processed, 'cursor' => $cursor]);
 
