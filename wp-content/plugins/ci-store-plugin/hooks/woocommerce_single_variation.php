@@ -40,4 +40,4 @@ function custom_single_variation($output)
     return $output;
 }
 
-add_filter('woocommerce_single_variation', 'custom_single_variation');
+// add_filter('woocommerce_single_variation', 'custom_single_variation');

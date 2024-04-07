@@ -277,6 +277,10 @@ class Supplier_WPS extends Supplier
             $this->update_product_attributes($woo_product, $supplier_product);
             $this->update_product_variations($woo_product, $supplier_product);
         }
+
+        if ($patch === 'images') {
+            $this->update_product_images($woo_product, $supplier_product);
+        }
     }
 
     public function insert_product($supplier_product_id)
@@ -333,10 +337,10 @@ class Supplier_WPS extends Supplier
         $woo_product->update_meta_data('_ci_import_timestamp', gmdate("c"));
         $woo_product->set_description($this->get_description($supplier_product));
 
-        $this->update_product_images($woo_product, $supplier_product);
         $this->update_product_taxonomy($woo_product, $supplier_product);
         $this->update_product_attributes($woo_product, $supplier_product);
         $this->update_product_variations($woo_product, $supplier_product);
+        $this->update_product_images($woo_product, $supplier_product);
 
         $woo_id = $woo_product->save();
         if (!$woo_id) {
@@ -347,20 +351,21 @@ class Supplier_WPS extends Supplier
 
     public function update_product_images($woo_product, $supplier_product)
     {
-        $images = [];
-        if (isset($supplier_product['data']['items']['data'])) {
-            $items = $supplier_product['data']['items']['data'];
-            foreach ($items as $item) {
-                if (isset($item['images']['data'])) {
-                    if (count($item['images']['data']) && isset($item['images']['data'][0])) {
-                        // show only the first image of each variation
-                        $images[] = WPSTools::build_western_image_url($item['images']['data'][0]);
-                    }
-                }
-            }
-        }
-        $serialized_images = serialize($images);
-        $woo_product->update_meta_data('_ci_additional_images', $serialized_images);
+        WooTools::sync_images($woo_product, $supplier_product, $this);
+        // $images = [];
+        // if (isset($supplier_product['data']['items']['data'])) {
+        //     $items = $supplier_product['data']['items']['data'];
+        //     foreach ($items as $item) {
+        //         if (isset($item['images']['data'])) {
+        //             if (count($item['images']['data']) && isset($item['images']['data'][0])) {
+        //                 // show only the first image of each variation
+        //                 $images[] = WPSTools::build_western_image_url($item['images']['data'][0]);
+        //             }
+        //         }
+        //     }
+        // }
+        // $serialized_images = serialize($images);
+        // $woo_product->update_meta_data('_ci_additional_images', $serialized_images);
     }
 
     public function update_product_taxonomy($woo_product, $wps_product)
@@ -687,6 +692,7 @@ class Supplier_WPS extends Supplier
             $variation['name'] = $item['name'];
             $variation['list_price'] = $item['list_price'];
             $variation['images'] = $this->get_item_images($item);
+            $variation['images_data'] = $this->get_item_images_data($item);
             $variation['meta_data'] = [];
             $variation['meta_data'][] = ['key' => '_ci_import_version', 'value' => $this->import_version];
             $variation['meta_data'][] = ['key' => '_ci_supplier_key', 'value' => $this->key];
@@ -758,7 +764,7 @@ class Supplier_WPS extends Supplier
 
             if (count($missing)) {
                 // assume this attribute is not applicable to this variation
-                foreach($missing as $missingAttr){
+                foreach ($missing as $missingAttr) {
                     // TODO: fix product attribute like the regy helmet at WPS_381514
                 }
                 // TODO: troggle this to see if product resolves nicely or not
@@ -788,6 +794,21 @@ class Supplier_WPS extends Supplier
             }
         }
         return null;
+    }
+
+    public function get_item_images_data($item)
+    {
+        $images = [];
+        if (isset($item['images']['data']) && is_countable($item['images']['data']) && count($item['images']['data'])) {
+            foreach ($item['images']['data'] as $image) {
+                $file = WPSTools::build_western_image_url($image);
+                $width = isset($image['width']) ? $image['width'] : 200;
+                $height = isset($image['height']) ? $image['height'] : 200;
+                $filesize = isset($image['size']) ? $image['size'] : 0;
+                $images[] = ['file' => $file, 'width' => $width, 'height' => $height, 'filesize' => $filesize];
+            }
+        }
+        return $images;
     }
 
     public function extract_attributes($supplier_product)
@@ -978,8 +999,24 @@ class Supplier_WPS extends Supplier
         return $this->get_api('products', $params);
     }
 
-    public function resize_image($src, $size = 200)
+    public function resize_image($src, $width = 200)
     {
-        return str_replace('200_max', $size . '_max', $src);
+        // https://www.wps-inc.com/data-depot/v4/api/services/images
+        // 200_max, 500_max, 1000_max, full
+        $size_str = '200_max';
+
+        if ($width <= 1000) {
+            $size_str = '1000_max';
+        }
+        if ($width <= 500) {
+            $size_str = '500_max';
+        }
+        if ($width <= 200) {
+            $size_str = '200_max';
+        }
+        if ($width > 1000) {
+            $size_str = 'full';
+        }
+        return str_replace('200_max', $size_str, $src);
     }
 }

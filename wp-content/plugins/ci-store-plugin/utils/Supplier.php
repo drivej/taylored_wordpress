@@ -134,7 +134,7 @@ class Supplier
     }
 
     // placeholder
-    public function resize_image($src, $size = 200)
+    public function resize_image($src, $width = 200)
     {
         return $src;
     }

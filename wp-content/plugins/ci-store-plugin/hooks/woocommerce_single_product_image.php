@@ -10,11 +10,11 @@ function custom_modify_single_product_image($html, $post_id)
     $html = '';
     return $html;
 
-    global $product;
-    $src = get_product_image($product);
-    $src = resize_western_image($src, 500);
-    print_r(['product' => $product]);
-    return '<img title="custom_modify_single_product_image" src="' . esc_url($src) . '">';
+    // global $product;
+    // $src = get_product_image($product);
+    // $src = resize_western_image($src, 500);
+    // print_r(['product' => $product]);
+    // return '<img title="custom_modify_single_product_image" src="' . esc_url($src) . '">';
 
     // global $product;
 
@@ -48,4 +48,4 @@ function custom_modify_single_product_image($html, $post_id)
     // }
 }
 
-add_action('woocommerce_single_product_image', 'custom_modify_single_product_image', 10, 2);
+// add_action('woocommerce_single_product_image', 'custom_modify_single_product_image', 10, 2);

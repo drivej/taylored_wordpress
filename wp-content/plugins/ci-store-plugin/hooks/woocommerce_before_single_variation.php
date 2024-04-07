@@ -18,4 +18,4 @@ function custom_before_single_variation($variation_id)
     }
 }
 
-add_action('woocommerce_before_single_variation', 'custom_before_single_variation', 10, 1);
+// add_action('woocommerce_before_single_variation', 'custom_before_single_variation', 10, 1);

@@ -248,32 +248,32 @@ function custom_single_product_image_thumbnail_html($html, $attachment_id)
             // </div>';
             // }
 
-            foreach ($variation_images as $src) {
-                $thumb_src = resize_western_image($src);
-                $full_src = resize_western_image($src);
-                // $image_html = '<img width="150" height="225" src="' . $thumb_src . '" class="attachment-thumbnail size-thumbnail" alt="Image Description" />';
-                // return '<div data-thumb="' . esc_url($thumb_src) . '" data-thumb-alt="' . esc_attr('product_image') . '" class="woocommerce-product-gallery__image"><a href="' . esc_url($full_src) . '">' . $image . '</a></div>';
-                // $htm[] = '<div class="woocommerce-product-gallery__image"><img width="150" height="225" src="' . $thumb_src . '" class="attachment-thumbnail size-thumbnail" alt="Image Description" /></div>';
+            // foreach ($variation_images as $src) {
+            //     $thumb_src = resize_western_image($src);
+            //     $full_src = resize_western_image($src);
+            //     // $image_html = '<img width="150" height="225" src="' . $thumb_src . '" class="attachment-thumbnail size-thumbnail" alt="Image Description" />';
+            //     // return '<div data-thumb="' . esc_url($thumb_src) . '" data-thumb-alt="' . esc_attr('product_image') . '" class="woocommerce-product-gallery__image"><a href="' . esc_url($full_src) . '">' . $image . '</a></div>';
+            //     // $htm[] = '<div class="woocommerce-product-gallery__image"><img width="150" height="225" src="' . $thumb_src . '" class="attachment-thumbnail size-thumbnail" alt="Image Description" /></div>';
 
-                $htm[] = '<div data-thumb="' . $thumb_src . '" data-thumb-alt="" class="woocommerce-product-gallery__image">
-                <a href="' . $thumb_src . '"
-                  ><img
-                    width="200"
-                    height="150"
-                    src="' . $thumb_src . '"
-                    class=""
-                    alt=""
-                    title="8610-60f6dfdd96458.png"
-                    data-caption=""
-                    data-src="' . $thumb_src . '"
-                    data-large_image="' . $full_src . '"
-                    data-large_image_width="200"
-                    data-large_image_height="150"
-                    decoding="async"
-                /></a>
-              </div>';
-                // print($html);
-            }
+            //     $htm[] = '<div data-thumb="' . $thumb_src . '" data-thumb-alt="" class="woocommerce-product-gallery__image">
+            //     <a href="' . $thumb_src . '"
+            //       ><img
+            //         width="200"
+            //         height="150"
+            //         src="' . $thumb_src . '"
+            //         class=""
+            //         alt=""
+            //         title="8610-60f6dfdd96458.png"
+            //         data-caption=""
+            //         data-src="' . $thumb_src . '"
+            //         data-large_image="' . $full_src . '"
+            //         data-large_image_width="200"
+            //         data-large_image_height="150"
+            //         decoding="async"
+            //     /></a>
+            //   </div>';
+            //     // print($html);
+            // }
         }
     }
 

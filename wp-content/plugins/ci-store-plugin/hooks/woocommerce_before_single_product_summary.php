@@ -2,11 +2,14 @@
 
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/debug_hook.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
-// include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/western_utils.php';
 
 function custom_modify_before_single_product_summary()
 {
     debug_hook('woocommerce_before_single_product_summary');
+
+    print('<div class="ci-gallery" />');
+    return;
+
     global $product;
 
     if (!$product->get_meta('_ci_supplier_key')) {
@@ -90,4 +93,4 @@ function custom_modify_before_single_product_summary()
 
 }
 
-add_action('woocommerce_before_single_product_summary', 'custom_modify_before_single_product_summary');
+// add_action('woocommerce_before_single_product_summary', 'custom_modify_before_single_product_summary');

@@ -25,7 +25,8 @@ export const ImportPage = () => {
             options={[
               { name: 'none', value: '' },
               { name: 'tags', value: 'tags' },
-              { name: 'attributes', value: 'attributes' }
+              { name: 'attributes', value: 'attributes' },
+              { name: 'images', value: 'images' }
             ]}
             initialValue=''
           />

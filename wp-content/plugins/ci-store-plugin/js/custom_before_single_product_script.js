@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
   // get variations from woo injected data
+
   const product_variations = woo_product_details.variations;
 
   console.log({ product_variations });
@@ -35,6 +36,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   };
 
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
   let currentAttributeKey = '';
 
   const handleChangeAttribute = (e) => {
@@ -47,8 +52,10 @@ document.addEventListener('DOMContentLoaded', function () {
     setTimeout(() => collectAttributes(), 1);
   };
 
-  const collectAttributes = () => {
+  const collectAttributes = async () => {
     console.log('collectAttributes()');
+
+    // clearAttributes();
 
     // return;
     // let selected_variation;
@@ -77,16 +84,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     Object.keys(validAttributes).forEach((attr_key) => {
       if (attr_key !== currentAttributeKey) {
-        const $options = document.querySelectorAll(`select[name="${attr_key}"] option`);
+        const $select = document.querySelector(`select[name="${attr_key}"]`);
+        const $options = $select.querySelectorAll(`option`);
         for (let i = 0; i < $options.length; i++) {
           $options[i].disabled = !validAttributes[attr_key].has($options[i].value);
         }
-        if (validAttributes[attr_key].length === 1) {
+        console.log('TEST', validAttributes[attr_key], validAttributes[attr_key].size, validAttributes[attr_key].values().next().value);
+        if (validAttributes[attr_key].size === 1) {
           // auto select then lone option
-          const $select = document.querySelectorAll(`select[name="${attr_key}"]`);
-          $select.value = validAttributes[attr_key][0];
+          // const $select = document.querySelectorAll(`select[name="${attr_key}"]`);
+          $select.value = validAttributes[attr_key].values().next().value;
           // $select.dispatchEvent(new Event('change', { bubbles: true }));
-          // console.log({ [attr_key]: $select.value });
+          console.log('select', { [attr_key]: $select.value });
         }
       }
     });
@@ -97,10 +106,18 @@ document.addEventListener('DOMContentLoaded', function () {
       const selectedVariation = validVariations[0];
       const sku = selectedVariation.attributes['attribute_supplier_sku'];
       const $select = document.querySelector(`select[name="attribute_supplier_sku"]`);
-      // $select.value = sku;
+
+      // document.querySelector(`select[name="attribute_supplier_sku"] option[value="${sku}"]`).selected = true;
+      $select.value = sku;
       console.log({ sku });
 
       document.querySelector('input[name="variation_id"]').value = selectedVariation.variation_id;
+
+      // force button to show
+      $btn = document.querySelector('button.single_add_to_cart_button');
+      $btn.disabled = false;
+      $btn.classList.remove('disabled');
+      $btn.classList.remove('wc-variation-selection-needed');
     }
 
     return;
@@ -201,6 +218,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function clearSelections() {
     updateGallery([]);
+    clearAttributes();
+  }
+
+  function clearAttributes() {
     // remove disable on all options
     const $options = document.querySelectorAll('select[data-attribute_name] option');
     for (let i = 0; i < $options.length; i++) {
@@ -265,9 +286,7 @@ document.addEventListener('DOMContentLoaded', function () {
       $btn_reset.addEventListener('click', clearSelections);
     }
 
-    setTimeout(() => {
-      // select initial attributes if set in url
-      collectAttributes();
-    }, 100);
+    // select initial attributes if set in url
+    collectAttributes();
   }
 });

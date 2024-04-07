@@ -7990,7 +7990,7 @@ function useIsomorphicLayoutEffect(cb) {
  *
  * @see https://reactrouter.com/hooks/use-navigate
  */
-function useNavigate() {
+function dist_useNavigate() {
   let {
     isDataRoute
   } = react.useContext(RouteContext);
@@ -8772,7 +8772,7 @@ function Navigate(_ref4) {
   let {
     pathname: locationPathname
   } = dist_useLocation();
-  let navigate = useNavigate();
+  let navigate = dist_useNavigate();
 
   // Resolve the path outside of the effect so that when effects run twice in
   // StrictMode they navigate to the same place
@@ -9984,7 +9984,7 @@ function useLinkClickHandler(to, _temp) {
     relative,
     unstable_viewTransition
   } = _temp === void 0 ? {} : _temp;
-  let navigate = useNavigate();
+  let navigate = dist_useNavigate();
   let location = dist_useLocation();
   let path = dist_useResolvedPath(to, {
     relative
@@ -10011,16 +10011,16 @@ function useLinkClickHandler(to, _temp) {
  */
 function useSearchParams(defaultInit) {
    false ? 0 : void 0;
-  let defaultSearchParamsRef = react.useRef(createSearchParams(defaultInit));
-  let hasSetSearchParamsRef = react.useRef(false);
-  let location = dist_useLocation();
-  let searchParams = react.useMemo(() =>
+  let defaultSearchParamsRef = React.useRef(createSearchParams(defaultInit));
+  let hasSetSearchParamsRef = React.useRef(false);
+  let location = useLocation();
+  let searchParams = React.useMemo(() =>
   // Only merge in the defaults if we haven't yet called setSearchParams.
   // Once we call that we want those to take precedence, otherwise you can't
   // remove a param with setSearchParams({}) if it has an initial value
   getSearchParamsForLocation(location.search, hasSetSearchParamsRef.current ? null : defaultSearchParamsRef.current), [location.search]);
   let navigate = useNavigate();
-  let setSearchParams = react.useCallback((nextInit, navigateOptions) => {
+  let setSearchParams = React.useCallback((nextInit, navigateOptions) => {
     const newSearchParams = createSearchParams(typeof nextInit === "function" ? nextInit(searchParams) : nextInit);
     hasSetSearchParamsRef.current = true;
     navigate("?" + newSearchParams, navigateOptions);
@@ -11083,6 +11083,9 @@ const specialCharsTo = 'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrssssst
 const specialCharsRegEx = new RegExp(specialCharsFrom.split('').join('|'), 'g');
 const stopWordsReg = /\b(a|about|above|actually|after|again|against|all|almost|also|although|always|am|an|and|any|are|as|at|be|became|become|because|been|before|being|below|between|both|but|by|can|could|did|do|does|doing|down|during|each|either|else|few|for|from|further|had|has|have|having|he|hed|hell|hence|hes|her|here|heres|hers|herself|him|himself|his|how|hows|i|id|ill|im|ive|if|in|into|is|it|its|its|itself|just|lets|may|maybe|me|might|mine|more|most|must|my|myself|neither|nor|not|of|oh|on|once|only|ok|or|other|ought|our|ours|ourselves|out|over|own|same|she|shed|shell|shes|should|so|some|such|than|that|thats|the|their|theirs|them|themselves|then|there|theres|these|they|theyd|theyll|theyre|theyve|this|those|through|to|too|under|until|up|very|was|we|wed|well|were|weve|were|what|whats|when|whenever|whens|where|whereas|wherever|wheres|whether|which|while|who|whoever|whos|whose|whom|why|whys|will|with|within|would|yes|yet|you|youd|youll|youre|youve|your|yours|yourself|yourselves)\b/g;
 
+;// CONCATENATED MODULE: ./src/utils/useSearchParams.tsx
+const useInitialSearchParams = () => new URLSearchParams(window.location.search);
+
 ;// CONCATENATED MODULE: ./src/utilities/Pre.tsx
 
 const Pre = ({ data }) => {
@@ -11108,83 +11111,149 @@ var __rest = (undefined && undefined.__rest) || function (s, e) {
 
 
 
-const UtilitiesPage = () => {
-    return (React.createElement("div", { className: 'p-3 d-flex flex-column gap-2' },
-        React.createElement("header", null,
-            React.createElement("p", { className: 'm-0' }, "CI Store"),
-            React.createElement("h3", null, "Utilities")),
-        React.createElement(AdminForm, { name: 'Pause Patch', cmd: 'pause_patch' }),
-        React.createElement(AdminForm, { name: 'Resume Patch', cmd: 'resume_patch' }),
-        React.createElement(AdminForm, { name: 'Patch Status', cmd: 'get_patch_status', allowPolling: true }),
-        React.createElement(AdminForm, { name: 'Run Patch', cmd: 'run_patch' },
-            React.createElement(SelectInput, { name: 'patch_action', options: [
-                    { name: 'tags', value: 'tags' },
-                    { name: 'deletes', value: 'deletes' }
-                ], initialValue: 'tags' })),
-        React.createElement(AdminForm, { name: 'Stall Import Test', cmd: 'stall_import' },
-            React.createElement(SelectSupplier, null)),
-        React.createElement(AdminForm, { name: 'Expire Product', cmd: 'expire_product' },
-            React.createElement(SelectSupplier, null),
-            React.createElement(ProductInput, null)),
-        React.createElement(AdminForm, { name: 'Monkey Wrench', cmd: 'monkey_wrench', allowPolling: true },
-            React.createElement(SelectSupplier, null),
-            React.createElement(ProductInput, null),
-            React.createElement(SelectInput, { name: 'custom', options: [
-                    { name: 'none', value: '' },
-                    { name: 'wp_get_schedules', value: 'wp_get_schedules' },
-                    { name: 'get_update_action', value: 'get_update_action' },
-                    { name: 'update_product_attributes', value: 'update_product_attributes' },
-                    { name: 'fix_attributes', value: 'fix_attributes' },
-                    { name: 'select', value: 'select' },
-                    { name: 'clean', value: 'clean' },
-                    { name: 'flush', value: 'flush' },
-                    { name: 'fix', value: 'fix' },
-                    { name: 'explore', value: 'explore' },
-                    { name: 'mock', value: 'mock' },
-                    { name: 'sync', value: 'sync' },
-                    { name: 'turn14', value: 'turn14' }
-                ], initialValue: 'none' })),
-        React.createElement(AdminForm, { name: 'View Attributes', cmd: 'view_attributes', RenderResult: CSVTable },
-            React.createElement(SelectSupplier, null),
-            React.createElement(ProductInput, null)),
-        React.createElement(AdminForm, { name: 'Import Status', cmd: 'get_import_status', allowPolling: true },
-            React.createElement(SelectSupplier, null)),
-        React.createElement(AdminForm, { name: 'Import Products', cmd: 'import_products' },
-            React.createElement(SelectSupplier, null),
-            React.createElement(TextInput, { name: 'updated', defaultValue: '2020-01-01', type: 'date', style: { width: 150 } }),
-            React.createElement(CheckboxInput, { name: 'reset', checked: false })),
-        React.createElement(AdminForm, { name: 'Cancel Import Products', cmd: 'cancel_import_products' },
-            React.createElement(SelectSupplier, null)),
-        React.createElement(AdminForm, { name: 'Clear Import Report', cmd: 'clear_import_report' },
-            React.createElement(SelectSupplier, null)),
-        React.createElement(AdminForm, { name: 'Get Log', cmd: 'get_log', allowPolling: true, RenderResult: ErrorLogs },
-            React.createElement(SelectSupplier, null)),
-        React.createElement(AdminForm, { name: 'Clear Error Log', cmd: 'clear_log' },
-            React.createElement(SelectSupplier, null)),
-        React.createElement(AdminForm, { name: 'WPS API', cmd: 'western_api', allowPolling: true },
-            React.createElement(TextInput, { name: 'url', defaultValue: '/' })),
-        React.createElement(AdminForm, { name: 'Stock Update', cmd: 'update_products_stock_status', allowPolling: true },
-            React.createElement(SelectSupplier, null)),
-        React.createElement(AdminForm, { name: 'Import Product', cmd: 'import_product' },
-            React.createElement(SelectSupplier, null),
-            React.createElement(ProductInput, null)),
-        React.createElement(AdminForm, { name: 'Get Product Status', cmd: 'get_product_status', allowPolling: true },
-            React.createElement(SelectSupplier, null),
-            React.createElement(ProductInput, null)),
-        React.createElement(AdminForm, { name: 'Get Product', cmd: 'get_product' },
-            React.createElement(SelectSupplier, null),
-            React.createElement(ProductInput, null),
-            React.createElement(CheckboxInput, { name: 'light', checked: false })),
-        React.createElement(AdminForm, { name: 'Import Product Status', cmd: 'get_import_product_status', allowPolling: true },
-            React.createElement(SelectSupplier, null),
-            React.createElement(ProductInput, null)),
-        React.createElement(AdminForm, { name: 'Get Products Count', cmd: 'get_products_count' },
-            React.createElement(SelectSupplier, null),
-            React.createElement(TextInput, { name: 'updated', defaultValue: '2020-01-01', type: 'date', style: { width: 150 } }))));
-};
+// export const UtilitiesPage = () => {
+//   return (
+//     <div className='p-3 d-flex flex-column gap-2'>
+//       <header>
+//         <p className='m-0'>CI Store</p>
+//         <h3>Utilities</h3>
+//       </header>
+//       <AdminForm name='Pause Patch' cmd='pause_patch'>
+//         {/* <SelectSupplier /> */}
+//       </AdminForm>
+//       <AdminForm name='Resume Patch' cmd='resume_patch'>
+//         {/* <SelectSupplier /> */}
+//       </AdminForm>
+//       <AdminForm name='Patch Status' cmd='get_patch_status' allowPolling={true}>
+//         {/* <SelectSupplier /> */}
+//       </AdminForm>
+//       <AdminForm name='Run Patch' cmd='run_patch'>
+//         <SelectInput
+//           name='patch_action'
+//           options={[
+//             { name: 'tags', value: 'tags' },
+//             { name: 'deletes', value: 'deletes' }
+//           ]}
+//           initialValue='tags'
+//         />
+//       </AdminForm>
+//       <AdminForm name='Stall Import Test' cmd='stall_import'>
+//         <SelectSupplier />
+//       </AdminForm>
+//       <AdminForm name='Expire Product' cmd='expire_product'>
+//         <SelectSupplier />
+//         <ProductInput />
+//       </AdminForm>
+//       <AdminForm name='Monkey Wrench' cmd='monkey_wrench' allowPolling={true}>
+//         <SelectSupplier />
+//         <ProductInput />
+//         {/* <TextInput name='custom' placeholder='custom...' defaultValue='' /> */}
+//         <SelectInput
+//           name='custom'
+//           options={[
+//             { name: 'none', value: '' },
+//             { name: 'wp_get_schedules', value: 'wp_get_schedules' },
+//             { name: 'get_update_action', value: 'get_update_action' },
+//             { name: 'update_product_attributes', value: 'update_product_attributes' },
+//             { name: 'fix_attributes', value: 'fix_attributes' },
+//             { name: 'select', value: 'select' },
+//             { name: 'clean', value: 'clean' },
+//             { name: 'flush', value: 'flush' },
+//             { name: 'fix', value: 'fix' },
+//             { name: 'explore', value: 'explore' },
+//             { name: 'mock', value: 'mock' },
+//             { name: 'sync', value: 'sync' },
+//             { name: 'turn14', value: 'turn14' }
+//           ]}
+//           initialValue='none'
+//         />
+//       </AdminForm>
+//       <AdminForm name='View Attributes' cmd='view_attributes' RenderResult={CSVTable}>
+//         <SelectSupplier />
+//         <ProductInput />
+//       </AdminForm>
+//       <AdminForm name='Import Status' cmd='get_import_status' allowPolling={true}>
+//         <SelectSupplier />
+//       </AdminForm>
+//       <AdminForm name='Import Products' cmd='import_products'>
+//         <SelectSupplier />
+//         {/* <SelectImportType /> */}
+//         <TextInput name='updated' defaultValue='2020-01-01' type='date' style={{ width: 150 }} />
+//         {/* <div className='input-group'>
+//           <label className='input-group-text'>Cursor</label>
+//           <TextInput name='cursor' defaultValue='' style={{ width: 150 }} />
+//         </div> */}
+//         {/* <PageSizeInput /> */}
+//         <CheckboxInput name='reset' checked={false} />
+//       </AdminForm>
+//       <AdminForm name='Cancel Import Products' cmd='cancel_import_products'>
+//         <SelectSupplier />
+//       </AdminForm>
+//       <AdminForm name='Clear Import Report' cmd='clear_import_report'>
+//         <SelectSupplier />
+//       </AdminForm>
+//       <AdminForm name='Get Log' cmd='get_log' allowPolling={true} RenderResult={ErrorLogs}>
+//         <SelectSupplier />
+//       </AdminForm>
+//       <AdminForm name='Clear Error Log' cmd='clear_log'>
+//         <SelectSupplier />
+//       </AdminForm>
+//       <AdminForm name='WPS API' cmd='western_api' allowPolling={true}>
+//         <TextInput name='url' defaultValue='/' />
+//       </AdminForm>
+//       <AdminForm name='Stock Update' cmd='update_products_stock_status' allowPolling={true}>
+//         <SelectSupplier />
+//       </AdminForm>
+//       <AdminForm name='Import Product' cmd='import_product'>
+//         <SelectSupplier />
+//         <ProductInput />
+//       </AdminForm>
+//       <AdminForm name='Get Product Status' cmd='get_product_status' allowPolling={true}>
+//         <SelectSupplier />
+//         <ProductInput />
+//       </AdminForm>
+//       <AdminForm name='Get Product' cmd='get_product'>
+//         <SelectSupplier />
+//         <ProductInput />
+//         <CheckboxInput name='light' checked={false} />
+//       </AdminForm>
+//       {/* <AdminForm name='Find Valid Product' cmd='find_valid_product'>
+//         <div className='d-flex flex-column gap-2'>
+//           <div>
+//             <SelectSupplier />
+//           </div>
+//           <div className='input-group'>
+//             <label className='input-group-text'>Max Pages</label>
+//             <TextInput name='max_pages' defaultValue='50' type='number' min={1} max={100} step={1} />
+//           </div>
+//           <PageSizeInput />
+//         </div>
+//       </AdminForm> */}
+//       {/* <AdminForm name='Is Importing Product?' cmd='is_importing_product' allowPolling={true}>
+//         <div className='input-group'>
+//           <SelectSupplier />
+//           <ProductInput />
+//         </div>
+//       </AdminForm> */}
+//       <AdminForm name='Import Product Status' cmd='get_import_product_status' allowPolling={true}>
+//         <SelectSupplier />
+//         <ProductInput />
+//       </AdminForm>
+//       <AdminForm name='Get Products Count' cmd='get_products_count'>
+//         <SelectSupplier />
+//         <TextInput name='updated' defaultValue='2020-01-01' type='date' style={{ width: 150 }} />
+//       </AdminForm>
+//       {/* <AdminForm name='Is Supplier Importing?' cmd='is_importing_products' allowPolling={true}>
+//         <div className='input-group'>
+//           <SelectSupplier />
+//         </div>
+//       </AdminForm> */}
+//     </div>
+//   );
+// };
 const CSVTable = ({ data }) => {
     var _a;
-    if (data === null || data === void 0 ? void 0 : data.rows) {
+    if ((data === null || data === void 0 ? void 0 : data.rows) && Array.isArray(data.rows)) {
         const rows = (_a = data === null || data === void 0 ? void 0 : data.rows) !== null && _a !== void 0 ? _a : [];
         return (react.createElement(react.Fragment, null,
             react.createElement("table", { className: 'table table-sm border', style: { fontSize: 11 } },
@@ -11222,7 +11291,7 @@ const SelectImportType = () => {
         ] }));
 };
 const SelectSupplier = ({ initialValue = null }) => {
-    const [searchParams, setSearchParams] = useSearchParams();
+    const searchParams = useInitialSearchParams();
     const suppliers = useSuppliers();
     const [value, setValue] = (0,react.useState)(initialValue);
     (0,react.useEffect)(() => {
@@ -11238,7 +11307,7 @@ const SelectSupplier = ({ initialValue = null }) => {
     }
 };
 const SelectInput = ({ name, options, initialValue = null }) => {
-    const [searchParams, setSearchParams] = useSearchParams();
+    const searchParams = useInitialSearchParams();
     const [value, setValue] = (0,react.useState)(initialValue !== null && initialValue !== void 0 ? initialValue : options[0].value);
     const onChange = (e) => {
         setValue(e.currentTarget.value);
@@ -11246,7 +11315,7 @@ const SelectInput = ({ name, options, initialValue = null }) => {
     return (react.createElement("select", { name: name, className: 'form-select', value: value, onChange: onChange }, options.map((s, i) => (react.createElement("option", { key: slugify(name, i), value: s.value }, s.name)))));
 };
 const ProductInput = () => {
-    const [searchParams, setSearchParams] = useSearchParams();
+    const searchParams = useInitialSearchParams();
     return react.createElement(TextInput, { name: 'product_id', defaultValue: searchParams.get('supplier_product_id') });
 };
 const TextInput = (_a) => {
@@ -11344,7 +11413,8 @@ const ImportPage = () => {
                 react.createElement(SelectInput, { name: 'patch', options: [
                         { name: 'none', value: '' },
                         { name: 'tags', value: 'tags' },
-                        { name: 'attributes', value: 'attributes' }
+                        { name: 'attributes', value: 'attributes' },
+                        { name: 'images', value: 'images' }
                     ], initialValue: '' })),
             react.createElement(SelectInput, { name: 'import_type', options: [
                     { name: 'resume', value: 'resume' },
@@ -11455,6 +11525,9 @@ const ProductsPage = () => {
         react.createElement(AdminForm, { name: 'View Attributes', cmd: 'view_attributes', RenderResult: CSVTable },
             react.createElement(SelectSupplier, null),
             react.createElement(ProductInput, null)),
+        react.createElement(AdminForm, { name: 'View Variations', cmd: 'view_variations', RenderResult: CSVTable },
+            react.createElement(SelectSupplier, null),
+            react.createElement(ProductInput, null)),
         react.createElement(AdminForm, { name: 'WPS API', cmd: 'western_api', allowPolling: true },
             react.createElement(TextInput, { name: 'url', defaultValue: '/' })),
         react.createElement(AdminForm, { name: 'Import Product', cmd: 'import_product' },
@@ -11504,10 +11577,6 @@ const router = createHashRouter([
         element: react.createElement(UtilitiesRoot, null),
         errorElement: react.createElement("div", null, "Error"),
         children: [
-            // {
-            //   path: 'patch',
-            //   element: <PatchPage />
-            // },
             {
                 path: 'import',
                 element: react.createElement(ImportPage, null)

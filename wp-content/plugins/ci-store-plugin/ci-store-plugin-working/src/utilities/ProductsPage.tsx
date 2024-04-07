@@ -25,6 +25,11 @@ export const ProductsPage = () => {
         <ProductInput />
       </AdminForm>
 
+      <AdminForm name='View Variations' cmd='view_variations' RenderResult={CSVTable}>
+        <SelectSupplier />
+        <ProductInput />
+      </AdminForm>
+
       <AdminForm name='WPS API' cmd='western_api' allowPolling={true}>
         <TextInput name='url' defaultValue='/' />
       </AdminForm>

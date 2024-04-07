@@ -18,10 +18,6 @@ const router = createHashRouter([
     element: <UtilitiesRoot />,
     errorElement: <div>Error</div>,
     children: [
-      // {
-      //   path: 'patch',
-      //   element: <PatchPage />
-      // },
       {
         path: 'import',
         element: <ImportPage />

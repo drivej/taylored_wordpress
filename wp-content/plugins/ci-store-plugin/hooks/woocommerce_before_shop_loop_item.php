@@ -97,4 +97,4 @@ function custom_before_shop_loop_item()
     // print '<img title="custom_before_shop_loop_item" src="' . esc_url($src) . '">';
 }
 
-add_action('woocommerce_before_shop_loop_item', 'custom_before_shop_loop_item');
+// add_action('woocommerce_before_shop_loop_item', 'custom_before_shop_loop_item');
