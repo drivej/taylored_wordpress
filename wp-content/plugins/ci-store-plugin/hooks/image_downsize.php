@@ -1,7 +1,6 @@
 <?php
 
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/get_product_image.php';
-// include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/western_utils.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/debug_hook.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
 
@@ -48,15 +47,19 @@ function custom_image_downsize($out, $id, $size)
     if ($is_remote) {
         $result['img'] = get_post($id);
         $supplier_key = get_post_meta($id, '_ci_supplier_key', true);
-        $supplier = CI\Admin\get_supplier($supplier_key);
-        $file = get_post_meta($id, '_wp_attached_file');
-        if ($supplier) {
-            // get width/height info from size name
-            $info = wc_get_image_size($size);
-            $width = isset($info['width']) ? $info['width'] : null;
-            $file = $supplier->resize_image($file, $width);
+        if ($supplier_key) {
+            $supplier = CI\Admin\get_supplier($supplier_key);
+            if ($supplier) {
+                $file = get_post_meta($id, '_wp_attached_file');
+                if ($supplier) {
+                    // get width/height info from size name
+                    $info = wc_get_image_size($size);
+                    $width = isset($info['width']) ? $info['width'] : null;
+                    $file = $supplier->resize_image($file, $width);
+                }
+                return $file;
+            }
         }
-        return $file;
     }
 
     return $out;

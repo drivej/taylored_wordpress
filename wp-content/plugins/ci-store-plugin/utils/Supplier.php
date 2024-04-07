@@ -2,6 +2,7 @@
 
 class Supplier
 {
+    protected bool $active = true;
     public string $key;
     public string $name;
     public string $supplierClass;
@@ -76,6 +77,7 @@ class Supplier
 
     public function log($file, $line = null, $message = null)
     {
+        error_log($this->log_path.'--'.$this->key);
         $spacer = "\n"; //"\n---\n";
         $t = gmdate("c");
         if ($line && $message) {

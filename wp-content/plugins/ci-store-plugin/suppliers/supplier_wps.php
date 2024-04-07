@@ -7,11 +7,6 @@ https://www.wps-inc.com/data-depot/v4/api/introduction
 
  */
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier.php';
-// include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Report.php';
-// include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/western_utils.php';
-// include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/import_western_product.php';
-
-// 441802
 
 class WPSTools
 {
@@ -26,11 +21,6 @@ class WPSTools
 
 class Supplier_WPS extends Supplier
 {
-    public function isValidItem($item)
-    {
-        $status_ids = ['DIR', 'NEW', 'STK'];
-        return in_array($item['status_id'], $status_ids);
-    }
 
     public function __construct()
     {
@@ -42,6 +32,12 @@ class Supplier_WPS extends Supplier
         ]);
 
         $this->deep_debug = false;
+    }
+
+    public function isValidItem($item)
+    {
+        $status_ids = ['DIR', 'NEW', 'STK'];
+        return in_array($item['status_id'], $status_ids);
     }
 
     public function start_import_products()
@@ -279,6 +275,7 @@ class Supplier_WPS extends Supplier
         }
 
         if ($patch === 'images') {
+            WooTools::removeProductAttribute($woo_product_id, '__required_attr');
             $this->update_product_images($woo_product, $supplier_product);
         }
     }
@@ -729,8 +726,8 @@ class Supplier_WPS extends Supplier
             }
 
             $variation['attributes']['supplier_sku'] = $variation['supplier_sku'];
-            // this is a dummy attribute so that variable products with a single variation can be selected
-            $variation['attributes']['__required_attr'] = '1';
+            // NOT NEEDED!!! Woo Hoo!!!! this is a dummy attribute so that variable products with a single variation can be selected
+            // $variation['attributes']['__required_attr'] = '1';
 
             $variations[] = $variation;
         }
@@ -874,16 +871,16 @@ class Supplier_WPS extends Supplier
             }
         }
 
-        if (!count($attributes)) {
-            // with no other attributes, a variable product requires something to validate it for adding to cart
-            $attributes['__required_attr'] = [
-                'name' => '__required_attr',
-                'options' => ['1'],
-                'slug' => '__required_attr',
-                'visible' => 0,
-                'variation' => 0,
-            ];
-        }
+        // if (!count($attributes)) {
+        //     // with no other attributes, a variable product requires something to validate it for adding to cart
+        //     $attributes['__required_attr'] = [
+        //         'name' => '__required_attr',
+        //         'options' => ['1'],
+        //         'slug' => '__required_attr',
+        //         'visible' => 0,
+        //         'variation' => 0,
+        //     ];
+        // }
 
         $valid_skus = array_map(fn($v) => $v['sku'], $valid_items);
 
@@ -904,7 +901,7 @@ class Supplier_WPS extends Supplier
         if ($this->deep_debug) {
             $this->log('is_available()');
         }
-        if ($supplier_product['status_code'] === 404) {
+        if (isset($supplier_product['status_code']) && $supplier_product['status_code'] === 404) {
             return false;
         }
 

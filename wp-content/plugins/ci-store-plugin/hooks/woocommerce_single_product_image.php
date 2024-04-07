@@ -1,14 +1,13 @@
 <?php
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/get_product_image.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/western_utils.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/debug_hook.php';
+// include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/get_product_image.php';
+// include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/debug_hook.php';
 
-function custom_modify_single_product_image($html, $post_id)
-{
-    debug_hook('woocommerce_single_product_image');
+// function custom_modify_single_product_image($html, $post_id)
+// {
+//     debug_hook('woocommerce_single_product_image');
 
-    $html = '';
-    return $html;
+//     $html = '';
+//     return $html;
 
     // global $product;
     // $src = get_product_image($product);
@@ -46,6 +45,6 @@ function custom_modify_single_product_image($html, $post_id)
     //     $src = $img[0];
     //     return '<img title="custom_modify_single_product_image" src="' . esc_url($src) . '" alt="' . esc_attr($product->get_title()) . '">';
     // }
-}
+// }
 
 // add_action('woocommerce_single_product_image', 'custom_modify_single_product_image', 10, 2);

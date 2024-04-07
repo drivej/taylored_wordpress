@@ -3,20 +3,16 @@
 
 https://turn14.com/api_settings.php
 
-*/
+ */
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier.php';
-// require_once WP_PLUGIN_DIR . '/ci-store-plugin/vendor/autoload.php';
 
 class Supplier_t14 extends Supplier
 {
-
     private string $clientId = 'df98c919f33c6144f06bcfc287b984f809e33322';
     private string $clientSecret = '021320311e77c7f7e661d697227f80ae45b548a9';
-
     private string $api_domain = 'apitest.turn14.com';
     private string $api_version = 'v1';
     // private string $api_domain = 'api.turn14.com';
-    // $domain = 'api.turn14.com';
 
     public function __construct()
     {
@@ -26,6 +22,7 @@ class Supplier_t14 extends Supplier
             'supplierClass' => 'WooDropship\\Suppliers\\Turn14',
             'import_version' => '0.1',
         ]);
+        $this->active = false;
     }
 
     public function getAccessToken()
@@ -86,7 +83,7 @@ class Supplier_t14 extends Supplier
         if (isset($data['message'])) {
             $data['error'] = $data['message'];
         }
-        return ['retry'=>$retry, 'remote_url' => $remote_url, 'data' => $data];
+        return ['retry' => $retry, 'remote_url' => $remote_url, 'data' => $data];
     }
 
     public function get_product($product_id)

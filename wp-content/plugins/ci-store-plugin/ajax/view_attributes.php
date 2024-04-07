@@ -4,8 +4,6 @@ namespace AjaxHandlers;
 
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/AjaxManager.php';
-// include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/get_western_products_page.php';
-// include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/western_utils.php';
 
 function view_attributes($params)
 {

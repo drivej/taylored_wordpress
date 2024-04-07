@@ -492,4 +492,78 @@ class WooTools
             wp_set_post_terms($woo_id, ['exclude-from-search', 'exclude-from-catalog'], 'product_visibility');
         }
     }
+
+    public static function removeProductAttribute($product_id, $attribute_name)
+    {
+        // delete attribute from product and it's variations
+        $saved = false;
+        $woo_product = wc_get_product($product_id);
+        $attributes = $woo_product->get_attributes('edit');
+
+        $update = [];
+        foreach ($attributes as $attribute) {
+            if ($attribute->get_name() !== $attribute_name) {
+                $update[] = $attribute;
+            }
+        }
+
+        if (count($update) !== count($attributes)) {
+            // need to save
+            $woo_product->set_attributes($update);
+            $saved = $woo_product->save();
+        }
+
+        $woo_variation_ids = $woo_product->get_children();
+
+        foreach ($woo_variation_ids as $woo_variation_id) {
+            $woo_product = wc_get_product($woo_variation_id);
+            $variation = new WC_Product_Variation($woo_variation_id);
+            $attributes = $variation->get_attributes('edit');
+
+            $has_attr = isset($attributes[$attribute_name]);
+            if ($has_attr) {
+                // need to save
+                unset($attributes[$attribute_name]);
+                $variation->set_attributes($attributes);
+                $variation->save();
+                $saved = true;
+            }
+        }
+
+        return $saved;
+
+        // 223856
+
+// Get the existing attributes of the product
+        // $product_attributes = get_post_meta($product_id, '_product_attributes', true);
+
+// Check if the attribute exists in the product attributes
+        // if (isset($product_attributes[$attribute_name])) {
+        // Remove the attribute from the product attributes
+        // unset($product_attributes[$attribute_name]);
+
+        // Step 2: Update the product to reflect the changes
+        // update_post_meta($product_id, '_product_attributes', $product_attributes);
+
+        // Step 3: Update the child variations to remove the attribute
+        // Get the child variation IDs of the product
+
+        // $woo_product = wc_get_product($product_id);
+        // $attributes = $woo_product->get_attributes();
+        // $woo_variation_ids = $woo_product->get_children();
+
+        // foreach ($woo_variation_ids as $woo_variation_id) {
+        //     $woo_product = wc_get_product($woo_variation_id);
+        //     $variation = new WC_Product_Variation($woo_variation_id);
+        //     delete_post_meta($woo_variation_id, 'attribute_' . $attribute_name);
+        // }
+
+        // $variation_ids = wc_get_product_variation_ids($product_id);
+
+        // foreach ($variation_ids as $variation_id) {
+        // Remove the attribute from the variation
+        // delete_post_meta($variation_id, 'attribute_' . $attribute_name);
+        // }
+        // }
+    }
 }

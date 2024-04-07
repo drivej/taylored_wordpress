@@ -1,8 +1,6 @@
 <?php
 
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/debug_hook.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/western_utils.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/get_product_image.php';
 
 /*
 array(
@@ -141,31 +139,31 @@ add_action('woocommerce_product_thumbnails', 'custom_product_thumbnails', 10);
 
 // this has potential to set the list image to a remote image
 
-function offsite_product_images($image, $product, $size, $attr, $placeholder)
-{
-    debug_filter('offsite_product_images');
+// function offsite_product_images($image, $product, $size, $attr, $placeholder)
+// {
+//     debug_filter('offsite_product_images');
 
-    return get_product_image($product);
-    return $image;
+//     return get_product_image($product);
+//     return $image;
 
-    global $product;
-    $product_id = $product->get_id();
-    $images = $product->get_meta('_ci_additional_images');
-    if (is_serialized($images)) {
-        $images = unserialize($images);
-    }
+//     global $product;
+//     $product_id = $product->get_id();
+//     $images = $product->get_meta('_ci_additional_images');
+//     if (is_serialized($images)) {
+//         $images = unserialize($images);
+//     }
 
-    // debug_data(['product_id'=>$product_id, 'image'=>$image,'product'=>$product, 'size'=>$size,'attr'=>$attr, 'placeholder'=>$placeholder]);
+//     // debug_data(['product_id'=>$product_id, 'image'=>$image,'product'=>$product, 'size'=>$size,'attr'=>$attr, 'placeholder'=>$placeholder]);
 
-    return $images[0];
-    return $placeholder;
-    /*
-if( get_field('thumbnail_url', $product->get_id() ) ){
-$image = get_field('thumbnail_url', $product->get_id() );
-}
-return $image;
- */
-}
+//     return $images[0];
+//     return $placeholder;
+
+// // if( get_field('thumbnail_url', $product->get_id() ) ){
+// // $image = get_field('thumbnail_url', $product->get_id() );
+// // }
+// // return $image;
+ 
+// }
 
 // add_filter( 'woocommerce_product_get_image', 'offsite_product_images', 10, 5 );
 

@@ -1,7 +1,5 @@
 <?php
 
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/get_product_image.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/western/western_utils.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/debug_hook.php';
 
 function custom_before_single_variation($variation_id)
