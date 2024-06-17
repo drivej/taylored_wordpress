@@ -11,7 +11,7 @@
 define('CI_STORE_PLUGIN', plugin_dir_path(__FILE__));
 define('CI_ERROR_LOG_FILEPATH', CI_STORE_PLUGIN . 'logs/CI_ERROR_LOG.log');
 define('CI_ERROR_LOG', CI_ERROR_LOG_FILEPATH);
-define('CI_VERSION', '0.0.29'); // enqueued scripts get this version - update to bust the cache
+define('CI_VERSION', '0.0.42'); // enqueued scripts get this version - update to bust the cache
 
 include_once CI_STORE_PLUGIN . 'hooks/index.php';
 include_once CI_STORE_PLUGIN . 'utils/AjaxManager.php';

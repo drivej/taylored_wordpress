@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { formatTimeAgo } from '../common/utils/formatDuration';
 import { useImportStatus } from '../utilities/useImportStatus';
 import { ISupplier, useSuppliers } from '../utilities/useSuppliers';
 import { useTotalProducts } from '../utilities/useTotalProducts';
+import { formatTimeAgo } from '../utils/formatDuration';
 
 export const Overview = () => {
-  // const data = useImportStatus();
   const suppliers = useSuppliers();
 
   if (suppliers.isSuccess) {
@@ -19,14 +18,6 @@ export const Overview = () => {
   }
 
   return null;
-
-  // return (
-  //   <div className='p-3'>
-  //     <h3>Welcome!</h3>
-  //     <Pre data={data?.data} />
-  //     <DebugLog />
-  //   </div>
-  // );
 };
 
 const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {

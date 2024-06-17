@@ -1,177 +1,11 @@
 import { useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { IAjaxQuery } from '../common/hooks/useJob';
-import { useWordpressAjax } from '../common/hooks/useWordpressAjax';
-import { slugify } from '../components/store/slugify';
+import { IAjaxQuery, IWordpressAjaxParams } from '../models';
+import { slugify } from '../utils/slugify';
 import { useInitialSearchParams } from '../utils/useSearchParams';
-import { IWordpressAjaxParams } from '../views/jobs/Jobs';
+import { useWordpressAjax } from '../utils/useWordpressAjax';
 import { Pre } from './Pre';
-
-// export const UtilitiesPage = () => {
-//   return (
-//     <div className='p-3 d-flex flex-column gap-2'>
-//       <header>
-//         <p className='m-0'>CI Store</p>
-//         <h3>Utilities</h3>
-//       </header>
-
-//       <AdminForm name='Pause Patch' cmd='pause_patch'>
-//         {/* <SelectSupplier /> */}
-//       </AdminForm>
-
-//       <AdminForm name='Resume Patch' cmd='resume_patch'>
-//         {/* <SelectSupplier /> */}
-//       </AdminForm>
-
-//       <AdminForm name='Patch Status' cmd='get_patch_status' allowPolling={true}>
-//         {/* <SelectSupplier /> */}
-//       </AdminForm>
-
-//       <AdminForm name='Run Patch' cmd='run_patch'>
-//         <SelectInput
-//           name='patch_action'
-//           options={[
-//             { name: 'tags', value: 'tags' },
-//             { name: 'deletes', value: 'deletes' }
-//           ]}
-//           initialValue='tags'
-//         />
-//       </AdminForm>
-
-//       <AdminForm name='Stall Import Test' cmd='stall_import'>
-//         <SelectSupplier />
-//       </AdminForm>
-
-//       <AdminForm name='Expire Product' cmd='expire_product'>
-//         <SelectSupplier />
-//         <ProductInput />
-//       </AdminForm>
-
-//       <AdminForm name='Monkey Wrench' cmd='monkey_wrench' allowPolling={true}>
-//         <SelectSupplier />
-//         <ProductInput />
-//         {/* <TextInput name='custom' placeholder='custom...' defaultValue='' /> */}
-//         <SelectInput
-//           name='custom'
-//           options={[
-//             { name: 'none', value: '' },
-//             { name: 'wp_get_schedules', value: 'wp_get_schedules' },
-//             { name: 'get_update_action', value: 'get_update_action' },
-//             { name: 'update_product_attributes', value: 'update_product_attributes' },
-//             { name: 'fix_attributes', value: 'fix_attributes' },
-//             { name: 'select', value: 'select' },
-//             { name: 'clean', value: 'clean' },
-//             { name: 'flush', value: 'flush' },
-//             { name: 'fix', value: 'fix' },
-//             { name: 'explore', value: 'explore' },
-//             { name: 'mock', value: 'mock' },
-//             { name: 'sync', value: 'sync' },
-//             { name: 'turn14', value: 'turn14' }
-//           ]}
-//           initialValue='none'
-//         />
-//       </AdminForm>
-
-//       <AdminForm name='View Attributes' cmd='view_attributes' RenderResult={CSVTable}>
-//         <SelectSupplier />
-//         <ProductInput />
-//       </AdminForm>
-
-//       <AdminForm name='Import Status' cmd='get_import_status' allowPolling={true}>
-//         <SelectSupplier />
-//       </AdminForm>
-
-//       <AdminForm name='Import Products' cmd='import_products'>
-//         <SelectSupplier />
-//         {/* <SelectImportType /> */}
-//         <TextInput name='updated' defaultValue='2020-01-01' type='date' style={{ width: 150 }} />
-//         {/* <div className='input-group'>
-//           <label className='input-group-text'>Cursor</label>
-//           <TextInput name='cursor' defaultValue='' style={{ width: 150 }} />
-//         </div> */}
-//         {/* <PageSizeInput /> */}
-//         <CheckboxInput name='reset' checked={false} />
-//       </AdminForm>
-
-//       <AdminForm name='Cancel Import Products' cmd='cancel_import_products'>
-//         <SelectSupplier />
-//       </AdminForm>
-
-//       <AdminForm name='Clear Import Report' cmd='clear_import_report'>
-//         <SelectSupplier />
-//       </AdminForm>
-
-//       <AdminForm name='Get Log' cmd='get_log' allowPolling={true} RenderResult={ErrorLogs}>
-//         <SelectSupplier />
-//       </AdminForm>
-
-//       <AdminForm name='Clear Error Log' cmd='clear_log'>
-//         <SelectSupplier />
-//       </AdminForm>
-
-//       <AdminForm name='WPS API' cmd='western_api' allowPolling={true}>
-//         <TextInput name='url' defaultValue='/' />
-//       </AdminForm>
-
-//       <AdminForm name='Stock Update' cmd='update_products_stock_status' allowPolling={true}>
-//         <SelectSupplier />
-//       </AdminForm>
-
-//       <AdminForm name='Import Product' cmd='import_product'>
-//         <SelectSupplier />
-//         <ProductInput />
-//       </AdminForm>
-
-//       <AdminForm name='Get Product Status' cmd='get_product_status' allowPolling={true}>
-//         <SelectSupplier />
-//         <ProductInput />
-//       </AdminForm>
-
-//       <AdminForm name='Get Product' cmd='get_product'>
-//         <SelectSupplier />
-//         <ProductInput />
-//         <CheckboxInput name='light' checked={false} />
-//       </AdminForm>
-
-//       {/* <AdminForm name='Find Valid Product' cmd='find_valid_product'>
-//         <div className='d-flex flex-column gap-2'>
-//           <div>
-//             <SelectSupplier />
-//           </div>
-//           <div className='input-group'>
-//             <label className='input-group-text'>Max Pages</label>
-//             <TextInput name='max_pages' defaultValue='50' type='number' min={1} max={100} step={1} />
-//           </div>
-//           <PageSizeInput />
-//         </div>
-//       </AdminForm> */}
-
-//       {/* <AdminForm name='Is Importing Product?' cmd='is_importing_product' allowPolling={true}>
-//         <div className='input-group'>
-//           <SelectSupplier />
-//           <ProductInput />
-//         </div>
-//       </AdminForm> */}
-
-//       <AdminForm name='Import Product Status' cmd='get_import_product_status' allowPolling={true}>
-//         <SelectSupplier />
-//         <ProductInput />
-//       </AdminForm>
-
-//       <AdminForm name='Get Products Count' cmd='get_products_count'>
-//         <SelectSupplier />
-//         <TextInput name='updated' defaultValue='2020-01-01' type='date' style={{ width: 150 }} />
-//       </AdminForm>
-
-//       {/* <AdminForm name='Is Supplier Importing?' cmd='is_importing_products' allowPolling={true}>
-//         <div className='input-group'>
-//           <SelectSupplier />
-//         </div>
-//       </AdminForm> */}
-//     </div>
-//   );
-// };
 
 export const CSVTable = ({ data }: { data: { rows: string[][] } }) => {
   if (data?.rows && Array.isArray(data.rows)) {
@@ -379,7 +213,7 @@ export const AdminForm = ({ name, cmd, allowPolling = false, children = null, Re
   return (
     <div className='p-3 border rounded d-flex gap-3 w-100'>
       <form ref={$form} onSubmit={handleSubmit} className='d-flex flex-column gap-2' style={{ flex: '0 0 300px' }}>
-        <p className='m-0'>{cmd}</p>
+        <p className='m-0'>{name}</p>
         <input type='hidden' className='form-control' name='action' value='ci_api_handler' />
         <input type='hidden' className='form-control' name='cmd' value={cmd} />
         {children}

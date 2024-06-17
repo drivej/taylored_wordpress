@@ -1,5 +1,5 @@
-import { IAjaxQuery } from '../common/hooks/useJob';
-import { useWordpressAjax } from '../common/hooks/useWordpressAjax';
+import { IAjaxQuery } from '../models';
+import { useWordpressAjax } from '../utils/useWordpressAjax';
 
 export interface ISupplier {
   key: string;

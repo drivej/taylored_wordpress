@@ -3583,45 +3583,6 @@ var QueryClientProvider = ({
 //# sourceMappingURL=QueryClientProvider.js.map
 // EXTERNAL MODULE: ./node_modules/react-dom/client.js
 var client = __webpack_require__(745);
-;// CONCATENATED MODULE: ./src/common/utils/formatDuration.ts
-function formatDuration(seconds) {
-    var date = new Date(0);
-    if (seconds)
-        date.setSeconds(seconds); // specify value for SECONDS here
-    return date.toISOString().substring(11, 19);
-    //   if (isNaN(seconds)) return '';
-    //   seconds = Math.round(seconds);
-    //   const m = Math.floor(seconds / 60);
-    //   const s = seconds % 60;
-    //   return `${m}:${('0' + s).slice(-2)}`;
-}
-function formatDate(d) {
-    return d.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
-}
-function formatTimeAgo(seconds) {
-    const intervals = [
-        { label: 'year', seconds: 31536000 },
-        { label: 'month', seconds: 2592000 },
-        { label: 'day', seconds: 86400 },
-        { label: 'hour', seconds: 3600 },
-        { label: 'minute', seconds: 60 }
-    ];
-    let isFuture = seconds < 0;
-    seconds = Math.abs(seconds);
-    for (const interval of intervals) {
-        const count = Math.floor(seconds / interval.seconds);
-        if (count >= 1) {
-            if (isFuture) {
-                return count === 1 ? `in ${count} ${interval.label}` : `in ${count} ${interval.label}s`;
-            }
-            else {
-                return count === 1 ? `${count} ${interval.label} ago` : `${count} ${interval.label}s ago`;
-            }
-        }
-    }
-    return '<1 min ago';
-}
-
 ;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/modern/queryObserver.js
 // src/queryObserver.ts
 
@@ -4211,7 +4172,7 @@ function useQuery(options, queryClient) {
 // EXTERNAL MODULE: ./node_modules/cross-fetch/dist/browser-ponyfill.js
 var browser_ponyfill = __webpack_require__(98);
 var browser_ponyfill_default = /*#__PURE__*/__webpack_require__.n(browser_ponyfill);
-;// CONCATENATED MODULE: ./src/common/utils/fetchWordpressAjax.tsx
+;// CONCATENATED MODULE: ./src/utils/fetchWordpressAjax.tsx
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -4228,7 +4189,16 @@ function fetchWordpressAjax(params) {
     return __awaiter(this, void 0, void 0, function* () {
         const url = new URL(location.origin);
         url.pathname = window.ajaxurl; //'/wp-admin/admin-ajax.php';
-        Object.keys(params).forEach((k) => url.searchParams.set(k, params[k]));
+        Object.keys(params).forEach((k) => {
+            if (Array.isArray(params[k])) {
+                params[k].forEach((val) => {
+                    url.searchParams.append(`${k}[]`, val);
+                });
+            }
+            else {
+                url.searchParams.set(k, params[k]);
+            }
+        });
         const res = yield browser_ponyfill_default()(url);
         if (!res.ok) {
             const info = { message: 'ERROR', description: 'There was a problem' };
@@ -4245,7 +4215,7 @@ function fetchWordpressAjax(params) {
     });
 }
 
-;// CONCATENATED MODULE: ./src/common/hooks/useWordpressAjax.tsx
+;// CONCATENATED MODULE: ./src/utils/useWordpressAjax.tsx
 
 
 const useWordpressAjax = (query, options = {}) => useQuery(Object.assign({ queryKey: [query], queryFn: () => fetchWordpressAjax(query), placeholderData: keepPreviousData }, options));
@@ -4274,6 +4244,45 @@ const useTotalProducts = (supplier_key) => {
     return data;
 };
 
+;// CONCATENATED MODULE: ./src/utils/formatDuration.ts
+function formatDuration(seconds) {
+    var date = new Date(0);
+    if (seconds)
+        date.setSeconds(~~seconds); // specify value for SECONDS here
+    return date.toISOString().substring(11, 19);
+    //   if (isNaN(seconds)) return '';
+    //   seconds = Math.round(seconds);
+    //   const m = Math.floor(seconds / 60);
+    //   const s = seconds % 60;
+    //   return `${m}:${('0' + s).slice(-2)}`;
+}
+function formatDate(d) {
+    return d.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+}
+function formatTimeAgo(seconds) {
+    const intervals = [
+        { label: 'year', seconds: 31536000 },
+        { label: 'month', seconds: 2592000 },
+        { label: 'day', seconds: 86400 },
+        { label: 'hour', seconds: 3600 },
+        { label: 'minute', seconds: 60 }
+    ];
+    let isFuture = seconds < 0;
+    seconds = Math.abs(seconds);
+    for (const interval of intervals) {
+        const count = Math.floor(seconds / interval.seconds);
+        if (count >= 1) {
+            if (isFuture) {
+                return count === 1 ? `in ${count} ${interval.label}` : `in ${count} ${interval.label}s`;
+            }
+            else {
+                return count === 1 ? `${count} ${interval.label} ago` : `${count} ${interval.label}s ago`;
+            }
+        }
+    }
+    return '<1 min ago';
+}
+
 ;// CONCATENATED MODULE: ./src/overview/Overview.tsx
 
 
@@ -4281,19 +4290,11 @@ const useTotalProducts = (supplier_key) => {
 
 
 const Overview = () => {
-    // const data = useImportStatus();
     const suppliers = useSuppliers();
     if (suppliers.isSuccess) {
         return (react.createElement("div", { className: 'p-3 d-flex flex-column gap-2' }, suppliers.data.map((supplier) => (react.createElement(SupplierImportStatus, { supplier: supplier })))));
     }
     return null;
-    // return (
-    //   <div className='p-3'>
-    //     <h3>Welcome!</h3>
-    //     <Pre data={data?.data} />
-    //     <DebugLog />
-    //   </div>
-    // );
 };
 const SupplierImportStatus = ({ supplier }) => {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;

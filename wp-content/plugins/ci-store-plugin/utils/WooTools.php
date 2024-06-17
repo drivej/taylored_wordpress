@@ -349,6 +349,32 @@ class WooTools
         return $post_id;
     }
 
+    public static function getAllAttachmentImagesIdByUrl($urls)
+    {
+        $query = new \WP_Query(array(
+            // 'posts_per_page' => count($urls),
+            'post_status' => 'inherit',
+            'post_type' => 'attachment',
+            'meta_query' => [
+                ['key' => '_wp_attached_file', 'value' => $urls, 'compare' => 'IN'],
+            ],
+            'fields' => 'ids',
+        ));
+
+        wp_reset_postdata();
+
+        $result = array_fill_keys($urls, false);
+        if ($query->have_posts()) {
+            foreach ($query->posts as $post_id) {
+                $file = get_post_meta($post_id, '_wp_attached_file', true);
+                if (in_array($file, $urls)) {
+                    $result[$file] = $post_id;
+                }
+            }
+        }
+        return $result; //$query->posts;
+    }
+
     public static function createRemoteAttachment($image, $supplier_key)
     {
         $attachment_id = wp_insert_post([
@@ -364,19 +390,40 @@ class WooTools
         update_post_meta($attachment_id, 'filesize', $image['filesize']);
         update_post_meta($attachment_id, '_ci_remote_image', true);
         update_post_meta($attachment_id, '_ci_supplier_key', $supplier_key);
+        update_post_meta($attachment_id, 'sizes', []); // TODO: I think we need sizes
         return $attachment_id;
     }
 
     public static function sync_images($woo_product, $supplier_product, $supplier)
     {
+        $supplier->log('sync_images()');
         $woo_product_id = $woo_product->get_id();
         $supplier_variations = $supplier->extract_variations($supplier_product);
         $master_image_ids = [];
         $result = [];
         $result[] = ['woo_id', 'variation_id', 'attachment_id', 'image', 'width', 'height', 'filesize', 'type', 'action'];
 
+        $image_urls = [];
+        $valid_variations = [];
+
         foreach ($supplier_variations as $variation) {
             $variation_id = wc_get_product_id_by_sku($variation['sku']);
+            $supplier_variations['woo_variation_id'] = $variation_id;
+
+            if ($variation_id) {
+                $valid_variations[] = $variation;
+                if (isset($variation['images_data']) && is_countable($variation['images_data'])) {
+                    $new_image_urls = array_map(fn($image) => $image['file'], $variation['images_data']);
+                    array_push($image_urls, ...$new_image_urls);
+                }
+            }
+        }
+
+        $lookup_attachment_id = \WooTools::getAllAttachmentImagesIdByUrl($image_urls);
+
+        foreach ($valid_variations as $variation) {
+            // $variation_id = wc_get_product_id_by_sku($variation['sku']);
+            $variation_id = $supplier_variations['woo_variation_id'];
 
             if ($variation_id) {
                 $variation_image_ids = [];
@@ -384,7 +431,8 @@ class WooTools
                 if (isset($variation['images_data']) && is_countable($variation['images_data'])) {
                     foreach ($variation['images_data'] as $i => $image) {
                         $action = 'found';
-                        $attachment_id = WooTools::getAttachmentImageIdByUrl($image['file']);
+                        // $attachment_id = WooTools::getAttachmentImageIdByUrl($image['file']);
+                        $attachment_id = $lookup_attachment_id[$image['file']];
                         if (!$attachment_id) {
                             $action = 'create';
                             $attachment_id = WooTools::createRemoteAttachment($image, $supplier->key);
@@ -394,6 +442,7 @@ class WooTools
                             //     update_post_meta($attachment_id, 'width', $image['width']);
                             //     update_post_meta($attachment_id, 'height', $image['height']);
                             //     update_post_meta($attachment_id, 'filesize', $image['filesize']);
+                            // update_post_meta($attachment_id, 'sizes', []);
                         }
                         if ($attachment_id) {
                             $variation_image_ids[] = $attachment_id;
@@ -402,26 +451,34 @@ class WooTools
                         }
                     }
                     // set variation primary image
-                    set_post_thumbnail($variation_id, $variation_image_ids[0]);
-                    // set variation secondary images
-                    if (count($variation_image_ids) > 1) {
-                        $woo_variation = wc_get_product($variation_id);
-                        // $woo_variation = new \WC_Product_Variation($variation_id);
-                        $woo_variation->set_gallery_image_ids(array_slice($variation_image_ids, 1));
-                        $woo_variation->save();
+                    if (count($variation_image_ids) > 0) {
+                        // NOTE: this does not wokr for some reason
+                        // set_post_thumbnail($variation_id, $variation_image_ids[0]);
+                        update_post_meta($variation_id, '_thumbnail_id', $variation_image_ids[0]);
+                        // set variation secondary images
+                        if (count($variation_image_ids) > 1) {
+                            $woo_variation = wc_get_product($variation_id);
+                            // $woo_variation = new WC_Product_Variation($variation_id);
+                            // $woo_variation->set_gallery_image_ids(array_slice($variation_image_ids, 1));
+                            $woo_variation->save();
+                        } else {
+                        }
                     }
                 }
             }
         }
 
         // set master primary image
-        set_post_thumbnail($woo_product_id, $master_image_ids[0]);
-        $result[] = [$woo_product_id, $variation_id, $master_image_ids[0], '', 'master', 'found'];
-        // set master secondary image
-        if (count($master_image_ids) > 1) {
-            $product = wc_get_product($woo_product_id);
-            $product->set_gallery_image_ids(array_slice($master_image_ids, 1));
-            $product->save();
+        if (count($master_image_ids) > 0) {
+            // set_post_thumbnail($woo_product_id, $master_image_ids[0]);
+            update_post_meta($woo_product_id, '_thumbnail_id', $master_image_ids[0]);
+            $result[] = [$woo_product_id, $variation_id, $master_image_ids[0], '', 'master', 'found'];
+            // set master secondary image
+            if (count($master_image_ids) > 1) {
+                $product = wc_get_product($woo_product_id);
+                $product->set_gallery_image_ids(array_slice($master_image_ids, 1));
+                $product->save();
+            }
         }
         return $result;
     }

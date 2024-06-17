@@ -16,7 +16,7 @@ class Supplier
     public string $access_token_flag = '';
     public string $access_token_expires_flag = '';
     public string $import_products_page_flag = '';
-    public string $log_flag = '';
+    // public string $log_flag = '';
     public string $log_path = '';
     public string $start_import_products_flag = '';
     public string $daily_import_flag = '';
@@ -40,7 +40,7 @@ class Supplier
         $this->import_products_page_flag = $this->key . '_import_products_page';
         $this->import_report = 'ci_import_' . $this->key . '_report';
         $this->stall_check_action = $this->key . '_stall_check';
-        $this->log_flag = $this->key . '_log';
+        // $this->log_flag = $this->key . '_log';
         $this->log_path = CI_STORE_PLUGIN . 'logs/' . strtoupper($this->key) . '_LOG.log';
         $this->daily_import_flag = $this->key . '_daily_import';
         $this->start_daily_import_flag = $this->key . '_start_daily_import';
@@ -77,7 +77,6 @@ class Supplier
 
     public function log($file, $line = null, $message = null)
     {
-        error_log($this->log_path.'--'.$this->key);
         $spacer = "\n"; //"\n---\n";
         $t = gmdate("c");
         if ($line && $message) {
@@ -288,11 +287,11 @@ class Supplier
         }
     }
 
-    public function delete_product($supplier_product_id)
+    public function delete_product($supplier_product_id, $force = true)
     {
         $sku = $this->get_product_sku($supplier_product_id);
         $woo_product_id = wc_get_product_id_by_sku($sku);
-        return wp_delete_post($woo_product_id, true);
+        return wp_delete_post($woo_product_id, $force);
     }
 
     public function get_update_action($supplier_product)
@@ -688,5 +687,4 @@ class Supplier
             return null;
         }
     }
-
 }

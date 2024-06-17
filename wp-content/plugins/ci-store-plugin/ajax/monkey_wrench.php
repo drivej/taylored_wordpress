@@ -87,12 +87,12 @@ function monkey_wrench($params)
         return wp_get_schedules();
     }
 
-    if ($custom === 'turn14') {
-        $supplier = \CI\Admin\get_supplier('t14');
-        $response = $supplier->getAccessToken();
-        $brands = $supplier->get_api('/brands');
-        return ['token' => $response, 'brands' => $brands];
-    }
+    // if ($custom === 'turn14') {
+    //     $supplier = \CI\Admin\get_supplier('t14');
+    //     $response = $supplier->getAccessToken();
+    //     $brands = $supplier->get_api('/brands');
+    //     return ['token' => $response, 'brands' => $brands];
+    // }
 
     if ($custom === 'get_update_action') {
         $update_action = $supplier->get_update_action($supplier_product);

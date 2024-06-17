@@ -303,45 +303,70 @@ class Supplier_WPS extends Supplier
         $supplier_product = $this->get_product($supplier_product_id);
         if (!$supplier_product) {
             $this->log('update_product() API Error' . $supplier_product_id);
-            return;
+            return ['error' => 'update_product() API Error' . $supplier_product_id];
         }
         $is_available = $this->is_available($supplier_product);
 
         if (!$is_available) {
             $this->log('update_product() Product not available wps:' . $supplier_product_id);
-            return;
+            return ['error' => 'update_product() Product not available wps:' . $supplier_product_id];
         }
-        $this->update_product_action($supplier_product);
+        return $this->update_product_action($supplier_product);
     }
 
     public function update_product_action($supplier_product)
     {
-        $supplier_product_id = $supplier_product['data']['id'];
-        $woo_product_id = $this->get_woo_id($supplier_product_id);
+        try {
+            $supplier_product_id = $supplier_product['data']['id'];
+            $this->log('update_product_action() ' . $supplier_product_id);
+            $woo_product_id = $this->get_woo_id($supplier_product_id);
 
-        if (!$woo_product_id) {
-            $this->log('wps:' . $supplier_product_id . ' no woo product found for update');
-            return;
-        }
+            if (!$woo_product_id) {
+                $this->log('wps:' . $supplier_product_id . ' no woo product found for update');
+                return;
+            }
 
-        $woo_product = wc_get_product_object('variable', $woo_product_id);
-        $first_item = $supplier_product['data']['items']['data'][0];
-        $woo_product->set_name($supplier_product['data']['name']);
-        $woo_product->set_status('publish');
-        $woo_product->set_regular_price($first_item['list_price']);
-        $woo_product->set_stock_status('instock');
-        $woo_product->update_meta_data('_ci_import_version', $this->import_version);
-        $woo_product->update_meta_data('_ci_import_timestamp', gmdate("c"));
-        $woo_product->set_description($this->get_description($supplier_product));
+            $woo_product = wc_get_product_object('variable', $woo_product_id);
+            $first_item = $supplier_product['data']['items']['data'][0];
+            $woo_product->set_name($supplier_product['data']['name']);
+            $woo_product->set_status('publish');
+            $woo_product->set_regular_price($first_item['list_price']);
+            $woo_product->set_stock_status('instock');
+            $woo_product->update_meta_data('_ci_import_version', $this->import_version);
+            $woo_product->update_meta_data('_ci_import_timestamp', gmdate("c"));
+            $woo_product->set_description($this->get_description($supplier_product));
 
-        $this->update_product_taxonomy($woo_product, $supplier_product);
-        $this->update_product_attributes($woo_product, $supplier_product);
-        $this->update_product_variations($woo_product, $supplier_product);
-        $this->update_product_images($woo_product, $supplier_product);
+            // $time_start = microtime(true);
+            $this->update_product_taxonomy($woo_product, $supplier_product);
+            // $time_end = microtime(true);
+            // $execution_time = $time_end - $time_start;
+            // $this->log('update_product_taxonomy ' . $execution_time . 's');
 
-        $woo_id = $woo_product->save();
-        if (!$woo_id) {
-            $this->log('wps:' . $supplier_product_id . ' save failed for woo:' . $woo_id);
+            // $time_start = microtime(true);
+            $this->update_product_attributes($woo_product, $supplier_product);
+            // $time_end = microtime(true);
+            // $execution_time = $time_end - $time_start;
+            // $this->log('update_product_attributes ' . $execution_time . 's');
+
+            // $time_start = microtime(true);
+            $this->update_product_variations($woo_product, $supplier_product);
+            // $time_end = microtime(true);
+            // $execution_time = $time_end - $time_start;
+            // $this->log('update_product_variations ' . $execution_time . 's');
+
+            $time_start = microtime(true);
+            $this->update_product_images($woo_product, $supplier_product);
+            $time_end = microtime(true);
+            $execution_time = $time_end - $time_start;
+            $this->log('update_product_images ' . $execution_time . 's');
+
+            $woo_id = $woo_product->save();
+            if (!$woo_id) {
+                $this->log('wps:' . $supplier_product_id . ' save failed for woo:' . $woo_id);
+            }
+            return ['updated' => true];
+        } catch (Exception $e) {
+            return ['error' => $e];
         }
         // $this->log('update_product_action() ' . $this->key . ':' . $supplier_product['data']['id'].' => woo:'.$woo_id);
     }

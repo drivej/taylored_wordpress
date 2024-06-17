@@ -10,12 +10,12 @@ function custom_before_single_product()
     $is_product = is_product();
 
     if ($is_product) {
+        global $product;
 
         // expose product data
         wp_enqueue_script('product-details-script', plugin_dir_url(__FILE__) . '/js/product-details.js', array('jquery'), CI_VERSION, true);
 
         // Pass product data and variations to the script using wp_localize_script()
-        global $product;
         $product_data = array(
             'id' => $product->get_id(),
             'name' => $product->get_name(),
@@ -93,4 +93,4 @@ function custom_before_single_product()
     }
 }
 
-// add_action('woocommerce_before_single_product', 'custom_before_single_product', 20);
+add_action('woocommerce_before_single_product', 'custom_before_single_product', 20);

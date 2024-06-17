@@ -33,6 +33,18 @@ woo
 }
 /*
 
+fix product layout
+
+*/
+ul.products li.product img, 
+ul.products .wc-block-grid__product img, 
+.wc-block-grid__products li.product img, 
+.wc-block-grid__products .wc-block-grid__product img {
+  height: 300px;
+  object-fit: contain;
+}
+/*
+
 CI Gallery
 
 */

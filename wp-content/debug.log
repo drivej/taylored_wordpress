@@ -1,31 +1,89 @@
-[31-Mar-2024 11:45:13 UTC] PHP Fatal error:  Uncaught TypeError: Unsupported operand types: int + string in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/view_attributes.php:64
+[16-Jun-2024 20:24:35 UTC] Cron reschedule event error for hook: jetpack_clean_nonces, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"hourly","args":[],"interval":3600}
+[17-Jun-2024 00:16:52 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
+[17-Jun-2024 00:31:26 UTC] PHP Fatal error:  Uncaught TypeError: array_push(): Argument #1 ($array) must be of type array, null given in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php:414
 Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\view_attributes(Array)
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
-#5 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/view_attributes.php on line 64
-[31-Mar-2024 11:46:22 UTC] PHP Fatal error:  Uncaught TypeError: Unsupported operand types: int + string in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/view_attributes.php:64
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php(414): array_push(NULL, 'https://cdn.wps...')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php(22): WooTools::sync_images(Object(WC_Product_Variable), Array, Object(Supplier_WPS))
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
+#7 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php on line 414
+[17-Jun-2024 00:33:38 UTC] PHP Fatal error:  Uncaught TypeError: array_push(): Argument #1 ($array) must be of type array, null given in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php:415
 Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\view_attributes(Array)
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(188): do_action('wp_ajax_ci_api_...')
-#5 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/view_attributes.php on line 64
-[04-Apr-2024 16:04:09 UTC] PHP Fatal error:  Uncaught TypeError: array_filter(): Argument #1 ($array) must be of type array, null given in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/view_attributes.php:25
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php(415): array_push(NULL, 'https://cdn.wps...')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php(22): WooTools::sync_images(Object(WC_Product_Variable), Array, Object(Supplier_WPS))
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
+#7 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php on line 415
+[17-Jun-2024 00:33:59 UTC] PHP Fatal error:  Uncaught TypeError: array_push(): Argument #1 ($array) must be of type array, null given in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php:414
 Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/view_attributes.php(25): array_filter(NULL, Array)
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\view_attributes(Array)
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php(414): array_push(NULL, 'https://cdn.wps...')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php(22): WooTools::sync_images(Object(WC_Product_Variable), Array, Object(Supplier_WPS))
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
+#7 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php on line 414
+[17-Jun-2024 00:34:02 UTC] PHP Fatal error:  Uncaught TypeError: array_push(): Argument #1 ($array) must be of type array, null given in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php:414
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php(414): array_push(NULL, 'https://cdn.wps...')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php(22): WooTools::sync_images(Object(WC_Product_Variable), Array, Object(Supplier_WPS))
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
+#7 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php on line 414
+[17-Jun-2024 00:34:32 UTC] PHP Fatal error:  Uncaught TypeError: array_push(): Argument #1 ($array) must be of type array, null given in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php:414
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php(414): array_push(NULL, 'https://cdn.wps...')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php(22): WooTools::sync_images(Object(WC_Product_Variable), Array, Object(Supplier_WPS))
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
+#7 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php on line 414
+[17-Jun-2024 00:35:06 UTC] PHP Fatal error:  Uncaught TypeError: array_push(): Argument #1 ($array) must be of type array, null given in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php:414
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php(414): array_push(NULL, 'https://cdn.wps...')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php(23): WooTools::sync_images(Object(WC_Product_Variable), Array, Object(Supplier_WPS))
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
+#7 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php on line 414
+[17-Jun-2024 00:35:24 UTC] PHP Fatal error:  Uncaught TypeError: array_push(): Argument #1 ($array) must be of type array, null given in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php:414
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php(414): array_push(NULL, 'https://cdn.wps...')
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php(25): WooTools::sync_images(Object(WC_Product_Variable), Array, Object(Supplier_WPS))
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
+#7 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php on line 414
+[17-Jun-2024 01:46:23 UTC] PHP Fatal error:  Uncaught Error: Call to a member function get_id() on null in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php:400
+Stack trace:
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php(25): WooTools::sync_images(NULL, Array, Object(Supplier_WPS))
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
 #2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
 #3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
 #4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
 #5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
 #6 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/view_attributes.php on line 25
-[05-Apr-2024 13:36:18 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
-[05-Apr-2024 13:54:27 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
-[05-Apr-2024 14:04:32 UTC] Cron reschedule event error for hook: wc_admin_process_orders_milestone, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"hourly","args":[],"interval":3600}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php on line 400

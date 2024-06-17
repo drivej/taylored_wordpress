@@ -1,9 +1,35 @@
+function initThumbnails($gallery) {
+  const product_variations = woo_product_details.variations;
+  const $thumbnails = $gallery.querySelectorAll('.flex-control-thumbs li');
+  console.log({ $gallery, $thumbnails });
+  product_variations.forEach((variation) => {
+    const src = variation.image.gallery_thumbnail_src;
+    console.log('--->', src);
+    for (var i = 0; i < $thumbnails.length; i++) {
+      const $src = $thumbnails[i].querySelector('img').getAttribute('src');
+      console.log($thumbnails[i]);
+      if ($src === src) {
+        variation.$thumbnail = $thumbnails[i];
+      }
+    }
+  });
+  console.log({ product_variations });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // const product_variations = woo_product_details.variations;
+  const $gallery = document.querySelector('.woocommerce-product-gallery');
+
+  const observer = new MutationObserver(initThumbnails);
+  observer.observe($gallery, { childList: true, subtree:true });
+  // initThumbnails($gallery);
+  // console.log($gallery.innerHTML)
+});
+
 document.addEventListener('DOMContentLoaded', function () {
   // get variations from woo injected data
 
   const product_variations = woo_product_details.variations;
-
-  console.log({ product_variations });
 
   const $gallery = document.querySelector('.ci-gallery');
   const $thumbnails_container = document.querySelector('.ci-gallery-thumbnails');

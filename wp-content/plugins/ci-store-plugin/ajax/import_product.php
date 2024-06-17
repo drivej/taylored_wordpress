@@ -20,7 +20,11 @@ function update_product($params)
     $supplier_key = \AjaxManager::get_param('supplier_key', '', $params);
     $supplier_product_id = \AjaxManager::get_param('product_id', '', $params);
     $supplier = \CI\Admin\get_supplier($supplier_key);
-    $supplier->update_product($supplier_product_id);
+    if ($supplier) {
+        return $supplier->update_product($supplier_product_id);
+    } else {
+        return ['update_product' => $supplier_product_id, 'error' => 'no supplier'];
+    }
     return ['update_product' => $supplier_product_id];
 }
 

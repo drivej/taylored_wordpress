@@ -11,4 +11,6 @@ wp-content/plugins/ci-store-plugin/dist/*.hot-update.*
 wp-content/plugins/advanced-database-cleaner/
 wp-content/plugins/wp-crontrol/
 node_modules/
-wp-content/plugins/ci-store-plugin/logs/ 
+# wp-content/plugins/ci-store-plugin/logs/ 
+# wp-content/plugins/ci-store-plugin/logs/T14_LOG.log
+# wp-content/plugins/ci-store-plugin/logs/WPS_LOG.log
