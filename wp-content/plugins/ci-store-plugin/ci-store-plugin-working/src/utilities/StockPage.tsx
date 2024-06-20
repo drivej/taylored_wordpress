@@ -13,9 +13,9 @@ enum StockStatus {
   ERROR = 'error'
 }
 
-interface ISupplierActionQuery extends IAjaxQuery {
+export interface ISupplierActionQuery extends IAjaxQuery {
   func: string;
-  args: (string | number)[];
+  args: (string | number | boolean)[];
   supplier_key: string;
 }
 

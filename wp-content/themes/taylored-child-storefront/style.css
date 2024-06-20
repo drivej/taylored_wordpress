@@ -1,0 +1,110 @@
+/**
+ * Theme Name: Taylored E-COMM
+ * Template:   storefront
+ * Version: 1
+ */
+
+.storefront-primary-navigation {
+	background-color:#222;
+}
+.storefront-primay-navigation li a {
+	color:#fff;	
+}
+header ul.menu li.current-menu-item > a {
+	color:#ff9900 !important;
+}
+.header-widget-region .widget {
+    padding: .25em 0;
+}
+.storefront-breadcrumb {
+	margin-bottom:.25em;
+}
+body.page-template-template-fullwidth-category-lander .content-area {
+	width:100% !important;
+	float:none;
+}
+.wc-block-grid__products .wc-block-grid__product .price {
+	font-weight:800;
+	font-size:1rem;
+}
+:where(.wp-block-columns) {
+    margin-bottom: 0em;
+}
+
+.woopspro-product-slider li.product {
+	padding-top:20px;
+	padding-bottom:10px;
+}
+.woocommerce-LoopProduct-link {
+	min-height:275px;
+}
+.woopspro-doruct-slider .button {
+	margin-bottom:10px;
+}
+.cat-lander-title-divider, 
+h2.cat-lander-title-divider {
+	padding-top:10px;
+	margin-top:30px;
+	padding-bottom:10px;
+}
+.woopspro-product-slider .custom_modify_product_image img, 
+.custom-product-image img {
+	max-height:200px;
+}
+p+h2,p+header h2,p+h3,p+h4,ul+h2,ul+header h2,ul+h3,ul+h4,ol+h2,ol+header h2,ol+h3,ol+h4,table+h2,table+header h2,table+h3,table+h4,blockquote+h2,blockquote+header h2,blockquote+h3,blockquote+h4,form+h2,form+header h2,form+h3,form+h4 {
+    margin-top: 1.25em
+}
+.home.blog .site-header, .home.page:not(.page-template-template-homepage) .site-header, .home.post-type-archive-product .site-header {
+	margin-bottom:0px !important;
+}
+.demo_store, .woocommerce-info, .woocommerce-noreviews, p.no-comments {
+	background-color:rgba(179,4,7,0.80)
+}
+.wp-block-button__link.has-white-color.has-text-color.has-background.has-link-color:hover {
+	background-color:#000 !important;
+}
+@media (min-width: 768px) {
+	.left-sidebar .content-area.narrow-content {
+		width:60%;
+		max-width:650px;
+		float:none;
+		margin-left:auto;
+		margin-right:auto;
+	}
+	.page-template-template-fullwidth-content-only h1 {
+		text-align:center;
+	}
+	
+	.wc-block-grid.has-4-columns .wc-block-grid__product {
+		flex: 1 0 22% !important;
+		max-width: 22%!important;
+		margin: 1.5%;
+		 margin-bottom:15px;
+		 border:1px solid #efefef;
+		 padding:20px 15px 5px;
+	}
+	.wc-block-grid.has-5-columns .wc-block-grid__product {
+		flex: 1 0 17% !important;
+		max-width: 17%!important;
+		margin: 1.5%;
+		 margin-bottom:15px;
+		 border:1px solid #efefef;
+		 padding:20px 15px 5px;
+	}
+	.main-navigation ul.menu>li>a, .main-navigation ul.nav-menu>li>a,.site-header-cart .cart-contents {
+    	padding: .5em 1em;
+		color:#fff;	
+	}
+	.main-navigation ul.menu>li:hover {
+		background-color:#eb2227;
+	}
+	.site-header {
+    padding-top: 1.2em;
+	}
+	.col-full {
+		max-width:1450px;
+	}
+	.storefront-breadcrumb {
+    padding: 0.25em 0;
+	}
+}

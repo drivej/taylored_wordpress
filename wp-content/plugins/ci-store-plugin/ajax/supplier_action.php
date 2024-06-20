@@ -31,6 +31,11 @@ function supplier_action($params)
         $args = [];
     }
 
+    // convert truthy to boolean
+    $args = array_map(function ($arg) {
+        return $arg === 'true' ? true : ($arg === 'false' ? false : $arg);
+    }, $args);
+
     $response = call_user_func_array([$supplier, $func], $args);
 
     return ['meta' => ['supplier_key' => $supplier_key, 'func' => $func, 'args' => $args], 'data' => $response];

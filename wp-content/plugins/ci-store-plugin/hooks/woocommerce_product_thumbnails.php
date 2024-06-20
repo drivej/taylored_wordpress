@@ -344,7 +344,7 @@ return $html;
  */
 }
 
-// add_filter('woocommerce_single_product_image_thumbnail_html', 'custom_single_product_image_thumbnail_html', 10, 2);
+add_filter('woocommerce_single_product_image_thumbnail_html', 'custom_single_product_image_thumbnail_html', 10, 2);
 
 /*
 

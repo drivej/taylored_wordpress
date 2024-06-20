@@ -86,8 +86,39 @@ class Supplier_t14 extends Supplier
         return ['retry' => $retry, 'remote_url' => $remote_url, 'data' => $data];
     }
 
+    public function get_products_page($cursor = 1, $size = 10, $updated = '2020-01-01')
+    {
+        return $this->get_api('/items', ['page'=>$cursor]);
+        // if ($this->deep_debug) {
+        //     $this->log('get_products_page()');
+        // }
+
+        // $params = [];
+        // $params['include'] = implode(',', [
+        //     'items:filter(status_id|NLA|ne)', // we don't want to consider products that are no longer available
+        // ]);
+        // $params['filter[updated_at][gt]'] = $updated;
+        // if (isset($cursor)) {
+        //     $params['page[cursor]'] = $cursor;
+        // }
+        // $params['page[size]'] = $size;
+        // $params['fields[items]'] = 'id,updated_at,status_id';
+        // $params['fields[products]'] = 'id,name,updated_at';
+
+        // return $this->get_api('products', $params);
+    }
+
     public function get_product($product_id)
     {
-        return [];
+        $product_data = $this->get_api("/items/data/{$product_id}");
+        $product = $this->get_api("/items/{$product_id}");
+        $product['data']['item_data'] = $product_data['data']['data'];
+        $fitments = $this->get_api("/items/fitment/{$product_id}");
+        $product['data']['vehicle_fitments'] = $fitments;
+        return $product;
+    }
+
+    public function is_available($product){
+
     }
 }

@@ -41,7 +41,7 @@ class Supplier
         $this->import_report = 'ci_import_' . $this->key . '_report';
         $this->stall_check_action = $this->key . '_stall_check';
         // $this->log_flag = $this->key . '_log';
-        $this->log_path = CI_STORE_PLUGIN . 'logs/' . strtoupper($this->key) . '_LOG.log';
+        $this->log_path = CI_STORE_PLUGIN . 'logs/' . date('Y-m-d') . '_' . strtoupper($this->key) . '_LOG.log';
         $this->daily_import_flag = $this->key . '_daily_import';
         $this->start_daily_import_flag = $this->key . '_start_daily_import';
 
@@ -77,23 +77,25 @@ class Supplier
 
     public function log($file, $line = null, $message = null)
     {
-        $spacer = "\n"; //"\n---\n";
-        $t = gmdate("c");
-        if ($line && $message) {
-            $parts = explode('/', $file);
-            $filename = end($parts);
-            $filename = substr($filename, -30);
-            $filename = str_pad($filename, 30, " ");
-            $ln = 'ln:' . str_pad($line, 3, " ", STR_PAD_LEFT);
-            if (is_object($message) || is_array($message)) {
-                $message = json_encode($message, JSON_PRETTY_PRINT);
+        if ($this->allow_logging()) {
+            $spacer = "\n"; //"\n---\n";
+            $t = gmdate("c");
+            if ($line && $message) {
+                $parts = explode('/', $file);
+                $filename = end($parts);
+                $filename = substr($filename, -30);
+                $filename = str_pad($filename, 30, " ");
+                $ln = 'ln:' . str_pad($line, 3, " ", STR_PAD_LEFT);
+                if (is_object($message) || is_array($message)) {
+                    $message = json_encode($message, JSON_PRETTY_PRINT);
+                }
+                error_log($t . "\t" . $filename . ":" . $ln . "\t" . $message . $spacer, 3, $this->log_path);
+            } else {
+                if (is_object($file) || is_array($file)) {
+                    $file = json_encode($file, JSON_PRETTY_PRINT);
+                }
+                error_log($t . "\t" . $file . $spacer, 3, $this->log_path);
             }
-            error_log($t . "\t" . $filename . ":" . $ln . "\t" . $message . $spacer, 3, $this->log_path);
-        } else {
-            if (is_object($file) || is_array($file)) {
-                $file = json_encode($file, JSON_PRETTY_PRINT);
-            }
-            error_log($t . "\t" . $file . $spacer, 3, $this->log_path);
         }
     }
 
@@ -350,16 +352,16 @@ class Supplier
         return implode('_', ['MASTER', strtoupper($this->key), $product_id, 'VARIATION', $variation_id]);
     }
 
-    public function get_woo_id($product_id)
+    public function get_woo_id($supplier_product_id)
     {
-        $sku = $this->get_product_sku($product_id);
+        $sku = $this->get_product_sku($supplier_product_id);
         $woo_product_id = wc_get_product_id_by_sku($sku);
         return $woo_product_id;
     }
 
-    public function get_woo_product($product_id)
+    public function get_woo_product($supplier_product_id)
     {
-        $woo_product_id = $this->get_woo_id($product_id);
+        $woo_product_id = $this->get_woo_id($supplier_product_id);
         if ($woo_product_id) {
             $woo_product = wc_get_product($woo_product_id);
             return $woo_product;
@@ -398,6 +400,19 @@ class Supplier
     {
         wp_cache_flush();
         $option_name = 'ci_import_' . $this->key . '_product' . $supplier_product_id . '_running';
+        return (bool) get_option($option_name, false);
+    }
+
+    public function allow_logging($allow = null)
+    {
+        $option_name = 'ci_supplier_' . $this->key . '_allow_logging';
+        if (isset($allow)) {
+            $updated = update_option($option_name, (bool) $allow);
+            if (!$updated) {
+                error_log("Failed to update option: $option_name");
+                return $allow;
+            }
+        }
         return (bool) get_option($option_name, false);
     }
 

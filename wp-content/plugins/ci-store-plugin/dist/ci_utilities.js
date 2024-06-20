@@ -28548,6 +28548,7 @@ const LogsPage = () => {
 
 const MiscPage = () => {
     return (react.createElement(react.Fragment, null,
+        react.createElement(AdminForm, { name: 'Test Action', cmd: 'test_action' }),
         react.createElement(AdminForm, { name: 'Stall Import Test', cmd: 'stall_import' },
             react.createElement(SelectSupplier, null)),
         react.createElement(AdminForm, { name: 'Expire Product', cmd: 'expire_product' },
@@ -28612,6 +28613,7 @@ const MonkeyWrenchPage = () => {
 ;// CONCATENATED MODULE: ./src/utilities/ProductsPage.tsx
 
 
+
 const ProductsPage = () => {
     return (react.createElement(react.Fragment, null,
         react.createElement(AdminForm, { name: 'Get Product', cmd: 'get_product' },
@@ -28627,7 +28629,7 @@ const ProductsPage = () => {
         react.createElement(AdminForm, { name: 'View Attributes', cmd: 'view_attributes', RenderResult: CSVTable },
             react.createElement(SelectSupplier, null),
             react.createElement(ProductInput, null)),
-        react.createElement(AdminForm, { name: 'View Variations', cmd: 'view_variations', RenderResult: CSVTable },
+        react.createElement(AdminForm, { name: 'View Variations', cmd: 'view_variations', RenderResult: VariationsTable },
             react.createElement(SelectSupplier, null),
             react.createElement(ProductInput, null)),
         react.createElement(AdminForm, { name: 'WPS API', cmd: 'western_api', allowPolling: true },
@@ -28641,6 +28643,35 @@ const ProductsPage = () => {
         react.createElement(AdminForm, { name: 'Import Product Status', cmd: 'get_import_product_status', allowPolling: true },
             react.createElement(SelectSupplier, null),
             react.createElement(ProductInput, null))));
+};
+/*
+[{"file":"https:\/\/cdn.wpsstatic.com\/images\/200_max\/80c4-63d80b8053eff.png","width":1962,"height":1962,"filesize":4970814},{"file":"https:\/\/cdn.wpsstatic.com\/images\/200_max\/a1f9-63d80b8043f94.png","width":1869,"height":1869,"filesize":4068106},{"file":"https:\/\/cdn.wpsstatic.com\/images\/200_max\/5aab-63d80b8067ef8.png","width":2011,"height":2011,"filesize":3380976},{"file":"https:\/\/cdn.wpsstatic.com\/images\/200_max\/5afa-63d80b8053baf.png","width":1523,"height":1523,"filesize":2687793}]
+*/
+const VariationsTable = ({ data }) => {
+    var _a;
+    const processData = (c) => {
+        if (c) {
+            if (typeof c === 'string' && c.indexOf('file') > -1) {
+                try {
+                    const data = JSON.parse(c);
+                    return data.map((r) => react.createElement("img", { src: r.file, style: { width: 20, height: 20 } }));
+                }
+                catch (err) {
+                    return c;
+                }
+            }
+        }
+        return c;
+    };
+    if ((data === null || data === void 0 ? void 0 : data.rows) && Array.isArray(data.rows)) {
+        const rows = (_a = data === null || data === void 0 ? void 0 : data.rows) !== null && _a !== void 0 ? _a : [];
+        return (react.createElement(react.Fragment, null,
+            react.createElement("table", { className: 'table table-sm border', style: { fontSize: 11 } },
+                react.createElement("thead", null,
+                    react.createElement("tr", null, rows[0].map((r) => (react.createElement("td", null, r))))),
+                react.createElement("tbody", null, rows.slice(1).map((r) => (react.createElement("tr", null, r.map((c) => (react.createElement("td", null, processData(c)))))))))));
+    }
+    return react.createElement(Pre, { data: data });
 };
 
 ;// CONCATENATED MODULE: ./src/utils/formatDuration.ts

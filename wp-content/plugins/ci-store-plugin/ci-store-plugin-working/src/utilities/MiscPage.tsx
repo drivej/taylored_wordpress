@@ -4,17 +4,7 @@ import { AdminForm, CSVTable, CheckboxInput, ErrorLogs, ProductInput, SelectSupp
 export const MiscPage = () => {
   return (
     <>
-      {/* <AdminForm name='Set Product Visibility' cmd='product_visibility'>
-        <ProductInput />
-        <SelectInput
-          name='visible'
-          options={[
-            { name: 'visible', value: '1' },
-            { name: 'hidden', value: '0' }
-          ]}
-          initialValue='visible'
-        />
-      </AdminForm> */}
+      <AdminForm name='Test Action' cmd='test_action' />
 
       <AdminForm name='Stall Import Test' cmd='stall_import'>
         <SelectSupplier />
@@ -53,11 +43,6 @@ export const MiscPage = () => {
       <AdminForm name='Unschedule Daily Import' cmd='unschedule_daily_import'>
         <SelectSupplier />
       </AdminForm>
-
-      {/* <AdminForm name='Update Product' cmd='update_product' RenderResult={ErrorLogs}>
-        <SelectSupplier />
-        <ProductInput />
-      </AdminForm> */}
 
       <AdminForm name='Import Product' cmd='import_product'>
         <SelectSupplier />

@@ -3583,6 +3583,159 @@ var QueryClientProvider = ({
 //# sourceMappingURL=QueryClientProvider.js.map
 // EXTERNAL MODULE: ./node_modules/react-dom/client.js
 var client = __webpack_require__(745);
+;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/modern/mutationObserver.js
+// src/mutationObserver.ts
+
+
+
+
+var MutationObserver = class extends Subscribable {
+  constructor(client, options) {
+    super();
+    this.#currentResult = void 0;
+    this.#client = client;
+    this.setOptions(options);
+    this.bindMethods();
+    this.#updateResult();
+  }
+  #client;
+  #currentResult;
+  #currentMutation;
+  #mutateOptions;
+  bindMethods() {
+    this.mutate = this.mutate.bind(this);
+    this.reset = this.reset.bind(this);
+  }
+  setOptions(options) {
+    const prevOptions = this.options;
+    this.options = this.#client.defaultMutationOptions(options);
+    if (!shallowEqualObjects(prevOptions, this.options)) {
+      this.#client.getMutationCache().notify({
+        type: "observerOptionsUpdated",
+        mutation: this.#currentMutation,
+        observer: this
+      });
+    }
+    this.#currentMutation?.setOptions(this.options);
+    if (prevOptions?.mutationKey && this.options.mutationKey && hashKey(prevOptions.mutationKey) !== hashKey(this.options.mutationKey)) {
+      this.reset();
+    }
+  }
+  onUnsubscribe() {
+    if (!this.hasListeners()) {
+      this.#currentMutation?.removeObserver(this);
+    }
+  }
+  onMutationUpdate(action) {
+    this.#updateResult();
+    this.#notify(action);
+  }
+  getCurrentResult() {
+    return this.#currentResult;
+  }
+  reset() {
+    this.#currentMutation?.removeObserver(this);
+    this.#currentMutation = void 0;
+    this.#updateResult();
+    this.#notify();
+  }
+  mutate(variables, options) {
+    this.#mutateOptions = options;
+    this.#currentMutation?.removeObserver(this);
+    this.#currentMutation = this.#client.getMutationCache().build(this.#client, this.options);
+    this.#currentMutation.addObserver(this);
+    return this.#currentMutation.execute(variables);
+  }
+  #updateResult() {
+    const state = this.#currentMutation?.state ?? mutation_getDefaultState();
+    this.#currentResult = {
+      ...state,
+      isPending: state.status === "pending",
+      isSuccess: state.status === "success",
+      isError: state.status === "error",
+      isIdle: state.status === "idle",
+      mutate: this.mutate,
+      reset: this.reset
+    };
+  }
+  #notify(action) {
+    notifyManager.batch(() => {
+      if (this.#mutateOptions && this.hasListeners()) {
+        const variables = this.#currentResult.variables;
+        const context = this.#currentResult.context;
+        if (action?.type === "success") {
+          this.#mutateOptions.onSuccess?.(action.data, variables, context);
+          this.#mutateOptions.onSettled?.(action.data, null, variables, context);
+        } else if (action?.type === "error") {
+          this.#mutateOptions.onError?.(action.error, variables, context);
+          this.#mutateOptions.onSettled?.(
+            void 0,
+            action.error,
+            variables,
+            context
+          );
+        }
+      }
+      this.listeners.forEach((listener) => {
+        listener(this.#currentResult);
+      });
+    });
+  }
+};
+
+//# sourceMappingURL=mutationObserver.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/modern/utils.js
+// src/utils.ts
+function shouldThrowError(throwError, params) {
+  if (typeof throwError === "function") {
+    return throwError(...params);
+  }
+  return !!throwError;
+}
+
+//# sourceMappingURL=utils.js.map
+;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/modern/useMutation.js
+"use client";
+
+// src/useMutation.ts
+
+
+
+
+function useMutation(options, queryClient) {
+  const client = useQueryClient(queryClient);
+  const [observer] = react.useState(
+    () => new MutationObserver(
+      client,
+      options
+    )
+  );
+  react.useEffect(() => {
+    observer.setOptions(options);
+  }, [observer, options]);
+  const result = react.useSyncExternalStore(
+    react.useCallback(
+      (onStoreChange) => observer.subscribe(notifyManager.batchCalls(onStoreChange)),
+      [observer]
+    ),
+    () => observer.getCurrentResult(),
+    () => observer.getCurrentResult()
+  );
+  const mutate = react.useCallback(
+    (variables, mutateOptions) => {
+      observer.mutate(variables, mutateOptions).catch(useMutation_noop);
+    },
+    [observer]
+  );
+  if (result.error && shouldThrowError(observer.options.throwOnError, [result.error])) {
+    throw result.error;
+  }
+  return { ...result, mutate, mutateAsync: result.mutate };
+}
+function useMutation_noop() {
+}
+
+//# sourceMappingURL=useMutation.js.map
 ;// CONCATENATED MODULE: ./node_modules/@tanstack/query-core/build/modern/queryObserver.js
 // src/queryObserver.ts
 
@@ -4045,16 +4198,6 @@ var useIsRestoring = () => react.useContext(IsRestoringContext);
 var IsRestoringProvider = IsRestoringContext.Provider;
 
 //# sourceMappingURL=isRestoring.js.map
-;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/modern/utils.js
-// src/utils.ts
-function shouldThrowError(throwError, params) {
-  if (typeof throwError === "function") {
-    return throwError(...params);
-  }
-  return !!throwError;
-}
-
-//# sourceMappingURL=utils.js.map
 ;// CONCATENATED MODULE: ./node_modules/@tanstack/react-query/build/modern/errorBoundaryUtils.js
 "use client";
 
@@ -4289,6 +4432,9 @@ function formatTimeAgo(seconds) {
 
 
 
+
+
+
 const Overview = () => {
     const suppliers = useSuppliers();
     if (suppliers.isSuccess) {
@@ -4296,16 +4442,34 @@ const Overview = () => {
     }
     return null;
 };
+const useSupplierLogStatus = (supplier_key) => {
+    var _a, _b;
+    const queryClient = useQueryClient();
+    const query = { action: 'ci_api_handler', cmd: 'supplier_action', supplier_key, func: 'allow_logging', args: [] };
+    const data = useWordpressAjax(query, { enabled: !!supplier_key });
+    const mutation = useMutation({
+        mutationFn: (allow) => fetchWordpressAjax(Object.assign(Object.assign({}, query), { args: [allow] })),
+        onSuccess: (data) => {
+            queryClient.setQueryData([query], data);
+        }
+    });
+    const isLogging = (_b = (_a = data.data) === null || _a === void 0 ? void 0 : _a.data) !== null && _b !== void 0 ? _b : false;
+    return Object.assign(Object.assign({}, data), { isLogging, update: mutation.mutate });
+};
 const SupplierImportStatus = ({ supplier }) => {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
     const status = useImportStatus(supplier.key, true);
     const totalProducts = useTotalProducts(supplier.key);
+    const logging = useSupplierLogStatus(supplier.key);
     const getAgo = (dateStr) => {
         if (dateStr) {
             const t = new Date(Date.parse(dateStr)).getTime();
             return formatTimeAgo((Date.now() - t) / 1000);
         }
         return '-';
+    };
+    const toggleLogging = () => {
+        logging.update(!logging.isLogging);
     };
     const patch = (_b = (_a = status.data) === null || _a === void 0 ? void 0 : _a.report) === null || _b === void 0 ? void 0 : _b.patch;
     const lastStarted = status.isSuccess ? getAgo((_d = (_c = status.data) === null || _c === void 0 ? void 0 : _c.report) === null || _d === void 0 ? void 0 : _d.started) : '...';
@@ -4371,7 +4535,12 @@ const SupplierImportStatus = ({ supplier }) => {
                     nextImport),
                 react.createElement("p", null,
                     "Total Products: ",
-                    totalProducts.isLoading ? '...' : totalProducts.data.data.toLocaleString()))));
+                    totalProducts.isLoading ? '...' : totalProducts.data.data.toLocaleString()),
+                react.createElement("p", null,
+                    "Logging: ",
+                    logging.isLogging ? 'Yes' : 'No',
+                    ' ',
+                    react.createElement("a", { className: 'link-underline-secondary', onClick: toggleLogging }, logging.isLogging ? 'Deactivate' : 'Activate')))));
     }
     return null;
 };

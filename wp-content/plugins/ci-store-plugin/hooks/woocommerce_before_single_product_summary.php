@@ -93,4 +93,4 @@ function custom_modify_before_single_product_summary()
 
 }
 
-// add_action('woocommerce_before_single_product_summary', 'custom_modify_before_single_product_summary');
+add_action('woocommerce_before_single_product_summary', 'custom_modify_before_single_product_summary');

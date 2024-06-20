@@ -6,6 +6,57 @@ use Exception;
 
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/AjaxManager.php';
+require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
+include_once './get_woo_products.php';
+
+// TODO: can I use bigger sql queries to speed up import?
+function update_woo_products($params)
+{
+    $cursor = \AjaxManager::get_param('cursor', '', $params);
+    $woo_products = get_woo_products(['paged' => 0, 'posts_per_page' => 50]);
+    $supplier_key = 'wps'; //$product->get_meta('_ci_supplier_key');
+    $supplier = \CI\Admin\get_supplier($supplier_key);
+    // get products from supplier
+    $supplier_products = $supplier->get_products_page($cursor, 50, '2020-01-01');
+    $valid_supplier_products = [];
+    $skus = [];
+
+    foreach ($supplier_products['data'] as $i => $supplier_product) {
+        if ($supplier->is_available(['data' => $supplier_product])) {
+            $sku = $supplier->get_product_sku($supplier_product['id']);
+            $skus[] = $sku;
+            $supplier_products['data'][$i]['sku'] = $sku;
+            $valid_supplier_products[] = $supplier_products['data'][$i];
+        }
+    }
+    $woo_products = \WooTools::get_product_ids_by_skus($skus);
+
+    global $wpdb;
+    $placeholders = implode(',', array_fill(0, count($skus), '%s'));
+    $sql = $wpdb->prepare("SELECT meta_value AS sku, post_id AS variation_id FROM {$wpdb->prefix}postmeta WHERE meta_key = '_sku' AND meta_value IN ($placeholders)", ...$skus);
+    $results = $wpdb->get_results($wpdb->prepare($sql, $skus), ARRAY_A);
+    $sku_to_variation_id = array_column($results, 'variation_id', 'sku');
+    
+    return $sku_to_variation_id;
+
+
+    // $args = [
+    //     'post_type' => 'product',
+    //     'posts_per_page' => $report['input']['posts_per_page'],
+    //     'paged' => $report['input']['paged'],
+    //     'fields' => 'ids',
+    // ];
+
+    // // $query = new \WP_Query($args);
+
+    // get_posts(['post_type'=>'product', 'post_id'=>])
+
+    // foreach ($valid_supplier_products as $i => $supplier_product) {
+    //     $supplier_product['woo_id'] = $woo_products[$supplier_product['sku']];
+    // }
+
+    return ['woo_products'=>$woo_products, 'count'=> count($valid_supplier_products), 'orig'=>count($supplier_products['data']), 'supplier_products' => $valid_supplier_products];
+}
 
 function update_woo_product($params)
 {

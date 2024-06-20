@@ -624,6 +624,9 @@ class Supplier_WPS extends Supplier
         if ($this->deep_debug) {
             $this->log('get_product()');
         }
+        if (empty($product_id)) {
+            return null;
+        }
 
         $params = [];
         $params['include'] = implode(',', [

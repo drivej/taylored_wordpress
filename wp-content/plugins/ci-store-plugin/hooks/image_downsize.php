@@ -45,13 +45,12 @@ function custom_image_downsize($out, $id, $size)
     $is_remote = (bool) get_post_meta($id, '_ci_remote_image', true);
 
     if ($is_remote) {
-        $result['img'] = get_post($id);
         $supplier_key = get_post_meta($id, '_ci_supplier_key', true);
         if ($supplier_key) {
             $supplier = CI\Admin\get_supplier($supplier_key);
             if ($supplier) {
                 $file = get_post_meta($id, '_wp_attached_file');
-                if ($supplier) {
+                if ($file) {
                     // get width/height info from size name
                     $info = wc_get_image_size($size);
                     $width = isset($info['width']) ? $info['width'] : null;
@@ -61,7 +60,6 @@ function custom_image_downsize($out, $id, $size)
             }
         }
     }
-
     return $out;
 }
 

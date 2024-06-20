@@ -332,27 +332,9 @@ class WooTools
         $result['changed'] = $changed;
     }
 
-    public static function getAttachmentImageIdByUrl($url)
-    {
-        $query = new \WP_Query(array(
-            'posts_per_page' => 1,
-            'post_status' => 'inherit',
-            'post_type' => 'attachment',
-            'meta_query' => array(
-                array('key' => '_wp_attached_file', 'value' => $url, 'compare' => '='),
-            ),
-            'fields' => 'ids',
-        ));
-
-        $post_id = $query->post_count > 0 ? $query->posts[0] : false;
-        wp_reset_postdata();
-        return $post_id;
-    }
-
     public static function getAllAttachmentImagesIdByUrl($urls)
     {
         $query = new \WP_Query(array(
-            // 'posts_per_page' => count($urls),
             'post_status' => 'inherit',
             'post_type' => 'attachment',
             'meta_query' => [
@@ -372,7 +354,17 @@ class WooTools
                 }
             }
         }
-        return $result; //$query->posts;
+        return $result;
+    }
+
+    public static function get_product_ids_by_skus($skus)
+    {
+        global $wpdb;
+        $placeholders = implode(',', array_fill(0, count($skus), '%s'));
+        $sql = $wpdb->prepare("SELECT meta_value AS sku, post_id AS variation_id FROM {$wpdb->prefix}postmeta WHERE meta_key = '_sku' AND meta_value IN ($placeholders)", ...$skus);
+        $results = $wpdb->get_results($wpdb->prepare($sql, $skus), ARRAY_A);
+        $sku_to_variation_id = array_column($results, 'variation_id', 'sku');
+        return $sku_to_variation_id;
     }
 
     public static function createRemoteAttachment($image, $supplier_key)
@@ -402,19 +394,26 @@ class WooTools
         $master_image_ids = [];
         $result = [];
         $result[] = ['woo_id', 'variation_id', 'attachment_id', 'image', 'width', 'height', 'filesize', 'type', 'action'];
-
         $image_urls = [];
         $valid_variations = [];
+        $variation_skus = [];
 
+        // build lookup table for variation sku=>id
+        $variation_skus = array_map(fn($variation) => $variation['sku'], $supplier_variations);
+
+        // Get WooCommerce product IDs by SKUs
+        $lookup_variation_id = \WooTools::get_product_ids_by_skus($variation_skus);
+
+        // build lookup table for variation image url=>attachment_id
         foreach ($supplier_variations as $variation) {
-            $variation_id = wc_get_product_id_by_sku($variation['sku']);
-            $supplier_variations['woo_variation_id'] = $variation_id;
+            $variation_id = $lookup_variation_id[$variation['sku']] ?? null;
+            $variation['woo_variation_id'] = $variation_id;
 
             if ($variation_id) {
                 $valid_variations[] = $variation;
                 if (isset($variation['images_data']) && is_countable($variation['images_data'])) {
                     $new_image_urls = array_map(fn($image) => $image['file'], $variation['images_data']);
-                    array_push($image_urls, ...$new_image_urls);
+                    $image_urls = array_merge($image_urls, $new_image_urls);
                 }
             }
         }
@@ -422,8 +421,7 @@ class WooTools
         $lookup_attachment_id = \WooTools::getAllAttachmentImagesIdByUrl($image_urls);
 
         foreach ($valid_variations as $variation) {
-            // $variation_id = wc_get_product_id_by_sku($variation['sku']);
-            $variation_id = $supplier_variations['woo_variation_id'];
+            $variation_id = $variation['woo_variation_id'];
 
             if ($variation_id) {
                 $variation_image_ids = [];
@@ -436,13 +434,6 @@ class WooTools
                         if (!$attachment_id) {
                             $action = 'create';
                             $attachment_id = WooTools::createRemoteAttachment($image, $supplier->key);
-                        } else {
-                            // patch test images
-                            //     update_post_meta($attachment_id, '_ci_supplier_key', $supplier->key);
-                            //     update_post_meta($attachment_id, 'width', $image['width']);
-                            //     update_post_meta($attachment_id, 'height', $image['height']);
-                            //     update_post_meta($attachment_id, 'filesize', $image['filesize']);
-                            // update_post_meta($attachment_id, 'sizes', []);
                         }
                         if ($attachment_id) {
                             $variation_image_ids[] = $attachment_id;
