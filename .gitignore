@@ -15,3 +15,4 @@ wp-content/plugins/ci-store-plugin/logs/
 wp-content/plugins/ci-store-plugin/logs/WPS_LOG.log
 wp-content/plugins/ci-store-plugin/logs/T14_LOG.log
 wp-content/plugins/ci-store-plugin/logs/PATCH_PRODUCTS_LOG.log
+wp-content/debug.log

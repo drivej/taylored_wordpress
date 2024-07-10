@@ -2,6 +2,7 @@
 
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/debug_hook.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/get_product_image.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
 
 function custom_change_list_view_image()
 {
@@ -32,10 +33,33 @@ function custom_before_shop_loop_item()
     // print('custom_before_shop_loop_item');
     global $product;
 
-    if (should_debug()) {
-        $current_stock_status = $product->get_stock_status();
-        debug_data(['current_stock_status' => $current_stock_status, 'sku' => $product->get_sku()]);
-    }
+    $result = WooTools::update_loop_product($product);
+    debug_data($result);
+
+    // $product->get_meta('_ci_additional_images', true);
+
+    // $last_updated = $product->get_meta('_last_updated', true);
+    // $age = $last_updated ? WooTools::get_age($last_updated, 'hours') : 99999;
+    // // print_r(['last_updated' => $last_updated, 'age' => $age]);
+    // // return;
+
+    // if ($age > -48) {
+    //     print_r(['updated' => true]);
+    //     $supplier_product_id = $product->get_meta('_ci_product_id', true);
+    //     $supplier_key = $product->get_meta('_ci_supplier_key', true);
+    //     $supplier = WooTools::get_supplier($supplier_key);
+    //     // $supplier = WooTools::get_product_supplier($product);
+    //     $supplier->attach_images(['data' => ['id' => $supplier_product_id]]);
+    //     // $product->update_meta('_last_updated', gmdate("c"));
+
+    //     $product_id = $product->get_id();
+    //     update_post_meta($product_id, '_last_updated', gmdate("c"));
+    // }
+
+    // if (should_debug()) {
+    //     $current_stock_status = $product->get_stock_status();
+    //     debug_data(['current_stock_status' => $current_stock_status, 'sku' => $product->get_sku()]);
+    // }
 
     return;
 
@@ -97,4 +121,4 @@ function custom_before_shop_loop_item()
     // print '<img title="custom_before_shop_loop_item" src="' . esc_url($src) . '">';
 }
 
-// add_action('woocommerce_before_shop_loop_item', 'custom_before_shop_loop_item');
+add_action('woocommerce_before_shop_loop_item', 'custom_before_shop_loop_item');

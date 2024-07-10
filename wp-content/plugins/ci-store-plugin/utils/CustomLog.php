@@ -8,12 +8,18 @@ class CustomLog
     public function __construct($key)
     {
         $this->key = sanitize_title($key);
-        $this->log_path = CI_STORE_PLUGIN . 'logs/' . strtoupper($this->key) . '_LOG.log';
-        set_error_handler([$this, 'log']);
+        $this->log_path = CI_STORE_PLUGIN . 'logs/' . strtoupper($this->key) . '.log';
+        // error_log($this->log_path);
+        // TODO:Not sure I need this? I def do not understand it clearly
+        // https://www.php.net/manual/en/function.set-error-handler.php 
+        // set_error_handler([$this, 'log']);
     }
 
     public function log($message)
     {
+        error_log(gmdate("c") . "\t" . $message . "\n", 3, $this->log_path);
+        return;
+
         $spacer = "\n";
         $t = gmdate("c");
         if (is_object($message) || is_array($message)) {

@@ -11,8 +11,8 @@ function import_product($params)
     $supplier_key = \AjaxManager::get_param('supplier_key', '', $params);
     $supplier_product_id = \AjaxManager::get_param('product_id', '', $params);
     $supplier = \CI\Admin\get_supplier($supplier_key);
-    $supplier->import_product($supplier_product_id);
-    return ['import_product' => $supplier_product_id];
+    $result = $supplier->import_product($supplier_product_id);
+    return ['import_product' => $supplier_product_id, 'result' => $result];
 }
 
 function update_product($params)

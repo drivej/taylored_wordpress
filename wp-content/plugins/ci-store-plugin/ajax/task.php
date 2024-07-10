@@ -23,7 +23,7 @@ function patch_product_images($woo_product_id)
             global $patch_task;
             $patch_task->log('patch_product_images:' . $woo_product_id);
         } catch (Exception $e) {
-            $patch_task->log($e);
+            $patch_task->log('err:' . $e);
         }
     }
 }
@@ -46,7 +46,7 @@ function patch_product_stock($woo_product_id)
             global $patch_task;
             $patch_task->log('patch_product_stock:' . $woo_product_id . ' deleted=' . $deleted);
         } catch (Exception $e) {
-            $patch_task->log($e);
+            $patch_task->log('err:' . $e);
         }
     }
 }
@@ -143,7 +143,9 @@ class PatchTask extends \Tasket
     }
 }
 
-$patch_task = new PatchTask();
+// TODO: this is spamming the PATCH_PRODUCTS_LOG.log
+
+// $patch_task = new PatchTask();
 
 // $patch_task = new \Tasket('patch_products');
 

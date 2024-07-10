@@ -1,9 +1,50 @@
 <?php
 
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/index.php';
+require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_insert_unique_posts.php';
+require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_insert_unique_metas.php';
 
 class WooTools
 {
+    use WooTools_insert_unique_posts;
+    use WooTools_insert_unique_metas;
+
+    /**
+     *
+     * @param WC_Product    $product
+     * @param string    $units
+     */
+    public static function get_product_age($product, $units = 'hours')
+    {
+        $last_updated = $product->get_meta('_last_updated', true);
+        return $last_updated ? WooTools::get_age($last_updated, $units) : 99999;
+    }
+    /**
+     *
+     * @param WC_Product    $woo_product
+     */
+    // fires woocommerce_before_single_product
+    public static function update_single_product($woo_product)
+    {
+        $supplier = WooTools::get_product_supplier($woo_product);
+        if ($supplier) {
+            return $supplier->update_single_product($woo_product);
+        }
+        return ['updated' => false, 'reason' => 'no supplier'];
+    }
+    /**
+     *
+     * @param WC_Product    $woo_product
+     */
+    // fires woocommerce_before_shop_loop_item
+    public static function update_loop_product($woo_product)
+    {
+        $supplier = WooTools::get_product_supplier($woo_product);
+        if ($supplier) {
+            return $supplier->update_loop_product($woo_product);
+        }
+        return false;
+    }
     /**
      *
      * @param WC_Product    $woo_product
@@ -11,6 +52,24 @@ class WooTools
     public static function get_product_supplier_key($woo_product)
     {
         return $woo_product->get_meta('_ci_supplier_key', true);
+    }
+    /**
+     *
+     * @param WC_Product    $woo_product
+     */
+    public static function has_images($woo_product)
+    {
+        $image = $woo_product->get_image_id();
+        if ($image) {
+            return true;
+        }
+
+        $gallery = $woo_product->get_gallery_image_ids();
+        if (count($gallery)) {
+            return true;
+        }
+
+        return false;
     }
 
     public static function get_supplier($supplier_key)
@@ -334,27 +393,176 @@ class WooTools
 
     public static function getAllAttachmentImagesIdByUrl($urls)
     {
-        $query = new \WP_Query(array(
-            'post_status' => 'inherit',
-            'post_type' => 'attachment',
-            'meta_query' => [
-                ['key' => '_wp_attached_file', 'value' => $urls, 'compare' => 'IN'],
-            ],
-            'fields' => 'ids',
-        ));
+        global $wpdb;
 
-        wp_reset_postdata();
+        if (!count($urls)) {
+            return [];
+        }
+        $placeholders = implode(',', array_fill(0, count($urls), '%s'));
 
+        // SQL query to get post IDs and their _wp_attached_file meta values
+        $sql = "
+            SELECT post_id, meta_value as file
+            FROM {$wpdb->postmeta}
+            WHERE meta_key = '_wp_attached_file'
+            AND meta_value IN ($placeholders)
+        ";
+
+        // Execute the query with the URLs as parameters
+        $results = $wpdb->get_results($wpdb->prepare($sql, $urls));
+
+        // Initialize result array with false for each URL
         $result = array_fill_keys($urls, false);
-        if ($query->have_posts()) {
-            foreach ($query->posts as $post_id) {
-                $file = get_post_meta($post_id, '_wp_attached_file', true);
-                if (in_array($file, $urls)) {
-                    $result[$file] = $post_id;
-                }
+
+        // Fill the result array with post IDs
+        foreach ($results as $row) {
+            if (in_array($row->file, $urls)) {
+                $result[$row->file] = $row->post_id;
             }
         }
+
         return $result;
+    }
+
+    public static function get_age($dateString, $units = 'hours')
+    {
+        // $dateString = "2024-06-22T19:30:04+00:00";
+        $date = new DateTime($dateString);
+        $now = new DateTime();
+        $interval = $now->diff($date);
+
+        switch ($units) {
+            case 'seconds':
+                $seconds = ($interval->days * 24 * 60 * 60) + ($interval->h * 60 * 60) + ($interval->i * 60) + $interval->s;
+                return $seconds;
+
+            case 'minutes':
+                $minutes = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i + ($interval->s / 60);
+                return round($minutes);
+
+            case 'hours':
+            default:
+                $hours = ($interval->days * 24) + $interval->h + ($interval->i / 60) + ($interval->s / 3600);
+                return round($hours);
+        }
+    }
+
+    public static function unpublish($post_ids)
+    {
+        if (!is_array($post_ids) || count($post_ids) === 0) {
+            return true;
+        }
+        global $wpdb;
+        $post_ids_placeholder = implode(',', array_fill(0, count($post_ids), '%d'));
+        $sql = $wpdb->prepare("UPDATE {$wpdb->posts} SET post_status = 'draft' WHERE ID IN ($post_ids_placeholder)", $post_ids);
+        $wpdb->query($sql);
+        error_log('WooTools::unpublish() ' . count($post_ids));
+    }
+
+    public static function get_metas($post_ids, $meta_keys)
+    {
+        if (!is_array($post_ids) || count($post_ids) === 0) {
+            return [];
+        }
+        global $wpdb;
+        // $post_ids = [1, 2, 3, 4]; // replace with your array of post IDs
+        // $meta_keys = ['_meta_key1', '_meta_key2', '_meta_key3']; // replace with your meta keys
+
+        $placeholders = implode(',', array_fill(0, count($post_ids), '%d'));
+        $meta_placeholders = implode(',', array_fill(0, count($meta_keys), '%s'));
+
+        $sql = "
+            SELECT
+                post_id,
+                meta_key,
+                meta_value
+            FROM
+                {$wpdb->postmeta}
+            WHERE
+                post_id IN ($placeholders)
+                AND meta_key IN ($meta_placeholders)
+        ";
+
+        $query = $wpdb->prepare($sql, array_merge($post_ids, $meta_keys));
+        $results = $wpdb->get_results($query);
+
+        $lookup = [];
+        foreach ($results as $row) {
+            if (!isset($lookup[$row->post_id])) {
+                $lookup[$row->post_id] = [];
+            }
+            $lookup[$row->post_id][$row->meta_key] = $row->meta_value;
+        }
+        return $lookup;
+    }
+
+    public static function get_meta_lookup_by_ids($ids, $meta_key)
+    {
+        if (!is_array($ids) || count($ids) === 0) {
+            return [];
+        }
+        global $wpdb;
+        $meta_key = esc_sql($meta_key);
+        $placeholders = implode(',', array_fill(0, count($ids), '%d'));
+        $sql = "
+            SELECT post_id, meta_value
+            FROM {$wpdb->postmeta}
+            WHERE meta_key = '{$meta_key}'
+            AND post_id IN ($placeholders)
+        ";
+        $results = $wpdb->get_results($wpdb->prepare($sql, $ids));
+        // Convert the results to an associative array with post_id as keys
+        $lookup = array_column($results, 'meta_value', 'post_id');
+        return $lookup;
+    }
+
+    public static function get_import_timestamps_by_ids($ids)
+    {
+        return WooTools::get_meta_lookup_by_ids($ids, '_ci_import_timestamp');
+        // global $wpdb;
+        // $placeholders = implode(',', array_fill(0, count($ids), '%d'));
+        // $sql = "
+        //     SELECT post_id, meta_value AS import_timestamp
+        //     FROM {$wpdb->postmeta}
+        //     WHERE meta_key = '_ci_import_timestamp'
+        //     AND post_id IN ($placeholders)
+        // ";
+        // $results = $wpdb->get_results($wpdb->prepare($sql, $ids));
+        // $lookup = array_column($results, 'import_timestamp', 'post_id');
+        // return $lookup;
+    }
+
+    public static function get_import_version_by_ids($ids)
+    {
+        return WooTools::get_meta_lookup_by_ids($ids, '_ci_import_version');
+        // global $wpdb;
+        // $placeholders = implode(',', array_fill(0, count($ids), '%d'));
+        // $sql = "
+        //     SELECT post_id, meta_value
+        //     FROM {$wpdb->postmeta}
+        //     WHERE meta_key = '_ci_import_version'
+        //     AND post_id IN ($placeholders)
+        // ";
+        // $results = $wpdb->get_results($wpdb->prepare($sql, $ids));
+        // $lookup = array_column($results, 'meta_value', 'post_id');
+        // return $lookup;
+    }
+
+    public static function lookup_woo_ids_by_skus($skus)
+    {
+        global $wpdb;
+        $placeholders = implode(',', array_fill(0, count($skus), '%s'));
+        $sql = "
+                SELECT p.ID, pm.meta_value AS sku
+                FROM {$wpdb->posts} p
+                INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+                WHERE p.post_type = 'product'
+                AND pm.meta_key = '_sku'
+                AND pm.meta_value IN ($placeholders)
+            ";
+        $results = $wpdb->get_results($wpdb->prepare($sql, $skus));
+        $lookup_woo_id = array_column($results, 'ID', 'sku');
+        return $lookup_woo_id;
     }
 
     public static function get_product_ids_by_skus($skus)
@@ -367,23 +575,172 @@ class WooTools
         return $sku_to_variation_id;
     }
 
+    public static function delete_transients()
+    {
+        global $wpdb;
+        return $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE ('%_transient_%')");
+    }
+
     public static function createRemoteAttachment($image, $supplier_key)
     {
+        if (!is_array($image) || !isset($image['file']) || !isset($image['width']) || !isset($image['height'])) {
+            return false;
+        }
         $attachment_id = wp_insert_post([
             'post_parent' => 0,
             'post_type' => 'attachment',
             'post_mime_type' =>
             'image/jpeg',
             'post_status' => 'inherit',
+            'meta_input' => [
+                '_wp_attached_file' => $image['file'],
+                'width' => $image['width'],
+                'height' => $image['height'],
+                'filesize' => isset($image['filesize']) ? $image['filesize'] : 1,
+                '_ci_remote_image' => true,
+                '_ci_supplier_key' => $supplier_key,
+                'sizes' => [],
+            ],
         ], false, false);
-        update_post_meta($attachment_id, '_wp_attached_file', $image['file']);
-        update_post_meta($attachment_id, 'width', $image['width']);
-        update_post_meta($attachment_id, 'height', $image['height']);
-        update_post_meta($attachment_id, 'filesize', $image['filesize']);
-        update_post_meta($attachment_id, '_ci_remote_image', true);
-        update_post_meta($attachment_id, '_ci_supplier_key', $supplier_key);
-        update_post_meta($attachment_id, 'sizes', []); // TODO: I think we need sizes
+
+        // update_post_meta($attachment_id, '_wp_attached_file', $image['file']);
+        // update_post_meta($attachment_id, 'width', $image['width']);
+        // update_post_meta($attachment_id, 'height', $image['height']);
+        // update_post_meta($attachment_id, 'filesize', $image['filesize']);
+        // update_post_meta($attachment_id, '_ci_remote_image', true);
+        // update_post_meta($attachment_id, '_ci_supplier_key', $supplier_key);
+        // update_post_meta($attachment_id, 'sizes', []); // TODO: I think we need sizes
         return $attachment_id;
+    }
+
+    // TODO:  not working
+    public static function bulkCreateRemoteAttachments($images, $supplier_key)
+    {
+        global $wpdb;
+
+        if (empty($images)) {
+            return [
+                'success' => [],
+                'failure' => [],
+                'message' => 'No images to insert',
+            ];
+        }
+
+        $attachments = [];
+        foreach ($images as $image) {
+            $attachments[] = [
+                'post_data' => [
+                    'post_parent' => 0,
+                    'post_type' => 'attachment',
+                    'post_mime_type' => 'image/jpeg',
+                    'post_status' => 'inherit',
+                ],
+                'meta_data' => [
+                    '_wp_attached_file' => $image['file'],
+                    'width' => $image['width'],
+                    'height' => $image['height'],
+                    'filesize' => isset($image['filesize']) ? $image['filesize'] : 1,
+                    '_ci_remote_image' => true,
+                    '_ci_supplier_key' => $supplier_key,
+                    'sizes' => [$image['size']],
+                ],
+            ];
+        }
+
+        $post_values = [];
+        $meta_values = [];
+        $post_data_map = []; // To keep track of which post data maps to which meta data
+
+        foreach ($attachments as $index => $attachment) {
+            $post_data = $attachment['post_data'];
+            $post_values[] = $wpdb->prepare("(%d, %s, %s, %s)", $post_data['post_parent'], $post_data['post_type'], $post_data['post_mime_type'], $post_data['post_status']);
+            $post_data_map[$index] = $attachment['meta_data'];
+        }
+
+        $post_values = implode(',', $post_values);
+        $result = $wpdb->query("INSERT INTO {$wpdb->posts} (post_parent, post_type, post_mime_type, post_status) VALUES $post_values");
+
+        if ($result === false) {
+            return [
+                'success' => [],
+                'failure' => $attachments,
+                'message' => 'Failed to insert posts',
+            ];
+        }
+
+        $last_post_id = $wpdb->insert_id;
+        $success = [];
+        $failure = [];
+
+        foreach ($post_data_map as $index => $meta_data) {
+            $current_post_id = $last_post_id + $index;
+            $meta_inserts = [];
+
+            foreach ($meta_data as $meta_key => $meta_value) {
+                $meta_inserts[] = $wpdb->prepare("(%d, %s, %s)", $current_post_id, $meta_key, $meta_value);
+            }
+
+            $meta_values = implode(',', $meta_inserts);
+            $meta_result = $wpdb->query("INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value) VALUES $meta_values");
+
+            if ($meta_result === false) {
+                $failure[] = [
+                    'post_id' => $current_post_id,
+                    'meta_data' => $meta_data,
+                ];
+            } else {
+                $success[] = $current_post_id;
+            }
+        }
+
+        return [
+            'success' => $success,
+            'failure' => $failure,
+            'message' => 'Bulk insert completed',
+        ];
+    }
+
+    public static function delete_orphaned_attachments()
+    {
+        global $wpdb;
+        $meta_key = '_wp_attached_file';
+
+        // Select IDs of unattached attachments with the specific meta key
+        $sql = $wpdb->prepare("
+            SELECT p.ID
+            FROM {$wpdb->posts} p
+            INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+            WHERE p.post_type = 'attachment'
+            AND p.post_parent = 0
+            AND pm.meta_key = '_wp_attached_file'
+        ");
+
+        // Get the IDs of attachments to delete
+        $attachment_ids = $wpdb->get_col($sql);
+        // return $attachment_ids;
+
+        if (!empty($attachment_ids)) {
+            $placeholders = implode(',', array_fill(0, count($attachment_ids), '%d'));
+
+            // Delete from postmeta
+            $wpdb->query(
+                $wpdb->prepare("
+                        DELETE FROM {$wpdb->postmeta}
+                        WHERE post_id IN ($placeholders)
+                    ", $attachment_ids)
+            );
+
+            // Delete from posts
+            $wpdb->query(
+                $wpdb->prepare("
+                        DELETE FROM {$wpdb->posts}
+                        WHERE ID IN ($placeholders)
+                    ", $attachment_ids)
+            );
+        }
+
+        return ['deleted' => count($attachment_ids)];
+
     }
 
     public static function sync_images($woo_product, $supplier_product, $supplier)
@@ -416,6 +773,10 @@ class WooTools
                     $image_urls = array_merge($image_urls, $new_image_urls);
                 }
             }
+        }
+
+        if (!count($image_urls)) {
+            return false;
         }
 
         $lookup_attachment_id = \WooTools::getAllAttachmentImagesIdByUrl($image_urls);
@@ -582,10 +943,10 @@ class WooTools
 
         // 223856
 
-// Get the existing attributes of the product
+        // Get the existing attributes of the product
         // $product_attributes = get_post_meta($product_id, '_product_attributes', true);
 
-// Check if the attribute exists in the product attributes
+        // Check if the attribute exists in the product attributes
         // if (isset($product_attributes[$attribute_name])) {
         // Remove the attribute from the product attributes
         // unset($product_attributes[$attribute_name]);

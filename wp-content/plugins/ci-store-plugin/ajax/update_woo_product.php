@@ -7,7 +7,7 @@ use Exception;
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/AjaxManager.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
-include_once './get_woo_products.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/ajax/get_woo_products.php';
 
 // TODO: can I use bigger sql queries to speed up import?
 function update_woo_products($params)

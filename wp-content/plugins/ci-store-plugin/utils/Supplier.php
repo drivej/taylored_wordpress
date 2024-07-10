@@ -1,5 +1,21 @@
 <?php
 
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/CronJob.php';
+
+class SupplierProductMeta
+{
+    public string $woo_id;
+    public string $product_type;
+    public array $images;
+    public bool $is_available;
+}
+
+class SupplierProduct
+{
+    public array $data;
+    public SupplierProductMeta $meta;
+}
+
 class Supplier
 {
     protected bool $active = true;
@@ -21,8 +37,9 @@ class Supplier
     public string $start_import_products_flag = '';
     public string $daily_import_flag = '';
     public string $start_daily_import_flag = '';
-
+    public CronJob $cronjob;
     public bool $deep_debug = false;
+    public int $max_age = 24 * 7; // stale product age
 
     public function __construct($config)
     {
@@ -44,6 +61,7 @@ class Supplier
         $this->log_path = CI_STORE_PLUGIN . 'logs/' . date('Y-m-d') . '_' . strtoupper($this->key) . '_LOG.log';
         $this->daily_import_flag = $this->key . '_daily_import';
         $this->start_daily_import_flag = $this->key . '_start_daily_import';
+        $this->cronjob = new CronJob("cronjob_import_{$this->key}", [$this, 'run_cronjob'], [$this, 'complete_cronjob']);
 
         add_action($this->stall_check_action, array($this, 'stall_check'));
         add_action($this->start_import_products_flag, array($this, 'start_import_products'), 10);
@@ -51,6 +69,52 @@ class Supplier
         add_action('wp', array($this, 'schedule_daily_import'));
         add_action($this->start_daily_import_flag, array($this, 'start_daily_import'), 10);
         set_error_handler([$this, 'log']);
+    }
+
+    public function start_cronjob(string $action)
+    {
+        $result = false;//$this->cronjob->start(['page_index' => 1]);
+        return ['message' => 'start_cronjob()', 'result' => $result];
+    }
+
+    // TODO: convert to background process for WPS
+    public function run_cronjob($args)
+    {
+        $args_str = json_encode(['args' => $args]);
+        $start_time = microtime(true);
+        $this->cronjob->log("run_cronjob() start args:{$args_str}");
+        $result = ['continue' => false];
+        $end_time = microtime(true);
+        $exetime = round($end_time - $start_time);
+        $this->cronjob->log("run_cronjob() end args:{$args_str} exe:{$exetime}");
+        return $result;
+    }
+
+    public function complete_cronjob($result, $args)
+    {
+        $page_index = $args['page_index'];
+        $next_page = $page_index + 1;
+
+        if ($result['continue'] === true) {
+            $args['page_index'] = $next_page;
+            $this->cronjob->log('continue() ' . json_encode(['result' => $result, 'args' => $args]));
+            $this->cronjob->start($args);
+        } else {
+            $this->cronjob->log('complete_cronjob() ' . json_encode(['result' => $result, 'args' => $args]));
+        }
+    }
+
+    public function continue_cronjob()
+    {
+        //
+    }
+
+    public function get_cronjob_status()
+    {
+        // return $this->background_process->get_status();
+        // $is_running = $this->background_process->is_process_running();
+        // return ['is_running' => $is_running];
+        // return ['cronjob' => $this->cronjob->get_status(), 'task' => $this->background_process->get_status()];
     }
 
     // placeholder
@@ -73,6 +137,23 @@ class Supplier
     public function import_products_page()
     {
         return ['error' => 'import_products_page() undefined'];
+    }
+
+    // placeholder
+    public function import_images_page()
+    {
+        return ['error' => 'import_images_page() undefined'];
+    }
+
+    // placeholder
+    public function get_products_page($cursor = '', $size = 10, $updated = '2020-01-01')
+    {
+        return ['error' => 'get_products_page() undefined'];
+    }
+
+    public function get_next_products_page($previous_result)
+    {
+        return ['error' => 'get_next_products_page() undefined'];
     }
 
     public function log($file, $line = null, $message = null)
@@ -143,12 +224,12 @@ class Supplier
     }
 
     // placeholder
-    public function insert_product($supplier_product_id)
+    public function insert_product($supplier_product_id, $supplier_product = null)
     {
         $this->log('insert_product() not defined for ' . $this->key);
     }
     // placeholder
-    public function update_product($supplier_product_id)
+    public function update_product($supplier_product_id, $supplier_product = null)
     {
         $this->log('update_product() not defined for ' . $this->key);
     }
@@ -186,24 +267,61 @@ class Supplier
      * @param array $tags An array containing tags data with 'name' and 'slug' keys.
      * @return array An array containing WooCommerce tag IDs.
      */
-    public function get_tag_ids($tags)
+    // public function get_tag_ids($tags)
+    // {
+    //     foreach ($tags as $i => $tag) {
+    //         $woo_tag = get_term_by('slug', $tag['slug'], 'product_tag');
+    //         if ($woo_tag) {
+    //             $tags[$i]['woo'] = $woo_tag; //
+    //             $tags[$i]['woo_term_id'] = $woo_tag->term_id; //
+    //             if ($woo_tag->name !== $tag['name']) {
+    //                 $update = wp_update_term($woo_tag->term_id, 'product_tag', ['name' => $tag['name']]);
+    //                 $tags[$i]['update'] = $update;
+    //             }
+    //         } else {
+    //             $woo_tag = wp_insert_term($tag['name'], 'product_tag', ['slug' => $tag['slug']]);
+    //             $tags[$i]['woo_term_id'] = $woo_tag->term_id; //
+    //         }
+    //     }
+
+    //     return array_map(fn($tag) => $tag['woo_term_id'], $tags);
+    // }
+
+    public function get_tag_ids($terms)
     {
-        foreach ($tags as $i => $tag) {
-            $woo_tag = get_term_by('slug', $tag['slug'], 'product_tag');
-            if ($woo_tag) {
-                $tags[$i]['woo'] = $woo_tag; //
-                $tags[$i]['woo_term_id'] = $woo_tag->term_id; //
-                if ($woo_tag->name !== $tag['name']) {
-                    $update = wp_update_term($woo_tag->term_id, 'product_tag', ['name' => $tag['name']]);
-                    $tags[$i]['update'] = $update;
-                }
+        $slugs = array_column($terms, 'slug');
+        $found = get_terms(['slug' => $slugs, 'taxonomy' => 'product_tag', 'hide_empty' => false]);
+        $lookup_term = array_column($found, null, 'slug');
+
+        foreach ($terms as $i => $term) {
+            if (isset($lookup_term[$term['slug']])) {
+                $terms[$i]['id'] = $lookup_term[$term['slug']]->term_id;
             } else {
-                $woo_tag = wp_insert_term($tag['name'], 'product_tag', ['slug' => $tag['slug']]);
-                $tags[$i]['woo_term_id'] = $woo_tag->term_id; //
+                $woo_tag = wp_insert_term($term['name'], 'product_tag', ['slug' => $term['slug']]);
+                $terms[$i]['id'] = $woo_tag->term_id;
             }
         }
+        $ids = array_column($terms, 'id');
+        return $ids;
+    }
 
-        return array_map(fn($tag) => $tag['woo_term_id'], $tags);
+    // TODO: Incomplete
+    public function get_term_ids($terms, $taxonomy = 'product_tag')
+    {
+        $slugs = array_column($terms, 'slug');
+        $found = get_terms(['slug' => $slugs, 'taxonomy' => $taxonomy, 'hide_empty' => false]);
+        $lookup_term = array_column($found, null, 'slug');
+
+        foreach ($terms as $i => $term) {
+            if (isset($lookup_term[$term['slug']])) {
+                $terms[$i]['id'] = $lookup_term[$term['slug']]->term_id;
+            } else {
+                $woo_tag = wp_insert_term($term['name'], $taxonomy, ['slug' => $term['slug'], 'parent' => $term['parent']]);
+                $terms[$i]['id'] = $woo_tag->term_id;
+            }
+        }
+        $ids = array_column($terms, 'id');
+        return $ids;
     }
 
     // placeholder
@@ -217,9 +335,10 @@ class Supplier
         return true;
     }
     // placeholder
-    public function check_is_available($product_id)
+    public function check_is_available($supplier_product_id)
     {
-        return true;
+        $supplier_product = $this->get_product($supplier_product_id);
+        return $this->is_available($supplier_product);
     }
     // placeholder
     public function extract_product_updated($supplier_product)
@@ -231,6 +350,67 @@ class Supplier
     {
         // notfound, instock, outofstock
         return 'instock';
+    }
+    // placeholder
+    public function update_prices_table($page_index = 1)
+    {}
+
+    /**
+     *
+     * @param SupplierProduct    $supplier_product
+     * @param WC_Product    $woo_product
+     */
+    public function attach_images($supplier_product, $woo_product = null)
+    {
+        $result = [];
+        return $result;
+    }
+    /**
+     *
+     * @param WC_Product    $woo_product
+     */
+    // fires woocommerce_before_single_product
+    public function update_single_product($woo_product)
+    {
+        return false;
+    }
+    /**
+     *
+     * @param WC_Product    $woo_product
+     */
+    // fires woocommerce_before_shop_loop_item
+    public function update_loop_product($woo_product)
+    {
+        return false;
+    }
+    /**
+     *
+     * @param WC_Product    $product
+     */
+    public function product_needs_update($product)
+    {
+        $last_updated = $product->get_meta('_last_updated', true);
+        $age = $last_updated ? WooTools::get_age($last_updated, 'hours') : 99999;
+        $max_age = 24 * 7;
+
+        if ($age > $max_age) { // max age is a week
+            return true;
+        }
+        $id = $product->get_id();
+        $deprecated = $this->is_deprecated($id);
+
+        if ($deprecated) {
+            return true;
+        }
+        return false;
+    }
+    /**
+     *
+     * @param WC_Product    $product
+     */
+    public function product($product)
+    {
+        return false;
     }
 
     public function extract_product_id($supplier_product)
@@ -270,23 +450,29 @@ class Supplier
     public function import_product($supplier_product_id)
     {
         $product = $this->get_product_light($supplier_product_id);
+
+        if ($product['error']) {
+            return ['action' => 'error', 'result' => $product];
+        }
         $action = $this->get_update_action($product);
         if ($this->deep_debug) {
             $this->log('import_product() ' . $this->key . ':' . $supplier_product_id . ' ' . $action);
         }
         switch ($action) {
             case 'insert':
-                $this->insert_product($supplier_product_id);
+                $result = $this->insert_product($supplier_product_id);
                 break;
             case 'update':
-                $this->update_product($supplier_product_id);
+                $result = $this->update_product($supplier_product_id);
                 break;
             case 'delete':
-                $this->delete_product($supplier_product_id);
+                $result = $this->delete_product($supplier_product_id);
                 break;
             case 'ignore':
+                $result = '';
                 break;
         }
+        return ['action' => $action, 'result' => $result];
     }
 
     public function delete_product($supplier_product_id, $force = true)
@@ -295,6 +481,145 @@ class Supplier
         $woo_product_id = wc_get_product_id_by_sku($sku);
         return wp_delete_post($woo_product_id, $force);
     }
+
+    public function delete_orphaned_meta()
+    {
+        global $wpdb;
+        $sql = "DELETE pm
+            FROM wp_postmeta pm
+            LEFT JOIN wp_posts p ON pm.post_id = p.ID
+            WHERE p.ID IS NULL;
+        ";
+
+        $result = $wpdb->query($sql);
+        if ($result === false) {
+            $this->log("Error deleting orphaned attachments: " . $wpdb->last_error);
+        } else {
+            $this->log("Deleted orphaned attachments.");
+        }
+    }
+
+    public function delete_orphaned_attachments()
+    {
+        global $wpdb;
+        $sql = "DELETE a
+            FROM {$wpdb->posts} a
+            LEFT JOIN {$wpdb->posts} p ON a.post_parent = p.ID AND p.post_type = 'product'
+            WHERE a.post_type = 'attachment'
+            AND a.post_parent > 0
+            AND p.ID IS NULL
+        ";
+        // $sql = "DELETE FROM {$wpdb->posts}
+        // WHERE post_type = 'attachment'
+        // AND post_parent > 0
+        // AND post_parent
+        // NOT IN (
+        //     SELECT ID FROM {$wpdb->posts} WHERE post_type = 'product'
+        // )";
+
+        $result = $wpdb->query($sql);
+        if ($result === false) {
+            $this->log("Error deleting orphaned attachments: " . $wpdb->last_error);
+        } else {
+            $this->log("Deleted orphaned attachments.");
+        }
+    }
+
+    public function delete_all()
+    {
+        $this->log("delete_all()");
+        global $wpdb;
+        $meta_key = '_ci_supplier_key';
+        $meta_value = $this->key;
+        $main_sql = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s AND meta_value = %s";
+        $proper_search = $wpdb->get_col($wpdb->prepare($main_sql, $meta_key, $meta_value));
+
+        // find by sku....
+        $sku_sql = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_sku' AND meta_value LIKE %s";
+        $sku_pattern = '%' . $wpdb->esc_like($this->get_product_sku('')) . '%';
+        $monkey_search = $wpdb->get_col($wpdb->prepare($sku_sql, $sku_pattern));
+
+        $product_ids = array_unique(array_merge($proper_search, $monkey_search));
+        // return ['test' => $monkey_search, 'product_ids' => $product_ids];
+
+        if (empty($product_ids)) {
+            $this->log("No products found to delete for meta_key: {$meta_key}, meta_value: {$meta_value}");
+            return ['meta' => [
+                'supplier' => $this->key,
+                'product_ids' => 0,
+            ]];
+        }
+
+        $chunks = array_chunk($product_ids, 10000);
+
+        foreach ($chunks as $chunk) {
+            $placeholders = implode(',', array_fill(0, count($chunk), '%d'));
+
+            $sql = "DELETE FROM {$wpdb->term_relationships} WHERE object_id IN ($placeholders)";
+            $result1 = $wpdb->query($wpdb->prepare($sql, $chunk));
+            if ($result1 === false) {
+                $this->log("Error deleting products: " . $wpdb->last_error);
+            }
+
+            $sql = "DELETE FROM {$wpdb->postmeta} WHERE post_id IN ($placeholders)";
+            $result2 = $wpdb->query($wpdb->prepare($sql, $chunk));
+            if ($result2 === false) {
+                $this->log("Error deleting products: " . $wpdb->last_error);
+            }
+
+            $sql = "DELETE FROM {$wpdb->posts} WHERE ID IN ($placeholders)";
+            $result3 = $wpdb->query($wpdb->prepare($sql, $chunk));
+            if ($result3 === false) {
+                $this->log("Error deleting products: " . $wpdb->last_error);
+            }
+
+            // $sql = "DELETE p, pm, tr
+            //     FROM {$wpdb->posts} p
+            //     LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+            //     LEFT JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id
+            //     WHERE p.post_type = 'product'
+            //     AND p.ID IN ($placeholders)
+            // ";
+            // $result = $wpdb->query($wpdb->prepare($sql, $chunk));
+            // if ($result === false) {
+            //     $this->log("Error deleting products: " . $wpdb->last_error);
+            // } else {
+            //     $this->log("Deleted " . count($chunk) . " products.");
+            // }
+            $a = $chunk[0];
+            $this->log("delete {$a}...1000");
+        }
+
+        $total = count($product_ids);
+        $this->log("deleted {$total} products");
+
+        $leftover_product_ids = $wpdb->get_col($wpdb->prepare($main_sql, $meta_key, $meta_value));
+
+        foreach ($leftover_product_ids as $product_id) {
+            $ids[] = $product_id;
+            $success = wp_delete_post($product_id, true);
+            $bool = json_encode((bool) $success);
+            $this->log("delete (!) {$product_id} success={$bool}");
+        }
+        $total = count($leftover_product_ids);
+        $this->log("deleted {$total} leftover products");
+
+        $this->delete_orphaned_attachments();
+        $this->delete_orphaned_meta();
+
+        return ['meta' => [
+            'meta_key' => '_ci_supplier_key',
+            'meta_value' => $this->key,
+            'product_ids' => count($product_ids),
+            'leftover_product_ids' => count($leftover_product_ids),
+        ], 'data' => $product_ids];
+    }
+    // $ids = [];
+    // foreach ($product_ids as $product_id) {
+    //     $ids[] = $product_id;
+    //     $this->log("delete {$product_id}");
+    //     wp_delete_post($product_id, true);
+    // }
 
     public function get_update_action($supplier_product)
     {
@@ -341,7 +666,10 @@ class Supplier
         }
         return $action;
     }
-
+    /**
+     *
+     * @param string    $product_id
+     */
     public function get_product_sku($product_id)
     {
         return implode('_', ['MASTER', strtoupper($this->key), $product_id]);
@@ -633,24 +961,15 @@ class Supplier
 
     public function get_total_products()
     {
-        global $wpdb;
-        $meta_key = '_ci_supplier_key';
-        $meta_value = $this->key;
-
-        $query = $wpdb->prepare(
-            "SELECT COUNT(*)
-            FROM {$wpdb->prefix}postmeta AS pm
-            INNER JOIN {$wpdb->prefix}posts AS p ON pm.post_id = p.ID
-            WHERE p.post_type = 'product'
-            AND p.post_status = 'publish'
-            AND pm.meta_key = %s
-            AND pm.meta_value = %s",
-            $meta_key,
-            $meta_value
-        );
-
-        $total_count = (int) $wpdb->get_var($query);
-        return $total_count;
+        $query = new \WP_Query(array(
+            'post_status' => 'publish',
+            'post_type' => 'product',
+            'meta_query' => [
+                ['key' => '_ci_supplier_key', 'value' => $this->key, 'compare' => '='],
+            ],
+            'fields' => 'ids',
+        ));
+        return $query->found_posts;
     }
 
     public function schedule_daily_import()

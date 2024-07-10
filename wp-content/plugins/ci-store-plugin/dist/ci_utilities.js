@@ -579,7 +579,7 @@ module.exports = exports
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Z: () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(684);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(537);
 /* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(645);
 /* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
@@ -765,7 +765,7 @@ module.exports = function (url, options) {
 
 /***/ }),
 
-/***/ 684:
+/***/ 537:
 /***/ ((module) => {
 
 "use strict";
@@ -28549,6 +28549,27 @@ const LogsPage = () => {
 const MiscPage = () => {
     return (react.createElement(react.Fragment, null,
         react.createElement(AdminForm, { name: 'Test Action', cmd: 'test_action' }),
+        react.createElement(AdminForm, { name: 'Update Turn 14 Pricing', cmd: 'update_t14_pricing' }),
+        react.createElement(AdminForm, { name: 'Delete All Products', cmd: 'delete_all_supplier_products' },
+            react.createElement(SelectSupplier, null)),
+        react.createElement(AdminForm, { name: 'Cron Job Status', cmd: 'get_cronjob_status', allowPolling: true },
+            react.createElement(SelectSupplier, null)),
+        react.createElement(AdminForm, { name: 'Start Cron Job', cmd: 'start_cronjob' },
+            react.createElement(SelectSupplier, null),
+            react.createElement(SelectInput, { name: 'cronjob_action', options: [
+                    { name: 'Prices', value: 'price_table' },
+                    { name: 'Prices (latest)', value: 'price_table_update' },
+                    { name: 'Categories', value: 'categories' },
+                    { name: 'Products', value: 'products' },
+                    { name: 'Images', value: 'images' }
+                ] })),
+        react.createElement(AdminForm, { name: 'Stop Cron Job', cmd: 'stop_cronjob' },
+            react.createElement(SelectSupplier, null)),
+        react.createElement(AdminForm, { name: 'Continue Cron Job', cmd: 'continue_cronjob' },
+            react.createElement(SelectSupplier, null)),
+        react.createElement(AdminForm, { name: 'Update Terms', cmd: 'update_terms' },
+            react.createElement(SelectSupplier, null),
+            react.createElement(ProductInput, null)),
         react.createElement(AdminForm, { name: 'Stall Import Test', cmd: 'stall_import' },
             react.createElement(SelectSupplier, null)),
         react.createElement(AdminForm, { name: 'Expire Product', cmd: 'expire_product' },
@@ -28561,6 +28582,11 @@ const MiscPage = () => {
             react.createElement(SelectSupplier, null)),
         react.createElement(AdminForm, { name: 'Clear Error Log', cmd: 'clear_log' },
             react.createElement(SelectSupplier, null)),
+        react.createElement(AdminForm, { name: 'Get Products Page', cmd: 'get_products_page' },
+            react.createElement(SelectSupplier, null),
+            react.createElement(TextInput, { name: 'cursor', defaultValue: '' })),
+        react.createElement(AdminForm, { name: 'T14 API', cmd: 'turn14_api', allowPolling: true },
+            react.createElement(TextInput, { name: 'url', defaultValue: '/' })),
         react.createElement(AdminForm, { name: 'WPS API', cmd: 'western_api', allowPolling: true },
             react.createElement(TextInput, { name: 'url', defaultValue: '/' })),
         react.createElement(AdminForm, { name: 'Stock Update', cmd: 'update_products_stock_status', allowPolling: true },
