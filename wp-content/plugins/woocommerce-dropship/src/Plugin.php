@@ -8,7 +8,8 @@ class Plugin
 	private $settingsClass;
 	
 	private $supplierSettings = [
-		'WooDropship\\Suppliers\\Settings\\TuckerSettings'	
+		'WooDropship\\Suppliers\\Settings\\TuckerSettings',
+		'WooDropship\\Suppliers\\Settings\\WPSSettings'	
 	];
 	
 	public function __construct()
