@@ -1,10 +1,5 @@
 <?php
 
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/CronJob.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier_Background_Process.php';
-
 trait Supplier_T14_API
 {
     private string $clientId = 'df98c919f33c6144f06bcfc287b984f809e33322';
@@ -63,7 +58,7 @@ trait Supplier_T14_API
                 'Content-Type' => 'application/json',
             ]]);
             if (is_wp_error($response)) {
-                return ['error' => 'Request failed'];
+                return ['error' => 'Request failed', 'message' => $response];
             }
             $response_body = wp_remote_retrieve_body($response);
             $data = json_decode($response_body, true);

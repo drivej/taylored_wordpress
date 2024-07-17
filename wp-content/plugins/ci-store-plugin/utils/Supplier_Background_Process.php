@@ -2,7 +2,9 @@
 
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/CronJob.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/libraries/wp-background-process.php';
+// include_once WP_PLUGIN_DIR . '/ci-store-plugin/libraries/wp-background-process.php';
+
+include_once WP_PLUGIN_DIR . '/woocommerce/includes/abstracts/class-wc-background-process.php';
 
 class Supplier_Background_Process extends WP_Background_Process
 {
@@ -89,10 +91,12 @@ class Supplier_Background_Process extends WP_Background_Process
 
     public function start($args)
     {
+        $this->supplier->log('Supplier_Background_Process::start()');
         if (!$this->is_running()) {
             $this->should_stop = false;
             $this->clear_stop();
             $this->push_to_queue($args);
+            $this->supplier->log('Supplier_Background_Process::dispatch()');
             $this->save()->dispatch();
             return true;
         }

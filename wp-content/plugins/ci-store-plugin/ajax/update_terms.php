@@ -4,7 +4,6 @@ namespace AjaxHandlers;
 
 // use Exception;
 
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/AjaxManager.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
 // include_once './get_woo_products.php';
@@ -21,7 +20,7 @@ function update_terms($params)
 
     $supplier_key = \AjaxManager::get_param('supplier_key', '', $params);
     $supplier_product_id = \AjaxManager::get_param('product_id', '', $params);
-    $supplier = \CI\Admin\get_supplier($supplier_key);
+    $supplier = \WooTools::get_supplier($supplier_key);
     $supplier_product = $supplier->get_product($supplier_product_id);
     $terms = $supplier->extract_terms($supplier_product);
     $term_ids = $supplier->get_tag_ids($terms);

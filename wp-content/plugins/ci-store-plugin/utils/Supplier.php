@@ -1,6 +1,7 @@
 <?php
 
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/CronJob.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier_Background_Process.php';
 
 class SupplierProductMeta
 {
@@ -37,9 +38,10 @@ class Supplier
     public string $start_import_products_flag = '';
     public string $daily_import_flag = '';
     public string $start_daily_import_flag = '';
-    public CronJob $cronjob;
+    // public CronJob $cronjob;
     public bool $deep_debug = false;
     public int $max_age = 24 * 7; // stale product age
+    public Supplier_Background_Process $background_process;
 
     public function __construct($config)
     {
@@ -61,7 +63,7 @@ class Supplier
         $this->log_path = CI_STORE_PLUGIN . 'logs/' . date('Y-m-d') . '_' . strtoupper($this->key) . '_LOG.log';
         $this->daily_import_flag = $this->key . '_daily_import';
         $this->start_daily_import_flag = $this->key . '_start_daily_import';
-        $this->cronjob = new CronJob("cronjob_import_{$this->key}", [$this, 'run_cronjob'], [$this, 'complete_cronjob']);
+        // $this->cronjob = new CronJob("cronjob_import_{$this->key}", [$this, 'run_cronjob'], [$this, 'complete_cronjob']);
 
         add_action($this->stall_check_action, array($this, 'stall_check'));
         add_action($this->start_import_products_flag, array($this, 'start_import_products'), 10);
@@ -71,50 +73,65 @@ class Supplier
         set_error_handler([$this, 'log']);
     }
 
-    public function start_cronjob(string $action)
-    {
-        $result = false;//$this->cronjob->start(['page_index' => 1]);
-        return ['message' => 'start_cronjob()', 'result' => $result];
-    }
-
     // TODO: convert to background process for WPS
-    public function run_cronjob($args)
+    // public function run_cronjob($args)
+    // {
+    //     $args_str = json_encode(['args' => $args]);
+    //     $start_time = microtime(true);
+    //     $this->cronjob->log("run_cronjob() start args:{$args_str}");
+    //     $result = ['continue' => false];
+    //     $end_time = microtime(true);
+    //     $exetime = round($end_time - $start_time);
+    //     $this->cronjob->log("run_cronjob() end args:{$args_str} exe:{$exetime}");
+    //     return $result;
+    // }
+
+    // public function complete_cronjob($result, $args)
+    // {
+    //     $page_index = $args['page_index'];
+    //     $next_page = $page_index + 1;
+
+    //     if ($result['continue'] === true) {
+    //         $args['page_index'] = $next_page;
+    //         $this->cronjob->log('continue() ' . json_encode(['result' => $result, 'args' => $args]));
+    //         $this->cronjob->start($args);
+    //     } else {
+    //         $this->cronjob->log('complete_cronjob() ' . json_encode(['result' => $result, 'args' => $args]));
+    //     }
+    // }
+
+    public function start_cronjob($args)
     {
-        $args_str = json_encode(['args' => $args]);
-        $start_time = microtime(true);
-        $this->cronjob->log("run_cronjob() start args:{$args_str}");
-        $result = ['continue' => false];
-        $end_time = microtime(true);
-        $exetime = round($end_time - $start_time);
-        $this->cronjob->log("run_cronjob() end args:{$args_str} exe:{$exetime}");
-        return $result;
+        error_log('start_cronjob() ' . json_encode($args));
+        if ($this->background_process) {
+            return $this->background_process->start($args);
+        }
+        error_log('start_cronjob failed');
+        return false;
     }
 
-    public function complete_cronjob($result, $args)
+    public function stop_cronjob()
     {
-        $page_index = $args['page_index'];
-        $next_page = $page_index + 1;
-
-        if ($result['continue'] === true) {
-            $args['page_index'] = $next_page;
-            $this->cronjob->log('continue() ' . json_encode(['result' => $result, 'args' => $args]));
-            $this->cronjob->start($args);
-        } else {
-            $this->cronjob->log('complete_cronjob() ' . json_encode(['result' => $result, 'args' => $args]));
+        if ($this->background_process) {
+            return $this->background_process->cancel();
         }
+        return false;
     }
 
     public function continue_cronjob()
     {
-        //
+        if ($this->background_process) {
+            return $this->background_process->continue();
+        }
+        return false;
     }
 
     public function get_cronjob_status()
     {
-        // return $this->background_process->get_status();
-        // $is_running = $this->background_process->is_process_running();
-        // return ['is_running' => $is_running];
-        // return ['cronjob' => $this->cronjob->get_status(), 'task' => $this->background_process->get_status()];
+        if ($this->background_process) {
+            return $this->background_process->get_status();
+        }
+        return false;
     }
 
     // placeholder
@@ -137,6 +154,11 @@ class Supplier
     public function import_products_page()
     {
         return ['error' => 'import_products_page() undefined'];
+    }
+
+    public function repair_products_page(int $page_index = 1)
+    {
+        return ['error' => 'repair_products_page() undefined'];
     }
 
     // placeholder
@@ -369,19 +391,61 @@ class Supplier
      *
      * @param WC_Product    $woo_product
      */
-    // fires woocommerce_before_single_product
     public function update_single_product($woo_product)
     {
+        // fires woocommerce_before_single_product
+        if ($this->should_update_single_product($woo_product)) {
+            return true;
+        }
+        return false;
+    }
+
+    // when does a PDP stale in hours
+    protected int $single_product_max_age = 24 * 7;
+    /**
+     *
+     * @param WC_Product    $woo_product
+     */
+    public function should_update_single_product($woo_product)
+    {
+        $update = $woo_product->get_meta('_ci_update_pdp', true);
+        $should_update = !(bool) $update;
+
+        if ($update) {
+            $age = $update ? WooTools::get_age($update, 'hours') : 99999;
+            $should_update = $age > $this->single_product_max_age;
+        }
+        return $should_update;
+    }
+
+    // when does PLP stale in hours
+    protected int $loop_product_max_age = 24 * 7;
+    /**
+     *
+     * @param WC_Product    $woo_product
+     */
+    public function update_loop_product($woo_product)
+    {
+        // fires woocommerce_before_shop_loop_item
+        if ($this->should_update_loop_product($woo_product)) {
+            return true;
+        }
         return false;
     }
     /**
      *
      * @param WC_Product    $woo_product
      */
-    // fires woocommerce_before_shop_loop_item
-    public function update_loop_product($woo_product)
+    public function should_update_loop_product($woo_product)
     {
-        return false;
+        $update = $woo_product->get_meta('_ci_update_plp', true);
+        $should_update = !(bool) $update;
+
+        if ($update) {
+            $age = $update ? WooTools::get_age($update, 'hours') : 99999;
+            $should_update = $age > $this->loop_product_max_age;
+        }
+        return $should_update;
     }
     /**
      *
@@ -537,9 +601,13 @@ class Supplier
         // find by sku....
         $sku_sql = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_sku' AND meta_value LIKE %s";
         $sku_pattern = '%' . $wpdb->esc_like($this->get_product_sku('')) . '%';
-        $monkey_search = $wpdb->get_col($wpdb->prepare($sku_sql, $sku_pattern));
+        $sku_search = $wpdb->get_col($wpdb->prepare($sku_sql, $sku_pattern));
 
-        $product_ids = array_unique(array_merge($proper_search, $monkey_search));
+        $post_name_sql = "SELECT ID FROM {$wpdb->posts} WHERE post_name LIKE %s";
+        $post_name_pattern = '%' . $wpdb->esc_like("-" . $this->key . "-product");
+        $post_name_search = $wpdb->get_col($wpdb->prepare($post_name_sql, $post_name_pattern));
+
+        $product_ids = array_unique(array_merge($proper_search, $sku_search, $post_name_search));
         // return ['test' => $monkey_search, 'product_ids' => $product_ids];
 
         if (empty($product_ids)) {
@@ -607,12 +675,15 @@ class Supplier
         $this->delete_orphaned_attachments();
         $this->delete_orphaned_meta();
 
-        return ['meta' => [
-            'meta_key' => '_ci_supplier_key',
-            'meta_value' => $this->key,
-            'product_ids' => count($product_ids),
-            'leftover_product_ids' => count($leftover_product_ids),
-        ], 'data' => $product_ids];
+        return [
+            'meta' => [
+                'meta_key' => '_ci_supplier_key',
+                'meta_value' => $this->key,
+                'product_ids' => count($product_ids),
+                'leftover_product_ids' => count($leftover_product_ids),
+            ],
+            // 'data' => $product_ids,
+        ];
     }
     // $ids = [];
     // foreach ($product_ids as $product_id) {

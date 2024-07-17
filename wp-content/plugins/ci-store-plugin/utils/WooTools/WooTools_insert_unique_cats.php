@@ -2,12 +2,14 @@
 
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Timer.php';
 
-trait WooTools_insert_unique_posts
+// NOT USED
+// TODO: maybe delete???
+trait WooTools_insert_unique_cats
 {
-    public static function insert_unique_posts($all_posts)
+    public static function insert_unique_cats($all_cats)
     {
         // WARNING: this assumes post_names are unique
-        if (!isset($all_posts) || !is_array($all_posts) || !count($all_posts)) {
+        if (!isset($all_cats) || !is_array($all_cats) || !count($all_cats)) {
             return ['error' => 'posts empty'];
         }
         global $wpdb;
@@ -66,7 +68,7 @@ trait WooTools_insert_unique_posts
         ];
         ksort($DEFAULT_ROW_TYPE);
 
-        $chunks = array_chunk($all_posts, 10000); // max 1,000,000 characters
+        $chunks = array_chunk($all_cats, 10000); // max 1,000,000 characters
         $lookup_woo_id = [];
 
         foreach ($chunks as $posts) {
@@ -126,7 +128,7 @@ trait WooTools_insert_unique_posts
             $lookup = array_column($results, 'ID', 'post_name');
             $lookup_woo_id = array_merge($lookup_woo_id, $lookup);
         }
-        // error_log('WooTools::insert_unique_posts() ' . count($all_posts));
+        // error_log('WooTools::insert_unique_posts() ' . count($all_cats));
         return $lookup_woo_id;
     }
 }

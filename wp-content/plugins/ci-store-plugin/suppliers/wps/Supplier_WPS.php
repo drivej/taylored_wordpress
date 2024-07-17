@@ -7,6 +7,9 @@ https://www.wps-inc.com/data-depot/v4/api/introduction
 
  */
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_API.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Cronjob.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Background_Process.php';
 
 class WPSTools
 {
@@ -21,6 +24,8 @@ class WPSTools
 
 class Supplier_WPS extends Supplier
 {
+    use Supplier_WPS_API;
+    use Supplier_WPS_Cronjob;
 
     public function __construct()
     {
@@ -30,16 +35,30 @@ class Supplier_WPS extends Supplier
             'supplierClass' => 'WooDropship\\Suppliers\\Western',
             'import_version' => '0.3',
         ]);
-
+        $this->background_process = new Supplier_WPS_Background_Process($this, $this->key);
         $this->deep_debug = false;
     }
 
     public function update_loop_product($woo_product)
     {
-        $needs_update = $this->product_needs_update($woo_product);
+        $should_update = $this->should_update_single_product($woo_product);
+        return ['should_update' => $should_update];
+
+        $update_plp = $woo_product->get_meta('_ci_update_plp', true);
+        $should_update = !(bool) $update_plp;
+
+        if ($update_plp) {
+            $age = $update_plp ? WooTools::get_age($update_plp, 'hours') : 99999;
+            $max_age = 24 * 7;
+            $should_update = $age > $max_age;
+        }
+        $sku = $woo_product->get_sku();
+        error_log('sku=' . $sku . '-------------------->>>>>');
+
+        // $needs_update = $this->product_needs_update($woo_product);
         // $has_images = WooTools::has_images($woo_product);
 
-        if ($needs_update) {
+        if ($should_update) {
             // TODO: check if product exists
             $supplier_product_id = $woo_product->get_meta('_ci_product_id', true);
             $supplier_product = $this->get_product($supplier_product_id);
@@ -51,8 +70,9 @@ class Supplier_WPS extends Supplier
             } else {
                 $this->update_product_images($woo_product, $supplier_product);
                 // $this->import_product($supplier_product_id);
-                $product_id = $woo_product->get_id();
-                update_post_meta($product_id, '_last_updated', gmdate("c"));
+                $woo_id = $woo_product->get_id();
+                update_post_meta($woo_id, '_last_updated', gmdate("c"));
+                update_post_meta($woo_id, '_ci_update_plp', gmdate("c"));
                 // clean_post_cache($product_id);
                 return true;
             }
@@ -60,19 +80,22 @@ class Supplier_WPS extends Supplier
         return false;
     }
 
-    public function update_single_product($product)
+    public function update_single_product($woo_product)
     {
-        $needs_update = $this->product_needs_update($product);
+        $should_update = $this->should_update_single_product($woo_product);
+        return ['should_update' => $should_update];
+
+        $needs_update = $this->product_needs_update($woo_product);
 
         if ($needs_update) {
-            $supplier_product_id = $product->get_meta('_ci_product_id', true);
+            $supplier_product_id = $woo_product->get_meta('_ci_product_id', true);
             $result = $this->import_product($supplier_product_id);
-            $product_id = $product->get_id();
+            $product_id = $woo_product->get_id();
             update_post_meta($product_id, '_last_updated', gmdate("c"));
             // clean_post_cache($product_id);
             return $result;
         }
-        $age = WooTools::get_product_age($product);
+        $age = WooTools::get_product_age($woo_product);
         return ['updated' => false, 'age' => $age, 'reason' => 'does not need update'];
     }
 
@@ -454,32 +477,6 @@ class Supplier_WPS extends Supplier
     {
         $supplier_variations = $this->extract_variations($supplier_product);
         WooTools::sync_variations($woo_product, $supplier_variations);
-    }
-
-    public function get_api($path, $params = [])
-    {
-        if (!isset($path)) {
-            $this->log('WPS.get_api() ERROR path not set path=' . $path . '' . 'params=' . json_encode($params));
-            return ['error' => 'path not set'];
-        }
-        $query_string = http_build_query($params);
-        $remote_url = implode("/", ["http://api.wps-inc.com", trim($path, '/')]) . '?' . $query_string;
-        if ($this->deep_debug) {
-            $this->log('get_api() ' . $path . '?' . urldecode($query_string));
-        }
-        $response = wp_safe_remote_request($remote_url, ['headers' => [
-            'Authorization' => "Bearer aybfeye63PtdiOsxMbd5f7ZAtmjx67DWFAQMYn6R",
-            'Content-Type' => 'application/json',
-        ]]);
-        if (is_wp_error($response)) {
-            return ['error' => 'Request failed'];
-        }
-        $response_body = wp_remote_retrieve_body($response);
-        $data = json_decode($response_body, true);
-        if (isset($data['message'])) {
-            $data['error'] = $data['message'];
-        }
-        return $data;
     }
 
     public function get_description($supplier_product)

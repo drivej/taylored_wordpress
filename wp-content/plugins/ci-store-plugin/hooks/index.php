@@ -17,14 +17,14 @@ include_once __DIR__ . '/image_downsize.php';
 // include_once __DIR__ . '/woocommerce_single_variation.php';
 // include_once __DIR__ . '/wp_get_attachment_image_src.php';
 
-function custom_wp_get_attachment_url($url, $post_id)
-{
-    // Check if the attribute name matches the one you want to customize
-    error_log(json_encode(['url' => $url, 'post_id' => $post_id]));
-    return $url;
-}
+// function custom_wp_get_attachment_url($url, $post_id)
+// {
+//     // Check if the attribute name matches the one you want to customize
+//     error_log('custom_wp_get_attachment_url()' . json_encode(['url' => $url, 'post_id' => $post_id]));
+//     return $url;
+// }
 
-add_filter('wp_get_attachment_url', 'custom_wp_get_attachment_url', 10, 2);
+// add_filter('wp_get_attachment_url', 'custom_wp_get_attachment_url', 10, 2);
 
 // TODO: this is a test
 // function custom_woocommerce_single_product_image($html, $post_id)

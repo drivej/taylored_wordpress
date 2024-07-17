@@ -1,13 +1,14 @@
 <?php
 
-require_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/index.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_insert_unique_posts.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_insert_unique_metas.php';
+require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_attachment_urls_to_postids.php';
 
 class WooTools
 {
     use WooTools_insert_unique_posts;
     use WooTools_insert_unique_metas;
+    use WooTools_attachment_urls_to_postids;
 
     /**
      *
@@ -72,11 +73,27 @@ class WooTools
         return false;
     }
 
+    // NOTE: need to update these when suppliers are added
+    // I didn't want to instantiate each supplier class just to get this info
+    public static function get_suppliers()
+    {
+        return [
+            ['key' => 'wps', 'name' => 'Western Power Sports'],
+            ['key' => 't14', 'name' => 'Turn14'],
+        ];
+    }
+
     public static function get_supplier($supplier_key)
     {
-        global $SUPPLIERS;
-        if (isset($SUPPLIERS[$supplier_key])) {
-            return $SUPPLIERS[$supplier_key];
+        switch ($supplier_key) {
+            case 'wps':
+                include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS.php';
+                return new \Supplier_WPS();
+                break;
+            case 't14':
+                include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14.php';
+                return new \Supplier_T14();
+                break;
         }
         return null;
     }
@@ -565,6 +582,30 @@ class WooTools
         return $lookup_woo_id;
     }
 
+    public static function lookup_woo_ids_by_name($post_names)
+    {
+        global $wpdb;
+        // $placeholders = implode(',', array_fill(0, count($post_names), '%s'));
+        $sql = "SELECT * FROM {$wpdb->posts} WHERE ";
+        $conditions = [];
+        foreach ($post_names as $name) {
+            $conditions[] = $wpdb->prepare("post_name LIKE %s", $wpdb->esc_like($name));
+        }
+        $sql .= implode(' OR ', $conditions);
+        // $sql = "SELECT * FROM {$wpdb->posts} WHERE " . implode(' OR ', $conditions);
+        $results = $wpdb->get_results($sql);
+
+        // $sql = "
+        //     SELECT ID, post_name
+        //     FROM {$wpdb->posts}
+        //     WHERE post_name IN ($placeholders)
+        // ";
+        // $results = $wpdb->get_results($wpdb->prepare($sql, $post_names));
+        $lookup = array_column($results, 'ID', 'post_name');
+        // return $sql;
+        return $lookup;
+    }
+
     public static function get_product_ids_by_skus($skus)
     {
         global $wpdb;
@@ -586,14 +627,36 @@ class WooTools
         if (!is_array($image) || !isset($image['file']) || !isset($image['width']) || !isset($image['height'])) {
             return false;
         }
+        $filesize = isset($image['filesize']) ? $image['filesize'] : 1;
+
         $attachment_id = wp_insert_post([
             'post_parent' => 0,
             'post_type' => 'attachment',
-            'post_mime_type' =>
-            'image/jpeg',
+            'post_mime_type' => 'image/jpeg',
             'post_status' => 'inherit',
             'meta_input' => [
                 '_wp_attached_file' => $image['file'],
+                '_wp_attachment_metadata' => [
+                    "width" => $image['width'],
+                    "height" => $image['height'],
+                    "file" => '',
+                    "filesize" => $filesize,
+                    "sizes" => [],
+                    "image_meta" => [
+                        "aperture" => "0",
+                        "credit" => "",
+                        "camera" => "",
+                        "caption" => "",
+                        "created_timestamp" => "0",
+                        "copyright" => "",
+                        "focal_length" => "0",
+                        "iso" => "0",
+                        "shutter_speed" => "0",
+                        "title" => "",
+                        "orientation" => "0",
+                        "keywords" => [],
+                    ],
+                ],
                 'width' => $image['width'],
                 'height' => $image['height'],
                 'filesize' => isset($image['filesize']) ? $image['filesize'] : 1,
@@ -741,6 +804,35 @@ class WooTools
 
         return ['deleted' => count($attachment_ids)];
 
+    }
+
+    public static function clean_up_orphaned_term_relationships()
+    {
+        global $wpdb;
+
+        // SQL query to delete orphaned term relationships
+        $sql = "
+        DELETE tr
+        FROM {$wpdb->term_relationships} tr
+        LEFT JOIN {$wpdb->posts} p ON tr.object_id = p.ID
+        WHERE p.ID IS NULL;
+        ";
+
+        // Execute the query
+        $result = $wpdb->query($sql);
+
+        if ($result === false) {
+            // Handle error
+            return ('Error deleting orphaned term relationships: ' . $wpdb->last_error);
+        } else {
+            // Success
+            return ("Successfully deleted $result orphaned term relationships.");
+        }
+    }
+
+    public static function is_valid_array($arr)
+    {
+        return isset($arr) && is_array($arr) && count($arr);
     }
 
     public static function sync_images($woo_product, $supplier_product, $supplier)

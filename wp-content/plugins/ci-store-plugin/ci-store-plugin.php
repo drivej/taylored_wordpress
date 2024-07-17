@@ -16,7 +16,6 @@ define('CI_VERSION', '0.0.49'); // enqueued scripts get this version - update to
 include_once CI_STORE_PLUGIN . 'hooks/index.php';
 include_once CI_STORE_PLUGIN . 'utils/AjaxManager.php';
 include_once CI_STORE_PLUGIN . 'ajax/index.php';
-include_once CI_STORE_PLUGIN . 'suppliers/index.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/ReactSubpage.php';
 
 // if importing, file a stall check
@@ -27,6 +26,7 @@ $API_Manager = new AjaxManager();
 
 new ReactSubpage('overview', 'Overview', 'ci-store-plugin-page', 'ci-store_page_');
 new ReactSubpage('utilities', 'Utilities', 'ci-store-plugin-page', 'ci-store_page_');
+new ReactSubpage('suppliers', 'Suppliers', 'ci-store-plugin-page', 'ci-store_page_');
 
 function create_admin_menu()
 {

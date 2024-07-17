@@ -4,7 +4,6 @@ namespace AjaxHandlers;
 
 use Exception;
 
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/AjaxManager.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/ajax/get_woo_products.php';
@@ -15,7 +14,7 @@ function update_woo_products($params)
     $cursor = \AjaxManager::get_param('cursor', '', $params);
     $woo_products = get_woo_products(['paged' => 0, 'posts_per_page' => 50]);
     $supplier_key = 'wps'; //$product->get_meta('_ci_supplier_key');
-    $supplier = \CI\Admin\get_supplier($supplier_key);
+    $supplier = \WooTools::get_supplier($supplier_key);
     // get products from supplier
     $supplier_products = $supplier->get_products_page($cursor, 50, '2020-01-01');
     $valid_supplier_products = [];
@@ -72,7 +71,7 @@ function update_woo_product($params)
                     $supplier_product_id = $product->get_meta('_ci_product_id');
                     $output['supplier_product_id'] = $supplier_product_id;
                     $output['supplier_key'] = $supplier_key;
-                    $supplier = \CI\Admin\get_supplier($supplier_key);
+                    $supplier = \WooTools::get_supplier($supplier_key);
                     // $supplier_product = $supplier->get_product_light($supplier_product_id);
                     if ($supplier) {
                         $output['result'] = $supplier->update_product($supplier_product_id);

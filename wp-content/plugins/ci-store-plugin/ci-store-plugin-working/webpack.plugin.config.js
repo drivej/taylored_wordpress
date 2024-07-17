@@ -33,6 +33,14 @@ module.exports = [
       library: 'ci_overview'
     }
   },
+  {
+    extends: path.resolve(__dirname, './webpack.base.config.js'),
+    entry: './src/view/suppliers/index.tsx',
+    output: {
+      filename: `ci_suppliers.js`,
+      library: 'ci_suppliers'
+    }
+  },
   // {
   //   extends: path.resolve(__dirname, './webpack.base.config.js'),
   //   entry: './src/stock_check/index.tsx',

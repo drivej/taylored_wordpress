@@ -2,7 +2,7 @@
 
 namespace AjaxHandlers;
 
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
+require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/AjaxManager.php';
 
 function view_attributes($params)
@@ -10,7 +10,7 @@ function view_attributes($params)
 
     $supplier_key = \AjaxManager::get_param('supplier_key', null, $params);
     $supplier_product_id = \AjaxManager::get_param('product_id');
-    $supplier = \CI\Admin\get_supplier($supplier_key);
+    $supplier = \WooTools::get_supplier($supplier_key);
     $supplier_product = $supplier->get_product($supplier_product_id);
 
     $supplier_variations = $supplier->extract_variations($supplier_product);

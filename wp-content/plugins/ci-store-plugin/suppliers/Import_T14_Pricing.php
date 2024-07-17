@@ -1,6 +1,6 @@
 <?php
-
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
+/*
+require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/CronJob.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier_Background_Process.php';
@@ -12,7 +12,7 @@ class Import_T14_Pricing extends Supplier_Background_Process
     public function __construct()
     {
         $supplier_key = 't14';
-        $supplier = \CI\Admin\get_supplier($supplier_key);
+        $supplier = \WooTools::get_supplier($supplier_key);
         parent::__construct($supplier, $supplier_key . "_pricing");
     }
 
@@ -55,3 +55,4 @@ class Import_T14_Pricing extends Supplier_Background_Process
         }
     }
 }
+*/

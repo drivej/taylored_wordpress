@@ -2,9 +2,13 @@
 
 namespace AjaxHandlers;
 
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/AjaxManager.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
+
+// if ( ! defined( 'WC_PLUGIN_FILE' ) ) {
+//     define( 'WC_PLUGIN_FILE', plugin_dir_path( WP_PLUGIN_DIR ) . '/woocommerce/woocommerce.php' );
+// }
+// require_once WP_PLUGIN_DIR . '/woocommerce/includes/abstracts/class-wc-background-process.php';
 
 // woo 459337 - 47s
 // woo 459682 - 32s
@@ -13,31 +17,100 @@ require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
 function delete_all_supplier_products($params)
 {
     $supplier_key = \AjaxManager::get_param('supplier_key');
-    $supplier = \CI\Admin\get_supplier($supplier_key);
+    $supplier = \WooTools::get_supplier($supplier_key);
     return $supplier->delete_all();
 }
 
-function update_t14_pricing($params)
+// function update_t14_pricing($params)
+// {
+//     $supplier_key = 't14';
+//     $supplier = \WooTools::get_supplier($supplier_key);
+//     return $supplier->background_process->start(['action' => 'price_table', 'page_index' => 1]);
+// }
+
+function find_duped_posts()
 {
-    $supplier_key = 't14';
-    $supplier = \CI\Admin\get_supplier($supplier_key);
-    return $supplier->background_process->start(['action' => 'price_table', 'page_index' => 1]);
+    global $wpdb;
+    $sql = "
+        SELECT post_name, COUNT(*) AS duplicate_count
+        FROM {$wpdb->posts}
+        WHERE post_type = 'product'
+        GROUP BY post_name
+        HAVING COUNT(*) > 1;
+    ";
+    $results = $wpdb->get_results($sql, ARRAY_A);
+    $result = [];
+
+    if ($results) {
+        foreach ($results as $row) {
+            $result[] = "Post Name: " . $row['post_name'] . " - Duplicates: " . $row['duplicate_count'] . "<br>";
+        }
+    } else {
+        $result[] = "No duplicate post names found.";
+    }
+    return $result;
 }
+
+
+// class WP_Example_Request extends \WP_Async_Request {
+//     /**
+// 	 * @var string
+// 	 */
+// 	protected $prefix = 'my_plugin';
+
+// 	/**
+// 	 * @var string
+// 	 */
+// 	protected $action = 'example_request';
+
+// 	/**
+// 	 * Handle a dispatched request.
+// 	 *
+// 	 * Override this method to perform any actions required
+// 	 * during the async request.
+// 	 */
+// 	protected function handle() {
+// 		// Actions to perform.
+//         error_log('test task '.json_encode($this->data));
+// 	}
+// }
+
+// class TestProcess extends \WP_Background_Process
+// {
+//     protected function task($item)
+//     {
+//         error_log('test task '.json_encode($item));
+//     }
+// }
 
 function test_action($params)
 {
+    // $example_request = new WP_Example_Request();
+    // $example_request->data( array( 'value1' => 1, 'value2' => 2 ) );
+    // $example_request->dispatch();
+    // return $example_request;
+
+    // $test = new \WP_Background_Process();
+    // $args = ['action' => 'TESTTEST', 'page_index' => 1];
+    // $test->push_to_queue($args);
+    // $test->save()->dispatch();
+    // return $test;
+    // return find_duped_posts();
     // return \WooTools::delete_transients();
 
-    // $id = 646965;
+    // return \WooTools::clean_up_orphaned_term_relationships();
+
+    // $id = 15;
     // $metadata = wp_get_attachment_metadata($id);
     // // $metadata['width'] = $newwidth;
     // // wp_update_attachment_metadata($id,$metadata);
     // return $metadata;
 
+    // return \WooTools::attachment_urls_to_postids(['https://localhost:3000/assets/prompt-form-header.jpg', 'https://localhost:3000/assets/default-station-bg.png']);
 
     $supplier_key = 't14';
-    $supplier = \CI\Admin\get_supplier($supplier_key);
-
+    $supplier = \WooTools::get_supplier($supplier_key);
+    // return $supplier->repair_products_page(1);
     // return $supplier->insert_unique_metas([
     //     ['post_id' => 999999, 'meta_key' => 'test_meta_name1', 'meta_value' => 'testval1'],
     //     ['post_id' => 999999, 'meta_key' => 'test_meta_name2', 'meta_value' => 'testval2'],
@@ -70,14 +143,14 @@ function test_action($params)
 
     return $result;
 
-    $supplier->cronjob->stop();
-    return ['is_active' => $supplier->cronjob->is_active()];
+    // $supplier->cronjob->stop();
+    // return ['is_active' => $supplier->cronjob->is_active()];
 
-    $supplier->cronjob->start(['page_index' => 1]);
-    return 'start cron';
+    // $supplier->cronjob->start(['page_index' => 1]);
+    // return 'start cron';
 
     // $result = $supplier->get_products_page(1);
-    $result = $supplier->insert_product_page(3);
+    // $result = $supplier->insert_product_page(3);
     return $result;
 
     $products = $supplier->get_products_page(1);
@@ -110,7 +183,7 @@ function test_action($params)
     // $woo_product = wc_get_product_object('variable', $woo_product_id);
 
     $supplier_key = 'wps';
-    $supplier = \CI\Admin\get_supplier($supplier_key);
+    $supplier = \WooTools::get_supplier($supplier_key);
     $supplier_product = $supplier->get_product($supplier_product_id);
     // $product_sku = $supplier->get_product_sku($supplier_product_id);
     // return ['supplier_product_id' => $supplier_product_id, 'product_sku' => $product_sku, 'supplier_product' => $supplier_product];

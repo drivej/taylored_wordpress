@@ -82,35 +82,15 @@ export const SelectImportType = () => {
   );
 };
 
-export const SelectSupplier = ({ initialValue = null }: { initialValue?: string }) => {
-  const searchParams = useInitialSearchParams();
+export const SelectSupplier = () => {
   const suppliers = useSuppliers();
-  const [value, setValue] = useState(initialValue);
-
-  useEffect(() => {
-    if (suppliers.isSuccess) {
-      setValue(initialValue || searchParams.get('supplier_key') || suppliers.data[0].key);
-    }
-  }, [suppliers.isSuccess]);
-
-  const onChange: React.ChangeEventHandler<HTMLSelectElement> = (e) => {
-    setValue(e.currentTarget.value);
-  };
-
-  if (suppliers.isSuccess) {
-    return (
-      <select name='supplier_key' className='form-select' value={value} onChange={onChange}>
-        {suppliers.data.map((s, i) => (
-          <option value={s.key}>{s.name}</option>
-        ))}
-      </select>
-    );
-  }
+  const options = suppliers.data?.map((s) => ({ name: s.name, value: s.key })) ?? [];
+  return <SelectInput name='supplier_key' options={options} />;
 };
 
 export const SelectInput = ({ name, options, initialValue = null }: { name: string; options: { name: string; value: string }[]; initialValue?: string }) => {
   const searchParams = useInitialSearchParams();
-  const [value, setValue] = useState(initialValue ?? options[0].value);
+  const [value, setValue] = useState(searchParams.has(name) ? searchParams.get(name) : (initialValue ?? options?.[0]?.value ?? ''));
 
   const onChange: React.ChangeEventHandler<HTMLSelectElement> = (e) => {
     setValue(e.currentTarget.value);

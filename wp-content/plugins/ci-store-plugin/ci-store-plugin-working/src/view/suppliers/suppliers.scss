@@ -1,0 +1,35 @@
+@import '~bootstrap/scss/bootstrap.scss';
+
+.brands_container {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  height: 100vh; /* Adjust height as needed */
+  gap: 4px;
+  overflow: auto;
+
+  input {
+    display: none;
+  }
+
+  input:checked + label {
+    @extend .bg-success, .text-white;
+    background-color: #ddd;
+  }
+
+  label {
+    border: 1px solid #ddd;
+  }
+}
+
+.brands_item {
+    font-size: 12px;
+  flex: 0 0 250px; /* 200px fixed width for each item */
+  white-space: nowrap;
+//   margin: 8px; /* Adjust margin as needed */
+//   background-color: lightgray; /* Example styling */
+  padding: 4px 8px; /* Example styling */
+  border: 1px solid #ddd; /* Example styling */
+  box-sizing: border-box; /* Include padding and border in the item's width */
+  border-radius: 4px;
+}

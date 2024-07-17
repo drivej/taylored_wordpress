@@ -1,18 +1,17 @@
 <?php
 
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/CronJob.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier_Background_Process.php';
-
 trait Supplier_T14_Cronjob
 {
     public function start_cronjob($action)
     {
-        $this->log("start_cronjob($action)");
+        $this->log("Supplier_T14_Cronjob::start_cronjob($action)");
         $result = false;
 
         switch ($action) {
+            case 'repair':
+                $result = $this->background_process->start(['action' => $action, 'page_index' => 1]);
+                break;
+
             case 'price_table':
                 $result = $this->background_process->start(['action' => $action, 'page_index' => 1]);
                 break;
@@ -54,29 +53,29 @@ trait Supplier_T14_Cronjob
         return ['message' => 'start_cronjob()', 'start' => $result];
     }
 
-    public function stop_cronjob()
-    {
-        $this->log('stop_cronjob()');
-        // $this->cronjob->stop();
-        // $this->background_process->cancel();
-        // if (isset($this->background_process)) {
-        return $this->background_process->cancel();
-        // }
-        // return false;
-    }
+    // public function stop_cronjob()
+    // {
+    //     $this->log('stop_cronjob()');
+    //     // $this->cronjob->stop();
+    //     // $this->background_process->cancel();
+    //     // if (isset($this->background_process)) {
+    //     return $this->background_process->cancel();
+    //     // }
+    //     // return false;
+    // }
 
-    public function continue_cronjob()
-    {
-        return $this->background_process->continue();
-    }
+    // public function continue_cronjob()
+    // {
+    //     return $this->background_process->continue();
+    // }
 
-    public function get_cronjob_status()
-    {
-        return $this->background_process->get_status();
-        // $is_running = $this->background_process->is_process_running();
-        // return ['is_running' => $is_running];
-        // return ['cronjob' => $this->cronjob->get_status(), 'task' => $this->background_process->get_status()];
-    }
+    // public function get_cronjob_status()
+    // {
+    //     return $this->background_process->get_status();
+    //     // $is_running = $this->background_process->is_process_running();
+    //     // return ['is_running' => $is_running];
+    //     // return ['cronjob' => $this->cronjob->get_status(), 'task' => $this->background_process->get_status()];
+    // }
 
     // TODO: delete run_cronjob() - everywhere
     // public function run_cronjob($args)
@@ -103,27 +102,27 @@ trait Supplier_T14_Cronjob
     // }
 
     // expects $result = ['meta' => [...]]
-    public function complete_cronjob($result, $args)
-    {
-        $in = json_encode(['result' => $result, 'args_in' => $args]);
-        $this->cronjob->log("complete_cronjob() IN {$in}");
-        if ($this->cronjob->should_stop()) {
-            $this->cronjob->stop();
-            return;
-        }
-        $total_pages = isset($result['meta']['total_pages']) ? $result['meta']['total_pages'] : 0;
-        $page_index = $args['page_index'];
-        $next_page = $page_index + 1;
+    // public function complete_cronjob($result, $args)
+    // {
+    //     $in = json_encode(['result' => $result, 'args_in' => $args]);
+    //     $this->cronjob->log("complete_cronjob() IN {$in}");
+    //     if ($this->cronjob->should_stop()) {
+    //         $this->cronjob->stop();
+    //         return;
+    //     }
+    //     $total_pages = isset($result['meta']['total_pages']) ? $result['meta']['total_pages'] : 0;
+    //     $page_index = $args['page_index'];
+    //     $next_page = $page_index + 1;
 
-        if ($total_pages > $next_page) {
-            $args['page_index'] = $next_page;
-            $out = json_encode(['result' => $result, 'args_out' => $args]);
-            $this->cronjob->log("complete_cronjob() OUT {$out}");
-            // $this->cronjob->log('continue() ' . json_encode(['result' => $result, 'args' => $args]));
-            $this->cronjob->start($args);
-        } else {
-            // $this->cronjob->log('complete_cronjob() ' . json_encode(['result' => $result, 'args' => $args]));
-            $this->cronjob->stop();
-        }
-    }
+    //     if ($total_pages > $next_page) {
+    //         $args['page_index'] = $next_page;
+    //         $out = json_encode(['result' => $result, 'args_out' => $args]);
+    //         $this->cronjob->log("complete_cronjob() OUT {$out}");
+    //         // $this->cronjob->log('continue() ' . json_encode(['result' => $result, 'args' => $args]));
+    //         $this->cronjob->start($args);
+    //     } else {
+    //         // $this->cronjob->log('complete_cronjob() ' . json_encode(['result' => $result, 'args' => $args]));
+    //         $this->cronjob->stop();
+    //     }
+    // }
 }

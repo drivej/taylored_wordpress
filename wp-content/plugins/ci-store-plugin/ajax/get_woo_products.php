@@ -2,10 +2,10 @@
 
 namespace AjaxHandlers;
 
-require_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/AjaxManager.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Report.php';
 
+// TODO: use this for looping woo products?
 function get_woo_products($params)
 {
     $paged = \AjaxManager::get_param('paged', 0, $params);

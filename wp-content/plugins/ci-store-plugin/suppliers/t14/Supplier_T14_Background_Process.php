@@ -3,13 +3,15 @@
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/CronJob.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier_Background_Process.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/supplier_t14.php';
 
-class Import_T14_Products extends Supplier_Background_Process
+class Supplier_T14_Background_Process extends Supplier_Background_Process
 {
     // protected Supplier_t14 $supplier;
 
     protected function do_task($item)
     {
+        error_log('Supplier_T14_Background_Process::do_task() ' . json_encode($item));
         if ($this->stop_requested()) {
             $this->clear_stop();
             return false;
@@ -27,6 +29,10 @@ class Import_T14_Products extends Supplier_Background_Process
                     return isset($result['meta']) ? $result['meta'] : false;
                     break;
 
+                case 'brands':
+                    // TODO: loop through current woo product and publish/unpublish allowed brands
+                    // $result = $this->supplier->import_products_page($page_index);
+                    break;
                 // case 'price_table_update':
                 //     break;
 
@@ -37,6 +43,11 @@ class Import_T14_Products extends Supplier_Background_Process
 
                 case 'products':
                     $result = $this->supplier->import_products_page($page_index);
+                    return isset($result['meta']) ? $result['meta'] : false;
+                    break;
+
+                case 'repair':
+                    $result = $this->supplier->repair_products_page($page_index);
                     return isset($result['meta']) ? $result['meta'] : false;
                     break;
 

@@ -4,7 +4,7 @@ namespace AjaxHandlers;
 
 use Exception;
 
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
+require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/AjaxManager.php';
 
 function update_woo_product_stock_status($params)
@@ -19,7 +19,7 @@ function update_woo_product_stock_status($params)
                 if ($product->meta_exists('_ci_supplier_key') && $product->meta_exists('_ci_product_id')) {
                     $supplier_key = $product->get_meta('_ci_supplier_key');
                     $supplier_product_id = $product->get_meta('_ci_product_id');
-                    $supplier = \CI\Admin\get_supplier($supplier_key);
+                    $supplier = \WooTools::get_supplier($supplier_key);
                     $supplier_product = $supplier->get_product_light($supplier_product_id);
                     $is_available = $supplier->is_available($supplier_product);
                     $output['is_available'] = $is_available;

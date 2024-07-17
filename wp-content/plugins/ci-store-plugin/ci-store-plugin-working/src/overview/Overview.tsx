@@ -42,7 +42,7 @@ export const useSupplierLogStatus = (supplier_key: string) => {
   return { ...data, isLogging, update: mutation.mutate };
 };
 
-const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
+export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
   const status = useImportStatus(supplier.key, true);
   const totalProducts = useTotalProducts(supplier.key);
   const logging = useSupplierLogStatus(supplier.key);

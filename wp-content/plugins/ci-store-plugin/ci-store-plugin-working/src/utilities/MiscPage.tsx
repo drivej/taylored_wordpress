@@ -6,7 +6,7 @@ export const MiscPage = () => {
     <>
       <AdminForm name='Test Action' cmd='test_action' />
 
-      <AdminForm name='Update Turn 14 Pricing' cmd='update_t14_pricing' />
+      {/* <AdminForm name='Update Turn 14 Pricing' cmd='update_t14_pricing' /> */}
       {/* <AdminForm name='Status Turn 14 Pricing' cmd='status_t14_pricing' allowPolling /> */}
 
       <AdminForm name='Delete All Products' cmd='delete_all_supplier_products'>
@@ -26,6 +26,7 @@ export const MiscPage = () => {
             { name: 'Prices (latest)', value: 'price_table_update' },
             { name: 'Categories', value: 'categories' },
             { name: 'Products', value: 'products' },
+            { name: 'Repair', value: 'repair' },
             { name: 'Images', value: 'images' }
           ]}
         />

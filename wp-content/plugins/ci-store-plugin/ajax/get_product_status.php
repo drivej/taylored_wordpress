@@ -2,7 +2,6 @@
 
 namespace AjaxHandlers;
 
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/AjaxManager.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
 
@@ -14,7 +13,7 @@ function get_product_status($params)
     if (empty($supplier_key)) {
         return ['error' => 'missing supplier'];
     }
-    $supplier = \CI\Admin\get_supplier($supplier_key);
+    $supplier = \WooTools::get_supplier($supplier_key);
 
     if (!isset($supplier)) {
         return ['error' => 'invalid supplier'];

@@ -2,7 +2,7 @@
 
 namespace AjaxHandlers;
 
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
+require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/AjaxManager.php';
 
 function western_api($params)
@@ -11,11 +11,12 @@ function western_api($params)
     $url = \AjaxManager::get_param('url', null, $params);
    
     $supplier_key = 'wps';
-    $supplier = \CI\Admin\get_supplier($supplier_key);
+    $supplier = \WooTools::get_supplier($supplier_key);
 
-    $queryString = parse_url($url, PHP_URL_QUERY);
+    $queryString = parse_url($url, PHP_URL_QUERY) || '';
     $parsedUrl = parse_url($url);
-    $basePath = $parsedUrl['host'] . $parsedUrl['path'];
+    $host = isset($parsedUrl['host']) ? $parsedUrl['host'] : '';
+    $basePath = $host . $parsedUrl['path'];
     // Parse the query string into an associative array
     parse_str($queryString, $params);
 

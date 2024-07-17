@@ -2,7 +2,7 @@
 
 namespace AjaxHandlers;
 
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/AjaxManager.php';
 
 function start_cronjob($params)
@@ -14,7 +14,7 @@ function start_cronjob($params)
         return ['error' => 'missing supplier'];
     }
 
-    $supplier = \CI\Admin\get_supplier($supplier_key);
+    $supplier = \WooTools::get_supplier($supplier_key);
     if (!$supplier) {
         return ['error' => 'supplier not found', 'supplier_key' => $supplier_key];
     }
@@ -29,7 +29,7 @@ function get_cronjob_status($params)
         return ['error' => 'missing supplier'];
     }
 
-    $supplier = \CI\Admin\get_supplier($supplier_key);
+    $supplier = \WooTools::get_supplier($supplier_key);
     if (!$supplier) {
         return ['error' => 'supplier not found', 'supplier_key' => $supplier_key];
     }
@@ -44,7 +44,7 @@ function stop_cronjob($params)
         return ['error' => 'missing supplier'];
     }
 
-    $supplier = \CI\Admin\get_supplier($supplier_key);
+    $supplier = \WooTools::get_supplier($supplier_key);
     if (!$supplier) {
         return ['error' => 'supplier not found', 'supplier_key' => $supplier_key];
     }
@@ -60,7 +60,7 @@ function continue_cronjob($params)
         return ['error' => 'missing supplier'];
     }
 
-    $supplier = \CI\Admin\get_supplier($supplier_key);
+    $supplier = \WooTools::get_supplier($supplier_key);
     if (!$supplier) {
         return ['error' => 'supplier not found', 'supplier_key' => $supplier_key];
     }

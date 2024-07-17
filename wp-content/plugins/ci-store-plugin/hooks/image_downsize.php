@@ -1,8 +1,7 @@
 <?php
 
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/get_product_image.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/debug_hook.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
+// include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/get_product_image.php';
+// include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/debug_hook.php';
 
 // function custom_modify_product_image($image_html, $product, $size, $attr)
 // {
@@ -39,27 +38,57 @@ include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
 // }
 
 // add_filter('woocommerce_product_get_image', 'custom_modify_product_image', 10, 4);
+// https://localhost:3000/assets/default-station-bg.png
 
 function custom_image_downsize($out, $id, $size)
 {
-    $is_remote = (bool) get_post_meta($id, '_ci_remote_image', true);
-
-    if ($is_remote) {
-        $supplier_key = get_post_meta($id, '_ci_supplier_key', true);
-        if ($supplier_key) {
-            $supplier = CI\Admin\get_supplier($supplier_key);
-            if ($supplier) {
-                $file = get_post_meta($id, '_wp_attached_file');
-                if ($file) {
-                    // get width/height info from size name
-                    $info = wc_get_image_size($size);
-                    $width = isset($info['width']) ? $info['width'] : null;
-                    $file = $supplier->resize_image($file, $width);
-                }
-                return $file;
-            }
-        }
+    $file = get_post_meta($id, '_wp_attached_file', true);
+    $is_remote = strpos($file, 'http://') === 0 || strpos($file, 'https://') === 0;
+    
+    if($is_remote){
+        // I guess this needs this format: url, width, height
+        // .../woocommerce/includes/wc-template-functions.php::wc_get_gallery_image_html()
+        return [$file, 600, 600];
     }
+
+    // $meta = wp_get_attachment_metadata($id);
+    // $info = wc_get_image_size($size);
+    // $is_remote = (bool) get_post_meta($id, '_ci_remote_image', true);
+    // $file = get_post_meta($id, '_wp_attached_file');
+    // error_log('file1:' . json_encode($file));
+    // $file = get_post_meta($id, '_wp_attached_file', true);
+    // error_log('file2:' . json_encode($file2));
+    // error_log('custom_image_downsize() ' . json_encode(['file' => $file, 'is_remote' => $is_remote, 'size_info' => $info, 'out' => $out, 'id' => $id, 'size' => $size, 'meta' => $meta], JSON_PRETTY_PRINT));
+// return $test;
+    // attachment_url_to_postid();
+
+    // $file2 = isset($meta['file']) ? $meta['file'] : '';
+    // $is_remote = strpos($file, 'http://') === 0 || strpos($file, 'https://') === 0;
+    // if($is_remote){
+    //     return [$file];
+    // }
+
+    // if ($is_remote) {
+    //     // return $file;
+
+    //     $supplier_key = get_post_meta($id, '_ci_supplier_key', true);
+    //     if ($supplier_key) {
+    //         $supplier = CI\Admin\get_supplier($supplier_key);
+    //         if ($supplier) {
+    //             $file = get_post_meta($id, '_wp_attached_file');
+    //             if ($file) {
+    //                 // get width/height info from size name
+    //                 $info = wc_get_image_size($size);
+    //                 $width = isset($info['width']) ? $info['width'] : null;
+    //                 $file = $supplier->resize_image($file, $width);
+    //             }
+    //             error_log('file 2:' . json_encode($file));
+    //             return $file;
+    //         }
+    //     }
+    // }
+    // return 'https://localhost:3000/assets/default-station-bg.png';
+    
     return $out;
 }
 

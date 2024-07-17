@@ -5,7 +5,6 @@ namespace AjaxHandlers;
 use Exception;
 
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/get_supplier.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/AjaxManager.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Tasket.php';
 
@@ -16,7 +15,7 @@ function patch_product_images($woo_product_id)
         try {
             $supplier_key = $product->get_meta('_ci_supplier_key');
             $supplier_product_id = $product->get_meta('_ci_product_id');
-            $supplier = \CI\Admin\get_supplier($supplier_key);
+            $supplier = \WooTools::get_supplier($supplier_key);
             $supplier_product = $supplier->get_product($supplier_product_id);
             \WooTools::removeProductAttribute($woo_product_id, '__required_attr');
             $supplier->update_product_images($product, $supplier_product);
@@ -35,7 +34,7 @@ function patch_product_stock($woo_product_id)
         try {
             $supplier_key = $product->get_meta('_ci_supplier_key');
             $supplier_product_id = $product->get_meta('_ci_product_id');
-            $supplier = \CI\Admin\get_supplier($supplier_key);
+            $supplier = \WooTools::get_supplier($supplier_key);
             $supplier_product = $supplier->get_product_light($supplier_product_id);
             $is_available = $supplier->is_available($supplier_product);
             $deleted = false;
@@ -107,7 +106,7 @@ class PatchTask extends \Tasket
             $woo_product_id = $product->get_id();
             $supplier_key = $product->get_meta('_ci_supplier_key');
             $supplier_product_id = $product->get_meta('_ci_product_id');
-            $supplier = \CI\Admin\get_supplier($supplier_key);
+            $supplier = \CI\Admin\get_su pplier($supplier_key);
             $supplier_product = $supplier->get_product($supplier_product_id);
 
             // $this->log('patch images ' . $woo_product_id . '::' . $supplier_product['data']['id']);

@@ -7,7 +7,7 @@ trait WooTools_insert_unique_metas
     public static function insert_unique_metas($all_metas)
     {
         if (!isset($all_metas) || !is_array($all_metas) || !count($all_metas)) {
-            error_log('WooTools_insert_unique_metas $all_metas is empty');
+            // error_log('WooTools_insert_unique_metas $all_metas is empty');
             return ['error' => 'metas empty'];
         }
         global $wpdb;
