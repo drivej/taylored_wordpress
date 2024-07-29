@@ -98,7 +98,7 @@ function onClickReset(e) {
 }
 
 function onChangeProductForm(e) {
-  if(ignoreEvent) return;
+  if (ignoreEvent) return;
   // console.log('onChangeProductForm()');
   const formData = new FormData(e.currentTarget);
   const selected_attributes = {};
@@ -174,13 +174,13 @@ function selectAttributes(selected_attributes) {
     selected_variations[0].images[0].$thumbnail.querySelector('img').dispatchEvent(new Event('click', { bubbles: true }));
   }
 
-const $input_variation_id = document.querySelector('input[name="variation_id"]');
+  const $input_variation_id = document.querySelector('input[name="variation_id"]');
 
   if (selected_variations.length === 1) {
     const selectedVariation = selected_variations[0];
 
     // set variation id so woo knows what to add to the cart
-    
+
     if ($input_variation_id.value !== selectedVariation.id) {
       $input_variation_id.value = selectedVariation.id;
       // ignoreEvent = true;
@@ -206,11 +206,13 @@ const $input_variation_id = document.querySelector('input[name="variation_id"]')
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const $gallery = document.querySelector('.woocommerce-product-gallery');
-  const observer = new MutationObserver(debounce(initGallery));
-  observer.observe($gallery, { childList: true, subtree: true, attributes: true });
-});
+if (false) {
+  document.addEventListener('DOMContentLoaded', () => {
+    const $gallery = document.querySelector('.woocommerce-product-gallery');
+    const observer = new MutationObserver(debounce(initGallery));
+    observer.observe($gallery, { childList: true, subtree: true, attributes: true });
+  });
+}
 
 // document.addEventListener('DOMContentLoadedX', function () {
 //   // get variations from woo injected data

@@ -90,7 +90,7 @@ export const SelectSupplier = () => {
 
 export const SelectInput = ({ name, options, initialValue = null }: { name: string; options: { name: string; value: string }[]; initialValue?: string }) => {
   const searchParams = useInitialSearchParams();
-  const [value, setValue] = useState(searchParams.has(name) ? searchParams.get(name) : (initialValue ?? options?.[0]?.value ?? ''));
+  const [value, setValue] = useState(searchParams.has(name) ? searchParams.get(name) : initialValue ?? options?.[0]?.value ?? '');
 
   const onChange: React.ChangeEventHandler<HTMLSelectElement> = (e) => {
     setValue(e.currentTarget.value);
@@ -110,6 +110,11 @@ export const SelectInput = ({ name, options, initialValue = null }: { name: stri
 export const ProductInput = () => {
   const searchParams = useInitialSearchParams();
   return <TextInput name='product_id' defaultValue={searchParams.get('supplier_product_id')} />;
+};
+
+export const WooIdInput = () => {
+  const searchParams = useInitialSearchParams();
+  return <TextInput name='woo_id' defaultValue={searchParams.get('woo_id')} />;
 };
 
 export const TextInput = ({ name, defaultValue = '', type = 'text', ...props }: { name: string; defaultValue: string } & React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>) => {
@@ -153,7 +158,7 @@ export const useSuppliers = () => {
   return useWordpressAjax<{ key: string; name: string }[]>({ action: 'ci_api_handler', cmd: 'get_suppliers' });
 };
 
-export const AdminForm = ({ name, cmd, allowPolling = false, children = null, RenderResult = Pre }: { name: string; cmd: string; allowPolling?: boolean; children?: React.ReactNode; RenderResult?: React.ComponentType<{ data: unknown }> }) => {
+export const AdminForm = ({ name, label = name, cmd, allowPolling = false, children = null, RenderResult = Pre }: {label?:string; name: string; cmd: string; allowPolling?: boolean; children?: React.ReactNode; RenderResult?: React.ComponentType<{ data: unknown }> }) => {
   const $form = useRef<HTMLFormElement>(null);
   const [isPolling, setIsPolling] = useState(false);
   const [nonce, setNonce] = useState(0);
@@ -199,7 +204,7 @@ export const AdminForm = ({ name, cmd, allowPolling = false, children = null, Re
         {children}
         <div className='input-group'>
           <button className='btn btn-primary' title={name} disabled={disabled}>
-            {name}
+            {label}
           </button>
           <button className='btn btn-secondary' type='button' onClick={clearData}>
             Clear

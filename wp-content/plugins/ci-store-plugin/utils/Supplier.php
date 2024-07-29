@@ -3,6 +3,8 @@
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/CronJob.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier_Background_Process.php';
 
+use Automattic\Jetpack\Constants;
+
 class SupplierProductMeta
 {
     public string $woo_id;
@@ -283,6 +285,11 @@ class Supplier
     {
         return [];
     }
+    // placeholder
+    public function import_next_products_page()
+    {
+        return [];
+    }
     /**
      * Retrieves WooCommerce tag IDs based on provided tags array.
      *
@@ -546,53 +553,100 @@ class Supplier
         return wp_delete_post($woo_product_id, $force);
     }
 
-    public function delete_orphaned_meta()
+    // public function delete_orphaned_meta()
+    // {
+    //     global $wpdb;
+    //     $sql = "DELETE pm
+    //         FROM wp_postmeta pm
+    //         LEFT JOIN wp_posts p ON pm.post_id = p.ID
+    //         WHERE p.ID IS NULL;
+    //     ";
+
+    //     $result = $wpdb->query($sql);
+    //     if ($result === false) {
+    //         $this->log("Error deleting orphaned attachments: " . $wpdb->last_error);
+    //     } else {
+    //         $this->log("Deleted orphaned attachments.");
+    //     }
+    // }
+
+    // public function delete_orphaned_attachments()
+    // {
+    //     global $wpdb;
+    //     $sql = "DELETE a
+    //         FROM {$wpdb->posts} a
+    //         LEFT JOIN {$wpdb->posts} p ON a.post_parent = p.ID AND p.post_type = 'product'
+    //         WHERE a.post_type = 'attachment'
+    //         AND a.post_parent > 0
+    //         AND p.ID IS NULL
+    //     ";
+    //     // $sql = "DELETE FROM {$wpdb->posts}
+    //     // WHERE post_type = 'attachment'
+    //     // AND post_parent > 0
+    //     // AND post_parent
+    //     // NOT IN (
+    //     //     SELECT ID FROM {$wpdb->posts} WHERE post_type = 'product'
+    //     // )";
+
+    //     $result = $wpdb->query($sql);
+    //     if ($result === false) {
+    //         $this->log("Error deleting orphaned attachments: " . $wpdb->last_error);
+    //     } else {
+    //         $this->log("Deleted orphaned attachments.");
+    //     }
+    // }
+
+    public function get_base_metadata()
     {
-        global $wpdb;
-        $sql = "DELETE pm
-            FROM wp_postmeta pm
-            LEFT JOIN wp_posts p ON pm.post_id = p.ID
-            WHERE p.ID IS NULL;
-        ";
-
-        $result = $wpdb->query($sql);
-        if ($result === false) {
-            $this->log("Error deleting orphaned attachments: " . $wpdb->last_error);
-        } else {
-            $this->log("Deleted orphaned attachments.");
-        }
-    }
-
-    public function delete_orphaned_attachments()
-    {
-        global $wpdb;
-        $sql = "DELETE a
-            FROM {$wpdb->posts} a
-            LEFT JOIN {$wpdb->posts} p ON a.post_parent = p.ID AND p.post_type = 'product'
-            WHERE a.post_type = 'attachment'
-            AND a.post_parent > 0
-            AND p.ID IS NULL
-        ";
-        // $sql = "DELETE FROM {$wpdb->posts}
-        // WHERE post_type = 'attachment'
-        // AND post_parent > 0
-        // AND post_parent
-        // NOT IN (
-        //     SELECT ID FROM {$wpdb->posts} WHERE post_type = 'product'
-        // )";
-
-        $result = $wpdb->query($sql);
-        if ($result === false) {
-            $this->log("Error deleting orphaned attachments: " . $wpdb->last_error);
-        } else {
-            $this->log("Deleted orphaned attachments.");
-        }
+        $base_metadata = [
+            'total_sales' => 0,
+            '_tax_status' => 'taxable',
+            '_manage_stock' => 'no',
+            '_backorders' => 'no',
+            '_sold_individually' => 'no',
+            '_virtual' => 'no',
+            '_downloadable' => 'no',
+            '_download_limit' => '-1',
+            '_download_expiry' => '-1',
+            '_stock' => 'NULL',
+            '_stock_status' => 'instock',
+            '_wc_average_rating' => 0,
+            '_wc_review_count' => 0,
+            '_product_version' => Constants::get_constant('WC_VERSION'),
+            '_supplier_class' => $this->supplierClass,
+            '_ci_supplier_key' => $this->key,
+            '_ci_import_version' => $this->import_version,
+            '_ci_import_timestamp' => gmdate("c"),
+            // '_ci_import_details' => gmdate("c"),
+            // '_ci_import_price' => gmdate("c"),
+            '_ci_update_plp' => 0, // TODO: update list view
+            '_ci_update_pdp' => 0,
+            '_last_updated' => gmdate("c"),
+        ];
+        // Required: _sku, _ci_product_id
+        return $base_metadata;
     }
 
     public function delete_all()
     {
         $this->log("delete_all()");
         global $wpdb;
+
+        $main_sql = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_ci_supplier_key' AND meta_value = %s";
+        $main_prep = $wpdb->prepare($main_sql, $this->key);
+        $meta_search = $wpdb->get_col($main_prep);
+
+        $name_sql = "SELECT ID FROM {$wpdb->posts} WHERE post_name LIKE '%-{$this->key}-product'";
+        $name_prep = $wpdb->prepare($name_sql); //, $post_name_pattern);
+        $post_name_search = $wpdb->get_col($name_prep);
+
+        $product_ids = array_unique([ ...$post_name_search, ...$meta_search]);
+        $product_ids = array_filter($product_ids, fn($id) => (bool) $id);
+        // return $product_ids;//$wpdb->prepare($post_name_sql, $post_name_pattern);
+
+        // $product_ids = $wpdb->get_results($wpdb->prepare($main_sql, $this->key));
+        // return $product_ids;
+        /*
         $meta_key = '_ci_supplier_key';
         $meta_value = $this->key;
         $main_sql = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s AND meta_value = %s";
@@ -610,36 +664,60 @@ class Supplier
         $product_ids = array_unique(array_merge($proper_search, $sku_search, $post_name_search));
         // return ['test' => $monkey_search, 'product_ids' => $product_ids];
 
+        return $product_ids;
+
         if (empty($product_ids)) {
-            $this->log("No products found to delete for meta_key: {$meta_key}, meta_value: {$meta_value}");
-            return ['meta' => [
-                'supplier' => $this->key,
-                'product_ids' => 0,
-            ]];
+        $this->log("No products found to delete for meta_key: {$meta_key}, meta_value: {$meta_value}");
+        return ['meta' => [
+        'supplier' => $this->key,
+        'product_ids' => 0,
+        ]];
         }
 
+         */
+
+        // Create a new WC_Product_Query with the specified arguments
+        // $product_query = new WC_Product_Query($args);
+
+        // $products = wc_get_products([
+        //     'limit'      => -1, // Retrieve all products
+        //     'status'     => 'publish', // Only get published products
+        //     'meta_query' => [
+        //         [
+        //             'key'   => '_ci_supplier_key',
+        //             'value' => $this->key,
+        //             'compare' => '='
+        //         ]
+        //     ]
+        // ]);
+        // return $products;
+
         $chunks = array_chunk($product_ids, 10000);
+        $results = [];
 
         foreach ($chunks as $chunk) {
+            $results[] = WooTools::delete_products($chunk);
+            /*
             $placeholders = implode(',', array_fill(0, count($chunk), '%d'));
 
             $sql = "DELETE FROM {$wpdb->term_relationships} WHERE object_id IN ($placeholders)";
             $result1 = $wpdb->query($wpdb->prepare($sql, $chunk));
             if ($result1 === false) {
-                $this->log("Error deleting products: " . $wpdb->last_error);
+            $this->log("Error deleting products: " . $wpdb->last_error);
             }
 
             $sql = "DELETE FROM {$wpdb->postmeta} WHERE post_id IN ($placeholders)";
             $result2 = $wpdb->query($wpdb->prepare($sql, $chunk));
             if ($result2 === false) {
-                $this->log("Error deleting products: " . $wpdb->last_error);
+            $this->log("Error deleting products: " . $wpdb->last_error);
             }
 
             $sql = "DELETE FROM {$wpdb->posts} WHERE ID IN ($placeholders)";
             $result3 = $wpdb->query($wpdb->prepare($sql, $chunk));
             if ($result3 === false) {
-                $this->log("Error deleting products: " . $wpdb->last_error);
+            $this->log("Error deleting products: " . $wpdb->last_error);
             }
+             */
 
             // $sql = "DELETE p, pm, tr
             //     FROM {$wpdb->posts} p
@@ -654,33 +732,36 @@ class Supplier
             // } else {
             //     $this->log("Deleted " . count($chunk) . " products.");
             // }
-            $a = $chunk[0];
-            $this->log("delete {$a}...1000");
+            // $a = $chunk[0];
+            // $this->log("delete {$a}...1000");
         }
+        /*
+        // $total = count($product_ids);
+        // $this->log("deleted {$total} products");
 
-        $total = count($product_ids);
-        $this->log("deleted {$total} products");
-
-        $leftover_product_ids = $wpdb->get_col($wpdb->prepare($main_sql, $meta_key, $meta_value));
+        $leftover_product_ids = [];//$wpdb->get_col($wpdb->prepare($main_sql, $meta_key, $meta_value));
 
         foreach ($leftover_product_ids as $product_id) {
-            $ids[] = $product_id;
-            $success = wp_delete_post($product_id, true);
-            $bool = json_encode((bool) $success);
-            $this->log("delete (!) {$product_id} success={$bool}");
+        $ids[] = $product_id;
+        $success = wp_delete_post($product_id, true);
+        $bool = json_encode((bool) $success);
+        $this->log("delete (!) {$product_id} success={$bool}");
         }
         $total = count($leftover_product_ids);
-        $this->log("deleted {$total} leftover products");
+         */
+        // $this->log("deleted {$total} leftover products");
 
-        $this->delete_orphaned_attachments();
-        $this->delete_orphaned_meta();
+        // WooTools::delete_orphaned_attachments();
+        // WooTools::delete_orphaned_meta();
+        // WooTools::delete_orphaned_meta_lookup();
 
         return [
             'meta' => [
-                'meta_key' => '_ci_supplier_key',
-                'meta_value' => $this->key,
-                'product_ids' => count($product_ids),
-                'leftover_product_ids' => count($leftover_product_ids),
+                'results' => $results,
+                // 'meta_key' => '_ci_supplier_key',
+                'supplier' => $this->key,
+                'product_ids' => ($product_ids),
+                // 'leftover_product_ids' => count($leftover_product_ids),
             ],
             // 'data' => $product_ids,
         ];

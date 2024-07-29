@@ -2,10 +2,10 @@
 
 namespace WooDropship\Suppliers\Settings;
 
-class WPSSettings extends SupplierSettings
+class WesternSettings extends SupplierSettings
 {
     protected $name = 'Western Power Sports';
-    protected $slug = 'wps';
+    public $slug = 'wps';
     protected $api_fields = "wps_api_fields";
     protected $settings_page = "wps_api";
 

@@ -11542,40 +11542,28 @@ const SupplierT14Page = () => {
         react.createElement(Outlet, null)));
 };
 const SupplierWPSPage = () => {
-    return react.createElement(Outlet, null);
+    return (react.createElement("div", { className: 'd-flex flex-column gap-3' },
+        react.createElement("nav", { className: 'd-flex gap-2' },
+            react.createElement(NavLink, { className: 'btn btn-sm btn-primary', to: '' }, "Overview"),
+            react.createElement(NavLink, { className: 'btn btn-sm btn-primary', to: 'brands' }, "Brands")),
+        react.createElement(Outlet, null)));
 };
-const SupplierT14Brands = () => {
+const SupplierBrands = ({ supplier_key }) => {
     var _a, _b, _c, _d;
     // { data: { id: string; attributes: { name: string } }[] }
     const query = {
         action: 'ci_api_handler',
         cmd: 'supplier_action',
-        supplier_key: 't14',
+        supplier_key,
         func: 'get_brands'
     };
     const brands = useWordpressAjax(query);
     const [allowedBrandIds, setAllowedBrandIds] = react.useState([]);
     react.useEffect(() => {
         if (brands.isSuccess) {
-            // const ids = brands.data.data.filter((b) => b.allowed).map((b) => b.id);
             setAllowedBrandIds(brands.data.meta.allowed);
         }
     }, [brands.data]);
-    // React.useEffect(() => {
-    //   console.log({ allowedBrandIds });
-    // }, [allowedBrandIds]);
-    // const RunTest = () => {
-    //   fetchWordpressAjax<IBrandsResponse, IBrandQuery>({
-    //     action: 'ci_api_handler',
-    //     cmd: 'supplier_action',
-    //     supplier_key: 't14',
-    //     func: 'get_allowed_brand_ids'
-    //   }).then((result) => {
-    //     console.log({ result });
-    //     const ids = result.data;
-    //     setAllowedBrandIds(ids);
-    //   });
-    // };
     const onSubmit = (e) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -11585,16 +11573,12 @@ const SupplierT14Brands = () => {
         fetchWordpressAjax({
             action: 'ci_api_handler',
             cmd: 'supplier_action',
-            supplier_key: 't14',
+            supplier_key,
             func: 'set_allowed_brand_ids',
             args: [JSON.stringify(brand_ids), 'TEST']
         }).then((result) => {
-            // console.log({ result });
-            // const ids = result.data.filter((b) => b.allowed).map((b) => b.id);
-            // result.meta.allowed
             setAllowedBrandIds(result.meta.allowed);
         });
-        // $brandsSelect.current.selectedOptions;
     };
     const $brandsSelect = react.useRef(null);
     const onChange = (e) => {
@@ -11617,7 +11601,6 @@ const SupplierT14Brands = () => {
             return output;
         });
     };
-    // return <pre>{JSON.stringify(brands?.data?.data)}</pre>;
     if (brands.isSuccess) {
         return (react.createElement("div", null,
             react.createElement("form", { onSubmit: onSubmit, className: 'd-flex flex-column gap-4' },
@@ -11648,9 +11631,10 @@ const render = (id) => {
                 react.createElement(Route, { path: '', element: react.createElement(SupplierWrapper, null) },
                     react.createElement(Route, { path: 't14', element: react.createElement(SupplierT14Page, null) },
                         react.createElement(Route, { index: true, element: react.createElement(SupplierImportStatusPage, { supplier_key: 't14' }) }),
-                        react.createElement(Route, { path: 'brands', element: react.createElement(SupplierT14Brands, null) })),
+                        react.createElement(Route, { path: 'brands', element: react.createElement(SupplierBrands, { supplier_key: 't14' }) })),
                     react.createElement(Route, { path: 'wps', element: react.createElement(SupplierWPSPage, null) },
-                        react.createElement(Route, { index: true, element: react.createElement(SupplierImportStatusPage, { supplier_key: 'wps' }) })))))));
+                        react.createElement(Route, { index: true, element: react.createElement(SupplierImportStatusPage, { supplier_key: 'wps' }) }),
+                        react.createElement(Route, { path: 'brands', element: react.createElement(SupplierBrands, { supplier_key: 'wps' }) })))))));
 };
 
 })();

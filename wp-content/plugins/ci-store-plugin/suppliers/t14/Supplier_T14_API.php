@@ -46,7 +46,8 @@ trait Supplier_T14_API
     {
         $query_string = http_build_query($params);
         $pathKey = trim($path, '/') . '?' . $query_string;
-        $transient_name = "{$this->key}_get_api_{$pathKey}_{$this->import_version}";
+        $pathHash = md5($pathKey);
+        $transient_name = "{$this->key}_get_api_{$pathHash}_{$this->import_version}";
         $response = get_transient($transient_name);
 
         if (false === $response) {

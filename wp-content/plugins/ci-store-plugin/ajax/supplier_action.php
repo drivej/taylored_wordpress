@@ -2,6 +2,8 @@
 
 namespace AjaxHandlers;
 
+use Exception;
+
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/AjaxManager.php';
 
@@ -31,14 +33,20 @@ function supplier_action($params)
         $args = [];
     }
 
-    foreach($args as &$arg){
+    foreach ($args as &$arg) {
         $parsed = json_decode(stripslashes($arg));
         if (json_last_error() === JSON_ERROR_NONE) {
             $arg = $parsed;
         }
     }
 
-    $response = call_user_func_array([$supplier, $func], $args);
+    // $response = call_user_func_array([$supplier, $func], $args);
+    try {
+        $response = call_user_func([$supplier, $func], ...$args);
+        return $response;
+    } catch (Exception $e) {
+        return $e;
+    }
 
     if (isset($response['data'])) {
         $response['meta'] = isset($response['meta']) ? $response['meta'] : [];

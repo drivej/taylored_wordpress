@@ -40,9 +40,9 @@ function custom_before_shop_loop_item()
         $sku = $product->get_sku();
         $woo_id = $product->get_id();
         if (!$sku) {
-            error_log('Product has no supplier or sku ' . $woo_id);
+            error_log('custom_before_shop_loop_item() - Product has no supplier or sku ' . $woo_id);
         } else {
-            error_log('Product has no supplier ' . $woo_id . ' ' . $sku);
+            error_log('custom_before_shop_loop_item() - Product has no supplier ' . $woo_id . ' ' . $sku);
         }
     }
 

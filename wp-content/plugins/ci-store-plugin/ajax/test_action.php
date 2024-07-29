@@ -51,28 +51,27 @@ function find_duped_posts()
     return $result;
 }
 
-
 // class WP_Example_Request extends \WP_Async_Request {
 //     /**
-// 	 * @var string
-// 	 */
-// 	protected $prefix = 'my_plugin';
+//      * @var string
+//      */
+//     protected $prefix = 'my_plugin';
 
-// 	/**
-// 	 * @var string
-// 	 */
-// 	protected $action = 'example_request';
+//     /**
+//      * @var string
+//      */
+//     protected $action = 'example_request';
 
-// 	/**
-// 	 * Handle a dispatched request.
-// 	 *
-// 	 * Override this method to perform any actions required
-// 	 * during the async request.
-// 	 */
-// 	protected function handle() {
-// 		// Actions to perform.
+//     /**
+//      * Handle a dispatched request.
+//      *
+//      * Override this method to perform any actions required
+//      * during the async request.
+//      */
+//     protected function handle() {
+//         // Actions to perform.
 //         error_log('test task '.json_encode($this->data));
-// 	}
+//     }
 // }
 
 // class TestProcess extends \WP_Background_Process
@@ -83,8 +82,47 @@ function find_duped_posts()
 //     }
 // }
 
+function sql_product_query($params)
+{
+    $woo_id = \AjaxManager::get_param('woo_id', null, $params);
+    return \WooTools::helpMe($woo_id);
+}
+
+function import_wps_products_page($params)
+{
+    $cursor = \AjaxManager::get_param('cursor', '', $params);
+    $supplier = \WooTools::get_supplier('wps');
+    $size = 25;
+    $updated_at = '2023-01-01';
+
+    $params = [
+        'include' => implode(',', [
+            'features', 
+            // 'attributekeys',
+            // 'items',
+            'items.images',
+            'items.attributevalues',
+            'items.taxonomyterms',
+            'items:filter(status_id|NLA|ne)',
+        ]),
+        'filter' => ['updated_at' => ['gt' => $updated_at]],
+        'page' => ['cursor' => $cursor, 'size' => $size],
+    ];
+    $items = $supplier->get_api('/products', $params);
+    return $items;
+
+    return $supplier->import_products_page($cursor);
+}
+
 function test_action($params)
 {
+
+    // return unserialize('a:6:{s:5:"width";i:5688;s:6:"height";i:2307;s:4:"file";s:63:"https://cdn.wpsstatic.com/images/500_max/c454-5b02f12f27584.jpg";s:8:"filesize";i:1000;s:5:"sizes";a:0:{}s:10:"image_meta";a:12:{s:8:"aperture";i:0;s:6:"credit";s:0:"";s:6:"camera";s:0:"";s:7:"caption";s:0:"";s:17:"created_timestamp";i:0;s:9:"copyright";s:0:"";s:12:"focal_length";i:0;s:3:"iso";s:1:"0";s:13:"shutter_speed";i:0;s:5:"title";s:0:"";s:11:"orientation";i:0;s:8:"keywords";a:0:{}}}');
+    // return \WooTools::delete_orphaned_meta_lookup();
+    // return [
+    //     unserialize('a:1:{s:3:"sku";a:6:{s:4:"name";s:3:"sku";s:5:"value";s:81:"015-01021 | 015-01022 | 015-01023 | 015-01024 | 015-01025 | 015-01026 | 015-01027";s:8:"position";i:0;s:10:"is_visible";i:1;s:12:"is_variation";i:1;s:11:"is_taxonomy";i:0;}}'),
+    //     unserialize('a:1:{i:0;a:6:{s:4:"name";s:3:"sku";s:5:"value";s:69:"015-01001 | 015-01002 | 015-01003 | 015-01004 | 015-01005 | 015-01006";s:8:"position";i:0;s:10:"is_visible";i:1;s:12:"is_variation";i:1;s:11:"is_taxonomy";i:0;}}'),
+    // ];
     // $example_request = new WP_Example_Request();
     // $example_request->data( array( 'value1' => 1, 'value2' => 2 ) );
     // $example_request->dispatch();
@@ -96,7 +134,7 @@ function test_action($params)
     // $test->save()->dispatch();
     // return $test;
     // return find_duped_posts();
-    // return \WooTools::delete_transients();
+    // return \WooTools::delete_orphaned_attachments();
 
     // return \WooTools::clean_up_orphaned_term_relationships();
 
@@ -106,10 +144,21 @@ function test_action($params)
     // // wp_update_attachment_metadata($id,$metadata);
     // return $metadata;
 
+    // return get_post_meta(41633, '_product_attributes', true);
+
     // return \WooTools::attachment_urls_to_postids(['https://localhost:3000/assets/prompt-form-header.jpg', 'https://localhost:3000/assets/default-station-bg.png']);
 
-    $supplier_key = 't14';
+    // $supplier_key = 't14';
+    $supplier_key = 'wps';
     $supplier = \WooTools::get_supplier($supplier_key);
+
+    // return $supplier->import_product(686);
+    // return $supplier->get_products_count();
+
+    // return $supplier->import_products_page('VbjlYAnDewNO', 25); // before problem cursor
+    // return $supplier->import_products_page('61poYDBDMaDk', 25); // problem cursor
+
+    return $supplier->import_products_page();
     // return $supplier->repair_products_page(1);
     // return $supplier->insert_unique_metas([
     //     ['post_id' => 999999, 'meta_key' => 'test_meta_name1', 'meta_value' => 'testval1'],
@@ -117,8 +166,6 @@ function test_action($params)
     // ]);
 
     // return $supplier->update_prices_table(1);
-
-    return $supplier->import_products_page(1);
     // $page_index = 1;
     // $items = $supplier->get_items_page($page_index);
     // return $items;

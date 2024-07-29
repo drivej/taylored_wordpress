@@ -6,7 +6,7 @@ class SupplierSettings
 {
     protected $options;
     protected $name = 'Supplier Name';
-    protected $slug = 'supplier';
+    public $slug = 'supplier';
     protected $api_fields = 'supplier';
     protected $settings_page = "supplier_api";
 

@@ -1,5 +1,21 @@
 <?php
+/*
 
+Answer Racing
+Baja Designs
+Bikemaster
+Burly Brand
+DragonFire Racing
+Firstgear
+Kuryakyn
+*ProTaper* (Most Important)
+Quadboss
+RiverRoad
+Speed and Strength
+Twin Power
+Vance & Hines
+
+*/
 trait Supplier_T14_Brands
 {
     public function get_brands()

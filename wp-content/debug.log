@@ -1,360 +1,68 @@
-[16-Jun-2024 20:24:35 UTC] Cron reschedule event error for hook: jetpack_clean_nonces, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"hourly","args":[],"interval":3600}
-[17-Jun-2024 00:16:52 UTC] Cron reschedule event error for hook: action_scheduler_run_queue, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"every_minute","args":["WP Cron"],"interval":60}
-[17-Jun-2024 00:31:26 UTC] PHP Fatal error:  Uncaught TypeError: array_push(): Argument #1 ($array) must be of type array, null given in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php:414
+[29-Jul-2024 11:51:26 UTC] process_items_native 11175 ms
+[29-Jul-2024 11:51:26 UTC] import_hook_init_action() - [6,17,24,25,26,29,31,32,33,34,36,37,40,41,43,53,55,56,57,60,61,67,69,70,72]
+[29-Jul-2024 11:51:47 UTC] import_products_page("bWR90RQMOo2Z", 25, 2023-01-01)
+[29-Jul-2024 11:52:07 UTC] process_items_native 16845 ms
+[29-Jul-2024 11:52:07 UTC] import_loop() - bWR90RQMOo2Z [74,75,79,90,91,92,93,125,130,141,155,164,167,174,176,179,180,184,217,225,241,404,632,644,659]
+[29-Jul-2024 11:52:07 UTC] import_loop() - schedule next 1
+[29-Jul-2024 11:52:24 UTC] import_products_page("jw4Ae7lPM1zE", 25, 2023-01-01)
+[29-Jul-2024 11:52:33 UTC] process_items_native 8072 ms
+[29-Jul-2024 11:52:33 UTC] import_loop() - jw4Ae7lPM1zE [660,661,662,663,666,667,669,670,671,673,674,675,676,678,679,680,682,685,686,690,705,711,720,735,741]
+[29-Jul-2024 11:52:33 UTC] import_loop() - schedule next 1
+[29-Jul-2024 11:52:47 UTC] import_products_page("VbjlYA6jewNO", 25, 2023-01-01)
+[29-Jul-2024 11:53:10 UTC] process_items_native 18447 ms
+[29-Jul-2024 11:53:10 UTC] import_loop() - VbjlYA6jewNO [744,745,753,762,788,824,914,934,1064,1121,1249,1317,1318,1319,1320,1327,1328,1329,1330,1407,1408,1413,1414,1417,1420]
+[29-Jul-2024 11:53:10 UTC] import_loop() - schedule next 1
+[29-Jul-2024 11:53:29 UTC] import_products_page("61poYD1XeaDk", 25, 2023-01-01)
+[29-Jul-2024 11:53:43 UTC] process_items_native 11586 ms
+[29-Jul-2024 11:53:43 UTC] import_loop() - 61poYD1XeaDk [1421,1422,1450,1483,1508,1509,1518,1522,1562,1569,1608,1614,1627,1634,1635,1636,1649,1651,1655,1657,1658,1659,1661,1663,1665]
+[29-Jul-2024 11:53:43 UTC] import_loop() - schedule next 1
+[29-Jul-2024 11:54:48 UTC] import_products_page("bWR90R5xMOo2", 25, 2023-01-01)
+[29-Jul-2024 11:55:00 UTC] process_items_native 10053 ms
+[29-Jul-2024 11:55:00 UTC] import_loop() - bWR90R5xMOo2 [1672,1673,1674,1676,1678,1679,1711,1728,1734,1741,1773,1774,1775,1776,1781,1787,1789,1790,1791,1792,1793,1795,1797,1800,1859]
+[29-Jul-2024 11:55:00 UTC] import_loop() - schedule next 1
+[29-Jul-2024 11:55:02 UTC] import_products_page("jw4Ae72GY1zE", 25, 2023-01-01)
+[29-Jul-2024 11:55:13 UTC] process_items_native 10029 ms
+[29-Jul-2024 11:55:13 UTC] import_loop() - jw4Ae72GY1zE [1861,1862,1867,1869,1878,1883,1910,1927,1938,1952,1953,1959,1961,1962,1963,1966,1969,1971,1972,1976,1979,1982,1985,1986,1987]
+[29-Jul-2024 11:55:13 UTC] import_loop() - schedule next 1
+[29-Jul-2024 11:55:30 UTC] import_products_page("VbjlYAQ8YwNO", 25, 2023-01-01)
+[29-Jul-2024 11:55:42 UTC] process_items_native 10626 ms
+[29-Jul-2024 11:55:42 UTC] import_loop() - VbjlYAQ8YwNO [1988,1989,1990,1991,1992,1996,2001,2006,2007,2008,2014,2015,2023,2055,2175,2186,2194,2198,2202,2206,2214,2219,2222,2223,2258]
+[29-Jul-2024 11:55:42 UTC] import_loop() - schedule next 1
+[29-Jul-2024 11:55:49 UTC] import_products_page("61poYDdAYaDk", 25, 2023-01-01)
+[29-Jul-2024 11:55:55 UTC] process_items_native 4637 ms
+[29-Jul-2024 11:55:55 UTC] import_loop() - 61poYDdAYaDk [2309,2310,2311,2312,2313,2415,2416,2420,2421,2422,2424,2426,2427,2428,2429,2430,2433,2436,2437,2439,2442,2443,2444,2445,2446]
+[29-Jul-2024 11:55:55 UTC] import_loop() - schedule next 1
+[29-Jul-2024 11:56:49 UTC] import_products_page("bWR90RaaMOo2", 25, 2023-01-01)
+[29-Jul-2024 11:57:01 UTC] process_items_native 8607 ms
+[29-Jul-2024 11:57:01 UTC] import_loop() - bWR90RaaMOo2 [2456,2465,2466,2469,2470,2473,2480,2536,2628,2652,2718,2736,2737,2738,2739,2740,2743,2747,2783,2787,2801,2848,2849,2934,2971]
+[29-Jul-2024 11:57:01 UTC] import_loop() - schedule next 1
+[29-Jul-2024 11:57:31 UTC] import_products_page("jw4Ae7wpe1zE", 25, 2023-01-01)
+[29-Jul-2024 11:57:53 UTC] process_items_native 19210 ms
+[29-Jul-2024 11:57:53 UTC] import_loop() - jw4Ae7wpe1zE [3029,3054,3067,3075,3087,3089,3098,3100,3101,3103,3133,3201,3228,3233,3324,3343,3350,3370,3394,3395,3399,3446,3447,3448,3451]
+[29-Jul-2024 11:57:53 UTC] import_loop() - schedule next 1
+[29-Jul-2024 11:58:50 UTC] import_products_page("VbjlYAKxMwNO", 25, 2023-01-01)
+[29-Jul-2024 11:59:00 UTC] process_items_native 8811 ms
+[29-Jul-2024 11:59:00 UTC] import_loop() - VbjlYAKxMwNO [3459,3460,3461,3462,3463,3478,3588,3593,3597,3599,3605,3609,3623,3625,3633,3635,3636,3639,3640,3642,3645,3646,3647,3648,3659]
+[29-Jul-2024 11:59:00 UTC] import_loop() - schedule next 1
+[29-Jul-2024 11:59:21 UTC] PHP Fatal error:  Uncaught TypeError: Unsupported operand types: DateTime - int in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/wps/Supplier_WPS.php:192
 Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php(414): array_push(NULL, 'https://cdn.wps...')
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php(22): WooTools::sync_images(Object(WC_Product_Variable), Array, Object(Supplier_WPS))
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
-#7 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php on line 414
-[17-Jun-2024 00:33:38 UTC] PHP Fatal error:  Uncaught TypeError: array_push(): Argument #1 ($array) must be of type array, null given in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php:415
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php(415): array_push(NULL, 'https://cdn.wps...')
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php(22): WooTools::sync_images(Object(WC_Product_Variable), Array, Object(Supplier_WPS))
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
-#7 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php on line 415
-[17-Jun-2024 00:33:59 UTC] PHP Fatal error:  Uncaught TypeError: array_push(): Argument #1 ($array) must be of type array, null given in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php:414
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php(414): array_push(NULL, 'https://cdn.wps...')
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php(22): WooTools::sync_images(Object(WC_Product_Variable), Array, Object(Supplier_WPS))
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
-#7 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php on line 414
-[17-Jun-2024 00:34:02 UTC] PHP Fatal error:  Uncaught TypeError: array_push(): Argument #1 ($array) must be of type array, null given in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php:414
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php(414): array_push(NULL, 'https://cdn.wps...')
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php(22): WooTools::sync_images(Object(WC_Product_Variable), Array, Object(Supplier_WPS))
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
-#7 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php on line 414
-[17-Jun-2024 00:34:32 UTC] PHP Fatal error:  Uncaught TypeError: array_push(): Argument #1 ($array) must be of type array, null given in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php:414
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php(414): array_push(NULL, 'https://cdn.wps...')
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php(22): WooTools::sync_images(Object(WC_Product_Variable), Array, Object(Supplier_WPS))
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
-#7 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php on line 414
-[17-Jun-2024 00:35:06 UTC] PHP Fatal error:  Uncaught TypeError: array_push(): Argument #1 ($array) must be of type array, null given in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php:414
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php(414): array_push(NULL, 'https://cdn.wps...')
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php(23): WooTools::sync_images(Object(WC_Product_Variable), Array, Object(Supplier_WPS))
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
-#7 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php on line 414
-[17-Jun-2024 00:35:24 UTC] PHP Fatal error:  Uncaught TypeError: array_push(): Argument #1 ($array) must be of type array, null given in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php:414
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php(414): array_push(NULL, 'https://cdn.wps...')
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php(25): WooTools::sync_images(Object(WC_Product_Variable), Array, Object(Supplier_WPS))
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
-#7 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php on line 414
-[17-Jun-2024 01:46:23 UTC] PHP Fatal error:  Uncaught Error: Call to a member function get_id() on null in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php:400
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php(25): WooTools::sync_images(NULL, Array, Object(Supplier_WPS))
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/wps/Supplier_WPS.php(460): Supplier_WPS->time_until(Object(DateTime))
+#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/wps/Supplier_WPS.php(268): Supplier_WPS->get_import_info()
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): Supplier_WPS->import_loop()
 #3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(565): WP_Hook->do_action(Array)
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-cron.php(191): do_action_ref_array('', Array)
 #6 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php on line 400
-[17-Jun-2024 12:38:47 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wpdb.php on line 1987
-[17-Jun-2024 12:38:47 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wpdb.php on line 1987
-[17-Jun-2024 12:38:59 UTC] PHP Fatal error:  Uncaught Error: Call to undefined method WooTools::get_product_ids_by_skus() in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php:34
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/wps/Supplier_WPS.php on line 192
+[29-Jul-2024 11:59:23 UTC] PHP Fatal error:  Uncaught TypeError: Unsupported operand types: DateTime - int in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/wps/Supplier_WPS.php:192
 Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
-#5 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php on line 34
-[17-Jun-2024 13:08:22 UTC] PHP Fatal error:  Uncaught Error: Call to undefined method WooTools::get_product_ids_by_skus() in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php:40
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
-#5 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php on line 40
-[17-Jun-2024 13:09:06 UTC] PHP Fatal error:  Uncaught Error: Call to undefined method WooTools::get_product_ids_by_skus() in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php:40
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
-#5 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php on line 40
-[17-Jun-2024 13:09:25 UTC] PHP Fatal error:  Uncaught TypeError: array_column(): Argument #1 ($array) must be of type array, null given in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php:367
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php(367): array_column(NULL, 'variation_id', 'sku')
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php(40): WooTools::get_product_ids_by_skus(Array)
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
-#7 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/WooTools.php on line 367
-[17-Jun-2024 15:15:42 UTC] Failed to update option: ci_supplier_wps_allow_logging
-[17-Jun-2024 15:16:01 UTC] Failed to update option: ci_supplier_wps_allow_logging
-[17-Jun-2024 15:16:24 UTC] Failed to update option: ci_supplier_wps_allow_logging
-[17-Jun-2024 16:13:37 UTC] PHP Fatal error:  Uncaught TypeError: array_map(): Argument #1 ($callback) must be a valid callback or null, function "assignArgs" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/supplier_action.php:45
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/supplier_action.php(45): array_map('assignArgs', Array)
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\supplier_action(Array)
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
-#6 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/supplier_action.php on line 45
-[17-Jun-2024 16:13:50 UTC] PHP Fatal error:  Uncaught TypeError: array_map(): Argument #1 ($callback) must be a valid callback or null, function "\assignArgs" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/supplier_action.php:45
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/supplier_action.php(45): array_map('\\assignArgs', Array)
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\supplier_action(Array)
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
-#6 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/supplier_action.php on line 45
-[17-Jun-2024 16:14:13 UTC] PHP Fatal error:  Uncaught TypeError: array_map(): Argument #1 ($callback) must be a valid callback or null, function "assignArgs" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/supplier_action.php:45
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/supplier_action.php(45): array_map('assignArgs', Array)
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\supplier_action(Array)
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
-#6 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/supplier_action.php on line 45
-[17-Jun-2024 16:14:18 UTC] Failed to update option: ci_supplier_wps_allow_logging
-[17-Jun-2024 16:15:17 UTC] PHP Fatal error:  Uncaught TypeError: array_map(): Argument #1 ($callback) must be a valid callback or null, function "assignArgs" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/supplier_action.php:45
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/supplier_action.php(45): array_map('assignArgs', Array)
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\supplier_action(Array)
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
-#6 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/supplier_action.php on line 45
-[17-Jun-2024 16:20:46 UTC] Failed to update option: ci_supplier_wps_allow_logging
-[18-Jun-2024 11:49:26 UTC] PHP Fatal error:  Cannot redeclare AjaxHandlers\get_woo_products() (previously declared in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_woo_products copy.php:9) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_woo_products.php on line 9
-[18-Jun-2024 11:51:13 UTC] PHP Fatal error:  Cannot redeclare AjaxHandlers\get_woo_products() (previously declared in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_woo_product.php:9) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_woo_products.php on line 9
-[18-Jun-2024 11:52:14 UTC] PHP Fatal error:  Cannot redeclare AjaxHandlers\get_woo_products() (previously declared in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_woo_product.php:9) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_woo_products.php on line 9
-[18-Jun-2024 11:54:15 UTC] PHP Fatal error:  Cannot redeclare AjaxHandlers\get_woo_products() (previously declared in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_woo_product.php:9) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_woo_products.php on line 9
-[18-Jun-2024 11:56:16 UTC] PHP Fatal error:  Cannot redeclare AjaxHandlers\get_woo_products() (previously declared in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_woo_product.php:9) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_woo_products.php on line 9
-[18-Jun-2024 11:57:24 UTC] PHP Fatal error:  Cannot redeclare AjaxHandlers\get_woo_products() (previously declared in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_woo_product.php:9) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_woo_products.php on line 9
-[18-Jun-2024 11:58:24 UTC] PHP Fatal error:  Cannot redeclare AjaxHandlers\get_woo_products() (previously declared in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_woo_product.php:9) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_woo_products.php on line 9
-[18-Jun-2024 12:00:24 UTC] PHP Fatal error:  Cannot redeclare AjaxHandlers\get_woo_products() (previously declared in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_woo_product.php:9) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_woo_products.php on line 9
-[18-Jun-2024 12:01:33 UTC] PHP Fatal error:  Cannot redeclare AjaxHandlers\get_woo_products() (previously declared in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_woo_product.php:9) in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/get_woo_products.php on line 9
-[18-Jun-2024 12:24:09 UTC] PHP Fatal error:  Uncaught TypeError: ltrim(): Argument #1 ($string) must be of type string, array given in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/formatting.php:4494
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/formatting.php(4494): ltrim(Array)
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/wc-template-functions.php(1622): esc_url(Array)
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/templates/single-product/product-image.php(43): wc_get_gallery_image_html('348161', true)
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/wc-core-functions.php(345): include('/Users/jasoncon...')
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/wc-template-functions.php(1581): wc_get_template('single-product/...')
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): woocommerce_show_product_images('')
-#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
-#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/templates/content-single-product.php(43): do_action('woocommerce_bef...')
-#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template.php(812): require('/Users/jasoncon...')
-#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/wc-core-functions.php(284): load_template('/Users/jasoncon...', false)
-#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/templates/single-product.php(37): wc_get_template_part('content', 'single-product')
-#12 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template-loader.php(106): include('/Users/jasoncon...')
-#13 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(19): require_once('/Users/jasoncon...')
-#14 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
-#15 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/formatting.php on line 4494
-[18-Jun-2024 12:28:24 UTC] PHP Fatal error:  Uncaught Exception: Invalid product. in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/data-stores/class-wc-product-data-store-cpt.php:167
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/class-wc-data-store.php(159): WC_Product_Data_Store_CPT->read(Object(WC_Product_Variable))
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-product.php(138): WC_Data_Store->read(Object(WC_Product_Variable))
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/wc-product-functions.php(88): WC_Product->__construct(13182)
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php(16): wc_get_product_object('variable', 13182)
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
-#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
-#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
-#9 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/data-stores/class-wc-product-data-store-cpt.php on line 167
-[18-Jun-2024 12:31:15 UTC] PHP Fatal error:  Uncaught Exception: Invalid product. in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/data-stores/class-wc-product-data-store-cpt.php:167
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/class-wc-data-store.php(159): WC_Product_Data_Store_CPT->read(Object(WC_Product_Variable))
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-product.php(138): WC_Data_Store->read(Object(WC_Product_Variable))
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/wc-product-functions.php(88): WC_Product->__construct(13182)
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php(15): wc_get_product_object('variable', 13182)
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
-#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
-#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
-#9 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/data-stores/class-wc-product-data-store-cpt.php on line 167
-[18-Jun-2024 12:32:30 UTC] PHP Fatal error:  Uncaught Exception: Invalid product. in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/data-stores/class-wc-product-data-store-cpt.php:167
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/class-wc-data-store.php(159): WC_Product_Data_Store_CPT->read(Object(WC_Product_Variable))
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/abstracts/abstract-wc-product.php(138): WC_Data_Store->read(Object(WC_Product_Variable))
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/wc-product-functions.php(88): WC_Product->__construct(13182)
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/test_action.php(15): wc_get_product_object('variable', 13182)
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\test_action(Array)
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
-#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
-#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
-#9 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/includes/data-stores/class-wc-product-data-store-cpt.php on line 167
-[18-Jun-2024 18:03:40 UTC] PHP Fatal error:  Uncaught TypeError: call_user_func_array(): Argument #1 ($callback) must be a valid callback, function "enqueue_product_details_script" not found or invalid function name in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php:324
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/script-loader.php(2265): do_action('wp_enqueue_scri...')
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): wp_enqueue_scripts('')
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/general-template.php(3050): do_action('wp_head')
-#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/themes/storefront/header.php(18): wp_head()
-#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template.php(810): require_once('/Users/jasoncon...')
-#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template.php(745): load_template('/Users/jasoncon...', true, Array)
-#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/general-template.php(48): locate_template(Array, true, true, Array)
-#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/templates/single-product.php(22): get_header('shop')
-#12 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template-loader.php(106): include('/Users/jasoncon...')
-#13 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(19): require_once('/Users/jasoncon...')
-#14 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
-#15 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php on line 324
-[18-Jun-2024 18:04:48 UTC] PHP Fatal error:  Uncaught Error: Call to a member function get_id() on string in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_before_single_product.php:106
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): enqueue_product_details_script('')
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/script-loader.php(2265): do_action('wp_enqueue_scri...')
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): wp_enqueue_scripts('')
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
+#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/wps/Supplier_WPS.php(460): Supplier_WPS->time_until(Object(DateTime))
+#1 [internal function]: Supplier_WPS->get_import_info()
+#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/ajax/supplier_action.php(45): call_user_func(Array)
+#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/utils/AjaxManager.php(56): AjaxHandlers\supplier_action(Array)
+#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): AjaxManager->handle_ajax('')
+#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
 #6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/general-template.php(3050): do_action('wp_head')
-#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/themes/storefront/header.php(18): wp_head()
-#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template.php(810): require_once('/Users/jasoncon...')
-#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template.php(745): load_template('/Users/jasoncon...', true, Array)
-#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/general-template.php(48): locate_template(Array, true, true, Array)
-#12 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/templates/single-product.php(22): get_header('shop')
-#13 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template-loader.php(106): include('/Users/jasoncon...')
-#14 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(19): require_once('/Users/jasoncon...')
-#15 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
-#16 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_before_single_product.php on line 106
-[18-Jun-2024 18:05:19 UTC] PHP Fatal error:  Uncaught Error: Call to a member function get_id() on string in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_before_single_product.php:107
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): enqueue_product_details_script('')
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/script-loader.php(2265): do_action('wp_enqueue_scri...')
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): wp_enqueue_scripts('')
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
-#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/general-template.php(3050): do_action('wp_head')
-#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/themes/storefront/header.php(18): wp_head()
-#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template.php(810): require_once('/Users/jasoncon...')
-#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template.php(745): load_template('/Users/jasoncon...', true, Array)
-#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/general-template.php(48): locate_template(Array, true, true, Array)
-#12 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/templates/single-product.php(22): get_header('shop')
-#13 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template-loader.php(106): include('/Users/jasoncon...')
-#14 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(19): require_once('/Users/jasoncon...')
-#15 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
-#16 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_before_single_product.php on line 107
-[18-Jun-2024 18:06:39 UTC] PHP Fatal error:  Uncaught Error: Call to a member function get_id() on string in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_before_single_product.php:106
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): enqueue_product_details_script('')
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/script-loader.php(2265): do_action('wp_enqueue_scri...')
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): wp_enqueue_scripts('')
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
-#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/general-template.php(3050): do_action('wp_head')
-#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/themes/storefront/header.php(18): wp_head()
-#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template.php(810): require_once('/Users/jasoncon...')
-#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template.php(745): load_template('/Users/jasoncon...', true, Array)
-#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/general-template.php(48): locate_template(Array, true, true, Array)
-#12 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/templates/single-product.php(22): get_header('shop')
-#13 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template-loader.php(106): include('/Users/jasoncon...')
-#14 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(19): require_once('/Users/jasoncon...')
-#15 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
-#16 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_before_single_product.php on line 106
-[18-Jun-2024 18:06:58 UTC] PHP Fatal error:  Uncaught Error: Call to a member function get_id() on string in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_before_single_product.php:106
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): enqueue_product_details_script('')
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/script-loader.php(2265): do_action('wp_enqueue_scri...')
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): wp_enqueue_scripts('')
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
-#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/general-template.php(3050): do_action('wp_head')
-#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/themes/storefront/header.php(18): wp_head()
-#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template.php(810): require_once('/Users/jasoncon...')
-#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template.php(745): load_template('/Users/jasoncon...', true, Array)
-#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/general-template.php(48): locate_template(Array, true, true, Array)
-#12 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/templates/single-product.php(22): get_header('shop')
-#13 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template-loader.php(106): include('/Users/jasoncon...')
-#14 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(19): require_once('/Users/jasoncon...')
-#15 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
-#16 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_before_single_product.php on line 106
-[18-Jun-2024 18:07:26 UTC] PHP Fatal error:  Uncaught Error: Call to a member function get_id() on string in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_before_single_product.php:106
-Stack trace:
-#0 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): enqueue_product_details_script('')
-#1 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
-#2 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#3 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/script-loader.php(2265): do_action('wp_enqueue_scri...')
-#4 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(324): wp_enqueue_scripts('')
-#5 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters(NULL, Array)
-#6 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
-#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/general-template.php(3050): do_action('wp_head')
-#8 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/themes/storefront/header.php(18): wp_head()
-#9 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template.php(810): require_once('/Users/jasoncon...')
-#10 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template.php(745): load_template('/Users/jasoncon...', true, Array)
-#11 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/general-template.php(48): locate_template(Array, true, true, Array)
-#12 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/woocommerce/templates/single-product.php(22): get_header('shop')
-#13 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-includes/template-loader.php(106): include('/Users/jasoncon...')
-#14 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-blog-header.php(19): require_once('/Users/jasoncon...')
-#15 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/index.php(17): require('/Users/jasoncon...')
-#16 {main}
-  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/hooks/woocommerce_before_single_product.php on line 106
+#7 /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_ci_api_...')
+#8 {main}
+  thrown in /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/wps/Supplier_WPS.php on line 192

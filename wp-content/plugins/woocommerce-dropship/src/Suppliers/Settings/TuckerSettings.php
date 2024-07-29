@@ -6,7 +6,7 @@ class TuckerSettings extends SupplierSettings
 {
     protected $options;
     protected $name = 'Tucker';
-    protected $slug = 'tucker';
+    public $slug = 'tucker';
     protected $api_fields = "tucker_api_fields";
     protected $settings_page = "tucker_api";
 

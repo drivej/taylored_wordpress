@@ -2,6 +2,8 @@
 
 namespace WooDropship;
 
+use WooDropship\Suppliers\Settings\WesternSettings;
+
 class Plugin
 {
 	private $wooCommerce;
@@ -9,7 +11,7 @@ class Plugin
 	
 	private $supplierSettings = [
 		'WooDropship\\Suppliers\\Settings\\TuckerSettings',
-		'WooDropship\\Suppliers\\Settings\\WPSSettings'	
+		'WooDropship\\Suppliers\\Settings\\WesternSettings'	
 	];
 	
 	public function __construct()
@@ -18,6 +20,10 @@ class Plugin
 		
 		$this->addActions();
 		$this->addFilters();
+
+		// $wps = $this->wooCommerce->getSupplier('wps');
+		// $test = $wps->stockCheck([]);
+		// print_r(json_encode($test, JSON_PRETTY_PRINT));	
 		
 		if ( ! wp_next_scheduled( 'wcds_cron_hook' ) ) {
 			wp_schedule_event( time(), 'five_minutes', 'wcds_cron_hook' );

@@ -28401,7 +28401,7 @@ const SelectSupplier = () => {
 const SelectInput = ({ name, options, initialValue = null }) => {
     var _a, _b;
     const searchParams = useInitialSearchParams();
-    const [value, setValue] = (0,react.useState)(searchParams.has(name) ? searchParams.get(name) : ((_b = initialValue !== null && initialValue !== void 0 ? initialValue : (_a = options === null || options === void 0 ? void 0 : options[0]) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : ''));
+    const [value, setValue] = (0,react.useState)(searchParams.has(name) ? searchParams.get(name) : (_b = initialValue !== null && initialValue !== void 0 ? initialValue : (_a = options === null || options === void 0 ? void 0 : options[0]) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : '');
     const onChange = (e) => {
         setValue(e.currentTarget.value);
     };
@@ -28410,6 +28410,10 @@ const SelectInput = ({ name, options, initialValue = null }) => {
 const ProductInput = () => {
     const searchParams = useInitialSearchParams();
     return react.createElement(TextInput, { name: 'product_id', defaultValue: searchParams.get('supplier_product_id') });
+};
+const WooIdInput = () => {
+    const searchParams = useInitialSearchParams();
+    return react.createElement(TextInput, { name: 'woo_id', defaultValue: searchParams.get('woo_id') });
 };
 const TextInput = (_a) => {
     var { name, defaultValue = '', type = 'text' } = _a, props = __rest(_a, ["name", "defaultValue", "type"]);
@@ -28442,7 +28446,7 @@ const CheckboxInput = ({ name, checked: isChecked = false }) => {
 const useSuppliers = () => {
     return useWordpressAjax({ action: 'ci_api_handler', cmd: 'get_suppliers' });
 };
-const AdminForm = ({ name, cmd, allowPolling = false, children = null, RenderResult = Pre }) => {
+const AdminForm = ({ name, label = name, cmd, allowPolling = false, children = null, RenderResult = Pre }) => {
     const $form = (0,react.useRef)(null);
     const [isPolling, setIsPolling] = (0,react.useState)(false);
     const [nonce, setNonce] = (0,react.useState)(0);
@@ -28481,7 +28485,7 @@ const AdminForm = ({ name, cmd, allowPolling = false, children = null, RenderRes
             react.createElement("input", { type: 'hidden', className: 'form-control', name: 'cmd', value: cmd }),
             children,
             react.createElement("div", { className: 'input-group' },
-                react.createElement("button", { className: 'btn btn-primary', title: name, disabled: disabled }, name),
+                react.createElement("button", { className: 'btn btn-primary', title: name, disabled: disabled }, label),
                 react.createElement("button", { className: 'btn btn-secondary', type: 'button', onClick: clearData }, "Clear")),
             allowPolling ? (react.createElement("label", { style: { width: 'fit-content' } },
                 react.createElement("input", { type: 'checkbox', checked: isPolling, onChange: togglePolling }),
@@ -28540,7 +28544,27 @@ const LogsPage = () => {
 const MiscPage = () => {
     return (react.createElement(react.Fragment, null,
         react.createElement(AdminForm, { name: 'Test Action', cmd: 'test_action' }),
-        react.createElement(AdminForm, { name: 'Delete All Products', cmd: 'delete_all_supplier_products' },
+        react.createElement(AdminForm, { name: 'get_import_info', cmd: 'supplier_action', allowPolling: true },
+            react.createElement(SelectSupplier, null),
+            react.createElement(TextInput, { name: 'func', defaultValue: 'get_import_info', hidden: true })),
+        react.createElement(AdminForm, { name: 'Supplier Import', label: 'Trigger', cmd: 'supplier_action' },
+            react.createElement(SelectSupplier, null),
+            react.createElement(SelectInput, { name: 'func', options: [
+                    { name: 'is_importing', value: 'is_importing' },
+                    { name: 'import_hook_init_action', value: 'import_hook_init_action' },
+                    { name: 'Start Import', value: 'start_import' },
+                    { name: 'Continue Import', value: 'continue_import' },
+                    { name: 'Stop Import', value: 'stop_import' },
+                    { name: 'Reset Import', value: 'reset_import' }
+                ] })),
+        react.createElement(AdminForm, { name: 'Import next products page', cmd: 'supplier_action' },
+            react.createElement(SelectSupplier, null),
+            react.createElement(TextInput, { name: 'func', defaultValue: 'import_next_products_page', hidden: true })),
+        react.createElement(AdminForm, { name: 'SQL Product Query', cmd: 'sql_product_query' },
+            react.createElement(WooIdInput, null)),
+        react.createElement(AdminForm, { name: 'Load WPS Products Page', cmd: 'import_wps_products_page' },
+            react.createElement(TextInput, { name: 'cursor', defaultValue: '' })),
+        react.createElement(AdminForm, { name: 'Cron Job Status', cmd: 'get_cronjob_status', allowPolling: true },
             react.createElement(SelectSupplier, null)),
         react.createElement(AdminForm, { name: 'Cron Job Status', cmd: 'get_cronjob_status', allowPolling: true },
             react.createElement(SelectSupplier, null)),

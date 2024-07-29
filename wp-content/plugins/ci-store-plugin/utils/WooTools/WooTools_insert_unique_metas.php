@@ -6,7 +6,7 @@ trait WooTools_insert_unique_metas
 {
     public static function insert_unique_metas($all_metas)
     {
-        if (!isset($all_metas) || !is_array($all_metas) || !count($all_metas)) {
+        if (!WooTools::is_valid_array($all_metas)) {
             // error_log('WooTools_insert_unique_metas $all_metas is empty');
             return ['error' => 'metas empty'];
         }
@@ -24,7 +24,7 @@ trait WooTools_insert_unique_metas
                 $placeholders[] = '(%d, %s, %s)';
                 $values[] = $meta['post_id'];
                 $values[] = $meta['meta_key'];
-                $values[] = $meta['meta_value'];
+                $values[] = $meta['meta_value'];//isset($meta['meta_value']) ? $meta['meta_value'] : NULL;
                 $post_ids[] = $meta['post_id'];
                 $meta_keys[] = $meta['meta_key'];
             }
@@ -34,20 +34,25 @@ trait WooTools_insert_unique_metas
             $placeholders1 = implode(',', array_fill(0, count($post_ids), '%d'));
             $placeholders2 = implode(',', array_fill(0, count($meta_keys), '%s'));
             // bulk delete to remove duplicates
-            $sql = "DELETE FROM {$wpdb->postmeta} WHERE post_id IN ($placeholders1) AND meta_key IN ($placeholders2)";
-            $query = $wpdb->prepare($sql, array_merge($post_ids, $meta_keys));
-            $wpdb->query($query);
+            $delete_sql = "DELETE FROM {$wpdb->postmeta} WHERE post_id IN ($placeholders1) AND meta_key IN ($placeholders2)";
+            $delete_query = $wpdb->prepare($delete_sql, array_merge($post_ids, $meta_keys));
+            $wpdb->query($delete_query);
 
             // bulk insert
             $placeholders = implode(',', $placeholders);
-            $sql = "INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value) VALUES $placeholders";
-            $wpdb->query($wpdb->prepare($sql, $values));
+            $insert_sql = "INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value) VALUES $placeholders";
+            
+            $insert_query = $wpdb->prepare($insert_sql, $values);
+
+            $insert_query = str_replace("'NULL'", "NULL", $insert_query);
+            // error_log($insert_query);
+            $wpdb->query($insert_query);
         }
 
         // Check for errors
         if ($wpdb->last_error) {
             return ['error' => 'Error inserting prices: ' . $wpdb->last_error];
         }
-        return ['success' => 'prices added'];
+        return ['success' => 'metadata added', 'delete_query' => $delete_query, 'insert_query' => $insert_query];
     }
 }

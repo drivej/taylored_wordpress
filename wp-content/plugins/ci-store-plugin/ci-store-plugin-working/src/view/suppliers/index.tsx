@@ -81,7 +81,19 @@ const SupplierT14Page = () => {
 };
 
 const SupplierWPSPage = () => {
-  return <Outlet />;
+  return (
+    <div className='d-flex flex-column gap-3'>
+      <nav className='d-flex gap-2'>
+        <NavLink className='btn btn-sm btn-primary' to=''>
+          Overview
+        </NavLink>
+        <NavLink className='btn btn-sm btn-primary' to='brands'>
+          Brands
+        </NavLink>
+      </nav>
+      <Outlet />
+    </div>
+  );
 };
 
 interface IBrandsResponse {
@@ -91,12 +103,12 @@ interface IBrandsResponse {
 
 type IBrandQuery = IAjaxQuery & { supplier_key: string; func: string; args?: unknown[] };
 
-const SupplierT14Brands = () => {
+const SupplierBrands = ({ supplier_key }: { supplier_key: string }) => {
   // { data: { id: string; attributes: { name: string } }[] }
   const query: IBrandQuery = {
     action: 'ci_api_handler',
     cmd: 'supplier_action',
-    supplier_key: 't14',
+    supplier_key,
     func: 'get_brands'
   };
 
@@ -105,27 +117,9 @@ const SupplierT14Brands = () => {
 
   React.useEffect(() => {
     if (brands.isSuccess) {
-      // const ids = brands.data.data.filter((b) => b.allowed).map((b) => b.id);
       setAllowedBrandIds(brands.data.meta.allowed);
     }
   }, [brands.data]);
-
-  // React.useEffect(() => {
-  //   console.log({ allowedBrandIds });
-  // }, [allowedBrandIds]);
-
-  // const RunTest = () => {
-  //   fetchWordpressAjax<IBrandsResponse, IBrandQuery>({
-  //     action: 'ci_api_handler',
-  //     cmd: 'supplier_action',
-  //     supplier_key: 't14',
-  //     func: 'get_allowed_brand_ids'
-  //   }).then((result) => {
-  //     console.log({ result });
-  //     const ids = result.data;
-  //     setAllowedBrandIds(ids);
-  //   });
-  // };
 
   const onSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
@@ -137,16 +131,12 @@ const SupplierT14Brands = () => {
     fetchWordpressAjax<IBrandsResponse, IBrandQuery>({
       action: 'ci_api_handler',
       cmd: 'supplier_action',
-      supplier_key: 't14',
+      supplier_key,
       func: 'set_allowed_brand_ids',
       args: [JSON.stringify(brand_ids), 'TEST']
     }).then((result) => {
-      // console.log({ result });
-      // const ids = result.data.filter((b) => b.allowed).map((b) => b.id);
-      // result.meta.allowed
       setAllowedBrandIds(result.meta.allowed);
     });
-    // $brandsSelect.current.selectedOptions;
   };
 
   const $brandsSelect = React.useRef<HTMLSelectElement>(null);
@@ -171,23 +161,12 @@ const SupplierT14Brands = () => {
       return output;
     });
   };
-  // return <pre>{JSON.stringify(brands?.data?.data)}</pre>;
 
   if (brands.isSuccess) {
     return (
       <div>
-        {/* <button type='button' onClick={() => RunTest()}>
-          TEST
-        </button> */}
-        {/* <pre>{JSON.stringify({ allowedBrandIds })}</pre> */}
         <form onSubmit={onSubmit} className='d-flex flex-column gap-4'>
-          <select
-            className='d-none w-100'
-            ref={$brandsSelect}
-            name='brand_ids'
-            multiple
-            // size={brands?.data?.data?.length}
-          >
+          <select className='d-none w-100' ref={$brandsSelect} name='brand_ids' multiple>
             {brands?.data?.data?.map((brand) => {
               const checked = allowedBrandIds.includes(brand.id);
               return (
@@ -241,10 +220,11 @@ export const render = (id: string) => {
           <Route path='' element={<SupplierWrapper />}>
             <Route path='t14' element={<SupplierT14Page />}>
               <Route index={true} element={<SupplierImportStatusPage supplier_key='t14' />} />
-              <Route path='brands' element={<SupplierT14Brands />} />
+              <Route path='brands' element={<SupplierBrands supplier_key='t14' />} />
             </Route>
             <Route path='wps' element={<SupplierWPSPage />}>
               <Route index={true} element={<SupplierImportStatusPage supplier_key='wps' />} />
+              <Route path='brands' element={<SupplierBrands supplier_key='wps' />} />
             </Route>
           </Route>
         </Routes>

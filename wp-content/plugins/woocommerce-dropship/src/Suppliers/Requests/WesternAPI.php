@@ -2,12 +2,12 @@
 
 namespace WooDropship\Suppliers\Requests;
 
-class WPS
+class WesternAPI
 {
     private $productionUrl = "https://api.wps-inc.com";
     private $testUrl = "https://api.wps-inc.com";
 
-    private $endpoint = "/bin/trws";
+    // private $endpoint = "/bin/trws";
     private $outputType = "JSON";
 
     private $callTypeMapping = [
@@ -19,18 +19,22 @@ class WPS
         'getShipments' => 'SHP',
     ];
 
-    private $apiKey;
+    private $token;
     public $testing;
     private $customerId;
     public $stockThreshold;
 
     public function __construct($options, $testing = false)
     {
-        extract($options);
-        $this->apiKey = $key;
+        // extract($options);
+        // print_r($options);
+        $this->token = $options['token'];
         $this->testing = $testing;
-        $this->customerId = $customer_id;
-        $this->stockThreshold = $stock_thresh ?? 9;
+        // $this->customerId = $customer_id;
+        // $this->stockThreshold = $stock_thresh ?? 9;
+
+        // $test = $this->request(['path' => '/items']);
+        // error_log(json_encode($test));
     }
 
     public function __call($method, $args)
@@ -38,7 +42,7 @@ class WPS
         if ($apiType = $this->callTypeMapping[$method] ?? null) {
             $payload = $args[0] ?? [];
             $payload['type'] = $apiType;
-            $payload['apikey'] = $this->apiKey;
+            $payload['wps_token'] = $this->token;
             $payload['output'] = $this->outputType;
             $payload['cust'] = $this->customerId;
 
@@ -57,26 +61,25 @@ class WPS
         }
     }
 
-    private function request($payload = [])
+    public function request($payload = [])
     {
-        if ($this->testing) {
-            $url = $this->testUrl . $this->endpoint;
-        } else {
-            $url = $this->productionUrl . $this->endpoint;
+        $path = '';
+        if (isset($payload['path'])) {
+            $path = $payload['path']; // requires a leading slash
+            unset($payload['path']);
         }
 
-        $arrayString = "";
+        $host = $this->testing ? $this->testUrl : $this->productionUrl;
+        $url = $host . $path . '?' . http_build_query($payload);
 
-        foreach ($payload as $key => $value) {
-            if (is_array($value)) {
-                unset($payload[$key]);
-                foreach ($value as $item) {
-                    $arrayString .= "&{$key}={$item}";
-                }
-            }
+        $response = wp_safe_remote_request($url, ['headers' => [
+            'Authorization' => "Bearer {$this->token}",
+            'Content-Type' => 'application/json',
+        ]]);
+
+        if (is_wp_error($response)) {
+            return ['error' => 'Request failed'];
         }
-
-        $response = wp_remote_get($url . '?' . http_build_query($payload) . $arrayString);
 
         return json_decode(wp_remote_retrieve_body($response));
     }

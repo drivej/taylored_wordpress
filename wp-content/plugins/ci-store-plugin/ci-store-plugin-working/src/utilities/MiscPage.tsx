@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { AdminForm, CSVTable, CheckboxInput, ErrorLogs, ProductInput, SelectInput, SelectSupplier, TextInput } from './UtilitiesPage';
+import { AdminForm, CSVTable, CheckboxInput, ErrorLogs, ProductInput, SelectInput, SelectSupplier, TextInput, WooIdInput } from './UtilitiesPage';
 
 export const MiscPage = () => {
   return (
@@ -9,7 +9,41 @@ export const MiscPage = () => {
       {/* <AdminForm name='Update Turn 14 Pricing' cmd='update_t14_pricing' /> */}
       {/* <AdminForm name='Status Turn 14 Pricing' cmd='status_t14_pricing' allowPolling /> */}
 
-      <AdminForm name='Delete All Products' cmd='delete_all_supplier_products'>
+      <AdminForm name='get_import_info' cmd='supplier_action' allowPolling>
+        <SelectSupplier />
+        <TextInput name='func' defaultValue='get_import_info' hidden={true} />
+      </AdminForm>
+
+      <AdminForm name='Supplier Import' label='Trigger' cmd='supplier_action'>
+        <SelectSupplier />
+        <SelectInput
+          name='func'
+          options={[
+            { name: 'is_importing', value: 'is_importing' },
+            { name: 'import_hook_init_action', value: 'import_hook_init_action' },
+            { name: 'Start Import', value: 'start_import' },
+            { name: 'Continue Import', value: 'continue_import' },
+            { name: 'Stop Import', value: 'stop_import' },
+            { name: 'Reset Import', value: 'reset_import' }
+          ]}
+        />
+        {/* <TextInput name='func' defaultValue='stop_import' hidden={true} /> */}
+      </AdminForm>
+
+      <AdminForm name='Import next products page' cmd='supplier_action'>
+        <SelectSupplier />
+        <TextInput name='func' defaultValue='import_next_products_page' hidden={true} />
+      </AdminForm>
+
+      <AdminForm name='SQL Product Query' cmd='sql_product_query'>
+        <WooIdInput />
+      </AdminForm>
+
+      <AdminForm name='Load WPS Products Page' cmd='import_wps_products_page'>
+        <TextInput name='cursor' defaultValue='' />
+      </AdminForm>
+
+      <AdminForm name='Cron Job Status' cmd='get_cronjob_status' allowPolling>
         <SelectSupplier />
       </AdminForm>
 

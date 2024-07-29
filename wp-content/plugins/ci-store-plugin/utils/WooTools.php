@@ -3,12 +3,14 @@
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_insert_unique_posts.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_insert_unique_metas.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_attachment_urls_to_postids.php';
+require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_insert_product_meta_lookup.php';
 
 class WooTools
 {
     use WooTools_insert_unique_posts;
     use WooTools_insert_unique_metas;
     use WooTools_attachment_urls_to_postids;
+    use WooTools_insert_product_meta_lookup;
 
     /**
      *
@@ -88,7 +90,8 @@ class WooTools
         switch ($supplier_key) {
             case 'wps':
                 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS.php';
-                return new \Supplier_WPS();
+                return Supplier_WPS::instance();
+                // return new \Supplier_WPS();
                 break;
             case 't14':
                 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14.php';
@@ -567,6 +570,9 @@ class WooTools
 
     public static function lookup_woo_ids_by_skus($skus)
     {
+        if (!WooTools::is_valid_array($skus)) {
+            return [];
+        }
         global $wpdb;
         $placeholders = implode(',', array_fill(0, count($skus), '%s'));
         $sql = "
@@ -584,12 +590,15 @@ class WooTools
 
     public static function lookup_woo_ids_by_name($post_names)
     {
+        if (!WooTools::is_valid_array($post_names)) {
+            return [];
+        }
         global $wpdb;
         // $placeholders = implode(',', array_fill(0, count($post_names), '%s'));
         $sql = "SELECT * FROM {$wpdb->posts} WHERE ";
         $conditions = [];
         foreach ($post_names as $name) {
-            $conditions[] = $wpdb->prepare("post_name LIKE %s", $wpdb->esc_like($name));
+            $conditions[] = $wpdb->prepare("post_name LIKE %s", '%' . $wpdb->esc_like($name) . '%');
         }
         $sql .= implode(' OR ', $conditions);
         // $sql = "SELECT * FROM {$wpdb->posts} WHERE " . implode(' OR ', $conditions);
@@ -674,6 +683,42 @@ class WooTools
         // update_post_meta($attachment_id, '_ci_supplier_key', $supplier_key);
         // update_post_meta($attachment_id, 'sizes', []); // TODO: I think we need sizes
         return $attachment_id;
+    }
+
+    /**
+     * Unsets object properties of the given name.
+     *
+     * @param array|object $data An iterable object or array to modify.
+     * @param string       $prop The name of the property to remove.
+     */
+    public static function deep_unset_prop(array | object &$data, string $prop)
+    {
+        if (is_object($data)) {
+            unset($data->{$prop});
+        }
+        foreach ($data as &$value) {
+            if (is_array($value) || is_object($value)) {
+                self::deep_unset_prop($value, $prop);
+            }
+        }
+    }
+
+    /**
+     * Unsets array keys of the given name.
+     *
+     * @param array|object $data An iterable object or array to modify.
+     * @param string       $key  The name of the array key to remove.
+     */
+    public static function deep_unset_key(array | object &$data, string $key)
+    {
+        if (is_array($data)) {
+            unset($data[$key]);
+        }
+        foreach ($data as &$value) {
+            if (is_array($value) || is_object($value)) {
+                self::deep_unset_key($value, $key);
+            }
+        }
     }
 
     // TODO:  not working
@@ -763,47 +808,127 @@ class WooTools
         ];
     }
 
+    // public static function delete_orphaned_attachments()
+    // {
+    //     global $wpdb;
+    //     $sql = "DELETE a
+    //         FROM {$wpdb->posts} a
+    //         LEFT JOIN {$wpdb->posts} p ON a.post_parent = p.ID AND p.post_type = 'product'
+    //         WHERE a.post_type = 'attachment'
+    //         AND a.post_parent > 0
+    //         AND p.ID IS NULL
+    //     ";
+    //     // $sql = "DELETE FROM {$wpdb->posts}
+    //     // WHERE post_type = 'attachment'
+    //     // AND post_parent > 0
+    //     // AND post_parent
+    //     // NOT IN (
+    //     //     SELECT ID FROM {$wpdb->posts} WHERE post_type = 'product'
+    //     // )";
+
+    //     $result = $wpdb->query($sql);
+    //     if ($result === false) {
+    //         error_log("Error deleting orphaned attachments: " . $wpdb->last_error);
+    //         // } else {
+    //         // $this->log("Deleted orphaned attachments.");
+    //     }
+    // }
+
     public static function delete_orphaned_attachments()
     {
-        global $wpdb;
-        $meta_key = '_wp_attached_file';
+        $attachments = get_posts([
+            'post_type' => 'attachment',
+            'numberposts' => -1,
+            'fields' => 'ids',
+            'post_parent' => 0,
+        ]);
 
-        // Select IDs of unattached attachments with the specific meta key
-        $sql = $wpdb->prepare("
-            SELECT p.ID
-            FROM {$wpdb->posts} p
-            INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-            WHERE p.post_type = 'attachment'
-            AND p.post_parent = 0
-            AND pm.meta_key = '_wp_attached_file'
-        ");
-
-        // Get the IDs of attachments to delete
-        $attachment_ids = $wpdb->get_col($sql);
-        // return $attachment_ids;
-
-        if (!empty($attachment_ids)) {
-            $placeholders = implode(',', array_fill(0, count($attachment_ids), '%d'));
-
-            // Delete from postmeta
-            $wpdb->query(
-                $wpdb->prepare("
-                        DELETE FROM {$wpdb->postmeta}
-                        WHERE post_id IN ($placeholders)
-                    ", $attachment_ids)
-            );
-
-            // Delete from posts
-            $wpdb->query(
-                $wpdb->prepare("
-                        DELETE FROM {$wpdb->posts}
-                        WHERE ID IN ($placeholders)
-                    ", $attachment_ids)
-            );
+        if ($attachments) {
+            foreach ($attachments as $attachmentID) {
+                $attachment_path = get_attached_file($attachmentID);
+                //Delete attachment from database only, not file
+                $delete_attachment = wp_delete_attachment($attachmentID, true);
+                //Delete attachment file from disk
+                $delete_file = unlink($attachment_path);
+            }
         }
+        return ['deleted' => count($attachments)];
+        /*
+    global $wpdb;
 
-        return ['deleted' => count($attachment_ids)];
+    // Select IDs of unattached attachments with the specific meta key
+    $sql = $wpdb->prepare("
+    SELECT p.ID
+    FROM {$wpdb->posts} p
+    INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+    WHERE p.post_type = 'attachment'
+    AND p.post_parent = 0
+    AND pm.meta_key = '_wp_attached_file'
+    ");
 
+    // Get the IDs of attachments to delete
+    $attachment_ids = $wpdb->get_col($sql);
+    // return count($attachment_ids);
+
+    if (!empty($attachment_ids)) {
+    $placeholders = implode(',', array_fill(0, count($attachment_ids), '%d'));
+
+    // Delete from postmeta
+    $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->postmeta} WHERE post_id IN ($placeholders)", $attachment_ids));
+
+    // Delete from posts
+    $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->posts} WHERE ID IN ($placeholders)", $attachment_ids));
+    }
+
+    return ['deleted' => count($attachment_ids)];
+     */
+    }
+
+    public static function delete_orphaned_meta()
+    {
+        global $wpdb;
+        $sql = "DELETE pm
+            FROM {$wpdb->postmeta} pm
+            LEFT JOIN {$wpdb->posts} p ON pm.post_id = p.ID
+            WHERE p.ID IS NULL;
+        ";
+
+        $result = $wpdb->query($sql);
+        if ($result === false) {
+            error_log("Error deleting orphaned attachments: " . $wpdb->last_error);
+        }
+    }
+
+    public static function delete_orphaned_meta_lookup()
+    {
+        global $wpdb;
+        $sql = "DELETE pm
+            FROM {$wpdb->prefix}wc_product_meta_lookup pm
+            LEFT JOIN wp_posts p ON pm.product_id = p.ID
+            WHERE p.ID IS NULL;
+        ";
+
+        $result = $wpdb->query($sql);
+
+        if ($result === false) {
+            return ['error' => 1, 'message' => "Error deleting orphaned attachments: " . $wpdb->last_error];
+        } else {
+            return ['message' => "Deleted $result orphaned meta lookup entries."];
+        }
+    }
+
+    public static function delete_edit_locks()
+    {
+        global $wpdb;
+        $sql = "DELETE FROM {$wpdb->postmeta} WHERE `meta_key` = '_edit_lock'";
+
+        $result = $wpdb->query($sql);
+
+        if ($result === false) {
+            return ['error' => 1, 'message' => "Error deleting edit_locks: " . $wpdb->last_error];
+        } else {
+            return ['message' => "Deleted $result edit_locks."];
+        }
     }
 
     public static function clean_up_orphaned_term_relationships()
@@ -833,6 +958,39 @@ class WooTools
     public static function is_valid_array($arr)
     {
         return isset($arr) && is_array($arr) && count($arr);
+    }
+
+    public static function hydrate_metadata($post_id, $keyvals)
+    {
+        $metadata = [];
+        foreach ($keyvals as $key => $val) {
+            $metadata[] = ['post_id' => $post_id, 'meta_key' => $key, 'meta_value' => $val];
+        }
+        return $metadata;
+    }
+
+    public static function helpMe($woo_id)
+    {
+        global $wpdb;
+        // $s = "SELECT * FROM {$wpdb->posts} WHERE `ID` = '{$woo_id}'";
+        $post = $wpdb->get_results($wpdb->prepare("SELECT ID,post_title,post_name,post_type,post_parent FROM {$wpdb->posts} WHERE `ID` = %d", $woo_id), ARRAY_A)[0];
+        // $limit_meta_keys = "`meta_key` IN ('_sku','_ci_product_id','_thumbnail_id','_price','_product_type','_stock_status') AND";
+        $metadata_raw = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->postmeta} WHERE `post_id` = %d", $woo_id));
+        $post['metadata'] = [];
+        foreach ($metadata_raw as $m) {
+            $post['metadata'][$m->meta_key] = is_serialized($m->meta_value) ? unserialize($m->meta_value) : $m->meta_value;
+        }
+        $variations = $wpdb->get_results($wpdb->prepare("SELECT ID,post_title,post_name,post_type FROM {$wpdb->posts} WHERE `post_parent` = %d", $woo_id), ARRAY_A);
+
+        foreach ($variations as &$variation) {
+            $metadata_raw = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->postmeta} WHERE `post_id` = %d", $variation['ID']));
+            $variation['metadata'] = [];
+            foreach ($metadata_raw as $m) {
+                $variation['metadata'][$m->meta_key] = is_serialized($m->meta_value) ? unserialize($m->meta_value) : $m->meta_value;
+            }
+        }
+
+        return ['post' => $post, 'variations' => $variations];
     }
 
     public static function sync_images($woo_product, $supplier_product, $supplier)
@@ -925,6 +1083,36 @@ class WooTools
             }
         }
         return $result;
+    }
+
+    public static function delete_products($product_ids)
+    {
+        $deleted_posts = 0;
+        $deleted_variations = 0;
+        $deleted_terms = 0;
+        $deleted_meta = 0;
+
+        if (WooTools::is_valid_array($product_ids)) {
+            global $wpdb;
+            $chunks = array_chunk($product_ids, 10000);
+
+            foreach ($chunks as $chunk) {
+                $placeholders = implode(',', array_fill(0, count($chunk), '%d'));
+
+                $sql = "DELETE FROM {$wpdb->term_relationships} WHERE object_id IN ($placeholders)";
+                $deleted_terms += $wpdb->query($wpdb->prepare($sql, $chunk));
+
+                $sql = "DELETE FROM {$wpdb->postmeta} WHERE post_id IN ($placeholders)";
+                $deleted_meta += $wpdb->query($wpdb->prepare($sql, $chunk));
+
+                $sql = "DELETE FROM {$wpdb->posts} WHERE ID IN ($placeholders)";
+                $deleted_posts += $wpdb->query($wpdb->prepare($sql, $chunk));
+
+                $sql = "DELETE FROM {$wpdb->posts} WHERE post_parent IN ($placeholders)";
+                $deleted_variations += $wpdb->query($wpdb->prepare($sql, $chunk));
+            }
+        }
+        return ['message' => "Deleted products:{$deleted_posts} meta:{$deleted_meta} term_rel:{$deleted_terms} variations:{$deleted_variations}"];
     }
 
     public static function delete_product_variations($woo_product)
@@ -1066,5 +1254,28 @@ class WooTools
         // delete_post_meta($variation_id, 'attribute_' . $attribute_name);
         // }
         // }
+    }
+
+    public static function clamp_image_size($width, $height, $max_dimension = 500)
+    {
+        // Calculate the aspect ratio
+        $aspect_ratio = $width / $height;
+
+        // If both dimensions are within the maximum dimension, return them as they are
+        if ($width <= $max_dimension && $height <= $max_dimension) {
+            return ['width' => $width, 'height' => $height];
+        }
+
+        // If the width is greater than the height, scale based on the width
+        if ($aspect_ratio > 1) {
+            $new_width = $max_dimension;
+            $new_height = $max_dimension / $aspect_ratio;
+        } else {
+            // Otherwise, scale based on the height
+            $new_height = $max_dimension;
+            $new_width = $max_dimension * $aspect_ratio;
+        }
+
+        return ['width' => round($new_width), 'height' => round($new_height)];
     }
 }
