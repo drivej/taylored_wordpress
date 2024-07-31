@@ -7,6 +7,7 @@ include_once __DIR__ . '/woocommerce_before_shop_loop_item.php';
 include_once __DIR__ . '/woocommerce_before_single_product.php';
 // include_once __DIR__ . '/woocommerce_before_single_variation.php';
 include_once __DIR__ . '/woocommerce_cart_item_thumbnail.php';
+// include_once __DIR__ . '/woocommerce_product_query.php';
 // include_once __DIR__ . '/woocommerce_get_image_size_shop_single.php';
 // include_once __DIR__ . '/woocommerce_placeholder_img.php';
 include_once __DIR__ . '/image_downsize.php';

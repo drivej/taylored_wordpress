@@ -14,6 +14,7 @@ export interface ICronJobParams {
 export interface IAjaxQuery {
   action: string;
   cmd: string;
+  [key: string]: unknown;
 }
 
 export type IQueryOptions<T = unknown> = Omit<UseQueryOptions<T>, 'queryKey' | 'queryFn'>;

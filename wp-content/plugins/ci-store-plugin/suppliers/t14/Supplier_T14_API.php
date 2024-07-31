@@ -42,13 +42,13 @@ trait Supplier_T14_API
     }
 
     // This API has a 5000 request/hr limit so we cache in transients
-    public function get_api($path, $params = [], $retry = 0)
+    public function get_api($path, $params = [], $retry = 0, $use_cache = true)
     {
         $query_string = http_build_query($params);
         $pathKey = trim($path, '/') . '?' . $query_string;
         $pathHash = md5($pathKey);
         $transient_name = "{$this->key}_get_api_{$pathHash}_{$this->import_version}";
-        $response = get_transient($transient_name);
+        $response = $use_cache ? get_transient($transient_name) : false;
 
         if (false === $response) {
             $should_cache = true;

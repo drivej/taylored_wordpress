@@ -87,28 +87,35 @@ function sql_product_query($params)
     $woo_id = \AjaxManager::get_param('woo_id', null, $params);
     return \WooTools::helpMe($woo_id);
 }
-
+// k7A5MLkke8q2
+// EBgRY3WgYajk
 function import_wps_products_page($params)
 {
     $cursor = \AjaxManager::get_param('cursor', '', $params);
     $supplier = \WooTools::get_supplier('wps');
-    $size = 25;
+    $size = 5;
     $updated_at = '2023-01-01';
 
     $params = [
         'include' => implode(',', [
-            'features', 
-            // 'attributekeys',
+            'features',
+            'tags',
+            'attributekeys',
             // 'items',
             'items.images',
             'items.attributevalues',
             'items.taxonomyterms',
-            'items:filter(status_id|NLA|ne)',
+            // 'items:filter(status_id|NLA|ne)',
         ]),
         'filter' => ['updated_at' => ['gt' => $updated_at]],
-        'page' => ['cursor' => $cursor, 'size' => $size],
+        'page' => [
+            'cursor' => $cursor,
+            'size' => $size,
+        ],
     ];
-    $items = $supplier->get_api('/products', $params);
+    $items = $supplier->get_api('/products', $params, false);
+
+    $items['meta']['count'] = count($items['data'] ?? []);
     return $items;
 
     return $supplier->import_products_page($cursor);
@@ -152,6 +159,33 @@ function test_action($params)
     $supplier_key = 'wps';
     $supplier = \WooTools::get_supplier($supplier_key);
 
+    $cursor = '';
+    $total = 0;
+
+    while (is_string($cursor)) {
+        error_log('cursor: ' . json_encode($cursor));
+        $items = $supplier->get_api('/products', ['include' => implode(',', [
+            // 'features', // required
+            // 'tags',
+            // 'attributekeys',
+            // 'attributevalues',
+            // 'items',
+            'items.images', // required
+            // 'features.item',
+            // 'items.inventory',
+            // 'items.attributevalues', // required
+            // 'items.taxonomyterms', // required
+            // 'taxonomyterms',
+            'items:filter(status_id|NLA|ne)', // semi-required
+        ]),
+            'page' => ['cursor' => $cursor, 'size' => 50]]);
+        $total += is_countable($items['data']) ? count($items['data']) : 0;
+        $cursor = is_string($items['meta']['cursor']['next']) && strlen($items['meta']['cursor']['next']) ? $items['meta']['cursor']['next'] : false;
+        // $cursor = false;
+    }
+    return ['total' => $total, 'items' => $items];
+
+    return $supplier->chunk_products_page('xjArMnQ6eVEp');
     // return $supplier->import_product(686);
     // return $supplier->get_products_count();
 

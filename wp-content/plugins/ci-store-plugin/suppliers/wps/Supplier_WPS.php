@@ -12,6 +12,7 @@ include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_API.ph
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Cronjob.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Background_Process.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Brands.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Import.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Timer.php';
 
 class Supplier_WPS extends Supplier
@@ -19,6 +20,7 @@ class Supplier_WPS extends Supplier
     use Supplier_WPS_API;
     use Supplier_WPS_Cronjob;
     use Supplier_WPS_Brands;
+    use Supplier_WPS_Import;
     /**
      * The single instance of the class.
      *
@@ -26,12 +28,6 @@ class Supplier_WPS extends Supplier
      * @since 2.1
      */
     protected static $_instance = null;
-
-    private string $import_hook_name = '';
-    private string $import_hook_loop_name = '';
-    private string $import_hook_init_name = '';
-    private string $import_option_name = '';
-    private string $default_updated_at = '2023-01-01';
 
     public function __construct()
     {
@@ -43,12 +39,7 @@ class Supplier_WPS extends Supplier
         ]);
         $this->background_process = new Supplier_WPS_Background_Process($this, $this->key);
         $this->deep_debug = false;
-        $this->import_hook_init_name = "{$this->key}_import_products_init_action";
-        $this->import_hook_name = "{$this->key}_import_products_page_action";
-        $this->import_option_name = "import_status_{$this->key}";
-
-        add_action($this->import_hook_init_name, [$this, 'import_hook_init_action'], 10);
-        add_action($this->import_hook_loop_name, [$this, 'import_loop'], 10);
+        $this->init_import_actions();
     }
 
     public static function instance()
@@ -75,6 +66,9 @@ class Supplier_WPS extends Supplier
 
     public function update_loop_product($woo_product)
     {
+        error_log('wps->update_loop_product(' . $woo_product->get_id() . ')');
+        // don't include check here!!
+        /*
         $should_update = $this->should_update_single_product($woo_product);
         return ['should_update' => $should_update];
 
@@ -82,36 +76,47 @@ class Supplier_WPS extends Supplier
         $should_update = !(bool) $update_plp;
 
         if ($update_plp) {
-            $age = $update_plp ? WooTools::get_age($update_plp, 'hours') : 99999;
-            $max_age = 24 * 7;
-            $should_update = $age > $max_age;
+        $age = $update_plp ? WooTools::get_age($update_plp, 'hours') : 99999;
+        $max_age = 0;//24 * 7;
+        $should_update = $age > $max_age;
         }
         $sku = $woo_product->get_sku();
         error_log('sku=' . $sku . '-------------------->>>>>');
+         */
 
         // $needs_update = $this->product_needs_update($woo_product);
         // $has_images = WooTools::has_images($woo_product);
 
-        if ($should_update) {
-            // TODO: check if product exists
-            $supplier_product_id = $woo_product->get_meta('_ci_product_id', true);
-            $supplier_product = $this->get_product($supplier_product_id);
-            $is_available = $this->is_available($supplier_product);
+        // if ($should_update) {
+        // TODO: check if product exists
+        $timer = new Timer();
+        $product_id = $woo_product->get_id();
+        $supplier_product_id = $woo_product->get_meta('_ci_product_id', true);
+        $supplier_product = $this->get_product($supplier_product_id);
+        $is_available = $this->is_available($supplier_product);
 
-            if (!$is_available) {
-                $woo_product->delete();
-                return true;
-            } else {
-                $this->update_product_images($woo_product, $supplier_product);
-                // $this->import_product($supplier_product_id);
-                $woo_id = $woo_product->get_id();
-                update_post_meta($woo_id, '_last_updated', gmdate("c"));
-                update_post_meta($woo_id, '_ci_update_plp', gmdate("c"));
-                // clean_post_cache($product_id);
-                return true;
-            }
+        if (!$is_available) {
+            $woo_product->delete();
+            // return true;
+        } else {
+
+            // $this->update_product_images($woo_product, $supplier_product);
+            $items = ['data' => [$supplier_product['data']]];
+            $this->process_items_native($items);
+            // $this->import_product($supplier_product_id);
+            // $woo_id = $woo_product->get_id();
+            // $woo_product->update_meta_data('_last_updated', gmdate("c"));
+            // $woo_product->update_meta_data('_ci_update_plp', gmdate("c"));
+            // update_post_meta($woo_id, '_last_updated', gmdate("c"));
+            // update_post_meta($woo_id, '_ci_update_plp', gmdate("c"));
+            // clean_post_cache($product_id);
+            // return true;
         }
-        return false;
+        clean_post_cache($product_id);
+        $exe_time = $timer->lap();
+        error_log('complete update in ' . $exe_time);
+        // }
+        // return false;
     }
 
     public function update_single_product($woo_product)
@@ -132,448 +137,6 @@ class Supplier_WPS extends Supplier
         $age = WooTools::get_product_age($woo_product);
         return ['updated' => false, 'age' => $age, 'reason' => 'does not need update'];
     }
-
-    public function start_import_products()
-    {
-        $result = [];
-        $result = $this->get_import_status();
-
-        if ($result['is_stalled']) {
-            $result['error'] = 'import stalled';
-        }
-
-        if ($result['is_running']) {
-            $result['error'] = 'import running';
-        }
-
-        if ($result['is_scheduled']) {
-            $result['error'] = 'import scheduled';
-        }
-
-        if (isset($result['error'])) {
-            return $result;
-        }
-
-        $should_schedule_import = true;
-
-        // if (!$result['is_stopped'] && $result['started_hours_ago'] < 48) {
-        //     $should_schedule_import = false;
-        //     $result['error'] = 'started ' . $result['started_hours_ago'] . ' hours ago';
-        // }
-
-        if ($should_schedule_import) {
-            $updated = $result['last_started']->format('Y-m-d'); // updated since
-            $products_count = $this->get_products_count($updated);
-            $result['report'] = $this->update_import_report([
-                'processed' => 0,
-                'delete' => 0,
-                'update' => 0,
-                'ignore' => 0,
-                'insert' => 0,
-                'patched' => 0,
-                'error' => '',
-                'updated' => $updated,
-                'products_count' => $products_count,
-                'cursor' => '',
-                'started' => gmdate("c"),
-                'stopped' => '',
-                'page_size' => 100,
-            ]);
-            $result['scheduled'] = $this->schedule_import();
-        }
-        $result['should_schedule_import'] = $should_schedule_import;
-        return $result;
-    }
-
-    private function time_until($timestamp)
-    {
-        $current_timestamp = time();
-        // $time_difference = $timestamp - $current_timestamp;
-        $time_difference = abs($timestamp - $current_timestamp);
-        $days = floor($time_difference / 86400);
-        $hours = floor(($time_difference % 86400) / 3600);
-        $minutes = floor(($time_difference % 3600) / 60);
-        $seconds = $time_difference % 60;
-        $until = sprintf("%dd %02dh %02dm %02ds", $days, $hours, $minutes, $seconds);
-        return $until;
-    }
-
-    protected function get_default_info()
-    {
-        return [
-            'prev_cursor' => false,
-            'cursor' => '',
-            'updated_at' => $this->default_updated_at,
-            'size' => 25,
-            'running' => false,
-            'attempt' => 0,
-            'status' => 'idle',
-            'stopping' => false,
-            'started' => gmdate("c"),
-            'tag' => gmdate("c"),
-            'processed' => 0,
-            'total_products' => 0,
-        ];
-    }
-
-    // this kicks off the big import each week
-    public function init_import()
-    {
-        // create weekely import event
-        $next_scheduled = wp_next_scheduled($this->import_hook_init_name);
-        if ($next_scheduled) {
-            // error_log('init_import() - already scheduled ' . $this->time_until($next_scheduled));
-        } else {
-            error_log('init_import() - create scheduled event');
-            wp_schedule_event(time(), 'weekly', $this->import_hook_init_name);
-        }
-    }
-
-    public function is_importing()
-    {
-        $next_scheduled = wp_next_scheduled($this->import_hook_loop_name);
-        if ($next_scheduled) {
-            return true;
-        }
-        $info = $this->get_import_info();
-        return $info['running'];
-    }
-
-    public function import_hook_init_action()
-    {
-        // run weekly import action
-        error_log('import_hook_init_action()');
-        $info = get_option($this->import_option_name, $this->get_default_info());
-        $info['tag'] = gmdate("c");
-        $info['size'] = 25;
-        $info['total_products'] = $this->get_products_count();
-        // get the first page and cursor
-        $items = $this->import_products_page('', $info['size']);
-        $ids = is_array($items['data']) ? array_map(fn($item) => $item['id'], $items['data']) : [];
-        $next_cursor = is_string($items['meta']['cursor']['next']) && strlen($items['meta']['cursor']['next']) ? $items['meta']['cursor']['next'] : false;
-        error_log('import_hook_init_action() - ' . json_encode($ids));
-
-        if ($next_cursor) {
-            $info['cursor'] = $next_cursor;
-            update_option($this->import_option_name, $info);
-            wp_schedule_single_event(time() + 5, $this->import_hook_loop_name);
-        } else {
-            error_log('import_hook_init_action() - failed');
-        }
-        return $info;
-    }
-
-    public function import_loop()
-    {
-        $info = $this->get_import_info();
-        $next_cursor = false;
-        $ids = [];
-        $info['running'] = true;
-        update_option($this->import_option_name, $info);
-
-        try {
-            $items = $this->import_products_page($info['cursor'], $info['size']);
-            $ids = is_array($items['data']) ? array_map(fn($item) => $item['id'], $items['data']) : [];
-            $next_cursor = is_string($items['meta']['cursor']['next']) && strlen($items['meta']['cursor']['next']) ? $items['meta']['cursor']['next'] : false;
-            error_log('import_loop() - ' . $info['cursor'] . ' ' . json_encode($ids));
-        } catch (Exception $e) {
-            error_log('import_loop() - Error processing ' . $info['cursor']);
-            return;
-        }
-        $info = $this->get_import_info();
-        $info['running'] = false;
-        $info['processed'] += count($ids);
-
-        if ($info['stopping']) {
-            error_log('import_loop() - stopped');
-        } else if ($next_cursor) {
-            $info['cursor'] = $next_cursor;
-            $next = wp_schedule_single_event(time(), $this->import_hook_loop_name);
-            error_log('import_loop() - schedule next ' . $next);
-        } else {
-            error_log('import_loop() - failed/ended');
-        }
-        update_option($this->import_option_name, $info);
-    }
-
-    public function start_import()
-    {
-        // check if import is scheduled
-        $is_scheduled = (bool) wp_next_scheduled($this->import_hook_name);
-        $schedule = -1;
-
-        if ($is_scheduled) {
-            $message = 'busy';
-        } else {
-            $info = get_option($this->import_option_name, $this->get_default_info());
-            $is_running = $info['running'] === true;
-
-            // check if import is running
-            if ($is_running) {
-                $age = WooTools::get_age($info['started'], 'seconds');
-                if ($age > 30) {
-                    $info['attempt']++;
-                    if ($info['attempt'] < 2) {
-                        update_option($this->import_option_name, $info);
-                        $message = 'start_import() - attempt ' . $info['attempt'];
-                        // return ['error' => 'import is running'];
-                    } else {
-                        $info['status'] = 'stalled';
-                        update_option($this->import_option_name, $this->get_default_info());
-                        $message = 'start_import() - stalled';
-                        // return ['error' => 'import is running'];
-                    }
-                } else {
-                    $message = 'start_import() - stand by';
-                    // return ['error' => 'import is running'];
-                }
-            } else {
-                if ($info['cursor'] === false) {
-                    update_option($this->import_option_name, $this->get_default_info());
-                    $schedule = wp_schedule_single_event(time(), $this->import_hook_name);
-                    $message = 'start_import() - new import';
-                } else {
-                    $info['stopping'] = false;
-                    update_option($this->import_option_name, $info);
-                    $schedule = wp_schedule_single_event(time(), $this->import_hook_name);
-                    $message = 'start_import() - continue import';
-                }
-            }
-        }
-        return ['message' => $message, 'schedule' => $schedule];
-    }
-
-    public function import_hook_action()
-    {
-        // $GLOBALS['wp_object_cache']->delete($this->import_option_name, 'options');
-        wp_cache_delete($this->import_option_name, 'options');
-        $info = get_option($this->import_option_name);
-
-        if ($info['stopping'] === true) {
-            error_log('import_hook_action() - stopping');
-            return;
-        }
-        error_log('START import_hook_action() cursor:' . $info['cursor']);
-        $info['running'] = true;
-        // $info['stopping'] = false;
-        $info['started'] = gmdate("c");
-        $info['age'] = 0;
-        $info['size'] = is_int($info['size']) ? $info['size'] : 1;
-        update_option($this->import_option_name, $info);
-
-        if ($info && is_string($info['cursor']) && $info['size']) {
-            //
-            $items = $this->import_products_page($info['cursor'], $info['size']);
-
-            wp_cache_delete($this->import_option_name, 'options');
-            $info = get_option($this->import_option_name);
-
-            if (!is_countable($items['data'])) {
-                error_log('bad data');
-                error_log(json_encode($items, JSON_PRETTY_PRINT));
-                return;
-            }
-            $ids = array_map(fn($item) => $item['id'], $items['data']);
-            error_log(json_encode($ids));
-            $info['processed'] += count($items['data']);
-            $next_cursor = is_string($items['meta']['cursor']['next']) && strlen($items['meta']['cursor']['next']) ? $items['meta']['cursor']['next'] : false;
-
-            if ($next_cursor) {
-                if ($next_cursor === $info['prev_cursor']) {
-                    error_log('next cursor is same?? next_cursor=' . $next_cursor . ' cursor=' . $info['cursor']);
-                    $info['stopping'] = true;
-                } else {
-                    $info['prev_cursor'] = $info['cursor'];
-                }
-            }
-            $info['cursor'] = $next_cursor;
-            $info['running'] = false;
-            update_option($this->import_option_name, $info);
-            $this->start_import();
-        } else {
-            $info['running'] = false;
-            update_option($this->import_option_name, $info);
-            error_log('import_hook_action() - bad info');
-            // error_log(json_encode(['error' => '123', 'info' => $info], JSON_PRETTY_PRINT));
-        }
-        // $info['running'] = false;
-        // update_option($this->import_option_name, $info);
-        // error_log('import_hook_action() - END');
-    }
-
-    public function continue_import()
-    {
-        $info = $this->get_import_info();
-        $info['stopping'] = false;
-        update_option($this->import_option_name, $info);
-        $this->import_loop();
-        return $info;
-    }
-
-    public function reset_import()
-    {
-        update_option($this->import_option_name, $this->get_default_info());
-        return get_option($this->import_option_name);
-    }
-
-    public function check_import()
-    {
-        // error_log('check_import()');
-        $is_scheduled = (bool) wp_next_scheduled($this->import_hook_name);
-
-        if (!$is_scheduled) {
-            $info = get_option($this->import_option_name, $this->get_default_info());
-            $is_running = $info['running'] === true;
-
-            if ($is_running) {
-                $age = WooTools::get_age($info['started'], 'seconds');
-                if ($age > 30) {
-                    $info['attempt']++;
-                    if ($info['attempt'] < 2) {
-                        update_option($this->import_option_name, $info);
-                        error_log('check_import() - attempt ' . $info['attempt']);
-                    } else {
-                        $info['status'] = 'stalled';
-                        update_option($this->import_option_name, $this->get_default_info());
-                        error_log('check_import() - stalled');
-                    }
-                }
-            } else {
-                if ($info['cursor'] === false) {
-                    update_option($this->import_option_name, $this->get_default_info());
-                    error_log('check_import() - completed');
-                } else {
-                    error_log('check_import() - schedule update');
-                    wp_schedule_single_event(time(), $this->import_hook_name);
-                }
-            }
-        }
-    }
-
-    public function get_import_info()
-    {
-        // $GLOBALS['wp_object_cache']->delete($this->import_option_name, 'options');
-        wp_cache_delete($this->import_option_name, 'options');
-        $info = get_option($this->import_option_name);
-        $info['is_scheduled'] = wp_next_scheduled($this->import_hook_name);
-        $date = strtotime($info['started']);
-        $info['age'] = $this->time_until($date);
-        // $info['age'] = WooTools::get_age($info['started'], 'seconds') . 's';
-        return $info;
-    }
-
-    public function stop_import()
-    {
-        wp_cache_delete($this->import_option_name, 'options');
-        $info = $this->get_import_info();
-
-        if ($info['running']) {
-            $age = WooTools::get_age($info['started'], 'minutes');
-            if ($age > 5) {
-                // stalled
-                $info = $this->get_default_info();
-                update_option($this->import_option_name, $info);
-            } else {
-                $info['stopping'] = true;
-                $info['updated'] = gmdate("c");
-                update_option($this->import_option_name, $info);
-            }
-        }
-
-        if ($info['is_scheduled']) {
-            wp_unschedule_event($info['is_scheduled'], $this->import_hook_name);
-        }
-
-        return $info;
-    }
-
-    public function import_next_products_page()
-    {
-        // error_log('import_next_products_page()');
-        // $GLOBALS['wp_object_cache']->delete($this->import_option_name, 'options');
-        $info = get_option($this->import_option_name);
-        return $info;
-
-        $is_scheduled = (bool) wp_next_scheduled($this->import_hook_name);
-        $is_running = $info['running'] === true;
-        $scheduled = false;
-
-        if (!$is_scheduled) {
-            $scheduled = wp_schedule_single_event(time(), $this->import_hook_name, []);
-        }
-        /*
-        if ($is_scheduled) {
-        error_log('scheduled: skip');
-        } else {
-        if ($is_running) {
-        $age = WooTools::get_age($info['started'], 'seconds');
-        if ($age > 60) {
-        error_log('stalled: restart');
-        $info['started'] = gmdate("c");
-        update_option($this->import_option_name, $info);
-        $scheduled = wp_schedule_single_event(time(), $this->import_hook_name);
-        } else {
-        error_log('running: skip');
-        }
-        } else {
-        error_log('schedule import');
-        $scheduled = wp_schedule_single_event(time(), $this->import_hook_name);
-        }
-        }
-         */
-        return [
-            'scheduled' => $scheduled,
-            'import_hook_name' => $this->import_hook_name,
-            'is_scheduled' => $is_scheduled,
-            'is_running' => $is_running,
-            'has_action' => has_action($this->import_hook_name),
-            // 'age' => $age,
-            'info' => $info,
-        ];
-    }
-
-    // $option_name = "import_status_{$this->key}";
-    // $GLOBALS['wp_object_cache']->delete($option_name, 'options');
-    // $info = get_option($option_name, [
-    //     'cursor' => '',
-    //     'size' => 1,
-    //     'running' => false,
-    // ]);
-    // // find reasons to quit
-    // if ($info['running']) {
-    //     if ($info['started']) {
-    //         if ($info['cursor'] || $info['cursor'] === '') {
-    //             $age = WooTools::get_age($info['started'], 'minutes');
-    //             if ($age < 2) {
-    //                 $info['age'] = $age;
-    //                 $info['status'] = 'ignored';
-    //                 return $info;
-    //             } else {
-    //                 $info['status'] = 'aborted';
-    //                 $info['cursor'] = '';
-    //             }
-    //         } else {
-    //             $info['status'] = 'aborted';
-    //             $info['cursor'] = '';
-    //         }
-    //     }
-    // }
-    // $info['running'] = true;
-    // $info['started'] = gmdate("c");
-    // return $info;
-    // $info = update_option($option_name, $info);
-    // if ($info['cursor'] || $info['cursor'] === '') {
-    //     $items = $this->import_products_page($info['cursor'], $info['size']);
-    //     try {
-    //         $info['cursor'] = $items['meta']['cursor']['next'] ?? false;
-    //     } catch (Exception $e) {
-    //         $info['cursor'] = false;
-    //     }
-    // }
-    // $info['running'] = false;
-    // $info = update_option($option_name, $info);
-    // return $info;
-    // }
 
     public function import_product($supplier_product_id)
     {
@@ -600,53 +163,67 @@ class Supplier_WPS extends Supplier
         return $items;
     }
 
-    public function import_products_page($cursor = '', $size = 25, $updated_at = null)
+    public function import_products_page($cursor = '', $size = 20, $updated_at = null)
     {
-        $updated_at = $updated_at ?? $this->default_updated_at;
-        error_log("import_products_page(" . json_encode($cursor) . ", {$size}, {$updated_at})");
-
         $items = $this->process_items_load($cursor, $size, $updated_at);
-        // $items = $this->process_items_declutter($items);
         $items = $this->process_items_native($items);
-
         return $items;
-
-        // $items = $this->process_items_format($items);
-        // $items = $this->process_items_filter($items);
-        // $items = $this->process_items_sync($items);
-        // $items = $this->process_items_test($items);
-
-        // return $items;
     }
 
-    private function process_items_load($cursor, $size = 10, $updated_at = null)
+    private function load_products_page($cursor, $page_size = 10, $updated_at = null)
     {
+        // error_log("load_products_page(" . json_encode($cursor) . ", {$page_size}, {$updated_at})");
         $updated_at = $updated_at ?? $this->default_updated_at;
         $params = [
             'include' => implode(',', [
-                'features', //
+                'features', // required
                 // 'tags',
                 // 'attributekeys',
                 // 'attributevalues',
                 // 'items',
-                'items.images',
+                'items.images', // required
                 // 'features.item',
                 // 'items.inventory',
-                'items.attributevalues',
-                'items.taxonomyterms',
+                'items.attributevalues', // required
+                'items.taxonomyterms', // required
                 // 'taxonomyterms',
-                'items:filter(status_id|NLA|ne)',
+                'items:filter(status_id|NLA|ne)', // semi-required
             ]),
             'filter' => ['updated_at' => ['gt' => $updated_at]],
-            'page' => ['cursor' => $cursor, 'size' => $size],
+            'page' => ['cursor' => $cursor, 'size' => $page_size],
         ];
         $items = $this->get_api('/products', $params);
-        return $items;
 
         if (!isset($items['data']) || !WooTools::is_valid_array($items['data'])) {
-            return ['data' => [], 'meta' => []];
+            $result = 'error';
+        } else {
+            $result = 'loaded ' . count($items['data']) . ' products';
         }
-        $items['meta']['total'] = count($items['data']);
+        error_log("load_products_page(" . json_encode($cursor) . ", {$page_size}, {$updated_at}) => {$result}");
+
+        return $items;
+
+        // if (!isset($items['data']) || !WooTools::is_valid_array($items['data'])) {
+        //     return ['data' => [], 'meta' => []];
+        // }
+        // $items['meta']['total'] = count($items['data']);
+        // return $items;
+    }
+
+    private function process_items_load($cursor, $page_size = 10, $updated_at = null)
+    {
+        $updated_at = $updated_at ?? $this->default_updated_at;
+        // error_log("process_items_load(" . json_encode($cursor) . ", {$size}, {$updated_at})");
+
+        // attempt to load all at once
+        error_log('single page load ' . $cursor);
+        $items = $this->load_products_page($cursor, $page_size, $updated_at);
+
+        // if single load fails -> chunk products to avoid response limit
+        if (!is_array($items['data'])) {
+            error_log('chunking product load' . $cursor);
+            $items = $this->chunk_products_page($cursor, $page_size, $updated_at);
+        }
         return $items;
     }
 
@@ -1425,155 +1002,6 @@ class Supplier_WPS extends Supplier
         return $item['list_price'];
     }
 
-    // public function Ximport_products_page()
-    // {
-    //     $this->ping();
-    //     $this->set_is_import_running(true);
-    //     $report = $this->get_import_report();
-
-    //     // fix page_size=0
-    //     if (!is_numeric($report['page_size']) || $report['page_size'] < 10) {
-    //         $this->update_import_report(['page_size' => 10]);
-    //     }
-    //     $this->log(json_encode(['cursor' => $report['cursor'], 'page_size' => $report['page_size'], 'updated' => $report['updated']]));
-    //     $products = $this->get_products_page($report['cursor'], $report['page_size'], $report['updated']);
-
-    //     // sometimes the data doesn't return anything - try again
-    //     if (!isset($products['data'])) {
-    //         $this->log('api failed - sleep 10, the try again');
-    //         sleep(10);
-    //         $products = $this->get_products_page($report['cursor'], $report['page_size'], $report['updated']);
-    //     }
-
-    //     $cancelled = false;
-    //     $stalled = false;
-
-    //     if (isset($products['data'])) {
-    //         $tally = ['insert' => [], 'update' => [], 'delete' => [], 'ignore' => [], 'patched' => []];
-    //         $this->log('Recieved ' . count($products['data']) . ' products');
-
-    //         foreach ($products['data'] as $product) {
-    //             $action = $this->get_update_action($product); //
-    //             $product_id = $product['id'];
-
-    //             if ($report['patch']) {
-    //                 //
-    //                 // Begin:Patch
-    //                 //
-    //                 if ($action === 'update' || $action === 'ignore') {
-    //                     // eficient availability check
-    //                     $is_available = $this->is_available(['data' => $product]);
-    //                     if ($is_available) {
-    //                         $this->patch($report['patch'], $product_id);
-    //                         $action = 'patch';
-    //                     } else {
-    //                         $action = 'ignore';
-    //                     }
-    //                     $tally[$action][] = $product_id;
-    //                     $this->log($this->key . ':' . $product_id . ' ' . $action . ':' . $report['patch']);
-    //                 }
-    //                 //
-    //                 // End: Patch
-    //                 //
-    //             } else {
-    //                 $tally[$action][] = $product_id;
-    //                 $this->log($this->key . ':' . $product_id . ' ' . $action);
-
-    //                 switch ($action) {
-    //                     case 'insert':
-    //                         $this->insert_product($product_id);
-    //                         break;
-
-    //                     case 'update':
-    //                         $this->update_product($product_id);
-    //                         break;
-
-    //                     case 'delete':
-    //                         $this->delete_product($product_id);
-    //                         break;
-
-    //                     case 'ignore':
-    //                         break;
-    //                 }
-    //             }
-    //             // let wp know we are alive
-    //             $this->ping();
-
-    //             // escape hatch
-    //             if ($this->should_cancel_import()) {
-    //                 $cancelled = true;
-    //                 $this->log('Import cancelled');
-    //                 break;
-    //             }
-
-    //             // for testing
-    //             if ($this->should_stall_import()) {
-    //                 $stalled = true;
-    //                 $this->log('Import force stalled');
-    //                 break;
-    //             }
-    //         }
-
-    //         // log pretty useful data
-    //         $useful_data = array_filter($tally, fn($v) => count($v));
-    //         $results = '';
-    //         foreach ($useful_data as $k => $v) {
-    //             $results .= "\n\t" . $k . ': (' . count($v) . ') ' . implode(',', $v);
-    //         }
-    //         $this->log('results:' . $results);
-
-    //         $cursor = $products['meta']['cursor']['next'];
-
-    //         if ($stalled) {
-    //             $this->clear_stall_test();
-    //             return;
-    //         }
-
-    //         if (!$cancelled) {
-    //             $this->update_import_report([
-    //                 'processed' => $report['processed'] + count($products['data']),
-    //                 'cursor' => $cursor,
-    //                 'delete' => $report['delete'] + count($tally['delete']),
-    //                 'update' => $report['update'] + count($tally['update']),
-    //                 'ignore' => $report['ignore'] + count($tally['ignore']),
-    //                 'insert' => $report['insert'] + count($tally['insert']),
-    //                 'patched' => $report['patched'] + count($tally['patched']),
-    //             ]);
-
-    //             if (!$cursor) {
-    //                 $this->update_import_report(['completed' => gmdate("c")]);
-    //                 $this->set_is_import_running(false);
-    //             } else if ($this->should_cancel_import()) {
-    //                 $this->set_is_import_running(false);
-    //             } else {
-    //                 // schedule and event to load the next page of products
-    //                 $flag = $this->import_products_page_flag;
-    //                 $is_scheduled = (bool) wp_next_scheduled($flag);
-    //                 if (!$is_scheduled) {
-    //                     $scheduled = wp_schedule_single_event(time(), $flag);
-    //                     if (!$scheduled) {
-    //                         $this->set_is_import_running(false);
-    //                         $this->update_import_report(['error' => 'schedule failed']);
-    //                         $this->log('schedule failed');
-    //                     }
-    //                 } else {
-    //                     $this->log('schedule page import already scheduled - How did this duplicate?');
-    //                 }
-    //             }
-    //         } else {
-    //             $this->set_is_import_running(false);
-    //         }
-    //     } else {
-    //         // failed after trying to load the page again - this is an error
-    //         $this->set_is_import_running(false);
-    //         $this->update_import_report([
-    //             'stopped' => gmdate("c"),
-    //             'error' => 'Product page data empty',
-    //         ]);
-    //         $this->log('Product page data empty');
-    //     }
-    // }
-
     public function patch($patch, $supplier_product_id)
     {
         $supplier_product = $this->get_product($supplier_product_id);
@@ -1775,7 +1203,7 @@ class Supplier_WPS extends Supplier
         return '';
     }
 
-    public function get_products_count($updated_at = null)
+    public function get_total_remote_products($updated_at = null)
     {
         $updated_at = $updated_at ?? $this->default_updated_at;
         $result = $this->get_api('products', [
@@ -1924,7 +1352,7 @@ class Supplier_WPS extends Supplier
         return $product_tags;
         // $unique_tags = [];
 
-        // foreach ($$product_tags as $tag) {
+        // foreach ($product_tags as $tag) {
         //     if (!isset($unique_tags[$tag['slug']])) {
         //         $unique_tags[$tag['slug']] = $tag;
         //     }
@@ -1948,9 +1376,9 @@ class Supplier_WPS extends Supplier
         $params['include'] = implode(',', [
             'features', //
             'tags',
-            'attributekeys',
-            'attributevalues',
-            'items',
+            // 'attributekeys',
+            // 'attributevalues',
+            // 'items',
             'items.images',
             'items.inventory', // not used
             'items.attributevalues',
@@ -2393,3 +1821,152 @@ class Supplier_WPS extends Supplier
         return str_replace('200_max', $size_str, $src);
     }
 }
+
+// public function Ximport_products_page()
+// {
+//     $this->ping();
+//     $this->set_is_import_running(true);
+//     $report = $this->get_import_report();
+
+//     // fix page_size=0
+//     if (!is_numeric($report['page_size']) || $report['page_size'] < 10) {
+//         $this->update_import_report(['page_size' => 10]);
+//     }
+//     $this->log(json_encode(['cursor' => $report['cursor'], 'page_size' => $report['page_size'], 'updated' => $report['updated']]));
+//     $products = $this->get_products_page($report['cursor'], $report['page_size'], $report['updated']);
+
+//     // sometimes the data doesn't return anything - try again
+//     if (!isset($products['data'])) {
+//         $this->log('api failed - sleep 10, the try again');
+//         sleep(10);
+//         $products = $this->get_products_page($report['cursor'], $report['page_size'], $report['updated']);
+//     }
+
+//     $cancelled = false;
+//     $stalled = false;
+
+//     if (isset($products['data'])) {
+//         $tally = ['insert' => [], 'update' => [], 'delete' => [], 'ignore' => [], 'patched' => []];
+//         $this->log('Recieved ' . count($products['data']) . ' products');
+
+//         foreach ($products['data'] as $product) {
+//             $action = $this->get_update_action($product); //
+//             $product_id = $product['id'];
+
+//             if ($report['patch']) {
+//                 //
+//                 // Begin:Patch
+//                 //
+//                 if ($action === 'update' || $action === 'ignore') {
+//                     // eficient availability check
+//                     $is_available = $this->is_available(['data' => $product]);
+//                     if ($is_available) {
+//                         $this->patch($report['patch'], $product_id);
+//                         $action = 'patch';
+//                     } else {
+//                         $action = 'ignore';
+//                     }
+//                     $tally[$action][] = $product_id;
+//                     $this->log($this->key . ':' . $product_id . ' ' . $action . ':' . $report['patch']);
+//                 }
+//                 //
+//                 // End: Patch
+//                 //
+//             } else {
+//                 $tally[$action][] = $product_id;
+//                 $this->log($this->key . ':' . $product_id . ' ' . $action);
+
+//                 switch ($action) {
+//                     case 'insert':
+//                         $this->insert_product($product_id);
+//                         break;
+
+//                     case 'update':
+//                         $this->update_product($product_id);
+//                         break;
+
+//                     case 'delete':
+//                         $this->delete_product($product_id);
+//                         break;
+
+//                     case 'ignore':
+//                         break;
+//                 }
+//             }
+//             // let wp know we are alive
+//             $this->ping();
+
+//             // escape hatch
+//             if ($this->should_cancel_import()) {
+//                 $cancelled = true;
+//                 $this->log('Import cancelled');
+//                 break;
+//             }
+
+//             // for testing
+//             if ($this->should_stall_import()) {
+//                 $stalled = true;
+//                 $this->log('Import force stalled');
+//                 break;
+//             }
+//         }
+
+//         // log pretty useful data
+//         $useful_data = array_filter($tally, fn($v) => count($v));
+//         $results = '';
+//         foreach ($useful_data as $k => $v) {
+//             $results .= "\n\t" . $k . ': (' . count($v) . ') ' . implode(',', $v);
+//         }
+//         $this->log('results:' . $results);
+
+//         $cursor = $products['meta']['cursor']['next'];
+
+//         if ($stalled) {
+//             $this->clear_stall_test();
+//             return;
+//         }
+
+//         if (!$cancelled) {
+//             $this->update_import_report([
+//                 'processed' => $report['processed'] + count($products['data']),
+//                 'cursor' => $cursor,
+//                 'delete' => $report['delete'] + count($tally['delete']),
+//                 'update' => $report['update'] + count($tally['update']),
+//                 'ignore' => $report['ignore'] + count($tally['ignore']),
+//                 'insert' => $report['insert'] + count($tally['insert']),
+//                 'patched' => $report['patched'] + count($tally['patched']),
+//             ]);
+
+//             if (!$cursor) {
+//                 $this->update_import_report(['completed' => gmdate("c")]);
+//                 $this->set_is_import_running(false);
+//             } else if ($this->should_cancel_import()) {
+//                 $this->set_is_import_running(false);
+//             } else {
+//                 // schedule and event to load the next page of products
+//                 $flag = $this->import_products_page_flag;
+//                 $is_scheduled = (bool) wp_next_scheduled($flag);
+//                 if (!$is_scheduled) {
+//                     $scheduled = wp_schedule_single_event(time(), $flag);
+//                     if (!$scheduled) {
+//                         $this->set_is_import_running(false);
+//                         $this->update_import_report(['error' => 'schedule failed']);
+//                         $this->log('schedule failed');
+//                     }
+//                 } else {
+//                     $this->log('schedule page import already scheduled - How did this duplicate?');
+//                 }
+//             }
+//         } else {
+//             $this->set_is_import_running(false);
+//         }
+//     } else {
+//         // failed after trying to load the page again - this is an error
+//         $this->set_is_import_running(false);
+//         $this->update_import_report([
+//             'stopped' => gmdate("c"),
+//             'error' => 'Product page data empty',
+//         ]);
+//         $this->log('Product page data empty');
+//     }
+// }

@@ -1873,6 +1873,7 @@ __webpack_require__.r(__webpack_exports__);
 
 // EXPORTS
 __webpack_require__.d(__webpack_exports__, {
+  LoadingPage: () => (/* binding */ LoadingPage),
   render: () => (/* binding */ render)
 });
 
@@ -3687,7 +3688,7 @@ var react_namespaceObject = /*#__PURE__*/__webpack_require__.t(react, 2);
 var QueryClientContext = react.createContext(
   void 0
 );
-var useQueryClient = (queryClient) => {
+var QueryClientProvider_useQueryClient = (queryClient) => {
   const client = react.useContext(QueryClientContext);
   if (queryClient) {
     return queryClient;
@@ -10648,8 +10649,8 @@ function shouldThrowError(throwError, params) {
 
 
 
-function useMutation(options, queryClient) {
-  const client = useQueryClient(queryClient);
+function useMutation_useMutation(options, queryClient) {
+  const client = QueryClientProvider_useQueryClient(queryClient);
   const [observer] = react.useState(
     () => new MutationObserver(
       client,
@@ -11202,7 +11203,7 @@ var fetchOptimistic = (defaultedOptions, observer, errorResetBoundary) => observ
 
 function useBaseQuery(options, Observer, queryClient) {
   if (false) {}
-  const client = useQueryClient(queryClient);
+  const client = QueryClientProvider_useQueryClient(queryClient);
   const isRestoring = useIsRestoring();
   const errorResetBoundary = useQueryErrorResetBoundary();
   const defaultedOptions = client.defaultQueryOptions(options);
@@ -11273,7 +11274,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 };
 
 // export async function fetchWordpressAjax<T,P = unknown>(params: IWordpressAjaxParams & ICronJobParams = { action: '' }) {
-function fetchWordpressAjax(params) {
+function fetchWordpressAjax_fetchWordpressAjax(params) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         const url = new URL(location.origin);
@@ -11307,11 +11308,11 @@ function fetchWordpressAjax(params) {
 ;// CONCATENATED MODULE: ./src/utils/useWordpressAjax.tsx
 
 
-const useWordpressAjax = (query, options = {}) => useQuery(Object.assign({ queryKey: [query], queryFn: () => fetchWordpressAjax(query), placeholderData: keepPreviousData }, options));
+const useWordpressAjax_useWordpressAjax = (query, options = {}) => useQuery(Object.assign({ queryKey: [query], queryFn: () => fetchWordpressAjax_fetchWordpressAjax(query), placeholderData: keepPreviousData }, options));
 
 ;// CONCATENATED MODULE: ./src/utilities/useImportStatus.tsx
 
-const useImportStatus = (supplier_key, isPolling = false) => {
+const useImportStatus_useImportStatus = (supplier_key, isPolling = false) => {
     const query = { action: 'ci_api_handler', cmd: 'get_import_status', supplier_key };
     const data = useWordpressAjax(query, { enabled: !!supplier_key, refetchInterval: isPolling ? 60000 : null });
     return data;
@@ -11321,58 +11322,36 @@ const useImportStatus = (supplier_key, isPolling = false) => {
 
 const useSuppliers_useSuppliers = () => {
     const query = { action: 'ci_api_handler', cmd: 'get_suppliers' };
-    const data = useWordpressAjax(query);
+    const data = useWordpressAjax_useWordpressAjax(query);
     return data;
 };
 
 ;// CONCATENATED MODULE: ./src/utilities/useTotalProducts.tsx
 
-const useTotalProducts = (supplier_key) => {
-    const query = { action: 'ci_api_handler', cmd: 'get_total_products', supplier_key };
-    const data = useWordpressAjax(query, { enabled: !!supplier_key });
-    return data;
+const useTotalProducts_useTotalProducts = (supplier_key) => {
+    return useWordpressAjax_useWordpressAjax({
+        action: 'ci_api_handler',
+        cmd: 'supplier_action',
+        func: 'get_total_products',
+        supplier_key
+    }, { enabled: !!supplier_key });
 };
 
-;// CONCATENATED MODULE: ./src/utils/formatDuration.ts
-function formatDuration(seconds) {
-    var date = new Date(0);
-    if (seconds)
-        date.setSeconds(~~seconds); // specify value for SECONDS here
-    return date.toISOString().substring(11, 19);
-    //   if (isNaN(seconds)) return '';
-    //   seconds = Math.round(seconds);
-    //   const m = Math.floor(seconds / 60);
-    //   const s = seconds % 60;
-    //   return `${m}:${('0' + s).slice(-2)}`;
-}
-function formatDate(d) {
-    return d.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
-}
-function formatTimeAgo(seconds) {
-    const intervals = [
-        { label: 'year', seconds: 31536000 },
-        { label: 'month', seconds: 2592000 },
-        { label: 'day', seconds: 86400 },
-        { label: 'hour', seconds: 3600 },
-        { label: 'minute', seconds: 60 }
-    ];
-    let isFuture = seconds < 0;
-    seconds = Math.abs(seconds);
-    for (const interval of intervals) {
-        const count = Math.floor(seconds / interval.seconds);
-        if (count >= 1) {
-            if (isFuture) {
-                return count === 1 ? `in ${count} ${interval.label}` : `in ${count} ${interval.label}s`;
-            }
-            else {
-                return count === 1 ? `${count} ${interval.label} ago` : `${count} ${interval.label}s ago`;
-            }
-        }
-    }
-    return '<1 min ago';
-}
+;// CONCATENATED MODULE: ./src/utilities/useTotalRemoteProducts.tsx
+
+const useTotalRemoteProducts = (supplier_key) => {
+    return useWordpressAjax_useWordpressAjax({
+        action: 'ci_api_handler',
+        cmd: 'supplier_action',
+        func: 'get_total_remote_products',
+        supplier_key
+    }, { enabled: !!supplier_key });
+};
 
 ;// CONCATENATED MODULE: ./src/overview/Overview.tsx
+
+
+
 
 
 
@@ -11403,6 +11382,60 @@ const useSupplierLogStatus = (supplier_key) => {
     return Object.assign(Object.assign({}, data), { isLogging, update: mutation.mutate });
 };
 const SupplierImportStatus = ({ supplier }) => {
+    var _a, _b, _c, _d, _e, _f;
+    const queryClient = QueryClientProvider_useQueryClient();
+    const totalProducts = useTotalProducts_useTotalProducts(supplier.key);
+    const totalRemoteProducts = useTotalRemoteProducts(supplier.key);
+    const query = {
+        action: 'ci_api_handler',
+        cmd: 'supplier_action',
+        supplier_key: supplier.key,
+        func: 'get_import_info'
+    };
+    const data = useWordpressAjax_useWordpressAjax(query, {
+        refetchInterval: 10000
+    });
+    const total_products = (_b = (_a = data === null || data === void 0 ? void 0 : data.data) === null || _a === void 0 ? void 0 : _a.total_products) !== null && _b !== void 0 ? _b : 1;
+    const processed_products = (_d = (_c = data === null || data === void 0 ? void 0 : data.data) === null || _c === void 0 ? void 0 : _c.processed) !== null && _d !== void 0 ? _d : 0;
+    const percent_complete = (100 * processed_products) / total_products;
+    const [bust, setBusy] = (0,react.useState)(data.isLoading);
+    const supplierAction = useMutation_useMutation({
+        mutationFn: (func) => fetchWordpressAjax_fetchWordpressAjax(Object.assign(Object.assign({}, query), { func })),
+        onMutate: () => {
+            setBusy(true);
+        },
+        onSuccess: (data) => {
+            setBusy(false);
+            // queryClient.invalidateQueries([[query]]);
+        }
+    });
+    const startImport = () => {
+        supplierAction.mutate('import_hook_init_action');
+    };
+    const continueImport = () => {
+        supplierAction.mutate('continue_import');
+    };
+    const resetImport = () => {
+        supplierAction.mutate('reset_import');
+    };
+    if (data.isSuccess) {
+        const is_running = data.isSuccess ? data.data.running || data.data.is_scheduled : false;
+        return (react.createElement("div", { className: 'd-flex flex-column gap-3' },
+            react.createElement("div", { className: 'progress', role: 'progressbar' },
+                react.createElement("div", { className: `progress-bar ${is_running ? 'progress-bar-striped progress-bar-animated' : 'bg-secondary'}`, style: { width: `${percent_complete}%` } })),
+            react.createElement("div", null,
+                react.createElement("button", { onClick: startImport }, "Start"),
+                react.createElement("button", { onClick: resetImport }, "Reset"),
+                react.createElement("button", { onClick: continueImport }, "Continue")),
+            react.createElement("div", null,
+                "total: ", (_e = totalProducts === null || totalProducts === void 0 ? void 0 : totalProducts.data) !== null && _e !== void 0 ? _e : '-',
+                " / ", (_f = totalRemoteProducts === null || totalRemoteProducts === void 0 ? void 0 : totalRemoteProducts.data) !== null && _f !== void 0 ? _f : '-'),
+            react.createElement("div", null),
+            react.createElement("pre", null, JSON.stringify({ data, is_running }, null, 2))));
+    }
+    return react.createElement(LoadingPage, null);
+};
+const XSupplierImportStatus = ({ supplier }) => {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
     const status = useImportStatus(supplier.key, true);
     const totalProducts = useTotalProducts(supplier.key);
@@ -11425,68 +11458,68 @@ const SupplierImportStatus = ({ supplier }) => {
     const percent_complete = (100 * ((_m = (_l = (_k = status.data) === null || _k === void 0 ? void 0 : _k.report) === null || _l === void 0 ? void 0 : _l.processed) !== null && _m !== void 0 ? _m : 0)) / ((_q = (_p = (_o = status.data) === null || _o === void 0 ? void 0 : _o.report) === null || _p === void 0 ? void 0 : _p.products_count) !== null && _q !== void 0 ? _q : 1);
     const is_running = status.isSuccess ? status.data.is_running || status.data.is_scheduled : false;
     if (status.isSuccess) {
-        return (react.createElement("div", { className: 'p-3 border rounded d-flex gap-3 w-100 shadow-sm' },
-            react.createElement("div", { className: 'w-100' },
-                react.createElement("div", { className: 'w-100 d-flex align-items-center gap-3' },
-                    react.createElement("h3", { className: 'm-0' }, supplier.name),
-                    react.createElement("div", { style: { flex: '1 1 min-content' } }, is_running ? (react.createElement("div", { className: 'spinner-border spinner-border-sm', role: 'status' },
-                        react.createElement("span", { className: 'visually-hidden' }, "Loading..."))) : null)),
-                react.createElement("hr", null),
-                react.createElement("div", { className: 'progress', role: 'progressbar' },
-                    react.createElement("div", { className: `progress-bar ${is_running ? 'progress-bar-striped progress-bar-animated' : 'bg-secondary'}`, style: { width: `${percent_complete}%` } })),
-                react.createElement("div", { className: 'd-flex justify-content-between' },
-                    react.createElement("div", null),
-                    react.createElement("small", null,
+        return (React.createElement("div", { className: 'p-3 border rounded d-flex gap-3 w-100 shadow-sm' },
+            React.createElement("div", { className: 'w-100' },
+                React.createElement("div", { className: 'w-100 d-flex align-items-center gap-3' },
+                    React.createElement("h3", { className: 'm-0' }, supplier.name),
+                    React.createElement("div", { style: { flex: '1 1 min-content' } }, is_running ? (React.createElement("div", { className: 'spinner-border spinner-border-sm', role: 'status' },
+                        React.createElement("span", { className: 'visually-hidden' }, "Loading..."))) : null)),
+                React.createElement("hr", null),
+                React.createElement("div", { className: 'progress', role: 'progressbar' },
+                    React.createElement("div", { className: `progress-bar ${is_running ? 'progress-bar-striped progress-bar-animated' : 'bg-secondary'}`, style: { width: `${percent_complete}%` } })),
+                React.createElement("div", { className: 'd-flex justify-content-between' },
+                    React.createElement("div", null),
+                    React.createElement("small", null,
                         status.data.report.processed,
                         " / ",
                         status.data.report.products_count)),
-                react.createElement("p", null,
+                React.createElement("p", null,
                     "Currently Importing: ",
                     is_running ? 'Yes' : 'No'),
-                react.createElement("p", null,
+                React.createElement("p", null,
                     "Products Processed: ",
                     status.data.report.processed,
                     " of ",
                     status.data.report.products_count),
-                patch ? (react.createElement(react.Fragment, null,
-                    react.createElement("p", null,
+                patch ? (React.createElement(React.Fragment, null,
+                    React.createElement("p", null,
                         "Patch: ",
                         patch),
-                    react.createElement("p", null,
+                    React.createElement("p", null,
                         "Patched: ",
-                        status.data.report.patched))) : (react.createElement(react.Fragment, null,
-                    react.createElement("p", null,
+                        status.data.report.patched))) : (React.createElement(React.Fragment, null,
+                    React.createElement("p", null,
                         "Updated: ",
                         status.data.report.update),
-                    react.createElement("p", null,
+                    React.createElement("p", null,
                         "Deleted: ",
                         status.data.report.delete),
-                    react.createElement("p", null,
+                    React.createElement("p", null,
                         "Inserted: ",
                         status.data.report.insert),
-                    react.createElement("p", null,
+                    React.createElement("p", null,
                         "Ignored: ",
                         status.data.report.ignore))),
-                react.createElement("p", null,
+                React.createElement("p", null,
                     "Last Started: ",
                     lastStarted),
-                react.createElement("p", null,
+                React.createElement("p", null,
                     "Last Completed: ",
                     lastCompleted),
-                react.createElement("p", null,
+                React.createElement("p", null,
                     "Last Stopped: ",
                     lastStopped),
-                react.createElement("p", null,
+                React.createElement("p", null,
                     "Next Import: ",
                     nextImport),
-                react.createElement("p", null,
+                React.createElement("p", null,
                     "Total Products: ",
-                    totalProducts.isLoading ? '...' : totalProducts.data.data.toLocaleString()),
-                react.createElement("p", null,
+                    totalProducts.isLoading ? '...' : totalProducts.data.toLocaleString()),
+                React.createElement("p", null,
                     "Logging: ",
                     logging.isLogging ? 'Yes' : 'No',
                     ' ',
-                    react.createElement("a", { className: 'link-underline-secondary', onClick: toggleLogging }, logging.isLogging ? 'Deactivate' : 'Activate')))));
+                    React.createElement("a", { className: 'link-underline-secondary', onClick: toggleLogging }, logging.isLogging ? 'Deactivate' : 'Activate')))));
     }
     return null;
 };
@@ -11557,7 +11590,7 @@ const SupplierBrands = ({ supplier_key }) => {
         supplier_key,
         func: 'get_brands'
     };
-    const brands = useWordpressAjax(query);
+    const brands = useWordpressAjax_useWordpressAjax(query);
     const [allowedBrandIds, setAllowedBrandIds] = react.useState([]);
     react.useEffect(() => {
         if (brands.isSuccess) {
@@ -11570,7 +11603,7 @@ const SupplierBrands = ({ supplier_key }) => {
         const input = { action: '' };
         formData.forEach((value, key) => (input[key] = value));
         const brand_ids = Array.from($brandsSelect.current.selectedOptions).map(({ value }) => value);
-        fetchWordpressAjax({
+        fetchWordpressAjax_fetchWordpressAjax({
             action: 'ci_api_handler',
             cmd: 'supplier_action',
             supplier_key,

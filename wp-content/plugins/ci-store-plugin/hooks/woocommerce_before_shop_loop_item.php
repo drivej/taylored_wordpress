@@ -33,21 +33,50 @@ function custom_before_shop_loop_item()
     // print('custom_before_shop_loop_item');
     global $product;
 
+    if (WooTools::should_update_loop_product($product)) {
+        $supplier = WooTools::get_product_supplier($product);
+        $supplier->update_loop_product($product);
+    }
+    // the existence of this meta key indicates all we need to know about this product
+    // $update = $product->get_meta('_ci_update_pdp');
+    // $single_product_max_age = 1;//24 * 7;
+
+    // if (is_string($update) || $update === false) {
+    //     $age = $update ? WooTools::get_age($update, 'hours') : 99999;
+    //     $should_update = $age > $single_product_max_age;
+
+    //     // error_log('custom_before_shop_loop_item() ' . json_encode($should_update));
+
+    //     if ($should_update) {
+    //         $supplier = WooTools::get_product_supplier($product);
+    //         $supplier->update_loop_product($product);
+    //     }
+    // }
+
+    // $supplier = WooTools::get_product_supplier($product);
+
+    // if ($supplier) {
+    //     $result = $supplier->update_loop_product($product);
+    //     error_log('custom_before_shop_loop_item() ' . json_encode($result));
+    // }
+
+    /*
     $supplier_key = WooTools::get_product_supplier_key($product);
     // print_r(['key' => $supplier_key]);
 
     if (!$supplier_key) {
-        $sku = $product->get_sku();
-        $woo_id = $product->get_id();
-        if (!$sku) {
-            error_log('custom_before_shop_loop_item() - Product has no supplier or sku ' . $woo_id);
-        } else {
-            error_log('custom_before_shop_loop_item() - Product has no supplier ' . $woo_id . ' ' . $sku);
-        }
+    $sku = $product->get_sku();
+    $woo_id = $product->get_id();
+    if (!$sku) {
+    error_log('custom_before_shop_loop_item() - Product has no supplier or sku ' . $woo_id);
+    } else {
+    error_log('custom_before_shop_loop_item() - Product has no supplier ' . $woo_id . ' ' . $sku);
+    }
     }
 
     $result = WooTools::update_loop_product($product);
     debug_data($result);
+     */
 
     // $product->get_meta('_ci_additional_images', true);
 
@@ -74,7 +103,7 @@ function custom_before_shop_loop_item()
     //     debug_data(['current_stock_status' => $current_stock_status, 'sku' => $product->get_sku()]);
     // }
 
-    return;
+    // return;
 
     // Check if it's a variable product
     // print_r(['type'=>$product->get_type()]);

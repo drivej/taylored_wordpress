@@ -54,7 +54,7 @@ const SupplierWrapper = () => {
   return <LoadingPage />;
 };
 
-const LoadingPage = () => {
+export const LoadingPage = () => {
   return (
     <div className='d-flex align-items-center justify-content-center' style={{ minHeight: '80vh' }}>
       <div className='spinner-border' role='status'>

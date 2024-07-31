@@ -1110,7 +1110,7 @@ class Supplier
             }
         }
     }
-
+    // get total imported products for this supplier
     public function get_total_products()
     {
         $query = new \WP_Query(array(
@@ -1122,6 +1122,11 @@ class Supplier
             'fields' => 'ids',
         ));
         return $query->found_posts;
+    }
+    // placeholder
+    public function get_total_remote_products()
+    {
+        return 0;
     }
 
     public function schedule_daily_import()

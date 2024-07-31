@@ -98,7 +98,7 @@ class WooTools
                 return new \Supplier_T14();
                 break;
         }
-        return null;
+        return false;
     }
     /**
      *
@@ -158,6 +158,26 @@ class WooTools
             WooTools::fix_variation($supplier_variation, $parent_id);
         }
     }
+    public static function should_update_loop_product($product){
+        // the existence of this meta key indicates a 3rd party supplier
+        $update = $product->get_meta('_ci_update_pdp');
+        $single_product_max_age = 1;//24 * 7;
+
+        if (is_string($update) || $update === false) {
+            $age = $update ? WooTools::get_age($update, 'hours') : 99999;
+            $should_update = $age > $single_product_max_age;
+            return $should_update;
+
+            // error_log('custom_before_shop_loop_item() ' . json_encode($should_update));
+
+            // if ($should_update) {
+            //     $supplier = WooTools::get_product_supplier($product);
+            //     $supplier->update_loop_product($product);
+            // }
+        }
+        return false;
+    }
+
 
     public static function fix_variation($supplier_variation, $parent_id)
     {

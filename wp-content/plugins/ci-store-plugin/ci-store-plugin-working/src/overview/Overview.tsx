@@ -1,13 +1,16 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
+import { useState } from 'react';
 import { IAjaxQuery } from '../models';
 import { ISupplierActionQuery } from '../utilities/StockPage';
 import { useImportStatus } from '../utilities/useImportStatus';
 import { ISupplier, useSuppliers } from '../utilities/useSuppliers';
 import { useTotalProducts } from '../utilities/useTotalProducts';
+import { useTotalRemoteProducts } from '../utilities/useTotalRemoteProducts';
 import { fetchWordpressAjax } from '../utils/fetchWordpressAjax';
 import { formatTimeAgo } from '../utils/formatDuration';
 import { useWordpressAjax } from '../utils/useWordpressAjax';
+import { LoadingPage } from '../view/suppliers';
 
 export const Overview = () => {
   const suppliers = useSuppliers();
@@ -43,6 +46,86 @@ export const useSupplierLogStatus = (supplier_key: string) => {
 };
 
 export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
+  const queryClient = useQueryClient();
+  const totalProducts = useTotalProducts(supplier.key);
+  const totalRemoteProducts = useTotalRemoteProducts(supplier.key);
+
+  const query: ISupplierActionQuery = {
+    action: 'ci_api_handler', //
+    cmd: 'supplier_action',
+    supplier_key: supplier.key,
+    func: 'get_import_info'
+  };
+  const data = useWordpressAjax<{
+    prev_cursor: string;
+    cursor: string;
+    updated_at: string;
+    size: number;
+    running: boolean;
+    attempt: number;
+    status: 'idle' | 'running';
+    stopping: boolean;
+    started: string;
+    processed: number;
+    total_products: number;
+    is_scheduled: boolean;
+    age: string;
+  }>(query, {
+    refetchInterval: 10000
+  });
+  const total_products = data?.data?.total_products ?? 1;
+  const processed_products = data?.data?.processed ?? 0;
+  const percent_complete = (100 * processed_products) / total_products;
+
+  const [bust, setBusy] = useState(data.isLoading);
+
+  const supplierAction = useMutation({
+    mutationFn: (func: string) => fetchWordpressAjax<{ data: boolean }, IAjaxQuery & ISupplierActionQuery>({ ...query, func }),
+    onMutate: () => {
+      setBusy(true);
+    },
+    onSuccess: (data) => {
+      setBusy(false);
+      // queryClient.invalidateQueries([[query]]);
+    }
+  });
+
+  const startImport = () => {
+    supplierAction.mutate('import_hook_init_action');
+  };
+
+  const continueImport = () => {
+    supplierAction.mutate('continue_import');
+  };
+
+  const resetImport = () => {
+    supplierAction.mutate('reset_import');
+  };
+
+  if (data.isSuccess) {
+    const is_running = data.isSuccess ? data.data.running || data.data.is_scheduled : false;
+    return (
+      <div className='d-flex flex-column gap-3'>
+        <div className='progress' role='progressbar'>
+          <div className={`progress-bar ${is_running ? 'progress-bar-striped progress-bar-animated' : 'bg-secondary'}`} style={{ width: `${percent_complete}%` }}></div>
+        </div>
+        <div>
+          <button onClick={startImport}>Start</button>
+          <button onClick={resetImport}>Reset</button>
+          <button onClick={continueImport}>Continue</button>
+        </div>
+        <div>
+          total: {totalProducts?.data ?? '-'} / {totalRemoteProducts?.data ?? '-'}
+        </div>
+        <div></div>
+        <pre>{JSON.stringify({ data, is_running }, null, 2)}</pre>
+      </div>
+    );
+  }
+  return <LoadingPage />;
+};
+
+export const XSupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
   const status = useImportStatus(supplier.key, true);
   const totalProducts = useTotalProducts(supplier.key);
   const logging = useSupplierLogStatus(supplier.key);
@@ -113,7 +196,7 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
           <p>Last Completed: {lastCompleted}</p>
           <p>Last Stopped: {lastStopped}</p>
           <p>Next Import: {nextImport}</p>
-          <p>Total Products: {totalProducts.isLoading ? '...' : totalProducts.data.data.toLocaleString()}</p>
+          <p>Total Products: {totalProducts.isLoading ? '...' : totalProducts.data.toLocaleString()}</p>
           <p>
             Logging: {logging.isLogging ? 'Yes' : 'No'}{' '}
             <a className='link-underline-secondary' onClick={toggleLogging}>
