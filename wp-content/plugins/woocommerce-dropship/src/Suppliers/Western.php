@@ -12,6 +12,7 @@ class Western extends Supplier implements Contract
     public $request;
     private $testing = true;
     private WesternSettings $settings;
+    public $slug = 'wps';
 
     public function __construct()
     {
@@ -22,6 +23,7 @@ class Western extends Supplier implements Contract
 
     public function stockCheck(array $items)
     {
+        return $items;
         // return ['test' => 1];
         // return $this->request->request(['path' => '/items/' . implode(',', $items)]);
         return $this->request->stockCheck([
@@ -31,6 +33,7 @@ class Western extends Supplier implements Contract
 
     public function priceCheck(array $items)
     {
+        return $items;
         return $this->request->priceCheck([
             'item' => $this->filter('price_check', $items),
         ]);
@@ -43,23 +46,31 @@ class Western extends Supplier implements Contract
         $firstName = $data['shipping_first_name'] ?? $data['billing_first_name'];
         $lastName = $data['shipping_last_name'] ?? $data['billing_last_name'];
 
-        $orderData = $this->filter('order_data', [
-            'name' => $firstName . ' ' . $lastName,
-            'address1' => $data['shipping_address_1'] ?? $data['billing_address_1'],
-            'address2' => $data['shipping_address_2'] ?? $data['billing_address_2'],
-            'city' => $data['shipping_city'] ?? $data['billing_city'],
-            'state' => $data['shipping_state'] ?? $data['billing_state'],
-            'zip' => $data['shipping_postcode'] ?? $data['billing_postcode'],
-            'submit' => $this->testing ? 'NO' : 'YES',
-            'invoiceNote' => $data['order_comments'],
-            'line' => $items,
+        $poNumber = "woo_" . time();
+
+        $cartData = $this->filter('order_data', [
+            'po_number' => $poNumber,
+            'ship_name' => $firstName . ' ' . $lastName,
+            'ship_address1' => $data['shipping_address_1'] ?? $data['billing_address_1'],
+            'ship_address2' => $data['shipping_address_2'] ?? $data['billing_address_2'],
+            'ship_city' => $data['shipping_city'] ?? $data['billing_city'],
+            'ship_state' => $data['shipping_state'] ?? $data['billing_state'],
+            'ship_zip' => $data['shipping_postcode'] ?? $data['billing_postcode'],
+            //'submit' => $this->testing ? 'NO' : 'YES',
+            'comment1' => $data['order_comments'],
         ], $this);
 
         $errors = [];
 
-        $tuckerOrder = $this->filter("{$this->settings->slug}_order", $this->request->submitOrder($orderData), $this);
+        $wpsCart = $this->request->createCart($cartData);
 
-        foreach ($tuckerOrder->orderline as $orderLine) {
+        foreach ($items as $item) {
+            $line = explode(',', $item);
+            $this->request->addToCart($poNumber, $line[0], $line[1]);
+        }
+
+        $wpsOrder = $this->request->submitOrder($poNumber);
+        /* foreach ($wpsOrder->orderline as $orderLine) {
             if ($orderLine->errormsg !== "") {
                 $errors[$orderLine->itemnum] = $orderLine->errormsg;
             }
@@ -68,29 +79,30 @@ class Western extends Supplier implements Contract
         if (count($errors)) {
             throw new \Exception($this->filter('order_errors', implode("\n", $errors), $this));
         }
+ */
+        $this->action('order_submitted', $wpsOrder, $this);
 
-        $this->action('order_submitted', $tuckerOrder, $this);
-
-        return $this->filter('order_number', $tuckerOrder->ordernum);
+        return $this->filter('order_number', $poNumber);
     }
 
     public function getShipments(array $orders): Shipments
     {
-        $shipments = $this->request->getShipments([
-            'ordernum' => $orders,
-        ]);
+        $output = new Shipments();
 
-        $orders = new Shipments();
+        foreach ($orders as $order) {
+            $shipment = $this->request->getShipments($order);
 
-        foreach ($shipments as $shipment) {
-            $orders[$shipment->ordernum] = new Shipment(
-                $shipment->ordernum,
-                $shipment->shipmentline[0]->trackingnumbers[0]->carrier,
-                $shipment->shipmentline[0]->trackingnumbers[0]->trackingnum
-            );
+            foreach ($shipment->order_details as $details) {
+                $output[$shipment->po_number] = new Shipment(
+                    $details->order_number,
+                    $details->ship_via,
+                    $details->tracking_numbers[0] ?? ''
+                );
+            }
+            
         }
 
-        return $orders;
+        return $output;
     }
 
     public function stockThreshold()

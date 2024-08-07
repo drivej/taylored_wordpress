@@ -1,0 +1,65 @@
+:root {
+  --switch-width: 50px; /* Change this to adjust the width */
+  --switch-height-ratio: 0.5; /* Height as a function of width (50% of the width) */
+  --switch-padding: 3px; /* Padding around the slider */
+
+  --switch-height: calc(var(--switch-width) * var(--switch-height-ratio));
+  --slider-diameter: calc(var(--switch-height) - 2 * var(--switch-padding));
+  --slider-transform: calc(var(--switch-width) - var(--switch-height));
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: var(--switch-width);
+  height: var(--switch-height);
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: '';
+  height: var(--slider-diameter);
+  width: var(--slider-diameter);
+  left: var(--switch-padding);
+  bottom: var(--switch-padding);
+  background-color: white;
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: #2196f3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196f3;
+}
+
+input:checked + .slider:before {
+  transform: translateX(var(--slider-transform));
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: calc(var(--switch-height) / 2);
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}

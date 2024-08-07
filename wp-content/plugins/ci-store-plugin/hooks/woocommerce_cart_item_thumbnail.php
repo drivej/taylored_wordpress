@@ -1,5 +1,7 @@
 <?php
 
+namespace CIStore\Hooks;
+
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/debug_hook.php';
 
 function custom_modify_cart_item_thumbnail($product_image, $cart_item, $cart_item_key)
@@ -35,4 +37,4 @@ function custom_modify_cart_item_thumbnail($product_image, $cart_item, $cart_ite
     return $product_image;
 }
 
-add_action('woocommerce_cart_item_thumbnail', 'custom_modify_cart_item_thumbnail', 10, 3);
+// add_action('woocommerce_cart_item_thumbnail', 'custom_modify_cart_item_thumbnail', 10, 3);

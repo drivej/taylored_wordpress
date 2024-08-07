@@ -35,7 +35,7 @@ function patch_product_stock($woo_product_id)
             $supplier_key = $product->get_meta('_ci_supplier_key');
             $supplier_product_id = $product->get_meta('_ci_product_id');
             $supplier = \WooTools::get_supplier($supplier_key);
-            $supplier_product = $supplier->get_product_light($supplier_product_id);
+            $supplier_product = $supplier->get_product($supplier_product_id);
             $is_available = $supplier->is_available($supplier_product);
             $deleted = false;
 

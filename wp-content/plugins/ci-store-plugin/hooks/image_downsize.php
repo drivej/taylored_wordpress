@@ -1,5 +1,7 @@
 <?php
 
+namespace CIStore\Hooks;
+
 // include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/get_product_image.php';
 // include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/debug_hook.php';
 
@@ -92,7 +94,7 @@ function custom_image_downsize($out, $id, $size)
     return $out;
 }
 
-add_filter('image_downsize', 'custom_image_downsize', 10, 3);
+// add_filter('image_downsize', 'custom_image_downsize', 10, 3);
 
 // function custom_post_thumbnail_url($file, $id, $size)
 // {

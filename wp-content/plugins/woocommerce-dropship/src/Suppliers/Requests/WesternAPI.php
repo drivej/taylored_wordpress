@@ -11,12 +11,12 @@ class WesternAPI
     private $outputType = "JSON";
 
     private $callTypeMapping = [
-        'stockCheck' => 'INV',
+        /* 'stockCheck' => 'INV',
         'priceCheck' => 'PRC',
         'stockAndPriceCheck' => 'INP',
         'propositionWarning' => 'P65',
         'submitOrder' => 'ORD',
-        'getShipments' => 'SHP',
+        'getShipments' => 'SHP', */
     ];
 
     private $token;
@@ -61,27 +61,53 @@ class WesternAPI
         }
     }
 
-    public function request($payload = [])
+    public function submitOrder($cartId)
     {
-        $path = '';
-        if (isset($payload['path'])) {
-            $path = $payload['path']; // requires a leading slash
-            unset($payload['path']);
-        }
+        return $this->request('/orders', [
+            'po_number' => $cartId,
+        ], 'post');
+    }
+
+    public function createCart(array $data)
+    {
+        return $this->request('/carts', $data, 'post');
+    }
+
+    public function addToCart($cartId, $item, $qty = 1)
+    {
+        return $this->request('/carts/' . $cartId . '/items', [
+            'item_sku' => $item,
+            'quantity' => $qty,
+        ], 'post');
+    }
+
+    public function request($endpoint, $payload = [], $method = 'get')
+    {
 
         $host = $this->testing ? $this->testUrl : $this->productionUrl;
-        $url = $host . $path . '?' . http_build_query($payload);
+        
+        if ($method == 'get') {
+            $url = $host . $endpoint . '?' . http_build_query($payload);
+        } else {
+            $url = $host . $endpoint;
+        }
 
-        $response = wp_safe_remote_request($url, ['headers' => [
-            'Authorization' => "Bearer {$this->token}",
-            'Content-Type' => 'application/json',
-        ]]);
+        $response = wp_safe_remote_request($url, [
+            'method' => $method, 
+            'body' => $payload,
+            'headers' => [
+                'Authorization' => "Bearer {$this->token}",
+                'Content-Type' => 'application/json',
+            ]
+        ]);
 
         if (is_wp_error($response)) {
             return ['error' => 'Request failed'];
         }
 
         return json_decode(wp_remote_retrieve_body($response));
+
+
     }
 
     public function my_error_notice()

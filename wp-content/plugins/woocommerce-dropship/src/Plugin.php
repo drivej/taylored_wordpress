@@ -15,7 +15,7 @@ class Plugin
 	];
 	
 	public function __construct()
-	{	
+	{
 		$this->wooCommerce = new WooCommerce();
 		
 		$this->addActions();
@@ -53,14 +53,14 @@ class Plugin
 		
 		// Product Filters
 		add_filter('woocommerce_product_is_in_stock', [$this->wooCommerce, 'productIsInStock'], 10, 2);
-		add_filter('woocommerce_product_get_stock_quantity', [$this->wooCommerce, 'productQuantity'], 10, 2);
+		//add_filter('woocommerce_product_get_stock_quantity', [$this->wooCommerce, 'productQuantity'], 10, 2);
 		add_filter('woocommerce_product_get_sku', [$this->wooCommerce, 'productSku'], 10, 2);
 		add_filter('woocommerce_product_get_manage_stock', [$this->wooCommerce, 'manageStock'], 10, 2);
 		
 		// Variation Filters
 		add_filter('woocommerce_product_variation_get_manage_stock', [$this->wooCommerce, 'manageStock'], 10, 2);
 		add_filter('woocommerce_product_variation_get_sku', [$this->wooCommerce, 'productSku'], 10, 2);
-		add_filter('woocommerce_product_variation_get_stock_quantity', [$this->wooCommerce, 'productQuantity'], 10, 2);
+		//add_filter('woocommerce_product_variation_get_stock_quantity', [$this->wooCommerce, 'productQuantity'], 10, 2);
 
 	}
 

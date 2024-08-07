@@ -23,8 +23,5 @@ function get_product($params)
         return ['error' => 'supplier not found', 'supplier_key' => $supplier_key];
     }
 
-    if ($light) {
-        return $supplier->get_product_light($supplier_product_id);
-    }
-    return $supplier->get_product($supplier_product_id);
+    return $supplier->get_product($supplier_product_id, $light ? 'basic' : 'full');
 }

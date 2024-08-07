@@ -2,7 +2,7 @@
 
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/CronJob.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier_Background_Process.php';
+// include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier_Background_Process.php';
 
 trait Supplier_WPS_Cronjob
 {

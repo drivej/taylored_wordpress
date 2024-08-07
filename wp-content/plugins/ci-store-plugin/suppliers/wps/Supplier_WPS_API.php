@@ -5,7 +5,7 @@ trait Supplier_WPS_API
     private $bearer_token = 'aybfeye63PtdiOsxMbd5f7ZAtmjx67DWFAQMYn6R';
     private $api_url = "https://api.wps-inc.com";
 
-    public function get_api($path, $params = [])
+    public function get_api($path, $params = [], $use_cache = true)
     {
         if (!isset($path)) {
             $this->log('WPS.get_api() ERROR path not set path=' . $path . '' . 'params=' . json_encode($params));
@@ -16,7 +16,7 @@ trait Supplier_WPS_API
         $pathKey = trim($path, '/') . '?' . $query_string;
         $pathHash = md5($pathKey);
         $transient_name = "{$this->key}_get_api_{$pathHash}_{$this->import_version}";
-        $response = get_transient($transient_name);
+        $response = $use_cache ? get_transient($transient_name) : false;
 
         if (false === $response) {
             $should_cache = true;

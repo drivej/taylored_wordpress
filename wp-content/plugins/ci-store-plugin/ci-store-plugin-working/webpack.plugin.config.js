@@ -25,14 +25,14 @@ module.exports = [
   //     library: 'ci_manage_events'
   //   }
   // },
-  {
-    extends: path.resolve(__dirname, './webpack.base.config.js'),
-    entry: './src/overview/index.tsx',
-    output: {
-      filename: `ci_overview.js`,
-      library: 'ci_overview'
-    }
-  },
+  // {
+  //   extends: path.resolve(__dirname, './webpack.base.config.js'),
+  //   entry: './src/overview/index.tsx',
+  //   output: {
+  //     filename: `ci_overview.js`,
+  //     library: 'ci_overview'
+  //   }
+  // },
   {
     extends: path.resolve(__dirname, './webpack.base.config.js'),
     entry: './src/view/suppliers/index.tsx',

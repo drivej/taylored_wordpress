@@ -1,16 +1,20 @@
 <?php
 
+// namespace CIStore\Hooks;
+
+include_once __DIR__ . '/woocommerce_before_shop_loop_item.php';
+include_once __DIR__ . '/woocommerce_before_single_product.php';
+include_once __DIR__ . '/woocommerce_cart_item_thumbnail.php';
+include_once __DIR__ . '/image_downsize.php';
+
+
 // include_once __DIR__ . '/woocommerce_before_add_to_cart_button.php';
 // include_once __DIR__ . '/woocommerce_attribute_label.php';
-include_once __DIR__ . '/woocommerce_before_shop_loop_item.php';
 // include_once __DIR__ . '/woocommerce_before_single_product_summary.php';
-include_once __DIR__ . '/woocommerce_before_single_product.php';
 // include_once __DIR__ . '/woocommerce_before_single_variation.php';
-include_once __DIR__ . '/woocommerce_cart_item_thumbnail.php';
-// include_once __DIR__ . '/woocommerce_product_query.php';
+// include_once __DIR__ . '/woocommerce_product_query.php'; // TODO: in progress for checking products before query
 // include_once __DIR__ . '/woocommerce_get_image_size_shop_single.php';
 // include_once __DIR__ . '/woocommerce_placeholder_img.php';
-include_once __DIR__ . '/image_downsize.php';
 // include_once __DIR__ . '/pre_get_posts.php';
 // include_once __DIR__ . '/woocommerce_product_thumbnails.php';
 // include_once __DIR__ . '/woocommerce_single_product_image.php';
@@ -49,8 +53,8 @@ function custom_manage_product_posts_custom_column($column, $post_id)
 {
     if ($column === 'last_import') {
         $imported = get_post_meta($post_id, '_ci_import_timestamp', true);
-        $date_imported = new DateTime($imported ? $imported : '2000-01-01 12:00:00');
-        $currentDateTime = new DateTime();
+        $date_imported = new \DateTime($imported ? $imported : '2000-01-01 12:00:00');
+        $currentDateTime = new \DateTime();
         $interval = $currentDateTime->diff($date_imported);
         $daysDifference = $interval->days;
         echo $daysDifference . ' days';

@@ -40,7 +40,9 @@ function supplier_action($params)
         }
     }
 
-    // $response = call_user_func_array([$supplier, $func], $args);
+    ksort($args);
+    $args = array_values($args);
+
     try {
         $response = call_user_func([$supplier, $func], ...$args);
         return $response;

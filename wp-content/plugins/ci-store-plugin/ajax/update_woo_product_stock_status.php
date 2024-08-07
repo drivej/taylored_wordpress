@@ -14,13 +14,14 @@ function update_woo_product_stock_status($params)
         $start_time = microtime(true);
         $product = wc_get_product_object('variable', $woo_product_id);
         $output = ['woo_product_id' => $woo_product_id, 'deleted' => false];
+
         if ($product) {
             try {
                 if ($product->meta_exists('_ci_supplier_key') && $product->meta_exists('_ci_product_id')) {
                     $supplier_key = $product->get_meta('_ci_supplier_key');
                     $supplier_product_id = $product->get_meta('_ci_product_id');
                     $supplier = \WooTools::get_supplier($supplier_key);
-                    $supplier_product = $supplier->get_product_light($supplier_product_id);
+                    $supplier_product = $supplier->get_product($supplier_product_id, 'stock');
                     $is_available = $supplier->is_available($supplier_product);
                     $output['is_available'] = $is_available;
                     $output['supplier_product_id'] = $supplier_product_id;

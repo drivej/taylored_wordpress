@@ -1,5 +1,5 @@
 import { wooKeys } from './consts.js';
-import { ProductType, TuckerProduct } from './TuckerProduct';
+import { ProductType, TuckerProduct } from './TuckerProduct.js';
 
 interface TuckerProductsOptions {
   imageRoot?: string;

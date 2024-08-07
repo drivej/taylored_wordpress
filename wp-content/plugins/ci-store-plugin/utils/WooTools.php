@@ -27,27 +27,27 @@ class WooTools
      * @param WC_Product    $woo_product
      */
     // fires woocommerce_before_single_product
-    public static function update_single_product($woo_product)
-    {
-        $supplier = WooTools::get_product_supplier($woo_product);
-        if ($supplier) {
-            return $supplier->update_single_product($woo_product);
-        }
-        return ['updated' => false, 'reason' => 'no supplier'];
-    }
+    // public static function update_pdp_product($woo_product)
+    // {
+    //     $supplier = WooTools::get_product_supplier($woo_product);
+    //     if ($supplier) {
+    //         return $supplier->update_pdp_product($woo_product);
+    //     }
+    //     return ['updated' => false, 'reason' => 'no supplier'];
+    // }
     /**
      *
      * @param WC_Product    $woo_product
      */
     // fires woocommerce_before_shop_loop_item
-    public static function update_loop_product($woo_product)
-    {
-        $supplier = WooTools::get_product_supplier($woo_product);
-        if ($supplier) {
-            return $supplier->update_loop_product($woo_product);
-        }
-        return false;
-    }
+    // public static function update_plp_product($woo_product)
+    // {
+    //     $supplier = WooTools::get_product_supplier($woo_product);
+    //     if ($supplier) {
+    //         return $supplier->update_plp_product($woo_product);
+    //     }
+    //     return false;
+    // }
     /**
      *
      * @param WC_Product    $woo_product
@@ -91,11 +91,11 @@ class WooTools
             case 'wps':
                 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS.php';
                 return Supplier_WPS::instance();
-                // return new \Supplier_WPS();
                 break;
+
             case 't14':
                 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14.php';
-                return new \Supplier_T14();
+                return Supplier_T14::instance();
                 break;
         }
         return false;
@@ -158,26 +158,36 @@ class WooTools
             WooTools::fix_variation($supplier_variation, $parent_id);
         }
     }
-    public static function should_update_loop_product($product){
-        // the existence of this meta key indicates a 3rd party supplier
-        $update = $product->get_meta('_ci_update_pdp');
-        $single_product_max_age = 1;//24 * 7;
 
-        if (is_string($update) || $update === false) {
-            $age = $update ? WooTools::get_age($update, 'hours') : 99999;
-            $should_update = $age > $single_product_max_age;
-            return $should_update;
-
-            // error_log('custom_before_shop_loop_item() ' . json_encode($should_update));
-
-            // if ($should_update) {
-            //     $supplier = WooTools::get_product_supplier($product);
-            //     $supplier->update_loop_product($product);
-            // }
+    public static function get_max_age($flag)
+    {
+        // return new DateInterval('PT1M'); // TODO: for testing only
+        switch ($flag) {
+            case 'pdp':
+                return new DateInterval('P1D');
+            case 'plp':
+            default:
+                return new DateInterval('P7D');
         }
-        return false;
     }
+    /**
+     *
+     * @param WC_Product    $woo_product
+     * @param string    $flag 'pdp' | 'plp'
+     */
+    public static function should_update_product($product, $flag)
+    {
+        // the existence of this meta key indicates a 3rd party supplier
+        $meta_key = "_ci_update_{$flag}";
+        $update = $product->get_meta($meta_key);
 
+        if (is_string($update)) {
+            $max_age = self::get_max_age($flag);
+            $expiry_date = (new DateTime($update))->add($max_age);
+            return $expiry_date < new DateTime();
+        }
+        return true;
+    }
 
     public static function fix_variation($supplier_variation, $parent_id)
     {
@@ -466,25 +476,10 @@ class WooTools
 
     public static function get_age($dateString, $units = 'hours')
     {
-        // $dateString = "2024-06-22T19:30:04+00:00";
         $date = new DateTime($dateString);
         $now = new DateTime();
         $interval = $now->diff($date);
-
-        switch ($units) {
-            case 'seconds':
-                $seconds = ($interval->days * 24 * 60 * 60) + ($interval->h * 60 * 60) + ($interval->i * 60) + $interval->s;
-                return $seconds;
-
-            case 'minutes':
-                $minutes = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i + ($interval->s / 60);
-                return round($minutes);
-
-            case 'hours':
-            default:
-                $hours = ($interval->days * 24) + $interval->h + ($interval->i / 60) + ($interval->s / 3600);
-                return round($hours);
-        }
+        return $interval;
     }
 
     public static function unpublish($post_ids)
@@ -989,7 +984,7 @@ class WooTools
         return $metadata;
     }
 
-    public static function helpMe($woo_id)
+    public static function get_raw_woo_data($woo_id)
     {
         global $wpdb;
         // $s = "SELECT * FROM {$wpdb->posts} WHERE `ID` = '{$woo_id}'";
@@ -1297,5 +1292,13 @@ class WooTools
         }
 
         return ['width' => round($new_width), 'height' => round($new_height)];
+    }
+
+    public static function unlink_children($product_id)
+    {
+        // Woo does not unlink children reliably so you may have rogure variations attached to products
+        global $wpdb;
+        $sql = $wpdb->prepare("UPDATE $wpdb->posts SET post_parent = 0 WHERE post_parent = %d", $product_id);
+        $wpdb->query($sql);
     }
 }

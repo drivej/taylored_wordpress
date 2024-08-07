@@ -4,7 +4,10 @@ include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/CronJob.php';
 // include_once WP_PLUGIN_DIR . '/ci-store-plugin/libraries/wp-background-process.php';
 
+defined('WC_PLUGIN_FILE') || exit;
+
 include_once WP_PLUGIN_DIR . '/woocommerce/includes/abstracts/class-wc-background-process.php';
+
 
 class Supplier_Background_Process extends WP_Background_Process
 {

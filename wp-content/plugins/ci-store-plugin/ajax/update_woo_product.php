@@ -16,7 +16,7 @@ function update_woo_products($params)
     $supplier_key = 'wps'; //$product->get_meta('_ci_supplier_key');
     $supplier = \WooTools::get_supplier($supplier_key);
     // get products from supplier
-    $supplier_products = $supplier->get_products_page($cursor, 50, '2020-01-01');
+    $supplier_products = $supplier->get_products_page($cursor);//, 50, '2020-01-01');
     $valid_supplier_products = [];
     $skus = [];
 
@@ -72,7 +72,7 @@ function update_woo_product($params)
                     $output['supplier_product_id'] = $supplier_product_id;
                     $output['supplier_key'] = $supplier_key;
                     $supplier = \WooTools::get_supplier($supplier_key);
-                    // $supplier_product = $supplier->get_product_light($supplier_product_id);
+              
                     if ($supplier) {
                         $output['result'] = $supplier->update_product($supplier_product_id);
                         $output['updated'] = true;

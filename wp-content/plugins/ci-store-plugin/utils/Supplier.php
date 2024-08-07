@@ -175,10 +175,10 @@ class Supplier
         return ['error' => 'get_products_page() undefined'];
     }
 
-    public function get_next_products_page($previous_result)
-    {
-        return ['error' => 'get_next_products_page() undefined'];
-    }
+    // public function get_next_products_page($previous_result)
+    // {
+    //     return ['error' => 'get_next_products_page() undefined'];
+    // }
 
     public function log($file, $line = null, $message = null)
     {
@@ -264,16 +264,25 @@ class Supplier
         return null;
     }
     // placeholder
-    public function get_product($product_id)
+    public function get_product($product_id, $flag = 'pdp')
     {
         $this->log('get_product() not defined for ' . $this->key);
         return [];
     }
-    // placeholder
-    public function get_product_light($product_id)
+
+    public function get_products($product_ids, $flag = 'basic')
     {
-        return $this->get_product($product_id);
+        $data = [];
+        foreach ($product_ids as $product_id) {
+            $data[] = $this->get_product($product_id);
+        }
+        return ['data' => $data];
     }
+    // placeholder
+    // public function get_product_light($product_id)
+    // {
+    //     return $this->get_product($product_id);
+    // }
     // placeholder
     public function get_description($supplier_product)
     {
@@ -398,61 +407,23 @@ class Supplier
      *
      * @param WC_Product    $woo_product
      */
-    public function update_single_product($woo_product)
+    public function update_pdp_product($woo_product)
     {
         // fires woocommerce_before_single_product
-        if ($this->should_update_single_product($woo_product)) {
-            return true;
+        if (WooTools::should_update_product($woo_product, '_ci_update_pdp')) {
+            // custom code
         }
-        return false;
     }
-
-    // when does a PDP stale in hours
-    protected int $single_product_max_age = 24 * 7;
     /**
      *
      * @param WC_Product    $woo_product
      */
-    public function should_update_single_product($woo_product)
-    {
-        $update = $woo_product->get_meta('_ci_update_pdp', true);
-        $should_update = !(bool) $update;
-
-        if ($update) {
-            $age = $update ? WooTools::get_age($update, 'hours') : 99999;
-            $should_update = $age > $this->single_product_max_age;
-        }
-        return $should_update;
-    }
-
-    // when does PLP stale in hours
-    protected int $loop_product_max_age = 24 * 7;
-    /**
-     *
-     * @param WC_Product    $woo_product
-     */
-    public function update_loop_product($woo_product)
+    public function update_plp_product($woo_product)
     {
         // fires woocommerce_before_shop_loop_item
-        if ($this->should_update_loop_product($woo_product)) {
-            return true;
+        if (WooTools::should_update_product($woo_product, '_ci_update_plp')) {
+            // custom code
         }
-        return false;
-    }
-    /**
-     *
-     * @param WC_Product    $woo_product
-     */
-    public function should_update_loop_product($woo_product)
-    {
-        $update = $woo_product->get_meta('_ci_update_plp', true);
-        $should_update = !(bool) $update;
-
-        if ($update) {
-            $age = $update ? WooTools::get_age($update, 'hours') : 99999;
-            $should_update = $age > $this->loop_product_max_age;
-        }
-        return $should_update;
     }
     /**
      *
@@ -520,7 +491,7 @@ class Supplier
 
     public function import_product($supplier_product_id)
     {
-        $product = $this->get_product_light($supplier_product_id);
+        $product = $this->get_product($supplier_product_id, 'stock');
 
         if ($product['error']) {
             return ['action' => 'error', 'result' => $product];
@@ -625,6 +596,37 @@ class Supplier
         ];
         // Required: _sku, _ci_product_id
         return $base_metadata;
+    }
+
+    public function invalidate_all($flag = 'pdp')
+    {
+        global $wpdb;
+        $meta_key_to_delete = '_ci_update_pdp';
+
+        $sql = $wpdb->prepare("DELETE pm
+            FROM {$wpdb->postmeta} pm
+            WHERE pm.meta_key = %s
+            AND pm.post_id IN (
+                SELECT post_id
+                FROM {$wpdb->postmeta}
+                WHERE meta_key = '_ci_supplier_key'
+                AND meta_value = %s
+            )
+        ", $meta_key_to_delete, $this->key);
+
+        return $sql;
+
+        $rows_affected = $wpdb->query($sql);
+
+        if ($rows_affected !== false) {
+            if ($rows_affected > 0) {
+                return ['data' => "Successfully deleted {$rows_affected} rows."];
+            } else {
+                return ['data' => "No rows were deleted."];
+            }
+        } else {
+            return ['error' => "There was an error executing the query."];
+        }
     }
 
     public function delete_all()

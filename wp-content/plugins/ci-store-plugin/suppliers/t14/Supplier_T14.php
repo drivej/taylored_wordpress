@@ -7,7 +7,7 @@ https://turn14.com/api_settings.php
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier.php';
 // include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/CronJob.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Timer.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14_Background_Process.php';
+// include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14_Background_Process.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14_Prices.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14_Cronjob.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14_API.php';
@@ -27,6 +27,13 @@ class Supplier_T14 extends Supplier
     public int $max_age = 0; // stale product age
     private bool $dry_run = false;
     public array $allow_brand_ids = [];
+    /**
+     * The single instance of the class.
+     *
+     * @var Supplier_WPS
+     * @since 2.1
+     */
+    protected static $_instance = null;
 
     public function __construct()
     {
@@ -36,11 +43,19 @@ class Supplier_T14 extends Supplier
             'supplierClass' => 'WooDropship\\Suppliers\\Turn14',
             'import_version' => '0.3',
         ]);
-        $this->background_process = new Supplier_T14_Background_Process($this, $this->key);
+        // $this->background_process = new Supplier_T14_Background_Process($this, $this->key);
         $this->active = false;
     }
 
-    public function update_single_product($woo_product)
+    public static function instance()
+    {
+        if (is_null(self::$_instance)) {
+            self::$_instance = new self();
+        }
+        return self::$_instance;
+    }
+
+    public function update_pdp_product($woo_product)
     {
         $needs_update = $this->product_needs_update($woo_product);
         // $has_images = WooTools::has_images($woo_product);
@@ -66,7 +81,7 @@ class Supplier_T14 extends Supplier
         return false;
     }
 
-    public function update_loop_product($woo_product)
+    public function update_plp_product($woo_product)
     {
         $update_plp = $woo_product->get_meta('_ci_update_plp', true);
         $should_update = !(bool) $update_plp;
@@ -159,7 +174,7 @@ class Supplier_T14 extends Supplier
 
         if ($needs_update) {
             $supplier_product_id = $woo_product->get_meta('_ci_product_id', true);
-            $supplier_product = $this->get_product_light($supplier_product_id);
+            $supplier_product = $this->get_product($supplier_product_id, 'basic');
             // TODO: test this
             $is_available = $this->is_available($supplier_product);
 
@@ -226,8 +241,8 @@ class Supplier_T14 extends Supplier
         foreach ($items['data'] as $item) {
             $sku = $item['meta']['sku'];
             $woo_id = isset($lookup_woo_id[$sku]) ? $lookup_woo_id[$sku] : false;
-            if(!$woo_id){
-                error_log('no sku for '.$item['data']['id']);
+            if (!$woo_id) {
+                error_log('no sku for ' . $item['data']['id']);
             }
         }
 
@@ -357,9 +372,9 @@ class Supplier_T14 extends Supplier
             $stats = ['insert' => 0, 'update' => 0, 'delete' => 0, 'ignore' => 0];
 
             foreach ($products as $i => $supplier_product) {
-                if ($this->background_process->should_stop) {
-                    break;
-                }
+                // if ($this->background_process->should_stop) {
+                break;
+                // }
                 // $supplier_product_id = $supplier_product['data']['id'];
                 $action = isset($supplier_product['meta']['action']) ? $supplier_product['meta']['action'] : '';
                 // $woo_id = $supplier_product['meta']['woo_id'];
@@ -1337,17 +1352,20 @@ class Supplier_T14 extends Supplier
     //     return $this->get_products_page($cursor, $size, $updated);
     // }
 
-    public function get_product_light($supplier_product_id)
-    {
-        return $this->get_api("/items/{$supplier_product_id}");
-    }
+    // public function get_product_light($supplier_product_id)
+    // {
+    //     return $this->get_api("/items/{$supplier_product_id}");
+    // }
 
-    public function get_product($supplier_product_id)
+    public function get_product($supplier_product_id, $flag = 'full')
     {
         $response = $this->get_api("/items/{$supplier_product_id}");
+
         if (isset($response['error'])) {
             return $response;
-        } else {
+        }
+
+        if ($flag === 'full' || $flag === 'pdp') {
             $item_data = $this->get_api("/items/data/{$supplier_product_id}");
             $fitments = $this->get_api("/items/fitment/{$supplier_product_id}");
             $pricing = $this->get_api("/pricing/{$supplier_product_id}");

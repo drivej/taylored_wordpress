@@ -17,3 +17,5 @@ wp-content/plugins/ci-store-plugin/logs/T14_LOG.log
 wp-content/plugins/ci-store-plugin/logs/PATCH_PRODUCTS_LOG.log
 wp-content/debug.log
 wp-content/debug.log
+wp-content/plugins/woocommerce-payments
+wp-content/debug.log

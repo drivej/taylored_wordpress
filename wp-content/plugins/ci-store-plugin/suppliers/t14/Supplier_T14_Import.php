@@ -1,100 +1,22 @@
 <?php
 
-trait Supplier_WPS_Import
+trait Supplier_T14_Import
 {
-    private string $start_import_action_hook_name = '';
-    private string $import_loop_action_hook_name = '';
+    // TODO: Merge this with t14 import code
+    
+    // private string $import_hook_name = '';
+    private string $import_loop_action = '';
+    private string $start_import_action = '';
     private string $import_option_name = '';
     private string $default_updated_at = '2023-01-01';
 
-    // constructor for this trait
-    public function construct_import()
+    protected function init_import_actions()
     {
-        // error_log('construct_import()');
-        $this->start_import_action_hook_name = "{$this->key}_import_products_init_action";
-        $this->import_loop_action_hook_name = "{$this->key}_import_products_loop_action";
-        $this->import_option_name = "{$this->key}_import_status";
-
-        add_action($this->start_import_action_hook_name, [$this, 'start_import_action_test'], 10);
-        add_action($this->import_loop_action_hook_name, [$this, 'import_loop_action_test'], 10);
-    }
-
-    public function check_import_actions()
-    {
-        error_log('check_import_actions()');
-        $has_action = has_action($this->start_import_action_hook_name, [$this, 'start_import_action_test']);
-        if (!$has_action) {
-            error_log('create action ' . 'start_import_action_test');
-            add_action($this->start_import_action_hook_name, [$this, 'start_import_action_test'], 10);
-        } else {
-            error_log('has action ' . 'start_import_action_test');
-        }
-        $has_action = has_action($this->import_loop_action_hook_name, [$this, 'import_loop_action_test']);
-        if (!$has_action) {
-            error_log('create action ' . 'import_loop_action_test');
-            add_action($this->import_loop_action_hook_name, [$this, 'import_loop_action_test'], 10);
-        } else {
-            error_log('has action ' . 'import_loop_action_test');
-        }
-    }
-
-    public function create_scheduled_import()
-    {
-        // this kick off nightly import
-        error_log('schedule_import()');
-        $next_scheduled = wp_next_scheduled($this->start_import_action_hook_name);
-        if (!$next_scheduled) {
-            $timestamp = strtotime('today midnight') - get_option('gmt_offset') * HOUR_IN_SECONDS;
-            $scheduled = wp_schedule_event($timestamp, 'daily', $this->start_import_action_hook_name);
-            if (!is_wp_error($scheduled)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public function cancel_scheduled_import()
-    {
-        // cancel nightly import
-        error_log('cancel_scheduled_import()');
-        $next_scheduled = wp_next_scheduled($this->start_import_action_hook_name);
-        if ($next_scheduled) {
-            $cancelled = wp_unschedule_event($next_scheduled, $this->start_import_action_hook_name);
-            if (!is_wp_error($cancelled)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public function start_import()
-    {
-        error_log('start_import()');
-        $this->check_import_actions();
-        do_action($this->start_import_action_hook_name);
-    }
-
-    public function start_import_action_test()
-    {
-        error_log('start_import_action_test()');
-
-        // $this->check_import_actions();
-
-        $has_action = has_action($this->import_loop_action_hook_name, [$this, 'import_loop_action_test']);
-        error_log('$has_action: ' . json_encode($has_action));
-        if ($has_action) {
-            error_log('Action found');
-            $is_scheduled = wp_schedule_single_event(time() + 10, $this->import_loop_action_hook_name);
-        } else {
-            error_log('No action found');
-        }
-
-        error_log('scheduled: ' . json_encode($is_scheduled));
-    }
-
-    public function import_loop_action_test()
-    {
-        error_log('import_loop_action_test()');
+        $this->start_import_action = "{$this->key}_import_products_init_action";
+        // $this->import_hook_name = "{$this->key}_import_products_page_action";
+        $this->import_option_name = "import_status_{$this->key}";
+        add_action($this->start_import_action, [$this, 'start_import'], 10);
+        add_action($this->import_loop_action, [$this, 'import_loop'], 10);
     }
 
     protected function get_default_info()
@@ -114,17 +36,61 @@ trait Supplier_WPS_Import
         ];
     }
 
+    // this kicks off the big import each week
+    public function init_import()
+    {
+        // create weekely import event
+        $next_scheduled = wp_next_scheduled($this->start_import_action);
+        if (!$next_scheduled) {
+            error_log('init_import() - create scheduled event');
+            $timestamp = strtotime('today midnight') - get_option('gmt_offset') * HOUR_IN_SECONDS;
+            wp_schedule_event($timestamp, 'daily', $this->start_import_action);
+        } else {
+            error_log('init_import() - failed ' . $next_scheduled);
+        }
+    }
+
     public function get_next_import_time()
     {
-        $next_scheduled = wp_next_scheduled($this->start_import_action_hook_name);
+        $next_scheduled = wp_next_scheduled($this->start_import_action);
         if ($next_scheduled) {
             return ['data' => date("Y-m-d H:i:s", $next_scheduled)];
         }
         return ['data' => false];
     }
 
+    public function create_scheduled_import()
+    {
+        error_log('schedule_import()');
+        $next_scheduled = wp_next_scheduled($this->start_import_action);
+        if (!$next_scheduled) {
+            $timestamp = strtotime('today midnight') - get_option('gmt_offset') * HOUR_IN_SECONDS;
+            $scheduled = wp_schedule_event($timestamp, 'daily', $this->start_import_action);
+            if (!is_wp_error($scheduled)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function cancel_scheduled_import()
+    {
+        error_log('cancel_scheduled_import()');
+        $next_scheduled = wp_next_scheduled($this->start_import_action);
+        if ($next_scheduled) {
+            $cancelled = wp_unschedule_event($next_scheduled, $this->import_loop_name);
+            if (!is_wp_error($cancelled)) {
+                return true;
+                // error_log('wp_unschedule_event failed ' . json_encode($cancelled));
+            }
+            // } else {
+            //     error_log('not scheduled');
+        }
+        return false;
+    }
+
     // this is the first function that fires to begin the import loop
-    public function start_import_action()
+    public function start_import()
     {
         $is_scheduled = (bool) wp_next_scheduled($this->import_loop_action);
         if ($is_scheduled) {
@@ -152,38 +118,30 @@ trait Supplier_WPS_Import
         $info['processed'] = 0;
         $info['running'] = true;
         $info['status'] = 'running';
-        update_option($this->import_option_name, $info);
-
-        error_log('total_products: ' . $info['total_products']);
 
         if ($info['total_products'] === 0) {
-            $info['running'] = false;
-            $info['status'] = 'idle';
             error_log('Nothing to update');
-        } else {
-            // get the first page and cursor
-            $items = $this->import_products_page($info['cursor'], $info['updated_at']);
-            $ids = is_array($items['data']) ? array_map(fn($item) => $item['id'], $items['data']) : [];
-            $next_cursor = is_string($items['meta']['cursor']['next']) && strlen($items['meta']['cursor']['next']) ? $items['meta']['cursor']['next'] : false;
-            error_log('start_import() - ' . json_encode($ids));
-            $info['running'] = false;
-
-            if ($next_cursor) {
-                $info['cursor'] = $next_cursor;
-                $is_scheduled = wp_schedule_single_event(time(), $this->import_loop_action_hook_name);
-                error_log('start_import() - schedule first loop $is_scheduled=' . json_encode($is_scheduled));
-            } else {
-                error_log('start_import() - no next cursor');
-            }
         }
-        update_option($this->import_option_name, $info);
+        // get the first page and cursor
+        $items = $this->import_products_page($info['cursor'], $info['updated_at']);
+        $ids = is_array($items['data']) ? array_map(fn($item) => $item['id'], $items['data']) : [];
+        $next_cursor = is_string($items['meta']['cursor']['next']) && strlen($items['meta']['cursor']['next']) ? $items['meta']['cursor']['next'] : false;
+        error_log('start_import() - ' . json_encode($ids));
+
+        if ($next_cursor) {
+            $info['cursor'] = $next_cursor;
+            $info['running'] = false;
+            update_option($this->import_option_name, $info);
+            wp_schedule_single_event(time(), $this->import_loop_action);
+        } else {
+            error_log('start_import() - failed');
+        }
         return $info;
     }
 
     // this is the recursive import function
-    public function import_loop_action()
+    public function import_loop()
     {
-        error_log('import_loop()');
         $info = $this->get_import_info();
         $next_cursor = false;
         $ids = [];
@@ -240,7 +198,7 @@ trait Supplier_WPS_Import
         } else if (is_string($next_cursor)) {
             // indicates valid cursor
             $info['cursor'] = $next_cursor;
-            wp_schedule_single_event(time(), $this->import_loop_action_hook_name);
+            wp_schedule_single_event(time(), $this->import_loop_action);
         } else if (is_null($next_cursor)) {
             // null indicates end of pagination
             $info['status'] = 'complete';
@@ -253,6 +211,53 @@ trait Supplier_WPS_Import
         }
         update_option($this->import_option_name, $info);
     }
+
+    // public function start_import()
+    // {
+    //     // check if import is scheduled
+    //     $is_scheduled = (bool) wp_next_scheduled($this->import_hook_name);
+    //     $schedule = -1;
+
+    //     if ($is_scheduled) {
+    //         $message = 'busy';
+    //     } else {
+    //         $info = get_option($this->import_option_name, $this->get_default_info());
+    //         $is_running = $info['running'] === true;
+
+    //         // check if import is running
+    //         if ($is_running) {
+    //             $age = WooTools::get_age($info['started'], 'seconds');
+    //             if ($age > 30) {
+    //                 $info['attempt']++;
+    //                 if ($info['attempt'] < 2) {
+    //                     update_option($this->import_option_name, $info);
+    //                     $message = 'start_import() - attempt ' . $info['attempt'];
+    //                     // return ['error' => 'import is running'];
+    //                 } else {
+    //                     $info['status'] = 'stalled';
+    //                     update_option($this->import_option_name, $this->get_default_info());
+    //                     $message = 'start_import() - stalled';
+    //                     // return ['error' => 'import is running'];
+    //                 }
+    //             } else {
+    //                 $message = 'start_import() - stand by';
+    //                 // return ['error' => 'import is running'];
+    //             }
+    //         } else {
+    //             if ($info['cursor'] === false) {
+    //                 update_option($this->import_option_name, $this->get_default_info());
+    //                 $schedule = wp_schedule_single_event(time(), $this->import_hook_name);
+    //                 $message = 'start_import() - new import';
+    //             } else {
+    //                 $info['stopping'] = false;
+    //                 update_option($this->import_option_name, $info);
+    //                 $schedule = wp_schedule_single_event(time(), $this->import_hook_name);
+    //                 $message = 'start_import() - continue import';
+    //             }
+    //         }
+    //     }
+    //     return ['message' => $message, 'schedule' => $schedule];
+    // }
 
     public function import_hook_action()
     {
@@ -352,13 +357,50 @@ trait Supplier_WPS_Import
         return get_option($this->import_option_name);
     }
 
+    // public function check_import()
+    // {
+    //     // error_log('check_import()');
+    //     $is_scheduled = (bool) wp_next_scheduled($this->import_hook_name);
+
+    //     if (!$is_scheduled) {
+    //         $info = get_option($this->import_option_name, $this->get_default_info());
+    //         $is_running = $info['running'] === true;
+
+    //         if ($is_running) {
+    //             $age = WooTools::get_age($info['started'], 'seconds');
+    //             if ($age > 30) {
+    //                 $info['attempt']++;
+    //                 if ($info['attempt'] < 2) {
+    //                     update_option($this->import_option_name, $info);
+    //                     error_log('check_import() - attempt ' . $info['attempt']);
+    //                 } else {
+    //                     $info['status'] = 'stalled';
+    //                     update_option($this->import_option_name, $this->get_default_info());
+    //                     error_log('check_import() - stalled');
+    //                 }
+    //             }
+    //         } else {
+    //             if ($info['cursor'] === false) {
+    //                 update_option($this->import_option_name, $this->get_default_info());
+    //                 error_log('check_import() - completed');
+    //             } else {
+    //                 error_log('check_import() - schedule update');
+    //                 wp_schedule_single_event(time(), $this->import_hook_name);
+    //             }
+    //         }
+    //     }
+    // }
+
     public function get_import_info()
     {
+        // $GLOBALS['wp_object_cache']->delete($this->import_option_name, 'options');
         wp_cache_delete($this->import_option_name, 'options');
         $info = get_option($this->import_option_name);
         $info['is_scheduled'] = (bool) wp_next_scheduled($this->import_loop_action);
+        // $info['is_scheduled'] = wp_next_scheduled($this->import_hook_name);
         $date = strtotime($info['started']);
         $info['age'] = $this->time_until($date);
+        // $info['age'] = WooTools::get_age($info['started'], 'seconds') . 's';
         return $info;
     }
 
@@ -373,26 +415,24 @@ trait Supplier_WPS_Import
 
     public function stop_import()
     {
+        wp_cache_delete($this->import_option_name, 'options');
         $info = $this->get_import_info();
-        $default_info = $this->get_default_info();
 
         if ($info['running']) {
             $age = WooTools::get_age($info['started'], 'minutes');
             if ($age > 5) {
                 // stalled
                 $info = $this->get_default_info();
-                update_option($this->import_option_name, [ ...$default_info, ...$info]);
+                update_option($this->import_option_name, $info);
             } else {
                 $info['stopping'] = true;
                 $info['updated'] = gmdate("c");
-                update_option($this->import_option_name, [ ...$default_info, ...$info]);
+                update_option($this->import_option_name, $info);
             }
-        } else {
-            update_option($this->import_option_name, [ ...$default_info, ...$info]);
         }
 
         if ($info['is_scheduled']) {
-            wp_unschedule_event($info['is_scheduled'], $this->import_loop_action_hook_name);
+            wp_unschedule_event($info['is_scheduled'], $this->import_loop_name);
         }
 
         return $info;
