@@ -2,6 +2,8 @@
 
 namespace CIStore\Admin;
 
+include_once CI_STORE_PLUGIN . 'utils/get_age.php';
+
 function copyright()
 {
     ?>
@@ -73,4 +75,21 @@ function render_ci_store_plugin_ui()
         document.addEventListener("DOMContentLoaded", () => CIStore.render('ci-store-plugin-container'));
     </script>
     <?php
+}
+
+function custom_manage_product_posts_columns($columns)
+{
+    // Add last imported column to admin products table
+    $columns['last_import'] = 'Imported';
+    return $columns;
+}
+
+function custom_manage_product_posts_custom_column($column, $post_id)
+{
+    // Show age of product since last import
+    if ($column === 'last_import') {
+        $imported = get_post_meta($post_id, '_ci_import_timestamp', true);
+        $text = $imported?\CIStore\Utils\get_age($imported)->format('%d d') : '?';
+        echo $text;
+    }
 }

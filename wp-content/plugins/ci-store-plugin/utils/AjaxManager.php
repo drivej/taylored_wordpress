@@ -9,7 +9,7 @@ class AjaxManager
 
     public function __construct()
     {
-        add_action('wp_ajax_ci_api_handler', array($this, 'handle_ajax')); //'handle_ajax_scheduled_events_api');
+        add_action('wp_ajax_ci_api_handlerx', array($this, 'handle_ajax')); //'handle_ajax_scheduled_events_api');
 
         // any function in the AjaxHandlers namespace is added as a ajax endpoint
         $allFunctions = get_defined_functions();
@@ -29,10 +29,10 @@ class AjaxManager
         // $this->add('get_actions', 'get_actions');
     }
 
-    public function get_actions()
-    {
-        return $this->actions;
-    }
+    // public function get_actions()
+    // {
+    //     return $this->actions;
+    // }
 
     /**
      * @param string $cmd

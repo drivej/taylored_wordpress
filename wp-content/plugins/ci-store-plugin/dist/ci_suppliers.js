@@ -11527,7 +11527,7 @@ const SupplierImportStatusPage = ({ supplier_key }) => {
     return react.createElement(LoadingPage, null);
 };
 const SupplierImportStatus = ({ supplier }) => {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+    var _a, _b, _c, _d, _e;
     const queryClient = useQueryClient();
     const totalProducts = useTotalProducts(supplier.key);
     const totalRemoteProducts = useTotalRemoteProducts(supplier.key);
@@ -11537,24 +11537,28 @@ const SupplierImportStatus = ({ supplier }) => {
         supplier_key: supplier.key,
         func: 'get_import_info'
     };
-    const data = useWordpressAjax(query, { refetchInterval: 50000 });
-    const total_products = (_b = (_a = data === null || data === void 0 ? void 0 : data.data) === null || _a === void 0 ? void 0 : _a.total_products) !== null && _b !== void 0 ? _b : 1;
-    const processed_products = (_d = (_c = data === null || data === void 0 ? void 0 : data.data) === null || _c === void 0 ? void 0 : _c.processed) !== null && _d !== void 0 ? _d : 0;
-    const percent_complete = (100 * processed_products) / total_products;
+    const dataPoll = useWordpressAjax(query, { refetchInterval: 5000 });
+    const [importInfo, setImportInfo] = (0,react.useState)({ status: 0 });
+    (0,react.useEffect)(() => {
+        setImportInfo(dataPoll.data);
+    }, [dataPoll.data]);
+    const refresh = () => {
+        supplierAction.mutate('get_import_info', { onSettled: setImportInfo });
+    };
     const supplierAction = useMutation({
         mutationFn: (func) => fetchWordpressAjax(Object.assign(Object.assign({}, query), { func }))
     });
     const startImport = () => {
-        supplierAction.mutate('start_import', { onSettled: () => queryClient.invalidateQueries() });
+        supplierAction.mutate('start_import', { onSettled: setImportInfo });
     };
     const stopImport = () => {
-        supplierAction.mutate('stop_import', { onSettled: () => queryClient.invalidateQueries() });
+        supplierAction.mutate('stop_import', { onSettled: setImportInfo });
     };
     const continueImport = () => {
-        supplierAction.mutate('continue_import', { onSettled: () => queryClient.invalidateQueries() });
+        supplierAction.mutate('continue_import', { onSettled: setImportInfo });
     };
     const resetImport = () => {
-        supplierAction.mutate('reset_import', { onSettled: () => queryClient.invalidateQueries() });
+        supplierAction.mutate('reset_import', { onSettled: setImportInfo });
     };
     const [nextImport, setNextImport] = (0,react.useState)('');
     const getNextImportTime = () => SupplierImportStatus_awaiter(void 0, void 0, void 0, function* () {
@@ -11583,32 +11587,48 @@ const SupplierImportStatus = ({ supplier }) => {
             cancelScheduledImport();
         }
     };
-    const canStart = ((_e = data === null || data === void 0 ? void 0 : data.data) === null || _e === void 0 ? void 0 : _e.running) === false && ((_f = data === null || data === void 0 ? void 0 : data.data) === null || _f === void 0 ? void 0 : _f.is_scheduled) === false;
-    if (data.isSuccess) {
-        const is_running = data.isSuccess ? data.data.running || data.data.is_scheduled : false;
+    const progress = ((_a = importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) !== null && _a !== void 0 ? _a : 0) * 100;
+    const canStart = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === false;
+    const canStop = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === true;
+    const canReset = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === false && typeof (importInfo === null || importInfo === void 0 ? void 0 : importInfo.started) === 'string';
+    const canContinue = canStart && (importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) > 0;
+    const active = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === true;
+    const progressBarClasses = ['progress-bar'];
+    if (active) {
+        progressBarClasses.push(...['progress-bar-striped', 'progress-bar-animated']);
+        if (progress === 0) {
+            progressBarClasses.push('bg-warning');
+        }
+    }
+    else {
+        progressBarClasses.push('bg-secondary');
+    }
+    if (dataPoll.isSuccess) {
+        // const is_running = data.isSuccess ? data.data.running || data.data.is_scheduled : false;
+        // data.isSuccess ? data.data.running || data.data.is_scheduled : false;
         return (react.createElement("div", { className: 'd-flex flex-column gap-4' },
             react.createElement("div", { className: 'border rounded shadow-sm p-4' },
                 react.createElement("div", { className: 'd-flex flex-column gap-3' },
                     react.createElement("h5", null, "Import Status"),
                     react.createElement("div", { className: 'progress', role: 'progressbar' },
-                        react.createElement("div", { className: `progress-bar ${is_running ? 'progress-bar-striped progress-bar-animated' : 'bg-secondary'}`, style: { width: `${percent_complete}%` } })),
+                        react.createElement("div", { className: progressBarClasses.join(' '), style: { width: `${progress === 0 ? 100 : progress}%` } })),
                     react.createElement("div", { className: 'btn-group', style: { width: 'min-content' } },
                         react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: startImport }, "Start"),
-                        react.createElement("button", { disabled: canStart, className: 'btn btn-sm btn-secondary', onClick: stopImport }, "Stop"),
-                        react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: resetImport }, "Reset"),
-                        react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: continueImport }, "Continue")),
+                        react.createElement("button", { disabled: !canStop, className: 'btn btn-sm btn-secondary', onClick: stopImport }, "Stop"),
+                        react.createElement("button", { disabled: !canReset, className: 'btn btn-sm btn-secondary', onClick: resetImport }, "Reset"),
+                        react.createElement("button", { disabled: !canContinue, className: 'btn btn-sm btn-secondary', onClick: continueImport }, "Continue")),
                     react.createElement("div", { className: 'd-flex justify-content-between' },
                         react.createElement("div", null,
                             "Imported: ",
-                            react.createElement("b", null, (_g = totalProducts === null || totalProducts === void 0 ? void 0 : totalProducts.data) !== null && _g !== void 0 ? _g : '-')),
+                            react.createElement("b", null, (_b = totalProducts === null || totalProducts === void 0 ? void 0 : totalProducts.data) !== null && _b !== void 0 ? _b : '-')),
                         react.createElement("div", null,
                             "Total: ",
-                            react.createElement("b", null, (_h = totalRemoteProducts === null || totalRemoteProducts === void 0 ? void 0 : totalRemoteProducts.data) !== null && _h !== void 0 ? _h : '-')),
+                            react.createElement("b", null, (_c = totalRemoteProducts === null || totalRemoteProducts === void 0 ? void 0 : totalRemoteProducts.data) !== null && _c !== void 0 ? _c : '-')),
                         react.createElement("div", null,
                             "Processed:",
                             ' ',
-                            react.createElement("b", null, (_k = (_j = data === null || data === void 0 ? void 0 : data.data) === null || _j === void 0 ? void 0 : _j.processed) !== null && _k !== void 0 ? _k : '-',
-                                " / ", (_m = (_l = data === null || data === void 0 ? void 0 : data.data) === null || _l === void 0 ? void 0 : _l.total_products) !== null && _m !== void 0 ? _m : '-'))))),
+                            react.createElement("b", null, (_d = importInfo === null || importInfo === void 0 ? void 0 : importInfo.processed) !== null && _d !== void 0 ? _d : '-',
+                                " / ", (_e = importInfo === null || importInfo === void 0 ? void 0 : importInfo.total) !== null && _e !== void 0 ? _e : '-'))))),
             react.createElement("div", { className: `border rounded shadow-sm p-4 ${nextImport === 'never' ? 'bg-warning' : ''}` },
                 react.createElement("div", { className: 'd-flex flex-column gap-3' },
                     react.createElement("div", null,
@@ -11620,7 +11640,7 @@ const SupplierImportStatus = ({ supplier }) => {
                             react.createElement("label", { className: 'switch' },
                                 react.createElement("input", { type: 'checkbox', checked: nextImport !== 'never', onChange: onChangeAutoImport }),
                                 react.createElement("span", { className: 'slider round' })))))),
-            react.createElement("pre", null, JSON.stringify({ data, is_running, canStart }, null, 2))));
+            react.createElement("pre", null, JSON.stringify({ importInfo, is_running: active, canStart }, null, 2))));
     }
     return react.createElement(LoadingPage, null);
 };

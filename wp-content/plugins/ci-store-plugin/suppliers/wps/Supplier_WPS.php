@@ -57,7 +57,7 @@ class Supplier_WPS extends Supplier
         ]);
         // $this->background_process = new Supplier_WPS_Background_Process($this, $this->key);
         $this->deep_debug = false;
-        $this->construct_import();
+        // $this->construct_import();
     }
 
     public static function instance()

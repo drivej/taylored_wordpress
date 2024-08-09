@@ -1,5 +1,7 @@
 <?php
 
+namespace CIStore\Utils;
+
 class ReactSubpage
 {
     public $key = '';

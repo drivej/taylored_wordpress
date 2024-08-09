@@ -108,6 +108,7 @@ trait Supplier_WPS_Import
             'status' => 'idle',
             'stopping' => false,
             'started' => gmdate("c"),
+            'updated' => gmdate("c"),
             'completed' => false,
             'processed' => 0,
             'total_products' => 0,
@@ -377,8 +378,8 @@ trait Supplier_WPS_Import
         $default_info = $this->get_default_info();
 
         if ($info['running']) {
-            $age = WooTools::get_age($info['started'], 'minutes');
-            if ($age > 5) {
+            $age = WooTools::get_age($info['updated']);
+            if ($age->i > 5) {
                 // stalled
                 $info = $this->get_default_info();
                 update_option($this->import_option_name, [ ...$default_info, ...$info]);
