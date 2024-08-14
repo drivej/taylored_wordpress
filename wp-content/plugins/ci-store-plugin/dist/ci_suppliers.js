@@ -11622,7 +11622,8 @@ const SupplierImportStatus = ({ supplier }) => {
         action: 'ci_api_handler',
         cmd: 'supplier_action',
         supplier_key: supplier.key,
-        func: 'get_import_info'
+        func: 'get_import_info',
+        func_group: 'importer',
     };
     const dataPoll = useWordpressAjax(query, { refetchInterval: 5000 });
     const [importInfo, setImportInfo] = (0,react.useState)({ status: 0 });

@@ -3,10 +3,11 @@
 namespace CIStore\Suppliers;
 
 // include_once CI_STORE_PLUGIN . 'suppliers/wps/Supplier_WPS.php';
+include_once CI_STORE_PLUGIN . 'utils/get_age.php';
 
 class ImportManager
 {
-    protected $id;
+    protected $id = 'none';
     protected $import_start_hook;
     protected $import_loop_hook;
     protected $import_complete_hook;
@@ -18,7 +19,6 @@ class ImportManager
     public function __construct(
         $id
     ) {
-        // error_log("ImportManager::__construct('{$id}')");
         $this->id = $id;
         $this->import_start_hook = "CIStore\Suppliers\\{$id}\start_import";
         $this->import_loop_hook = "CIStore\Suppliers\\{$id}\import_loop";
@@ -37,6 +37,7 @@ class ImportManager
      */
     protected static $_instance = null;
 
+    // no worky for child class
     public static function instance($id)
     {
         if (is_null(self::$_instance)) {
@@ -60,6 +61,17 @@ class ImportManager
         }
         if (!has_action($this->import_complete_hook, [$this, 'import_complete'])) {
             add_action($this->import_complete_hook, [$this, 'import_complete'], 10);
+        }
+        if (!has_action($this->import_kill_hook, [$this, 'kill_import_events'])) {
+            add_action($this->import_kill_hook, [$this, 'kill_import_events'], 10);
+        }
+
+        $info = $this->get_import_info();
+        if ($info['stopping'] && $info['processing']) {
+            $age = \CIStore\Utils\get_age($info['updated'], 'minutes');
+            if ($age > 10) {
+                $this->stop_processing();
+            }
         }
     }
 
@@ -210,8 +222,8 @@ class ImportManager
 
     public function schedule($hook)
     {
-        if(!has_action($this->import_loop_hook)){
-            error_log('no hook!!!'.$hook);
+        if (!has_action($this->import_loop_hook)) {
+            error_log('no hook!!!' . $hook);
         }
         $scheduled = wp_next_scheduled($hook);
         if (!$scheduled) {
@@ -220,7 +232,7 @@ class ImportManager
                 error_log('fail schedule() ' . $hook);
                 return false;
             }
-            error_log('schedule() ' . $hook);
+            // error_log('schedule() ' . $hook);
             return true;
         }
         return false;

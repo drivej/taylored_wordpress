@@ -26,7 +26,7 @@ include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_API.ph
 // include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Cronjob.php';
 // include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Background_Process.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Brands.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Import.php';
+// include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Import.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Data.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Taxonomy.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_ImportManager.php';
@@ -37,9 +37,10 @@ class Supplier_WPS extends Supplier
     use Supplier_WPS_API;
     // use Supplier_WPS_Cronjob;
     use Supplier_WPS_Brands;
-    use Supplier_WPS_Import;
+    // use Supplier_WPS_Import;
     use Supplier_WPS_Data;
     use Supplier_WPS_Taxonomy;
+    use Supplier_WPS_ImportManager;
 
     // protected WPSImportManager $importManager;
     /**
@@ -62,11 +63,6 @@ class Supplier_WPS extends Supplier
         // $this->importManager = WPSImportManager::instance($this->key);
         $this->deep_debug = false;
         // $this->construct_import();
-    }
-
-    public function importer()
-    {
-        return new WPSImportManager(); //::instance($this->key);
     }
 
     public static function instance()
@@ -205,95 +201,78 @@ class Supplier_WPS extends Supplier
 
     public function import_products_page($cursor = '', $updated_at = null)
     {
-        $items = $this->process_items_load($cursor, $updated_at);
+        $updated_at = $updated_at ?? $this->default_updated_at;
+        $items = $this->get_products_page($cursor, 'pdp', $updated_at);
         $items = $this->process_items_native($items);
         return $items;
     }
 
-    private function process_items_load($cursor, $updated_at = null)
-    {
-        $updated_at = $updated_at ?? $this->default_updated_at;
-        // error_log("process_items_load(" . json_encode($cursor) . ", {$size}, {$updated_at})");
+    // private function process_items_format($items)
+    // {
+    //     if (!WooTools::is_valid_array($items['data'])) {
+    //         return $items;
+    //     }
+    //     // master lookups
+    //     $items['meta']['skus'] = [];
+    //     $items['meta']['post_names'] = [];
+    //     $items['meta']['images'] = [];
+    //     $items['meta']['attachments'] = [];
 
-        // attempt to load all at once
-        // error_log('single page load ' . $cursor);
-        return $this->get_products_page($cursor, 'pdp', $updated_at);
-        // $items = $this->load_products_page($cursor, $page_size, $updated_at);
+    //     foreach ($items['data'] as $i => &$product) {
+    //         $product = ['meta' => [], 'data' => $product];
+    //         $supplier_product_id = $product['data']['id'];
+    //         $product['meta']['woo_id'] = 0;
+    //         $product['meta']['sku'] = $this->get_product_sku($supplier_product_id);
+    //         $product['meta']['product_type'] = $this->get_product_type($product);
+    //         $product['meta']['post'] = [];
+    //         $product['meta']['metadata'] = [];
+    //         $product['meta']['is_available'] = $this->is_available($product);
+    //         $product['meta']['title'] = $this->get_product_name($product);
+    //         $product['meta']['slug'] = $this->build_product_slug($supplier_product_id, $product['meta']['title']);
+    //         $product['meta']['slug_search'] = '-' . $this->build_product_slug($supplier_product_id);
+    //         $product['meta']['price'] = $this->get_product_price($product);
+    //         $product['meta']['images'] = [];
+    //         $product['meta']['image'] = 0;
+    //         $product['meta']['prices'] = []; //array_map([$this, 'get_item_price'], $product['data']['items']['data']);
+    //         $product['meta']['attributes'] = [];
+    //         $product['meta']['product_cats'] = [];
+    //         $product['meta']['product_tags'] = [];
+    //         $product['meta']['variations'] = [];
+    //         // master lookups
+    //         $items['meta']['skus'][] = $product['meta']['sku'];
+    //         $items['meta']['post_names'][] = $product['meta']['slug_search'];
 
-        // if single load fails -> chunk products to avoid response limit
-        // if (!is_array($items['data'])) {
-        //     error_log('chunking product load' . $cursor);
-        //     $items = $this->chunk_products_page($cursor, $page_size, $updated_at);
-        // }
-        // return $items;
-    }
-
-    private function process_items_format($items)
-    {
-        if (!WooTools::is_valid_array($items['data'])) {
-            return $items;
-        }
-        // master lookups
-        $items['meta']['skus'] = [];
-        $items['meta']['post_names'] = [];
-        $items['meta']['images'] = [];
-        $items['meta']['attachments'] = [];
-
-        foreach ($items['data'] as $i => &$product) {
-            $product = ['meta' => [], 'data' => $product];
-            $supplier_product_id = $product['data']['id'];
-            $product['meta']['woo_id'] = 0;
-            $product['meta']['sku'] = $this->get_product_sku($supplier_product_id);
-            $product['meta']['product_type'] = $this->get_product_type($product);
-            $product['meta']['post'] = [];
-            $product['meta']['metadata'] = [];
-            $product['meta']['is_available'] = $this->is_available($product);
-            $product['meta']['title'] = $this->get_product_name($product);
-            $product['meta']['slug'] = $this->build_product_slug($supplier_product_id, $product['meta']['title']);
-            $product['meta']['slug_search'] = '-' . $this->build_product_slug($supplier_product_id);
-            $product['meta']['price'] = $this->get_product_price($product);
-            $product['meta']['images'] = [];
-            $product['meta']['image'] = 0;
-            $product['meta']['prices'] = []; //array_map([$this, 'get_item_price'], $product['data']['items']['data']);
-            $product['meta']['attributes'] = [];
-            $product['meta']['product_cats'] = [];
-            $product['meta']['product_tags'] = [];
-            $product['meta']['variations'] = [];
-            // master lookups
-            $items['meta']['skus'][] = $product['meta']['sku'];
-            $items['meta']['post_names'][] = $product['meta']['slug_search'];
-
-            foreach ($product['data']['items']['data'] as &$variation) {
-                $supplier_variation_id = $variation['id'];
-                $variation['meta'] = [];
-                $variation['meta']['woo_id'] = 0;
-                $variation['meta']['sku'] = $this->get_variation_sku($supplier_product_id, $supplier_variation_id);
-                $variation['meta']['product_type'] = 'variation';
-                $variation['meta']['post'] = [];
-                $variation['meta']['metadata'] = [];
-                $variation['meta']['name'] = ucwords(strtolower($variation['name']));
-                $variation['meta']['price'] = $this->get_item_price($variation);
-                $variation['meta']['slug'] = $this->build_product_slug($supplier_product_id, $variation['meta']['name'], $supplier_variation_id);
-                $variation['meta']['slug_search'] = '-' . $this->build_product_slug($supplier_product_id, null, $supplier_variation_id);
-                $variation['meta']['images'] = $this->get_item_images($variation, 500);
-                $variation['meta']['image'] = $this->resize_image($variation['meta']['images'][0] ?? 0, 500); //count($variation['meta']['images']) ? $variation['meta']['images'][0] : 0;
-                $product['meta']['prices'][] = $variation['meta']['price'];
-                // $product['meta']['variations'][] = $variation['meta'];
-                $product['meta']['images'] = array_merge($product['meta']['images'], $variation['meta']['images']);
-                // master lookups
-                $items['meta']['skus'][] = $variation['meta']['sku'];
-                $items['meta']['post_names'][] = $variation['meta']['slug_search'];
-                $items['meta']['images'] = array_merge($items['meta']['images'], $variation['meta']['images']);
-                $items['meta']['attachments'] = array_merge($items['meta']['attachments'], array_map(fn($img) => $this->convert_image_to_attachment_data($img), $variation['images']['data'] ?? []));
-                // $items['meta']['attachments'] = array_merge($items['meta']['attachments'], $variation['images']['data']);
-            }
-            // need to gather images from items first
-            $product['meta']['image'] = $this->resize_image($product['meta']['images'][0] ?? 0, 500); //count($product['meta']['images']) ? $product['meta']['images'][0] : 0;
-            unset($product['meta']['images']);
-            $product['meta']['prices'] = array_unique($product['meta']['prices']);
-        }
-        return $items;
-    }
+    //         foreach ($product['data']['items']['data'] as &$variation) {
+    //             $supplier_variation_id = $variation['id'];
+    //             $variation['meta'] = [];
+    //             $variation['meta']['woo_id'] = 0;
+    //             $variation['meta']['sku'] = $this->get_variation_sku($supplier_product_id, $supplier_variation_id);
+    //             $variation['meta']['product_type'] = 'variation';
+    //             $variation['meta']['post'] = [];
+    //             $variation['meta']['metadata'] = [];
+    //             $variation['meta']['name'] = ucwords(strtolower($variation['name']));
+    //             $variation['meta']['price'] = $this->get_item_price($variation);
+    //             $variation['meta']['slug'] = $this->build_product_slug($supplier_product_id, $variation['meta']['name'], $supplier_variation_id);
+    //             $variation['meta']['slug_search'] = '-' . $this->build_product_slug($supplier_product_id, null, $supplier_variation_id);
+    //             $variation['meta']['images'] = $this->get_item_images($variation, 500);
+    //             $variation['meta']['image'] = $this->resize_image($variation['meta']['images'][0] ?? 0, 500); //count($variation['meta']['images']) ? $variation['meta']['images'][0] : 0;
+    //             $product['meta']['prices'][] = $variation['meta']['price'];
+    //             // $product['meta']['variations'][] = $variation['meta'];
+    //             $product['meta']['images'] = array_merge($product['meta']['images'], $variation['meta']['images']);
+    //             // master lookups
+    //             $items['meta']['skus'][] = $variation['meta']['sku'];
+    //             $items['meta']['post_names'][] = $variation['meta']['slug_search'];
+    //             $items['meta']['images'] = array_merge($items['meta']['images'], $variation['meta']['images']);
+    //             $items['meta']['attachments'] = array_merge($items['meta']['attachments'], array_map(fn($img) => $this->convert_image_to_attachment_data($img), $variation['images']['data'] ?? []));
+    //             // $items['meta']['attachments'] = array_merge($items['meta']['attachments'], $variation['images']['data']);
+    //         }
+    //         // need to gather images from items first
+    //         $product['meta']['image'] = $this->resize_image($product['meta']['images'][0] ?? 0, 500); //count($product['meta']['images']) ? $product['meta']['images'][0] : 0;
+    //         unset($product['meta']['images']);
+    //         $product['meta']['prices'] = array_unique($product['meta']['prices']);
+    //     }
+    //     return $items;
+    // }
 
     private function convert_image_to_attachment_data($image)
     {
@@ -308,370 +287,370 @@ class Supplier_WPS extends Supplier
         ];
     }
 
-    private function process_items_filter($items)
-    {
-        $items['data'] = array_filter($items['data'], [$this, 'is_available']);
-        $items['meta']['available'] = count($items['data']);
-        return $items;
-    }
+    // private function process_items_filter($items)
+    // {
+    //     $items['data'] = array_filter($items['data'], [$this, 'is_available']);
+    //     $items['meta']['available'] = count($items['data']);
+    //     return $items;
+    // }
 
-    private function process_items_sync($items)
-    {
-        $lookup_attachment = WooTools::attachment_data_to_postids($items['meta']['attachments']);
-        $items['meta']['lookup_attachment'] = $lookup_attachment;
+    // private function process_items_sync($items)
+    // {
+    //     $lookup_attachment = WooTools::attachment_data_to_postids($items['meta']['attachments']);
+    //     $items['meta']['lookup_attachment'] = $lookup_attachment;
 
-        $skus = $items['meta']['skus']; //array_map(fn($item) => $item['meta']['sku'], $items['data']);
-        $lookup_woo_id = WooTools::lookup_woo_ids_by_skus($skus);
+    //     $skus = $items['meta']['skus']; //array_map(fn($item) => $item['meta']['sku'], $items['data']);
+    //     $lookup_woo_id = WooTools::lookup_woo_ids_by_skus($skus);
 
-        $woo_ids = array_values($lookup_woo_id);
-        $meta_tags_lookup = WooTools::get_metas($woo_ids, ['_ci_update_plp', '_ci_update_pdp', '_ci_import_version', '_thumbnail_id']);
+    //     $woo_ids = array_values($lookup_woo_id);
+    //     $meta_tags_lookup = WooTools::get_metas($woo_ids, ['_ci_update_plp', '_ci_update_pdp', '_ci_import_version', '_thumbnail_id']);
 
-        $post_names = $items['meta']['post_names'];
-        $lookup_woo_id_by_name = WooTools::lookup_woo_ids_by_name($post_names);
+    //     $post_names = $items['meta']['post_names'];
+    //     $lookup_woo_id_by_name = WooTools::lookup_woo_ids_by_name($post_names);
 
-        $items['meta']['lookup_woo_id'] = $lookup_woo_id;
-        $items['meta']['lookup_woo_id_by_name'] = $lookup_woo_id_by_name;
-        $items['meta']['posts'] = [];
-        $items['meta']['variations_posts'] = [];
-        $items['meta']['metadata'] = [];
-        $items['meta']['slugs'] = [];
-        $items['meta']['product_cat_slugs'] = [];
-        $items['meta']['delete_products'] = [];
+    //     $items['meta']['lookup_woo_id'] = $lookup_woo_id;
+    //     $items['meta']['lookup_woo_id_by_name'] = $lookup_woo_id_by_name;
+    //     $items['meta']['posts'] = [];
+    //     $items['meta']['variations_posts'] = [];
+    //     $items['meta']['metadata'] = [];
+    //     $items['meta']['slugs'] = [];
+    //     $items['meta']['product_cat_slugs'] = [];
+    //     $items['meta']['delete_products'] = [];
 
-        foreach ($items['data'] as &$product) {
-            $product_id = $product['data']['id'];
-            $is_available = $this->is_available($product);
-            $stock_status = $is_available ? 'instock' : 'outofstock';
-            $sku = $product['meta']['sku'];
-            $slug = $product['meta']['slug'];
-            $woo_id = isset($lookup_woo_id[$sku]) ? $lookup_woo_id[$sku] : (isset($lookup_woo_id_by_name[$slug]) ? $lookup_woo_id_by_name[$slug] : 0);
+    //     foreach ($items['data'] as &$product) {
+    //         $product_id = $product['data']['id'];
+    //         $is_available = $this->is_available($product);
+    //         $stock_status = $is_available ? 'instock' : 'outofstock';
+    //         $sku = $product['meta']['sku'];
+    //         $slug = $product['meta']['slug'];
+    //         $woo_id = isset($lookup_woo_id[$sku]) ? $lookup_woo_id[$sku] : (isset($lookup_woo_id_by_name[$slug]) ? $lookup_woo_id_by_name[$slug] : 0);
 
-            if ($is_available) {
-                $metatags = isset($meta_tags_lookup[$woo_id]) ? $meta_tags_lookup[$woo_id] : [];
-                $is_simple = count($product['data']['items']['data']) === 1;
+    //         if ($is_available) {
+    //             $metatags = isset($meta_tags_lookup[$woo_id]) ? $meta_tags_lookup[$woo_id] : [];
+    //             $is_simple = count($product['data']['items']['data']) === 1;
 
-                $product['meta']['metatags'] = $metatags;
-                $product['meta']['woo_id'] = $woo_id;
-                $product['meta']['is_available'] = $is_available;
-                $product['meta']['metadata']['_sku'] = $sku;
-                $product['meta']['metadata']['_ci_product_id'] = $product_id;
-                $product['meta']['metadata']['_thumbnail_id'] = $items['meta']['lookup_attachment'][$product['meta']['image']];
-                $product['meta']['metadata']['_price'] = $product['meta']['prices'][0] ?? 0;
-                $product['meta']['metadata']['_regular_price'] = $product['meta']['prices'][0] ?? 0;
-                $product['meta']['metadata']['_product_type'] = $is_simple ? 'simple' : 'variable';
-                $product['meta']['metadata']['_stock_status'] = $stock_status;
-                $product['meta']['tags'] = []; // TODO: kill this
+    //             $product['meta']['metatags'] = $metatags;
+    //             $product['meta']['woo_id'] = $woo_id;
+    //             $product['meta']['is_available'] = $is_available;
+    //             $product['meta']['metadata']['_sku'] = $sku;
+    //             $product['meta']['metadata']['_ci_product_id'] = $product_id;
+    //             $product['meta']['metadata']['_thumbnail_id'] = $items['meta']['lookup_attachment'][$product['meta']['image']];
+    //             $product['meta']['metadata']['_price'] = $product['meta']['prices'][0] ?? 0;
+    //             $product['meta']['metadata']['_regular_price'] = $product['meta']['prices'][0] ?? 0;
+    //             $product['meta']['metadata']['_product_type'] = $is_simple ? 'simple' : 'variable';
+    //             $product['meta']['metadata']['_stock_status'] = $stock_status;
+    //             $product['meta']['tags'] = []; // TODO: kill this
 
-                $items['meta']['slugs'][] = $slug;
+    //             $items['meta']['slugs'][] = $slug;
 
-                if ($is_simple) {
-                    //
-                } else {
-                    foreach ($product['data']['items']['data'] as $i => &$variation) {
-                        $variation_id = $variation['id'];
-                        $variation_sku = $variation['meta']['sku'];
-                        $variation_slug = $variation['meta']['slug'];
-                        $variation['meta']['attributes'] = [];
-                        $variation_woo_id = isset($lookup_woo_id[$variation_sku]) ? $lookup_woo_id[$variation_sku] : (isset($lookup_woo_id_by_name[$variation_slug]) ? $lookup_woo_id_by_name[$variation_slug] : 0);
-                        $variation['meta']['woo_id'] = $variation_woo_id;
+    //             if ($is_simple) {
+    //                 //
+    //             } else {
+    //                 foreach ($product['data']['items']['data'] as $i => &$variation) {
+    //                     $variation_id = $variation['id'];
+    //                     $variation_sku = $variation['meta']['sku'];
+    //                     $variation_slug = $variation['meta']['slug'];
+    //                     $variation['meta']['attributes'] = [];
+    //                     $variation_woo_id = isset($lookup_woo_id[$variation_sku]) ? $lookup_woo_id[$variation_sku] : (isset($lookup_woo_id_by_name[$variation_slug]) ? $lookup_woo_id_by_name[$variation_slug] : 0);
+    //                     $variation['meta']['woo_id'] = $variation_woo_id;
 
-                        $items['meta']['slugs'][] = $variation_slug;
+    //                     $items['meta']['slugs'][] = $variation_slug;
 
-                        $term_name = $variation['product_type'];
-                        $term_slug = sanitize_title($variation['product_type']);
+    //                     $term_name = $variation['product_type'];
+    //                     $term_slug = sanitize_title($variation['product_type']);
 
-                        // Terms: product_cats
-                        $product['meta']['tags'][$term_slug] = ['id' => 0, 'slug' => $term_slug, 'name' => $term_name];
+    //                     // Terms: product_cats
+    //                     $product['meta']['tags'][$term_slug] = ['id' => 0, 'slug' => $term_slug, 'name' => $term_name];
 
-                        $items['meta']['product_cat_slugs'][$term_slug] = 0;
+    //                     $items['meta']['product_cat_slugs'][$term_slug] = 0;
 
-                        foreach ($variation['taxonomyterms']['data'] ?? [] as $term) {
-                            $term_name = $term['name'];
-                            $term_slug = sanitize_title($term['slug']);
-                            $product['meta']['tags'][$term_slug] = ['id' => 0, 'slug' => $term_slug, 'name' => $term_name];
-                            $items['meta']['product_cat_slugs'][$term_slug] = 0;
+    //                     foreach ($variation['taxonomyterms']['data'] ?? [] as $term) {
+    //                         $term_name = $term['name'];
+    //                         $term_slug = sanitize_title($term['slug']);
+    //                         $product['meta']['tags'][$term_slug] = ['id' => 0, 'slug' => $term_slug, 'name' => $term_name];
+    //                         $items['meta']['product_cat_slugs'][$term_slug] = 0;
 
-                            $product['meta']['product_cats'][$term_slug] = $term_name;
-                        }
+    //                         $product['meta']['product_cats'][$term_slug] = $term_name;
+    //                     }
 
-                        $variation['meta']['post']['post_parent'] = 0;
-                        $variation['meta']['post']['post_title'] = $variation['meta']['name'];
-                        $variation['meta']['post']['post_excerpt'] = $this->get_short_description($product);
-                        $variation['meta']['post']['post_name'] = $variation_slug;
-                        $variation['meta']['post']['post_content'] = $this->get_description($product);
-                        $variation['meta']['post']['guid'] = home_url() . "/product/{$variation_slug}";
-                        $variation['meta']['post']['post_type'] = 'product_variation';
-                        $variation['meta']['post']['menu_order'] = $i + 1;
-                        $variation['meta']['post']['comment_status'] = 'closed';
+    //                     $variation['meta']['post']['post_parent'] = 0;
+    //                     $variation['meta']['post']['post_title'] = $variation['meta']['name'];
+    //                     $variation['meta']['post']['post_excerpt'] = $this->get_short_description($product);
+    //                     $variation['meta']['post']['post_name'] = $variation_slug;
+    //                     $variation['meta']['post']['post_content'] = $this->get_description($product);
+    //                     $variation['meta']['post']['guid'] = home_url() . "/product/{$variation_slug}";
+    //                     $variation['meta']['post']['post_type'] = 'product_variation';
+    //                     $variation['meta']['post']['menu_order'] = $i + 1;
+    //                     $variation['meta']['post']['comment_status'] = 'closed';
 
-                        $variation['meta']['metadata']['_sku'] = $variation_sku;
-                        $variation['meta']['metadata']['_stock_status'] = $stock_status;
-                        $variation['meta']['metadata']['_ci_product_id'] = $variation_id;
-                        $variation['meta']['metadata']['_regular_price'] = $variation['meta']['price'];
-                        $variation['meta']['metadata']['_price'] = $variation['meta']['price'];
-                        $variation['meta']['metadata']['_thumbnail_id'] = $items['meta']['lookup_attachment'][$variation['meta']['image']];
+    //                     $variation['meta']['metadata']['_sku'] = $variation_sku;
+    //                     $variation['meta']['metadata']['_stock_status'] = $stock_status;
+    //                     $variation['meta']['metadata']['_ci_product_id'] = $variation_id;
+    //                     $variation['meta']['metadata']['_regular_price'] = $variation['meta']['price'];
+    //                     $variation['meta']['metadata']['_price'] = $variation['meta']['price'];
+    //                     $variation['meta']['metadata']['_thumbnail_id'] = $items['meta']['lookup_attachment'][$variation['meta']['image']];
 
-                        if (!$variation_woo_id) {
-                        } else {
-                            // update variation
-                            if (!$is_available) {
-                                $variation['meta']['metadata']['_stock_status'] = $stock_status;
-                            }
-                        }
+    //                     if (!$variation_woo_id) {
+    //                     } else {
+    //                         // update variation
+    //                         if (!$is_available) {
+    //                             $variation['meta']['metadata']['_stock_status'] = $stock_status;
+    //                         }
+    //                     }
 
-                        if ($product['meta']['product_type'] === 'variable') {
-                            $attributekeys = $product['data']['attributekeys']['data'] ?? [];
-                            if (count($attributekeys)) {
-                                // seems like we have real facets
-                                error_log('real attributes ' . $product_id);
-                            } else {
-                                // No meanigful attributes are available -> we have to use sku as a facet - this is ridiculous
-                                $attributekeys[] = [];
-                                $attr_name = sanitize_title('SKU');
-                                $attr_slug = sanitize_title($attr_name);
-                                $attr_value = $variation['sku'];
-                                $attr_key = "attribute_{$attr_slug}";
+    //                     if ($product['meta']['product_type'] === 'variable') {
+    //                         $attributekeys = $product['data']['attributekeys']['data'] ?? [];
+    //                         if (count($attributekeys)) {
+    //                             // seems like we have real facets
+    //                             error_log('real attributes ' . $product_id);
+    //                         } else {
+    //                             // No meanigful attributes are available -> we have to use sku as a facet - this is ridiculous
+    //                             $attributekeys[] = [];
+    //                             $attr_name = sanitize_title('SKU');
+    //                             $attr_slug = sanitize_title($attr_name);
+    //                             $attr_value = $variation['sku'];
+    //                             $attr_key = "attribute_{$attr_slug}";
 
-                                if (!$product['meta']['attributes'][$attr_slug]) {
-                                    $product['meta']['attributes'][$attr_slug] = ['name' => $attr_name, 'options' => []];
-                                }
-                                $product['meta']['attributes'][$attr_slug]['options'][] = $attr_value;
-                                $variation['meta']['attributes'][$attr_slug] = $attr_value;
-                                $variation['meta']['metadata'][$attr_key] = $attr_value;
-                            }
-                        }
+    //                             if (!$product['meta']['attributes'][$attr_slug]) {
+    //                                 $product['meta']['attributes'][$attr_slug] = ['name' => $attr_name, 'options' => []];
+    //                             }
+    //                             $product['meta']['attributes'][$attr_slug]['options'][] = $attr_value;
+    //                             $variation['meta']['attributes'][$attr_slug] = $attr_value;
+    //                             $variation['meta']['metadata'][$attr_key] = $attr_value;
+    //                         }
+    //                     }
 
-                        $product['meta']['variations'][] = $variation['meta'];
-                    }
-                }
+    //                     $product['meta']['variations'][] = $variation['meta'];
+    //                 }
+    //             }
 
-                $product['meta']['post']['post_parent'] = 0;
-                $product['meta']['post']['post_title'] = $product['meta']['title'];
-                $product['meta']['post']['post_name'] = $product['meta']['slug'];
-                $product['meta']['post']['post_content'] = $this->get_description($product);
-                $product['meta']['post']['guid'] = home_url() . "/product/{$product['meta']['slug']}";
-                $product['meta']['post']['post_type'] = 'product';
+    //             $product['meta']['post']['post_parent'] = 0;
+    //             $product['meta']['post']['post_title'] = $product['meta']['title'];
+    //             $product['meta']['post']['post_name'] = $product['meta']['slug'];
+    //             $product['meta']['post']['post_content'] = $this->get_description($product);
+    //             $product['meta']['post']['guid'] = home_url() . "/product/{$product['meta']['slug']}";
+    //             $product['meta']['post']['post_type'] = 'product';
 
-                if ($product['meta']['product_type'] === 'variable') {
-                    foreach ($product['meta']['attributes'] as $attr_slug => &$attr) {
-                        $attr['value'] = implode(' | ', array_unique($attr['options']));
-                        $attr['position'] = 0;
-                        $attr['is_visible'] = 1;
-                        $attr['is_variation'] = 1;
-                        $attr['is_taxonomy'] = 0;
-                        unset($attr['options']);
-                    }
-                    // $attributes = [];
-                    // foreach ($product['meta']['attributes'] as $attr_slug => $attr) {
-                    //     $attributes[$attr_slug] = [
-                    //         'name' => $attr['name'],
-                    //         'value' => implode(' | ', array_unique($attr['options'])),
-                    //         'position' => 0,
-                    //         'is_visible' => 1,
-                    //         'is_variation' => 1,
-                    //         'is_taxonomy' => 0,
-                    //     ];
-                    // }
+    //             if ($product['meta']['product_type'] === 'variable') {
+    //                 foreach ($product['meta']['attributes'] as $attr_slug => &$attr) {
+    //                     $attr['value'] = implode(' | ', array_unique($attr['options']));
+    //                     $attr['position'] = 0;
+    //                     $attr['is_visible'] = 1;
+    //                     $attr['is_variation'] = 1;
+    //                     $attr['is_taxonomy'] = 0;
+    //                     unset($attr['options']);
+    //                 }
+    //                 // $attributes = [];
+    //                 // foreach ($product['meta']['attributes'] as $attr_slug => $attr) {
+    //                 //     $attributes[$attr_slug] = [
+    //                 //         'name' => $attr['name'],
+    //                 //         'value' => implode(' | ', array_unique($attr['options'])),
+    //                 //         'position' => 0,
+    //                 //         'is_visible' => 1,
+    //                 //         'is_variation' => 1,
+    //                 //         'is_taxonomy' => 0,
+    //                 //     ];
+    //                 // }
 
-                    $product['meta']['metadata']['_product_attributes'] = serialize($product['meta']['attributes']);
-                    $product['meta']['metadata']['_stock_status'] = 'outofstock'; // TODO: alert
-                }
-            } else {
-                if ($woo_id) {
-                    // delete post
-                    $items['meta']['delete_products'] = [$woo_id];
-                }
-            }
-        }
+    //                 $product['meta']['metadata']['_product_attributes'] = serialize($product['meta']['attributes']);
+    //                 $product['meta']['metadata']['_stock_status'] = 'outofstock'; // TODO: alert
+    //             }
+    //         } else {
+    //             if ($woo_id) {
+    //                 // delete post
+    //                 $items['meta']['delete_products'] = [$woo_id];
+    //             }
+    //         }
+    //     }
 
-        // $SAVE_DATA = false;
-        $DEBUG_MODE = false;
-        $dummy_woo_id = 100;
-        $lookup_product = [];
-        $lookup_variation = [];
+    //     // $SAVE_DATA = false;
+    //     $DEBUG_MODE = false;
+    //     $dummy_woo_id = 100;
+    //     $lookup_product = [];
+    //     $lookup_variation = [];
 
-        // $items['meta']['save'] = $SAVE_DATA;
+    //     // $items['meta']['save'] = $SAVE_DATA;
 
-        // Terms: find/create product_cat
-        $found = get_terms(['slug' => array_keys($items['meta']['product_cat_slugs']), 'taxonomy' => 'product_cat', 'hide_empty' => false]);
-        unset($items['meta']['product_cat_slugs']);
-        $lookup_term = array_column($found, 'term_id', 'slug');
-        $items['meta']['lookup_term'] = $lookup_term;
+    //     // Terms: find/create product_cat
+    //     $found = get_terms(['slug' => array_keys($items['meta']['product_cat_slugs']), 'taxonomy' => 'product_cat', 'hide_empty' => false]);
+    //     unset($items['meta']['product_cat_slugs']);
+    //     $lookup_term = array_column($found, 'term_id', 'slug');
+    //     $items['meta']['lookup_term'] = $lookup_term;
 
-        // gather all new products
-        $product_posts = [];
-        foreach ($items['data'] as &$product) {
-            if (!$product['meta']['woo_id']) {
-                if (count($product['meta']['post'])) {
-                    $product_posts[] = $product['meta']['post'];
-                }
-                if ($DEBUG_MODE) {
-                    $lookup_product[$product['meta']['slug']] = $dummy_woo_id++;
-                }
-            }
-        }
-        // add new products
-        if (!$DEBUG_MODE) {
-            $lookup_product = WooTools::insert_unique_posts($product_posts);
-        }
-        $items['meta']['product_posts'] = $product_posts;
-        $items['meta']['lookup_product'] = $lookup_product;
+    //     // gather all new products
+    //     $product_posts = [];
+    //     foreach ($items['data'] as &$product) {
+    //         if (!$product['meta']['woo_id']) {
+    //             if (count($product['meta']['post'])) {
+    //                 $product_posts[] = $product['meta']['post'];
+    //             }
+    //             if ($DEBUG_MODE) {
+    //                 $lookup_product[$product['meta']['slug']] = $dummy_woo_id++;
+    //             }
+    //         }
+    //     }
+    //     // add new products
+    //     if (!$DEBUG_MODE) {
+    //         $lookup_product = WooTools::insert_unique_posts($product_posts);
+    //     }
+    //     $items['meta']['product_posts'] = $product_posts;
+    //     $items['meta']['lookup_product'] = $lookup_product;
 
-        // gather all the metadata
-        $variation_posts = [];
-        $hydrated_metadata = [];
+    //     // gather all the metadata
+    //     $variation_posts = [];
+    //     $hydrated_metadata = [];
 
-        foreach ($items['data'] as &$product) {
-            // assign woo_id to each product
-            if (!$product['meta']['woo_id']) {
-                $product['meta']['action'] = 'insert';
-                $product['meta']['woo_id'] = $lookup_product[$product['meta']['slug']] ?? 0;
-            } else {
-                $product['meta']['action'] = 'update';
-            }
-            foreach ($product['meta']['variations'] as &$variation) {
-                $variation['post']['post_parent'] = $product['meta']['woo_id'];
-                if (!$variation['woo_id']) {
-                    if (count($variation['post'])) {
-                        $variation_posts[] = $variation['post'];
-                    }
-                    if ($DEBUG_MODE) {
-                        $lookup_variation[$variation['slug']] = $dummy_woo_id++;
-                    }
-                }
-            }
-        }
+    //     foreach ($items['data'] as &$product) {
+    //         // assign woo_id to each product
+    //         if (!$product['meta']['woo_id']) {
+    //             $product['meta']['action'] = 'insert';
+    //             $product['meta']['woo_id'] = $lookup_product[$product['meta']['slug']] ?? 0;
+    //         } else {
+    //             $product['meta']['action'] = 'update';
+    //         }
+    //         foreach ($product['meta']['variations'] as &$variation) {
+    //             $variation['post']['post_parent'] = $product['meta']['woo_id'];
+    //             if (!$variation['woo_id']) {
+    //                 if (count($variation['post'])) {
+    //                     $variation_posts[] = $variation['post'];
+    //                 }
+    //                 if ($DEBUG_MODE) {
+    //                     $lookup_variation[$variation['slug']] = $dummy_woo_id++;
+    //                 }
+    //             }
+    //         }
+    //     }
 
-        WooTools::delete_edit_locks();
+    //     WooTools::delete_edit_locks();
 
-        if (!$DEBUG_MODE) {
-            $lookup_variation = WooTools::insert_unique_posts($variation_posts);
-        }
-        $items['meta']['variation_posts'] = $variation_posts;
-        $items['meta']['lookup_variation'] = $lookup_variation;
+    //     if (!$DEBUG_MODE) {
+    //         $lookup_variation = WooTools::insert_unique_posts($variation_posts);
+    //     }
+    //     $items['meta']['variation_posts'] = $variation_posts;
+    //     $items['meta']['lookup_variation'] = $lookup_variation;
 
-        foreach ($items['data'] as $product) {
-            foreach ($product['meta']['variations'] as &$variation) {
-                // assign woo_id to each variation
-                if (!$variation['woo_id']) {
-                    $variation['action'] = 'insert';
-                    $variation['woo_id'] = $lookup_variation[$variation['slug']] ?? 0;
-                } else {
-                    $variation['action'] = 'update';
-                }
-            }
-        }
+    //     foreach ($items['data'] as $product) {
+    //         foreach ($product['meta']['variations'] as &$variation) {
+    //             // assign woo_id to each variation
+    //             if (!$variation['woo_id']) {
+    //                 $variation['action'] = 'insert';
+    //                 $variation['woo_id'] = $lookup_variation[$variation['slug']] ?? 0;
+    //             } else {
+    //                 $variation['action'] = 'update';
+    //             }
+    //         }
+    //     }
 
-        $hydrated_metadata = [];
-        // $hydrated_variation_metadata = [];
+    //     $hydrated_metadata = [];
+    //     // $hydrated_variation_metadata = [];
 
-        // $test = [];
+    //     // $test = [];
 
-        foreach ($items['data'] as $product) {
-            // $test[] = [
-            //     'post_id' => $product['meta']['woo_id'],
-            //     'metadata' => $product['meta']['metadata'],
-            // ];
-            array_push($hydrated_metadata, ...WooTools::hydrate_metadata($product['meta']['woo_id'], $product['meta']['metadata']));
-            // $hydrated_metadata = array_merge($hydrated_metadata, WooTools::hydrate_metadata($product['meta']['woo_id'], $product['meta']['metadata']));
-            // if ($product['meta']['action'] === 'insert') {
-            array_push($hydrated_metadata, ...WooTools::hydrate_metadata($product['meta']['woo_id'], $this->get_base_metadata()));
-            // }
-            foreach ($product['meta']['variations'] as $variation) {
-                // $test[] = [
-                //     'post_id' => $variation['woo_id'],
-                //     'metadata' => $variation['metadata'],
-                // ];
-                array_push($hydrated_metadata, ...WooTools::hydrate_metadata($variation['woo_id'], $variation['metadata']));
-                // if ($variation['action'] === 'insert') {
-                array_push($hydrated_metadata, ...WooTools::hydrate_metadata($variation['woo_id'], $this->get_base_metadata()));
-                // }
-            }
-        }
+    //     foreach ($items['data'] as $product) {
+    //         // $test[] = [
+    //         //     'post_id' => $product['meta']['woo_id'],
+    //         //     'metadata' => $product['meta']['metadata'],
+    //         // ];
+    //         array_push($hydrated_metadata, ...WooTools::hydrate_metadata($product['meta']['woo_id'], $product['meta']['metadata']));
+    //         // $hydrated_metadata = array_merge($hydrated_metadata, WooTools::hydrate_metadata($product['meta']['woo_id'], $product['meta']['metadata']));
+    //         // if ($product['meta']['action'] === 'insert') {
+    //         array_push($hydrated_metadata, ...WooTools::hydrate_metadata($product['meta']['woo_id'], $this->get_base_metadata()));
+    //         // }
+    //         foreach ($product['meta']['variations'] as $variation) {
+    //             // $test[] = [
+    //             //     'post_id' => $variation['woo_id'],
+    //             //     'metadata' => $variation['metadata'],
+    //             // ];
+    //             array_push($hydrated_metadata, ...WooTools::hydrate_metadata($variation['woo_id'], $variation['metadata']));
+    //             // if ($variation['action'] === 'insert') {
+    //             array_push($hydrated_metadata, ...WooTools::hydrate_metadata($variation['woo_id'], $this->get_base_metadata()));
+    //             // }
+    //         }
+    //     }
 
-        foreach ($hydrated_metadata as &$meta) {
-            $success = update_metadata('post', $meta['post_id'], $meta['meta_key'], $meta['meta_value']);
-            $meta['saved'] = $success;
-        }
-        // return $hydrated_metadata;
+    //     foreach ($hydrated_metadata as &$meta) {
+    //         $success = update_metadata('post', $meta['post_id'], $meta['meta_key'], $meta['meta_value']);
+    //         $meta['saved'] = $success;
+    //     }
+    //     // return $hydrated_metadata;
 
-        // foreach ($test as $a) {
-        //     foreach ($a['metadata'] as $k => $v) {
-        //         $success = update_post_meta($a['post_id'], $k, $v);
-        //         // update_metadata( 'post', $a['post_id'], $meta_key, $meta_value, $prev_value = '' )
-        //         error_log(implode(' | ', [$success ? 'success' : 'fail', $a['post_id'], $k, $v]));
-        //     }
-        // }
-        $items['meta']['hydrated_metadata'] = $hydrated_metadata;
-        // $items['meta']['hydrated_variation_metadata'] = $hydrated_variation_metadata;
+    //     // foreach ($test as $a) {
+    //     //     foreach ($a['metadata'] as $k => $v) {
+    //     //         $success = update_post_meta($a['post_id'], $k, $v);
+    //     //         // update_metadata( 'post', $a['post_id'], $meta_key, $meta_value, $prev_value = '' )
+    //     //         error_log(implode(' | ', [$success ? 'success' : 'fail', $a['post_id'], $k, $v]));
+    //     //     }
+    //     // }
+    //     $items['meta']['hydrated_metadata'] = $hydrated_metadata;
+    //     // $items['meta']['hydrated_variation_metadata'] = $hydrated_variation_metadata;
 
-        if (!$DEBUG_MODE) {
-            $items['meta']['metadata_result'] = WooTools::insert_unique_metas($hydrated_metadata);
-            // $items['meta']['variation_metadata_result'] = WooTools::insert_unique_metas($hydrated_variation_metadata);
-        }
+    //     if (!$DEBUG_MODE) {
+    //         $items['meta']['metadata_result'] = WooTools::insert_unique_metas($hydrated_metadata);
+    //         // $items['meta']['variation_metadata_result'] = WooTools::insert_unique_metas($hydrated_variation_metadata);
+    //     }
 
-        $product_lookups = [];
-        foreach ($items['data'] as $product) {
-            $product_lookups[] = [
-                'product_id' => $product['meta']['woo_id'],
-                'sku' => $product['meta']['metadata']['_sku'],
-                'price' => $product['meta']['metadata']['_price'],
-                // 'virtual'] ?? 0;
-                // 'downloadable'] ?? 0;
-                // 'min_price'] ?? $meta['price'] ?? 0;
-                // 'max_price'] ?? $meta['price'] ?? 0;
-                // 'onsale'] ?? 0;
-                // 'stock_quantity'] ?? 100;
-                // 'stock_status'] ?? 'instock';
-                // 'rating_count'] ?? 0;
-                // 'average_rating'] ?? 0;
-                // 'total_sales'] ?? 0;
-            ];
-        }
+    //     $product_lookups = [];
+    //     foreach ($items['data'] as $product) {
+    //         $product_lookups[] = [
+    //             'product_id' => $product['meta']['woo_id'],
+    //             'sku' => $product['meta']['metadata']['_sku'],
+    //             'price' => $product['meta']['metadata']['_price'],
+    //             // 'virtual'] ?? 0;
+    //             // 'downloadable'] ?? 0;
+    //             // 'min_price'] ?? $meta['price'] ?? 0;
+    //             // 'max_price'] ?? $meta['price'] ?? 0;
+    //             // 'onsale'] ?? 0;
+    //             // 'stock_quantity'] ?? 100;
+    //             // 'stock_status'] ?? 'instock';
+    //             // 'rating_count'] ?? 0;
+    //             // 'average_rating'] ?? 0;
+    //             // 'total_sales'] ?? 0;
+    //         ];
+    //     }
 
-        WooTools::insert_product_meta_lookup($product_lookups);
-        $items['meta']['delete_products_result'] = WooTools::delete_products($items['meta']['delete_products']);
+    //     WooTools::insert_product_meta_lookup($product_lookups);
+    //     $items['meta']['delete_products_result'] = WooTools::delete_products($items['meta']['delete_products']);
 
-        // return $test;
-        return $items;
-    }
+    //     // return $test;
+    //     return $items;
+    // }
 
-    private function process_items_test($items)
-    {
-        $types = [];
-        foreach ($items['data'] as &$product) {
-            $woo_id = $product['meta']['woo_id'];
-            $woo_product = wc_get_product_object('variable', $woo_id);
-            $product_type = $woo_product->get_type();
-            $woo_product->save();
-            // set_type
-            $types[$woo_id] = ['type' => $product_type, 'children' => $woo_product->get_children()];
-        }
-        return $types;
-    }
+    // private function process_items_test($items)
+    // {
+    //     $types = [];
+    //     foreach ($items['data'] as &$product) {
+    //         $woo_id = $product['meta']['woo_id'];
+    //         $woo_product = wc_get_product_object('variable', $woo_id);
+    //         $product_type = $woo_product->get_type();
+    //         $woo_product->save();
+    //         // set_type
+    //         $types[$woo_id] = ['type' => $product_type, 'children' => $woo_product->get_children()];
+    //     }
+    //     return $types;
+    // }
 
-    private function process_items_declutter($items)
-    {
-        // declutter unused properties
-        WooTools::deep_unset_key($items, 'created_at');
-        WooTools::deep_unset_key($items, 'updated_at');
-        WooTools::deep_unset_key($items, 'designation_id');
-        WooTools::deep_unset_key($items, 'alternate_name');
-        WooTools::deep_unset_key($items, 'care_instructions');
-        WooTools::deep_unset_key($items, 'image_360_id');
-        WooTools::deep_unset_key($items, 'image_360_preview_id');
-        WooTools::deep_unset_key($items, 'size_chart_id');
-        WooTools::deep_unset_key($items, 'sort');
-        WooTools::deep_unset_key($items, 'icon_id');
-        WooTools::deep_unset_key($items, 'has_map_policy');
-        WooTools::deep_unset_key($items, 'published_at');
-        WooTools::deep_unset_key($items, 'propd1');
-        WooTools::deep_unset_key($items, 'propd2');
-        WooTools::deep_unset_key($items, 'link_target_blank');
-        WooTools::deep_unset_key($items, 'link');
-        WooTools::deep_unset_key($items, 'vocabulary_id');
-        return $items;
-    }
+    // private function process_items_declutter($items)
+    // {
+    //     // declutter unused properties
+    //     WooTools::deep_unset_key($items, 'created_at');
+    //     WooTools::deep_unset_key($items, 'updated_at');
+    //     WooTools::deep_unset_key($items, 'designation_id');
+    //     WooTools::deep_unset_key($items, 'alternate_name');
+    //     WooTools::deep_unset_key($items, 'care_instructions');
+    //     WooTools::deep_unset_key($items, 'image_360_id');
+    //     WooTools::deep_unset_key($items, 'image_360_preview_id');
+    //     WooTools::deep_unset_key($items, 'size_chart_id');
+    //     WooTools::deep_unset_key($items, 'sort');
+    //     WooTools::deep_unset_key($items, 'icon_id');
+    //     WooTools::deep_unset_key($items, 'has_map_policy');
+    //     WooTools::deep_unset_key($items, 'published_at');
+    //     WooTools::deep_unset_key($items, 'propd1');
+    //     WooTools::deep_unset_key($items, 'propd2');
+    //     WooTools::deep_unset_key($items, 'link_target_blank');
+    //     WooTools::deep_unset_key($items, 'link');
+    //     WooTools::deep_unset_key($items, 'vocabulary_id');
+    //     return $items;
+    // }
 
     private function process_items_native($items)
     {
@@ -969,13 +948,13 @@ class Supplier_WPS extends Supplier
     //     return $category_ids;
     // }
 
-    private function get_product_type($supplier_product)
-    {
-        if (isset($supplier_product['data']['items']['data']) && is_countable($supplier_product['data']['items']['data']) && count($supplier_product['data']['items']['data']) > 1) {
-            return 'variable';
-        }
-        return 'simple';
-    }
+    // private function get_product_type($supplier_product)
+    // {
+    //     if (isset($supplier_product['data']['items']['data']) && is_countable($supplier_product['data']['items']['data']) && count($supplier_product['data']['items']['data']) > 1) {
+    //         return 'variable';
+    //     }
+    //     return 'simple';
+    // }
 
     private function get_product_name($supplier_product)
     {

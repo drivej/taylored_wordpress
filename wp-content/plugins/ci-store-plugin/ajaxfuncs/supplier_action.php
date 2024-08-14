@@ -19,13 +19,11 @@ function supplier_action()
         return ['error' => 'supplier not found', 'supplier_key' => $supplier_key];
     }
 
+    $func_group = $_GET['func_group'] ?? '';
+
     $func = $_GET['func'];
     if (!$func) {
         return ['error' => 'missing func', 'func' => $func];
-    }
-
-    if (!method_exists($supplier, $func)) {
-        return ['error' => 'func not found', 'func' => $func];
     }
 
     $args = $_GET['args'] ?? [];
@@ -40,48 +38,21 @@ function supplier_action()
     ksort($args);
     $args = array_values($args);
 
-    //
-    //
-
-    // switch ($func) {
-    //     case 'start_import':
-    //         return $supplier->importer()->start($args);
-    //         break;
-    //     case 'stop_import':
-    //         return $supplier->importer()->stop();
-    //         break;
-    //     case 'continue_import':
-    //         return $supplier->importer()->continue();
-    //         break;
-    //     case 'reset_import':
-    //         return $supplier->importer()->reset();
-    //         break;
-    //     case 'get_import_info':
-    //         return $supplier->importer()->get_import_info();
-    //         break;
-    // }
-
-    include_once CI_STORE_PLUGIN . 'suppliers/WPS.php';
-
-    switch ($func) {
-        case 'start_import':
-            return \CIStore\Suppliers\WPS\start_import(...$args);
-            break;
-        case 'stop_import':
-            return \CIStore\Suppliers\WPS\stop_import();
-            break;
-        case 'continue_import':
-            return \CIStore\Suppliers\WPS\continue_import();
-            break;
-        case 'reset_import':
-            return \CIStore\Suppliers\WPS\reset_import();
-            break;
-        case 'get_import_info':
-            return \CIStore\Suppliers\WPS\get_import_info();
+    // special cvase to target importer functions
+    switch ($func_group) {
+        case 'importer':
+            $importer = $supplier->get_importer();
+            if ($importer) {
+                if (method_exists($importer, $func)) {
+                    return call_user_func([$importer, $func], ...$args);
+                }
+            }
             break;
     }
-    //
-    //
+
+    if (!method_exists($supplier, $func)) {
+        return ['error' => 'func not found', 'func' => $func];
+    }
 
     try {
         $response = call_user_func([$supplier, $func], ...$args);

@@ -58,7 +58,8 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
     action: 'ci_api_handler', //
     cmd: 'supplier_action',
     supplier_key: supplier.key,
-    func: 'get_import_info'
+    func: 'get_import_info',
+    func_group: 'importer',
   };
   const dataPoll = useWordpressAjax<IImportStatus>(query, { refetchInterval: 5000 });
 

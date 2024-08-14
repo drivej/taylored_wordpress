@@ -1,6 +1,7 @@
 <?php
 
 include_once CI_STORE_PLUGIN . 'suppliers/ImportManager.php';
+include_once CI_STORE_PLUGIN . 'suppliers/wps/Supplier_WPS.php';
 
 class WPSImportManager extends CIStore\Suppliers\ImportManager {
 
@@ -14,7 +15,10 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager {
 
     protected function get_default_args()
     {
-        return ['updated_at' => '2023-01-01', 'cursor' => ''];
+        return [
+            'updated_at' => '2023-01-01',
+            'cursor' => '',
+        ];
     }
 
     protected function before_start($info)
@@ -23,23 +27,25 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager {
         $supplier = \Supplier_WPS::instance();
         $updated_at = $info['updated_at'] ?? $this->get_default_args()['updated_at'];
         $total = $supplier->get_total_remote_products($updated_at);
+        error_log('total=' . $total);
         return ['total' => $total, 'args' => ['updated_at' => $updated_at, 'cursor' => '']];
     }
 
     protected function do_process($info)
     {
-        error_log('WPSImportManager::do_process() ' . json_encode($info['args']));
+        // error_log('WPSImportManager::do_process() ' . json_encode($info['args']));
         $cursor = $info['args']['cursor'];
 
         if (is_string($cursor)) {
-            $updated_at = $info['updated_at'] ?? $this->get_default_args()['updated_at'];
+            $updated_at = $info['args']['updated_at'] ?? $this->get_default_args()['updated_at'];
             $supplier = \Supplier_WPS::instance();
 
-            $items = $supplier->get_products_page($cursor, 'basic', $updated_at);
+            // $items = $supplier->get_products_page($cursor, 'basic', $updated_at);
+            $items = $supplier->import_products_page($cursor, $updated_at);
 
             $ids = array_map(fn($item) => $item['id'], $items['data'] ?? []);
             $next_cursor = $items['meta']['cursor']['next'] ?? false;
-            // error_log('WPSImportManager::do_process() ' . json_encode(['cursor' => $cursor, 'next_cursor' => $next_cursor, 'date' => $updated_at, 'ids' => $ids]));
+            error_log('WPSImportManager::do_process() ' . json_encode(['cursor' => $cursor, 'next_cursor' => $next_cursor, 'date' => $updated_at, 'ids' => $ids]));
             $processed_delta = is_countable($items['data']) ? count($items['data']) : 0;
             $processed = $info['processed'] + $processed_delta;
             $progress = $info['total'] > 0 ? ($processed / $info['total']) : 0;
@@ -47,6 +53,10 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager {
                 'cursor' => $next_cursor,
                 'processed' => $processed,
                 'progress' => $progress,
+                'args' => [
+                     ...$info['args'],
+                    'cursor' => $next_cursor,
+                ],
             ];
         } else {
             return [
@@ -56,7 +66,14 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager {
     }
 }
 
-// trait Supplier_WPS_ImportManager
-// {
-//     protected WPSImportManager $importer = WPSImportManager::instance($this->key);
-// }
+trait Supplier_WPS_ImportManager
+{
+    private string $default_updated_at = '2023-01-01';
+    // protected WPSImportManager $importer = WPSImportManager::instance($this->key);
+
+    public function get_importer()
+    {
+        // return WPSImportManager::instance($this->key);
+        return new WPSImportManager();
+    }
+}
