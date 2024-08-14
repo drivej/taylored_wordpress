@@ -29,6 +29,7 @@ include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Brands
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Import.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Data.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Taxonomy.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_ImportManager.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Timer.php';
 
 class Supplier_WPS extends Supplier
@@ -39,6 +40,8 @@ class Supplier_WPS extends Supplier
     use Supplier_WPS_Import;
     use Supplier_WPS_Data;
     use Supplier_WPS_Taxonomy;
+
+    // protected WPSImportManager $importManager;
     /**
      * The single instance of the class.
      *
@@ -56,8 +59,14 @@ class Supplier_WPS extends Supplier
             'import_version' => '0.4',
         ]);
         // $this->background_process = new Supplier_WPS_Background_Process($this, $this->key);
+        // $this->importManager = WPSImportManager::instance($this->key);
         $this->deep_debug = false;
         // $this->construct_import();
+    }
+
+    public function importer()
+    {
+        return new WPSImportManager(); //::instance($this->key);
     }
 
     public static function instance()
@@ -80,6 +89,18 @@ class Supplier_WPS extends Supplier
     {
         $status_ids = ['DIR', 'NEW', 'STK'];
         return in_array($item['status_id'], $status_ids);
+    }
+
+    public function isValidProduct($supplier_product)
+    {
+        if (!count($supplier_product['items']['data'] ?? [])) {
+            return false;
+        }
+        $valid_items = array_filter($supplier_product['items']['data'], [$this, 'isValidItem']);
+        if (!count($valid_items)) {
+            return false;
+        }
+        return true;
     }
 
     public function update_plp_product($woo_product)
@@ -656,6 +677,11 @@ class Supplier_WPS extends Supplier
     {
         $timer = new Timer();
 
+        // tag valid products
+        // foreach ($items['data'] as &$product) {
+        //     $product['is_valid'] = $this->isValidProduct($product);
+        // }
+
         // ------------------------------------------------------------>
         // START: Bulk Images
         // ------------------------------------------------------------>
@@ -917,7 +943,7 @@ class Supplier_WPS extends Supplier
         }
 
         $exe_time = $timer->lap();
-        error_log('process_items_native ' . $exe_time);
+        // error_log('process_items_native ' . $exe_time);
         $items['exe_time'] = $exe_time;
         return $items;
     }

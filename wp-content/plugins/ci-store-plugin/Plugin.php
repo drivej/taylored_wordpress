@@ -37,7 +37,7 @@ class Plugin
         add_action('woocommerce_cart_item_thumbnail', 'CIStore\Hooks\custom_modify_cart_item_thumbnail', 10, 3);
         wp_enqueue_style('custom-store-styles', plugins_url('css/ci-styles.css', CI_STORE_PLUGIN_FILE), null, CI_VERSION);
 
-        // \CIStore\Suppliers\WPS\init();
+        // \CIStore\Suppliers\WPS\$importer->init();
         // $this->test();
         do_action('wps_init');
     }

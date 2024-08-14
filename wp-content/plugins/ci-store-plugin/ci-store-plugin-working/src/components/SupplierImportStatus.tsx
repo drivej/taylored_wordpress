@@ -1,12 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { IAjaxQuery } from '../models';
 import { ISupplierActionQuery } from '../utilities/StockPage';
 import { ISupplier, useSuppliers } from '../utilities/useSuppliers';
 import { useTotalProducts } from '../utilities/useTotalProducts';
 import { useTotalRemoteProducts } from '../utilities/useTotalRemoteProducts';
+import { since } from '../utils/datestamp';
 import { fetchWordpressAjax } from '../utils/fetchWordpressAjax';
+import { timeago } from '../utils/timeago';
 import { useWordpressAjax } from '../utils/useWordpressAjax';
 import { LoadingPage } from './LoadingPage';
 
@@ -42,6 +44,9 @@ interface IImportStatus {
   is_scheduled: boolean;
   active: boolean;
   age: string;
+  should_stop: boolean;
+  complete: boolean;
+  completed: string;
 }
 
 export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
@@ -63,28 +68,32 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
     setImportInfo(dataPoll.data);
   }, [dataPoll.data]);
 
-  const refresh = () => {
-    supplierAction.mutate('get_import_info', { onSettled: setImportInfo });
-  };
+  // const refresh = () => {
+  //   supplierAction.mutate('get_import_info', { onSettled: setImportInfo });
+  // };
 
-  const supplierAction = useMutation({
-    mutationFn: (func: string) => fetchWordpressAjax<IImportStatus, IAjaxQuery & ISupplierActionQuery>({ ...query, func })
+  const supplierAction = useMutation<IImportStatus, unknown, Partial<ISupplierActionQuery>>({
+    mutationFn: ({ func, args = [] }) => fetchWordpressAjax<IImportStatus, IAjaxQuery & ISupplierActionQuery>({ ...query, func, args })
   });
 
   const startImport = () => {
-    supplierAction.mutate('start_import', { onSettled: setImportInfo });
+    supplierAction.mutate({ func: 'start_import', args:[] }, { onSettled: setImportInfo });
   };
 
   const stopImport = () => {
-    supplierAction.mutate('stop_import', { onSettled: setImportInfo });
+    supplierAction.mutate({ func: 'stop_import' }, { onSettled: setImportInfo });
   };
 
   const continueImport = () => {
-    supplierAction.mutate('continue_import', { onSettled: setImportInfo });
+    supplierAction.mutate({ func: 'continue_import' }, { onSettled: setImportInfo });
   };
 
   const resetImport = () => {
-    supplierAction.mutate('reset_import', { onSettled: setImportInfo });
+    supplierAction.mutate({ func: 'reset_import' }, { onSettled: setImportInfo });
+  };
+
+  const updateImport = () => {
+    supplierAction.mutate({ func: 'update_import' }, { onSettled: setImportInfo });
   };
 
   const [nextImport, setNextImport] = useState('');
@@ -103,11 +112,11 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
   }, []);
 
   const createScheduledImport = () => {
-    supplierAction.mutate('create_scheduled_import', { onSettled: () => getNextImportTime() });
+    supplierAction.mutate({ func: 'create_scheduled_import' }, { onSettled: () => getNextImportTime() });
   };
 
   const cancelScheduledImport = () => {
-    supplierAction.mutate('cancel_scheduled_import', { onSettled: () => getNextImportTime() });
+    supplierAction.mutate({ func: 'cancel_scheduled_import' }, { onSettled: () => getNextImportTime() });
   };
 
   const onChangeAutoImport: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -118,22 +127,86 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
     }
   };
 
-  const progress = (importInfo?.progress ?? 0) * 100;
-  const canStart = importInfo?.active === false;
-  const canStop = importInfo?.active === true;
-  const canReset = importInfo?.active === false && typeof(importInfo?.started)==='string';
-  const canContinue = canStart && importInfo?.progress > 0;
   const active = importInfo?.active === true;
+  const canStart = importInfo?.active === false;
+  const shouldStop = importInfo?.should_stop === true;
+  const canStop = !shouldStop && importInfo?.active === true;
+  const canReset = importInfo?.active === false; // && typeof importInfo?.started === 'string';
+  const canContinue = canStart && importInfo?.progress > 0;
+  // if ((active && progress === 0) || shouldStop) progress = 100;
+  const isComplete = importInfo?.complete === true;
+  let progress = active && (importInfo?.progress === 0 || shouldStop) ? 100 : (importInfo?.progress ?? 0) * 100;
 
-  const progressBarClasses = ['progress-bar'];
-  if (active) {
-    progressBarClasses.push(...['progress-bar-striped', 'progress-bar-animated']);
-    if (progress === 0) {
-      progressBarClasses.push('bg-warning');
+  const [progressBarClasses, setProgressBarClasses] = useState(['progress-bar']);
+
+  // const progressBarClasses = ['progress-bar'];
+  // if (active) {
+  //   progressBarClasses.push(...['progress-bar-striped', 'progress-bar-animated']);
+  //   if (progress === 0) {
+  //     progressBarClasses.push('bg-warning');
+  //   } else if (shouldStop) {
+  //     progressBarClasses.push('bg-danger');
+  //   }
+  // } else {
+  //   if (isComplete) {
+  //     progressBarClasses.push('bg-success');
+  //   } else {
+  //     progressBarClasses.push('bg-secondary');
+  //   }
+  // }
+
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    if (importInfo?.complete) {
+      const count = importInfo?.processed ?? 0;
+      const updated = importInfo?.updated_at ?? '?';
+      const ago = timeago(new Date(Date.parse(importInfo?.completed))); // since(importInfo?.completed);
+
+      // setMessage(`Completed processing ${importInfo?.processed ?? 0} products updated after ${importInfo?.updated_at},  ${since(importInfo?.completed)} ago.`);
+      setMessage(`Completed. ${count} products updated since ${updated}. Updated ${ago}.`);
+    } else if (importInfo?.active === true) {
+      let started = '';
+      if (typeof importInfo?.started === 'string') {
+        started = since(importInfo?.started);
+      }
+      setMessage(`Running update ${started}...`);
+    } else {
+      setMessage('');
     }
-  } else {
-    progressBarClasses.push('bg-secondary');
-  }
+
+    //
+    //
+    //
+
+    const c = ['progress-bar'];
+    if (importInfo?.active === true) {
+      c.push(...['progress-bar-striped', 'progress-bar-animated']);
+      if (importInfo?.progress === 0) {
+        c.push('bg-warning');
+      } else if (importInfo?.should_stop === true) {
+        c.push('bg-danger');
+      }
+    } else {
+      if (importInfo?.complete === true) {
+        c.push('bg-success');
+      } else {
+        c.push('bg-secondary');
+      }
+    }
+    setProgressBarClasses(c);
+  }, [importInfo]);
+
+  const $cursorInput = useRef<HTMLInputElement>();
+  const [cursor, setCursor] = useState('w4Ae7lQGM1zE');
+  const $updatedAtInput = useRef<HTMLInputElement>();
+  const [updatedAt, setUpdatedAt] = useState('2024-03-01');
+
+  const customCursor = () => {
+    const cursor = $cursorInput.current.value;
+    const updatedAt = $updatedAtInput.current.value;
+    supplierAction.mutate({ func: 'start_import', args: [updatedAt, cursor] }, { onSettled: setImportInfo });
+  };
 
   if (dataPoll.isSuccess) {
     // const is_running = data.isSuccess ? data.data.running || data.data.is_scheduled : false;
@@ -145,8 +218,10 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
           <div className='d-flex flex-column gap-3'>
             <h5>Import Status</h5>
             <div className='progress' role='progressbar'>
-              <div className={progressBarClasses.join(' ')} style={{ width: `${progress === 0 ? 100 : progress}%` }}></div>
+              <div className={progressBarClasses.join(' ')} style={{ width: `${progress}%` }}></div>
             </div>
+
+            <div>{message}</div>
 
             <div className='btn-group' style={{ width: 'min-content' }}>
               <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={startImport}>
@@ -160,6 +235,9 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
               </button>
               <button disabled={!canContinue} className='btn btn-sm btn-secondary' onClick={continueImport}>
                 Continue
+              </button>
+              <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={updateImport}>
+                Update
               </button>
             </div>
             {/* <button className='btn btn-sm btn-secondary' onClick={refresh}>
@@ -179,6 +257,22 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
                   {importInfo?.processed ?? '-'} / {importInfo?.total ?? '-'}
                 </b>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <div className={`border rounded shadow-sm p-4`}>
+          <div className='d-flex flex-column gap-3'>
+            <h5>Custom Cursor</h5>
+            <div className='input-group'>
+              <span className='input-group-text' id='basic-addon3'>
+                Cursor
+              </span>
+              <input type='text' className='form-control' value={cursor} onChange={(e) => setCursor(e.currentTarget.value)} ref={$cursorInput} />
+              <input type='text' className='form-control' value={updatedAt} onChange={(e) => setUpdatedAt(e.currentTarget.value)} ref={$updatedAtInput} />
+              <button type='button' className='btn btn-primary' onClick={customCursor}>
+                Go
+              </button>
             </div>
           </div>
         </div>

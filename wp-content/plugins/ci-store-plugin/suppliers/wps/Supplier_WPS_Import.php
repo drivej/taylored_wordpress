@@ -313,6 +313,8 @@ trait Supplier_WPS_Import
         // error_log('import_hook_action() - END');
     }
 
+    public function update_import(){}
+
     public function is_importing()
     {
         $next_scheduled = wp_next_scheduled($this->import_loop_action);

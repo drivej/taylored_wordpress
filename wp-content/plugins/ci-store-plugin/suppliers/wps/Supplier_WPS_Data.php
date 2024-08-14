@@ -145,6 +145,11 @@ trait Supplier_WPS_Data
             if (isset($items['error']) && $page_size > 1) {
                 $fails++;
                 $page_size_index = max(0, $page_size_index - $fails);
+                if ($page_size_index < 3) {
+                    error_log('---------- throttled ----------');
+                    // maybe we're being throttled
+                    sleep(10);
+                }
             } else {
                 break;
             }

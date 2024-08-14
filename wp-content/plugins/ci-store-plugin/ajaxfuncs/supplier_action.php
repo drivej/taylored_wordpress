@@ -42,11 +42,30 @@ function supplier_action()
 
     //
     //
+
+    // switch ($func) {
+    //     case 'start_import':
+    //         return $supplier->importer()->start($args);
+    //         break;
+    //     case 'stop_import':
+    //         return $supplier->importer()->stop();
+    //         break;
+    //     case 'continue_import':
+    //         return $supplier->importer()->continue();
+    //         break;
+    //     case 'reset_import':
+    //         return $supplier->importer()->reset();
+    //         break;
+    //     case 'get_import_info':
+    //         return $supplier->importer()->get_import_info();
+    //         break;
+    // }
+
     include_once CI_STORE_PLUGIN . 'suppliers/WPS.php';
 
     switch ($func) {
         case 'start_import':
-            return \CIStore\Suppliers\WPS\start_import();
+            return \CIStore\Suppliers\WPS\start_import(...$args);
             break;
         case 'stop_import':
             return \CIStore\Suppliers\WPS\stop_import();

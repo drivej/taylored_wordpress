@@ -2,7 +2,55 @@
 
 namespace CIStore\Suppliers\WPS;
 
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS.php';
+include_once CI_STORE_PLUGIN . 'suppliers/wps/Supplier_WPS.php';
+// include_once CI_STORE_PLUGIN . 'suppliers/ImportManager.php';
+
+// use CIStore\Suppliers\ImportManager;
+
+// class WPSImportManager extends ImportManager {
+
+//     protected function before_start($info)
+//     {
+//         $supplier = \Supplier_WPS::instance();
+//         $updated_at = $info['updated_at'];// ?? $this->default_updated_at;
+//         $total = $supplier->get_total_remote_products($updated_at);
+//         return ['total' => $total];
+//     }
+
+//     protected function do_process($info)
+//     {
+//         $cursor = $info['cursor'];
+//         if (is_string($cursor)) {
+//             $updated_at = $info['updated_at'];// ?? $this->get_default_args();
+//             $supplier = \Supplier_WPS::instance();
+
+//             $items = $supplier->get_products_page($cursor, 'basic', $updated_at);
+
+//             $ids = array_map(fn($item) => $item['id'], $items['data'] ?? []);
+//             $next_cursor = $items['meta']['cursor']['next'] ?? false;
+//             error_log('do_process() ' . json_encode(['cursor' => $cursor, 'next_cursor' => $next_cursor, 'date' => $updated_at, 'ids' => $ids]));
+//             $processed_delta = is_countable($items['data']) ? count($items['data']) : 0;
+//             $processed = $info['processed'] + $processed_delta;
+//             $progress = $info['total'] > 0 ? ($processed / $info['total']) : 0;
+//             return [
+//                 'cursor' => $next_cursor,
+//                 'processed' => $processed,
+//                 'progress' => $progress,
+//             ];
+//         } else {
+//             return [
+//                 'complete' => true,
+//             ];
+//         }
+//     }
+// }
+
+// $supplier = \Supplier_WPS::instance();
+// $importManager = WPSImportManager::instance($supplier->key);
+// $importManager->init();
+    
+    // add_action('wps_kill_import_events', [$importManager, 'kill_import_events']);
+    
 
 class Props
 {
@@ -13,6 +61,7 @@ class Props
     public static $import_stop_option = 'CIStore\Suppliers\import_stop';
     public static $import_processing_option = 'CIStore\Suppliers\import_processing';
     public static $import_kill_hook = 'CIStore\Suppliers\import_kill';
+    public static $default_updated_at = '2023-01-01';
 }
 
 add_action('wps_init', 'CIStore\Suppliers\WPS\init');
@@ -30,57 +79,76 @@ function init()
     }
 }
 
-function start_import()
+function start_import($updated_at = null, $cursor = '')
 {
     $is_active = is_active();
     if ($is_active) {
         return get_info();
     }
-    error_log('WPS::start_import()');
     clear_stop();
     unschedule(Props::$import_kill_hook); // just in case
 
-    $info = update_info([
+    if (!$updated_at) {
+        $updated_at = Props::$default_updated_at;
+    }
+    error_log('WPS::start_import(' . json_encode($updated_at) . ' , ' . json_encode($cursor) . ')');
+
+    update_info([
         'started' => gmdate("c"),
         'processed' => 0,
         'total' => 0,
         'progress' => 0,
-        'cursor' => '',
         'complete' => false,
         'completed' => false,
-        ...before_start(),
+        'cursor' => $cursor,
+        'updated_at' => $updated_at,
     ]);
+
+    $info = update_info(before_start());
 
     schedule(Props::$import_loop_hook);
 
     return [ ...$info, ...get_report()];
 }
 
-// return a delta for the import info data
 function before_start()
 {
     $supplier = \Supplier_WPS::instance();
-    $total = $supplier->get_total_remote_products();
+    $info = get_info();
+    $updated_at = $info['updated_at'] ?? Props::$default_updated_at;
+    $total = $supplier->get_total_remote_products($updated_at);
     return ['total' => $total];
 }
 
 function do_process($info)
 {
     $cursor = $info['cursor'];
-    $supplier = \Supplier_WPS::instance();
-    $items = $supplier->get_products_page($cursor);
-    // sleep(3);
-    // $items = ['data' => [1], 'meta' => ['cursor' => ['next' => $info['processed'] < $info['total'] ? 'xxx' : false]]];
+    if (is_string($cursor)) {
+        $updated_at = $info['updated_at'] ?? Props::$default_updated_at;
+        $supplier = \Supplier_WPS::instance();
 
-    $next_cursor = $items['meta']['cursor']['next'] ?? false;
-    $processed_delta = (is_countable($items['data']) ? count($items['data']) : 0);
-    $processed = $info['processed'] + $processed_delta;
-    $progress = $info['total'] > 0 ? ($processed / $info['total']) : 0;
-    return [
-        'cursor' => $next_cursor,
-        'processed' => $processed,
-        'progress' => $progress,
-    ];
+        $items = $supplier->get_products_page($cursor, 'basic',  $updated_at);
+
+        // $items = $supplier->import_products_page($cursor, $updated_at);
+        $ids = array_map(fn($item) => $item['id'], $items['data'] ?? []);
+        // sleep(3);
+        // $items = ['data' => [1], 'meta' => ['cursor' => ['next' => $info['processed'] < $info['total'] ? 'xxx' : false]]];
+
+        $next_cursor = $items['meta']['cursor']['next'] ?? false;
+        error_log('do_process() ' . json_encode(['cursor' => $cursor, 'next_cursor' => $next_cursor, 'date' => $updated_at, 'ids' => $ids]));
+        $processed_delta = (is_countable($items['data']) ? count($items['data']) : 0);
+        $processed = $info['processed'] + $processed_delta;
+        $progress = $info['total'] > 0 ? ($processed / $info['total']) : 0;
+        return [
+            'cursor' => $next_cursor,
+            'processed' => $processed,
+            'progress' => $progress,
+        ];
+    } else {
+        return [
+            'complete' => true,
+        ];
+    }
 }
 
 function import_loop()
@@ -90,21 +158,19 @@ function import_loop()
     if (should_stop()) {
         return;
     }
+    start_processing();
+    $delta = do_process($info);
+    $info = update_info($delta);
+    stop_processing();
 
-    $cursor = $info['cursor'];
-
-    if (is_string($cursor)) {
-        start_processing();
-        $delta = do_process($info);
-        update_info($delta);
-        stop_processing();
-
-        if (!should_stop()) {
-            schedule(Props::$import_loop_hook);
-        }
-    } else {
+    if ($info['complete'] === true) {
         schedule(Props::$import_complete_hook);
+        return;
     }
+    if (should_stop()) {
+        return;
+    }
+    schedule(Props::$import_loop_hook);
 }
 
 function import_complete()
@@ -189,6 +255,7 @@ function reset_import()
             'cursor' => false,
             'complete' => false,
             'completed' => false,
+            'updated_at' => Props::$default_updated_at,
         ]);
     }
     return [ ...$info, ...get_report()];
@@ -206,11 +273,10 @@ function continue_import()
 
     if (is_string($info['cursor'])) {
         schedule(Props::$import_loop_hook);
-        $info = update_info([
-            'status' => 1,
-            'complete' => false,
-            'completed' => false,
-        ]);
+        // $info = update_info([
+        //     'complete' => false,
+        //     'completed' => false,
+        // ]);
     }
     return [ ...$info, ...get_report()];
 }
@@ -226,8 +292,11 @@ function get_report()
         'stopping' => is_stopping(),
         'processing' => is_processing(),
         'waiting' => is_waiting(),
-        'active' => is_processing() || is_waiting(),
+        'active' => is_active(),
         'should_stop' => should_stop(),
+        'import_start_hook' => wp_next_scheduled(Props::$import_start_hook),
+        'import_loop_hook' => wp_next_scheduled(Props::$import_loop_hook),
+        'import_complete_hook' => wp_next_scheduled(Props::$import_complete_hook),
     ];
 }
 
@@ -286,7 +355,7 @@ function stop_processing()
 
 function should_stop()
 {
-    return get_site_transient(Props::$import_stop_option);
+    return (bool) get_site_transient(Props::$import_stop_option);
 }
 
 function request_stop()

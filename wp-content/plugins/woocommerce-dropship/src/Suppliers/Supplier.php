@@ -19,7 +19,7 @@ abstract class Supplier
     protected function action($tag, ...$args)
     {
 		// This was do_actions() = type??
-        do_actions($this->hookTag($tag), ...$args);
+        do_action($this->hookTag($tag), ...$args);
     }
 
     protected function filter($tag, ...$args)

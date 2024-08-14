@@ -11494,6 +11494,91 @@ const useTotalRemoteProducts = (supplier_key) => {
     }, { enabled: !!supplier_key });
 };
 
+;// CONCATENATED MODULE: ./src/utils/formatDuration.ts
+function formatDuration(seconds) {
+    var date = new Date(0);
+    if (seconds)
+        date.setSeconds(~~seconds); // specify value for SECONDS here
+    return date.toISOString().substring(11, 19);
+    //   if (isNaN(seconds)) return '';
+    //   seconds = Math.round(seconds);
+    //   const m = Math.floor(seconds / 60);
+    //   const s = seconds % 60;
+    //   return `${m}:${('0' + s).slice(-2)}`;
+}
+function formatDate(d) {
+    return d.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+}
+function formatTimeAgo(seconds) {
+    const intervals = [
+        { label: 'year', seconds: 31536000 },
+        { label: 'month', seconds: 2592000 },
+        { label: 'day', seconds: 86400 },
+        { label: 'hour', seconds: 3600 },
+        { label: 'minute', seconds: 60 }
+    ];
+    let isFuture = seconds < 0;
+    seconds = Math.abs(seconds);
+    for (const interval of intervals) {
+        const count = Math.floor(seconds / interval.seconds);
+        if (count >= 1) {
+            if (isFuture) {
+                return count === 1 ? `in ${count} ${interval.label}` : `in ${count} ${interval.label}s`;
+            }
+            else {
+                return count === 1 ? `${count} ${interval.label} ago` : `${count} ${interval.label}s ago`;
+            }
+        }
+    }
+    return '<1 min ago';
+}
+
+;// CONCATENATED MODULE: ./src/utils/datestamp.ts
+
+function datestamp() {
+    let dateObj = new Date();
+    let month = dateObj.getUTCMonth() + 1; //months from 1-12
+    let day = dateObj.getUTCDate();
+    let year = dateObj.getUTCFullYear();
+    return [year, month, day].join('-');
+}
+function parseDate(s) {
+    return new Date(Date.parse(s));
+}
+function since(s) {
+    const d = new Date(Date.parse(s));
+    const dif = Date.now() - d.getTime();
+    return formatDuration(dif / 1000);
+}
+
+;// CONCATENATED MODULE: ./src/utils/timeago.ts
+const MN = 0;
+const MM = 60 * 1000;
+const HH = 60 * MM;
+const DD = 24 * HH;
+const WK = 7 * DD;
+const MO = 30 * DD;
+const YR = 365 * DD;
+const defaultEpochs = [
+    { min: MN, max: MM, past: () => `<1m ago`, future: () => `in <1m` },
+    { min: MM, max: HH, past: (val) => `${val}m ago`, future: (val) => `in ${val}m` },
+    { min: HH, max: DD, past: (val) => `${val}h ago`, future: (val) => `in ${val}h` },
+    { min: DD, max: WK, past: (val) => `${val}d ago`, future: (val) => `in ${val}d` },
+    { min: WK, max: MO, past: (val) => `${val}w ago`, future: (val) => `in ${val}w` },
+    { min: MO, max: YR, past: (val) => `${val}mo ago`, future: (val) => `in ${val}mo` },
+    { min: YR, max: Infinity, past: (val) => `${val}yr ago`, future: (val) => `in ${val}yr` },
+];
+const timeago = (date, epochs = defaultEpochs) => {
+    const dif = Date.now() - date.getTime();
+    const abs = Math.abs(dif);
+    const e = epochs.find((epoch) => abs >= epoch.min && abs < epoch.max);
+    if (e) {
+        const func = dif < 0 ? e.future : e.past;
+        return func(Math.round(abs / Math.max(1, e.min)));
+    }
+    return 'now';
+};
+
 ;// CONCATENATED MODULE: ./src/components/SupplierImportStatus.tsx
 var SupplierImportStatus_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -11504,6 +11589,8 @@ var SupplierImportStatus_awaiter = (undefined && undefined.__awaiter) || functio
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+
+
 
 
 
@@ -11542,23 +11629,26 @@ const SupplierImportStatus = ({ supplier }) => {
     (0,react.useEffect)(() => {
         setImportInfo(dataPoll.data);
     }, [dataPoll.data]);
-    const refresh = () => {
-        supplierAction.mutate('get_import_info', { onSettled: setImportInfo });
-    };
+    // const refresh = () => {
+    //   supplierAction.mutate('get_import_info', { onSettled: setImportInfo });
+    // };
     const supplierAction = useMutation({
-        mutationFn: (func) => fetchWordpressAjax(Object.assign(Object.assign({}, query), { func }))
+        mutationFn: ({ func, args = [] }) => fetchWordpressAjax(Object.assign(Object.assign({}, query), { func, args }))
     });
     const startImport = () => {
-        supplierAction.mutate('start_import', { onSettled: setImportInfo });
+        supplierAction.mutate({ func: 'start_import', args: [] }, { onSettled: setImportInfo });
     };
     const stopImport = () => {
-        supplierAction.mutate('stop_import', { onSettled: setImportInfo });
+        supplierAction.mutate({ func: 'stop_import' }, { onSettled: setImportInfo });
     };
     const continueImport = () => {
-        supplierAction.mutate('continue_import', { onSettled: setImportInfo });
+        supplierAction.mutate({ func: 'continue_import' }, { onSettled: setImportInfo });
     };
     const resetImport = () => {
-        supplierAction.mutate('reset_import', { onSettled: setImportInfo });
+        supplierAction.mutate({ func: 'reset_import' }, { onSettled: setImportInfo });
+    };
+    const updateImport = () => {
+        supplierAction.mutate({ func: 'update_import' }, { onSettled: setImportInfo });
     };
     const [nextImport, setNextImport] = (0,react.useState)('');
     const getNextImportTime = () => SupplierImportStatus_awaiter(void 0, void 0, void 0, function* () {
@@ -11574,10 +11664,10 @@ const SupplierImportStatus = ({ supplier }) => {
         getNextImportTime();
     }, []);
     const createScheduledImport = () => {
-        supplierAction.mutate('create_scheduled_import', { onSettled: () => getNextImportTime() });
+        supplierAction.mutate({ func: 'create_scheduled_import' }, { onSettled: () => getNextImportTime() });
     };
     const cancelScheduledImport = () => {
-        supplierAction.mutate('cancel_scheduled_import', { onSettled: () => getNextImportTime() });
+        supplierAction.mutate({ func: 'cancel_scheduled_import' }, { onSettled: () => getNextImportTime() });
     };
     const onChangeAutoImport = (e) => {
         if (e.currentTarget.checked) {
@@ -11587,22 +11677,83 @@ const SupplierImportStatus = ({ supplier }) => {
             cancelScheduledImport();
         }
     };
-    const progress = ((_a = importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) !== null && _a !== void 0 ? _a : 0) * 100;
-    const canStart = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === false;
-    const canStop = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === true;
-    const canReset = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === false && typeof (importInfo === null || importInfo === void 0 ? void 0 : importInfo.started) === 'string';
-    const canContinue = canStart && (importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) > 0;
     const active = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === true;
-    const progressBarClasses = ['progress-bar'];
-    if (active) {
-        progressBarClasses.push(...['progress-bar-striped', 'progress-bar-animated']);
-        if (progress === 0) {
-            progressBarClasses.push('bg-warning');
+    const canStart = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === false;
+    const shouldStop = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.should_stop) === true;
+    const canStop = !shouldStop && (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === true;
+    const canReset = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === false; // && typeof importInfo?.started === 'string';
+    const canContinue = canStart && (importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) > 0;
+    // if ((active && progress === 0) || shouldStop) progress = 100;
+    const isComplete = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.complete) === true;
+    let progress = active && ((importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) === 0 || shouldStop) ? 100 : ((_a = importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) !== null && _a !== void 0 ? _a : 0) * 100;
+    const [progressBarClasses, setProgressBarClasses] = (0,react.useState)(['progress-bar']);
+    // const progressBarClasses = ['progress-bar'];
+    // if (active) {
+    //   progressBarClasses.push(...['progress-bar-striped', 'progress-bar-animated']);
+    //   if (progress === 0) {
+    //     progressBarClasses.push('bg-warning');
+    //   } else if (shouldStop) {
+    //     progressBarClasses.push('bg-danger');
+    //   }
+    // } else {
+    //   if (isComplete) {
+    //     progressBarClasses.push('bg-success');
+    //   } else {
+    //     progressBarClasses.push('bg-secondary');
+    //   }
+    // }
+    const [message, setMessage] = (0,react.useState)('');
+    (0,react.useEffect)(() => {
+        var _a, _b;
+        if (importInfo === null || importInfo === void 0 ? void 0 : importInfo.complete) {
+            const count = (_a = importInfo === null || importInfo === void 0 ? void 0 : importInfo.processed) !== null && _a !== void 0 ? _a : 0;
+            const updated = (_b = importInfo === null || importInfo === void 0 ? void 0 : importInfo.updated_at) !== null && _b !== void 0 ? _b : '?';
+            const ago = timeago(new Date(Date.parse(importInfo === null || importInfo === void 0 ? void 0 : importInfo.completed))); // since(importInfo?.completed);
+            // setMessage(`Completed processing ${importInfo?.processed ?? 0} products updated after ${importInfo?.updated_at},  ${since(importInfo?.completed)} ago.`);
+            setMessage(`Completed. ${count} products updated since ${updated}. Updated ${ago}.`);
         }
-    }
-    else {
-        progressBarClasses.push('bg-secondary');
-    }
+        else if ((importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === true) {
+            let started = '';
+            if (typeof (importInfo === null || importInfo === void 0 ? void 0 : importInfo.started) === 'string') {
+                started = since(importInfo === null || importInfo === void 0 ? void 0 : importInfo.started);
+            }
+            setMessage(`Running update ${started}...`);
+        }
+        else {
+            setMessage('');
+        }
+        //
+        //
+        //
+        const c = ['progress-bar'];
+        if ((importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === true) {
+            c.push(...['progress-bar-striped', 'progress-bar-animated']);
+            if ((importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) === 0) {
+                c.push('bg-warning');
+            }
+            else if ((importInfo === null || importInfo === void 0 ? void 0 : importInfo.should_stop) === true) {
+                c.push('bg-danger');
+            }
+        }
+        else {
+            if ((importInfo === null || importInfo === void 0 ? void 0 : importInfo.complete) === true) {
+                c.push('bg-success');
+            }
+            else {
+                c.push('bg-secondary');
+            }
+        }
+        setProgressBarClasses(c);
+    }, [importInfo]);
+    const $cursorInput = (0,react.useRef)();
+    const [cursor, setCursor] = (0,react.useState)('w4Ae7lQGM1zE');
+    const $updatedAtInput = (0,react.useRef)();
+    const [updatedAt, setUpdatedAt] = (0,react.useState)('2024-03-01');
+    const customCursor = () => {
+        const cursor = $cursorInput.current.value;
+        const updatedAt = $updatedAtInput.current.value;
+        supplierAction.mutate({ func: 'start_import', args: [updatedAt, cursor] }, { onSettled: setImportInfo });
+    };
     if (dataPoll.isSuccess) {
         // const is_running = data.isSuccess ? data.data.running || data.data.is_scheduled : false;
         // data.isSuccess ? data.data.running || data.data.is_scheduled : false;
@@ -11611,12 +11762,14 @@ const SupplierImportStatus = ({ supplier }) => {
                 react.createElement("div", { className: 'd-flex flex-column gap-3' },
                     react.createElement("h5", null, "Import Status"),
                     react.createElement("div", { className: 'progress', role: 'progressbar' },
-                        react.createElement("div", { className: progressBarClasses.join(' '), style: { width: `${progress === 0 ? 100 : progress}%` } })),
+                        react.createElement("div", { className: progressBarClasses.join(' '), style: { width: `${progress}%` } })),
+                    react.createElement("div", null, message),
                     react.createElement("div", { className: 'btn-group', style: { width: 'min-content' } },
                         react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: startImport }, "Start"),
                         react.createElement("button", { disabled: !canStop, className: 'btn btn-sm btn-secondary', onClick: stopImport }, "Stop"),
                         react.createElement("button", { disabled: !canReset, className: 'btn btn-sm btn-secondary', onClick: resetImport }, "Reset"),
-                        react.createElement("button", { disabled: !canContinue, className: 'btn btn-sm btn-secondary', onClick: continueImport }, "Continue")),
+                        react.createElement("button", { disabled: !canContinue, className: 'btn btn-sm btn-secondary', onClick: continueImport }, "Continue"),
+                        react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: updateImport }, "Update")),
                     react.createElement("div", { className: 'd-flex justify-content-between' },
                         react.createElement("div", null,
                             "Imported: ",
@@ -11629,6 +11782,14 @@ const SupplierImportStatus = ({ supplier }) => {
                             ' ',
                             react.createElement("b", null, (_d = importInfo === null || importInfo === void 0 ? void 0 : importInfo.processed) !== null && _d !== void 0 ? _d : '-',
                                 " / ", (_e = importInfo === null || importInfo === void 0 ? void 0 : importInfo.total) !== null && _e !== void 0 ? _e : '-'))))),
+            react.createElement("div", { className: `border rounded shadow-sm p-4` },
+                react.createElement("div", { className: 'd-flex flex-column gap-3' },
+                    react.createElement("h5", null, "Custom Cursor"),
+                    react.createElement("div", { className: 'input-group' },
+                        react.createElement("span", { className: 'input-group-text', id: 'basic-addon3' }, "Cursor"),
+                        react.createElement("input", { type: 'text', className: 'form-control', value: cursor, onChange: (e) => setCursor(e.currentTarget.value), ref: $cursorInput }),
+                        react.createElement("input", { type: 'text', className: 'form-control', value: updatedAt, onChange: (e) => setUpdatedAt(e.currentTarget.value), ref: $updatedAtInput }),
+                        react.createElement("button", { type: 'button', className: 'btn btn-primary', onClick: customCursor }, "Go")))),
             react.createElement("div", { className: `border rounded shadow-sm p-4 ${nextImport === 'never' ? 'bg-warning' : ''}` },
                 react.createElement("div", { className: 'd-flex flex-column gap-3' },
                     react.createElement("div", null,
