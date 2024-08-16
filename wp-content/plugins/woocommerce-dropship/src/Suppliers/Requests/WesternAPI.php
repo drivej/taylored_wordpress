@@ -12,14 +12,14 @@ class WesternAPI
 
     private $callTypeMapping = [
         /* 'stockCheck' => 'INV',
-        'priceCheck' => 'PRC',
-        'stockAndPriceCheck' => 'INP',
-        'propositionWarning' => 'P65',
-        'submitOrder' => 'ORD',
-        'getShipments' => 'SHP', */
+    'priceCheck' => 'PRC',
+    'stockAndPriceCheck' => 'INP',
+    'propositionWarning' => 'P65',
+    'submitOrder' => 'ORD',
+    'getShipments' => 'SHP', */
     ];
 
-    private $token;
+    private $token = 'aybfeye63PtdiOsxMbd5f7ZAtmjx67DWFAQMYn6R';
     public $testing;
     private $customerId;
     public $stockThreshold;
@@ -28,7 +28,9 @@ class WesternAPI
     {
         // extract($options);
         // print_r($options);
-        $this->token = $options['token'];
+        if ($options['token']) {
+            $this->token = $options['token'];
+        }
         $this->testing = $testing;
         // $this->customerId = $customer_id;
         // $this->stockThreshold = $stock_thresh ?? 9;
@@ -63,6 +65,8 @@ class WesternAPI
 
     public function submitOrder($cartId)
     {
+        error_log('WesternAPI->submitOrder() ' . $cartId);
+        // return ['submit' => false, 'id' => $cartId];
         return $this->request('/orders', [
             'po_number' => $cartId,
         ], 'post');
@@ -85,7 +89,7 @@ class WesternAPI
     {
 
         $host = $this->testing ? $this->testUrl : $this->productionUrl;
-        
+
         if ($method == 'get') {
             $url = $host . $endpoint . '?' . http_build_query($payload);
         } else {
@@ -93,12 +97,13 @@ class WesternAPI
         }
 
         $response = wp_safe_remote_request($url, [
-            'method' => $method, 
-            'body' => $payload,
+            'method' => strtoupper($method),
+            'body' => json_encode($payload),
+            'timeout' => 30,
             'headers' => [
                 'Authorization' => "Bearer {$this->token}",
                 'Content-Type' => 'application/json',
-            ]
+            ],
         ]);
 
         if (is_wp_error($response)) {
@@ -106,7 +111,6 @@ class WesternAPI
         }
 
         return json_decode(wp_remote_retrieve_body($response));
-
 
     }
 

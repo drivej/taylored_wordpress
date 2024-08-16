@@ -18,7 +18,7 @@ class Western extends Supplier implements Contract
     {
         $this->settings = new WesternSettings();
         $options = get_option("{$this->settings->slug}_api_fields");
-        $this->request = new Request($options, $this->testing);
+        $this->request = new Request($options);
     }
 
     public function stockCheck(array $items)
@@ -33,6 +33,7 @@ class Western extends Supplier implements Contract
 
     public function priceCheck(array $items)
     {
+        error_log('priceCheck() ' . json_encode(['items' => $items]));
         return $items;
         return $this->request->priceCheck([
             'item' => $this->filter('price_check', $items),
@@ -41,6 +42,8 @@ class Western extends Supplier implements Contract
 
     public function submitOrder(array $items, array $data): string
     {
+        error_log('XX submitOrder() ' . json_encode(['items' => $items]));
+
         $this->action('pre_submit_order', $items, $data, $this);
 
         $firstName = $data['shipping_first_name'] ?? $data['billing_first_name'];
@@ -57,29 +60,35 @@ class Western extends Supplier implements Contract
             'ship_state' => $data['shipping_state'] ?? $data['billing_state'],
             'ship_zip' => $data['shipping_postcode'] ?? $data['billing_postcode'],
             //'submit' => $this->testing ? 'NO' : 'YES',
-            'comment1' => $data['order_comments'],
+            'comment1' => ($data['order_comments'] ?? '') . ' Order Submitted from WooCommerce.',
         ], $this);
 
         $errors = [];
 
+        error_log(json_encode($cartData, JSON_PRETTY_PRINT));
+
         $wpsCart = $this->request->createCart($cartData);
+        error_log(json_encode($wpsCart, JSON_PRETTY_PRINT));
 
         foreach ($items as $item) {
             $line = explode(',', $item);
-            $this->request->addToCart($poNumber, $line[0], $line[1]);
+            $atc = $this->request->addToCart($poNumber, $line[0], $line[1]);
+            error_log(json_encode($atc), JSON_PRETTY_PRINT);
         }
 
         $wpsOrder = $this->request->submitOrder($poNumber);
+        error_log(json_encode($wpsOrder), JSON_PRETTY_PRINT);
+
         /* foreach ($wpsOrder->orderline as $orderLine) {
-            if ($orderLine->errormsg !== "") {
-                $errors[$orderLine->itemnum] = $orderLine->errormsg;
-            }
+        if ($orderLine->errormsg !== "") {
+        $errors[$orderLine->itemnum] = $orderLine->errormsg;
+        }
         }
 
         if (count($errors)) {
-            throw new \Exception($this->filter('order_errors', implode("\n", $errors), $this));
+        throw new \Exception($this->filter('order_errors', implode("\n", $errors), $this));
         }
- */
+         */
         $this->action('order_submitted', $wpsOrder, $this);
 
         return $this->filter('order_number', $poNumber);
@@ -99,7 +108,7 @@ class Western extends Supplier implements Contract
                     $details->tracking_numbers[0] ?? ''
                 );
             }
-            
+
         }
 
         return $output;

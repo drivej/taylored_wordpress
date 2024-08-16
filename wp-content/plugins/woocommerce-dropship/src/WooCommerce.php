@@ -51,11 +51,15 @@ class WooCommerce
 
     public function productSku($sku, $product)
     {
-		// TODO: use metadata for supplier id
-        if (($ind = strpos($sku, '_')) !== false) {
-            return substr($sku, $ind + 1);
-        }
-        return $sku;
+        $supplier_sku_key = '_ci_product_sku';
+        $supplier_sku = $product->get_meta($supplier_sku_key);
+        error_log('productSku() ' . $sku . '=>' . $supplier_sku);
+        return !empty($supplier_sku) ? $supplier_sku : $sku;
+
+        // if (($ind = strpos($sku, '_')) !== false) {
+        //     return substr($sku, $ind + 1);
+        // }
+        // return $sku;
     }
 
     private function cacheRemember($key, $whatToRemember, $exp = 600)
@@ -75,9 +79,12 @@ class WooCommerce
 
         return $value;
     }
-
+    /**
+     * @param WC_Order $order
+     */
     public function orderCreateSupplierOrder($order, $data)
     {
+        error_log('orderCreateSupplierOrder() ' . json_encode(['order' => $order, 'data' => $data]));
 
         $supplierOrderQueue = [];
         $success = [];
@@ -94,7 +101,12 @@ class WooCommerce
                 $supplierOrderQueue[$supplier::class]['lines'] = [];
             }
 
-            $supplierOrderQueue[$supplier::class]['lines'][] = $product->get_sku() . ',' . $line->get_quantity();
+            // $sku = $product->get_sku();
+            // woo sku is composedfor woo only
+            // the supplier's expected sku lives in meta
+            $sku = $product->get_meta('_ci_product_sku');
+
+            $supplierOrderQueue[$supplier::class]['lines'][] = $sku . ',' . $line->get_quantity();
             $supplierOrderQueue[$supplier::class]['instance'] = $supplier;
         }
 
