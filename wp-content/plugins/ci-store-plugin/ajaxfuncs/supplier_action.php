@@ -4,6 +4,8 @@ namespace CIStore\Ajax;
 
 use Exception;
 
+use function PHPSTORM_META\type;
+
 include_once CI_STORE_PLUGIN . 'utils/WooTools.php';
 include_once CI_STORE_PLUGIN . 'suppliers/Suppliers.php';
 
@@ -27,6 +29,7 @@ function supplier_action()
     }
 
     $args = $_GET['args'] ?? [];
+
 
     foreach ($args as &$arg) {
         $parsed = json_decode(stripslashes($arg));

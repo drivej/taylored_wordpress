@@ -195,8 +195,12 @@ class Supplier_WPS extends Supplier
     public function import_product($supplier_product_id)
     {
         $supplier_product = $this->get_product($supplier_product_id);
+        if ($supplier_product['error']) {
+            return $supplier_product;
+        }
         $items = ['data' => [$supplier_product['data']]];
-        $this->process_items_native($items);
+        $items = $this->process_items_native($items);
+        return $items;
     }
 
     public function import_products_page($cursor = '', $updated_at = null)

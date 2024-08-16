@@ -43,6 +43,13 @@ export const MiscPage = () => {
         <TextInput name='args[0]' defaultValue='' placeholder='Woo ID...' />
       </AdminForm>
 
+      <AdminForm name='Import Product' cmd='supplier_action'>
+        <SelectSupplier />
+        <TextInput name='func' defaultValue='import_product' hidden={true} />
+        <TextInput name='args[]' defaultValue='' placeholder='Supplier Product ID...' />
+        {/* <ProductInput /> */}
+      </AdminForm>
+
       <AdminForm name='Get Supplier Product' cmd='supplier_action'>
         <SelectSupplier />
         <TextInput name='func' defaultValue='get_product' hidden={true} />
