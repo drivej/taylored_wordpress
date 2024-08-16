@@ -10613,8 +10613,15 @@ function fetchWordpressAjax(params) {
         url.pathname = window.ajaxurl; //'/wp-admin/admin-ajax.php';
         Object.keys(params).forEach((k) => {
             if (Array.isArray(params[k])) {
-                params[k].forEach((val) => {
-                    url.searchParams.append(`${k}[]`, val);
+                params[k].forEach((val, i) => {
+                    if (typeof val === 'object') {
+                        Object.keys(val).forEach((_k) => {
+                            url.searchParams.append(`${k}[${i}][${_k}]`, val[_k]);
+                        });
+                    }
+                    else {
+                        url.searchParams.append(`${k}[${i}]`, val);
+                    }
                 });
             }
             else {
@@ -11623,7 +11630,7 @@ const SupplierImportStatus = ({ supplier }) => {
         cmd: 'supplier_action',
         supplier_key: supplier.key,
         func: 'get_import_info',
-        func_group: 'importer',
+        func_group: 'importer'
     };
     const dataPoll = useWordpressAjax(query, { refetchInterval: 5000 });
     const [importInfo, setImportInfo] = (0,react.useState)({ status: 0 });
@@ -11637,19 +11644,19 @@ const SupplierImportStatus = ({ supplier }) => {
         mutationFn: ({ func, args = [] }) => fetchWordpressAjax(Object.assign(Object.assign({}, query), { func, args }))
     });
     const startImport = () => {
-        supplierAction.mutate({ func: 'start_import', args: [] }, { onSettled: setImportInfo });
+        supplierAction.mutate({ func: 'start', args: [] }, { onSettled: setImportInfo });
     };
     const stopImport = () => {
-        supplierAction.mutate({ func: 'stop_import' }, { onSettled: setImportInfo });
+        supplierAction.mutate({ func: 'stop' }, { onSettled: setImportInfo });
     };
     const continueImport = () => {
-        supplierAction.mutate({ func: 'continue_import' }, { onSettled: setImportInfo });
+        supplierAction.mutate({ func: 'continue' }, { onSettled: setImportInfo });
     };
     const resetImport = () => {
-        supplierAction.mutate({ func: 'reset_import' }, { onSettled: setImportInfo });
+        supplierAction.mutate({ func: 'reset' }, { onSettled: setImportInfo });
     };
     const updateImport = () => {
-        supplierAction.mutate({ func: 'update_import' }, { onSettled: setImportInfo });
+        supplierAction.mutate({ func: 'update' }, { onSettled: setImportInfo });
     };
     const [nextImport, setNextImport] = (0,react.useState)('');
     const getNextImportTime = () => SupplierImportStatus_awaiter(void 0, void 0, void 0, function* () {
@@ -11747,13 +11754,16 @@ const SupplierImportStatus = ({ supplier }) => {
         setProgressBarClasses(c);
     }, [importInfo]);
     const $cursorInput = (0,react.useRef)();
-    const [cursor, setCursor] = (0,react.useState)('w4Ae7lQGM1zE');
+    const [cursor, setCursor] = (0,react.useState)('');
     const $updatedAtInput = (0,react.useRef)();
-    const [updatedAt, setUpdatedAt] = (0,react.useState)('2024-03-01');
+    const [updatedAt, setUpdatedAt] = (0,react.useState)('');
+    const [importType, setImportType] = (0,react.useState)('');
+    const $importTypeInput = (0,react.useRef)();
     const customCursor = () => {
         const cursor = $cursorInput.current.value;
         const updatedAt = $updatedAtInput.current.value;
-        supplierAction.mutate({ func: 'start_import', args: [updatedAt, cursor] }, { onSettled: setImportInfo });
+        const importType = $importTypeInput.current.value;
+        supplierAction.mutate({ func: 'custom_start', args: [updatedAt, cursor, importType] }, { onSettled: setImportInfo });
     };
     if (dataPoll.isSuccess) {
         // const is_running = data.isSuccess ? data.data.running || data.data.is_scheduled : false;
@@ -11785,12 +11795,22 @@ const SupplierImportStatus = ({ supplier }) => {
                                 " / ", (_e = importInfo === null || importInfo === void 0 ? void 0 : importInfo.total) !== null && _e !== void 0 ? _e : '-'))))),
             react.createElement("div", { className: `border rounded shadow-sm p-4` },
                 react.createElement("div", { className: 'd-flex flex-column gap-3' },
-                    react.createElement("h5", null, "Custom Cursor"),
-                    react.createElement("div", { className: 'input-group' },
-                        react.createElement("span", { className: 'input-group-text', id: 'basic-addon3' }, "Cursor"),
-                        react.createElement("input", { type: 'text', className: 'form-control', value: cursor, onChange: (e) => setCursor(e.currentTarget.value), ref: $cursorInput }),
-                        react.createElement("input", { type: 'text', className: 'form-control', value: updatedAt, onChange: (e) => setUpdatedAt(e.currentTarget.value), ref: $updatedAtInput }),
-                        react.createElement("button", { type: 'button', className: 'btn btn-primary', onClick: customCursor }, "Go")))),
+                    react.createElement("h5", null, "Custom Process"),
+                    react.createElement("div", { className: 'Xinput-group d-flex gap-2 w-100' },
+                        react.createElement("div", null,
+                            react.createElement("label", { className: 'form-label' }, "Cursor"),
+                            react.createElement("input", { type: 'text', className: 'form-control', value: cursor, onChange: (e) => setCursor(e.currentTarget.value), ref: $cursorInput })),
+                        react.createElement("div", null,
+                            react.createElement("label", { className: 'form-label' }, "Updated"),
+                            react.createElement("input", { type: 'text', className: 'form-control', placeholder: 'YYYY-MM-DD', value: updatedAt, onChange: (e) => setUpdatedAt(e.currentTarget.value), ref: $updatedAtInput })),
+                        react.createElement("div", null,
+                            react.createElement("label", { className: 'form-label' }, "Type"),
+                            react.createElement("select", { className: 'form-select w-100', value: importType, onChange: (e) => setImportType(e.currentTarget.value), ref: $importTypeInput },
+                                react.createElement("option", { value: '' }, "import"),
+                                react.createElement("option", { value: 'patch' }, "patch"))),
+                        react.createElement("div", null,
+                            react.createElement("label", { className: 'form-label d-block' }, "\u00A0"),
+                            react.createElement("button", { type: 'button', className: 'btn btn-primary', onClick: customCursor }, "Go"))))),
             react.createElement("div", { className: `border rounded shadow-sm p-4 ${nextImport === 'never' ? 'bg-warning' : ''}` },
                 react.createElement("div", { className: 'd-flex flex-column gap-3' },
                     react.createElement("div", null,

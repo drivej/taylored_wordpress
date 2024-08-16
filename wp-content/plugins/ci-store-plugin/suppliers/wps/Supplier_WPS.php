@@ -207,6 +207,66 @@ class Supplier_WPS extends Supplier
         return $items;
     }
 
+    public function patch_products_page($cursor = '', $updated_at = null, $patch = '')
+    {
+        $updated_at = $updated_at ?? $this->default_updated_at;
+        $items = $this->get_products_page($cursor, 'price', $updated_at);
+        $items = $this->patch_products_sku($items);
+        return $items;
+    }
+
+    public function patch_products_sku($items)
+    {
+        foreach ($items['data'] as &$product) {
+            // get product object
+            $sku = $this->get_product_sku($product['id']);
+            $woo_id = wc_get_product_id_by_sku($sku);
+            $valid_items = array_filter($product['items']['data'], [$this, 'isValidItem']);
+            $product['_woo_id'] = $woo_id;
+
+            // skip products that don't exist
+            if (!$woo_id) {
+                continue;
+            }
+
+            $supplier_sku_key = '_ci_product_sku';
+
+            if (count($valid_items) === 1) {
+                // simple product
+                $woo_product = wc_get_product($woo_id);
+                $product['_type'] = $woo_product->get_type();
+                // $woo_product = new WC_Product_Simple($woo_id);
+                $variation = $valid_items[0];
+                $woo_product->update_meta_data($supplier_sku_key, $variation['sku']);
+                $woo_product->save();
+                $product[$supplier_sku_key] = $woo_product->get_meta($supplier_sku_key);
+            } else {
+                $woo_product = wc_get_product($woo_id);
+                $product['_type'] = $woo_product->get_type();
+                // $woo_product = new WC_Product_Variable($woo_id);
+
+                foreach ($product['items']['data'] as &$variation) {
+                    $variation_sku = $this->get_variation_sku($product['id'], $variation['id']);
+                    $variation['_sku'] = $variation_sku;
+                    $variation_woo_id = wc_get_product_id_by_sku($variation_sku);
+                    $variation['_woo_id'] = $variation_woo_id;
+                    $woo_variation = wc_get_product($variation_woo_id);
+                    if (!$variation_woo_id) {
+                        continue;
+                    }
+
+                    // $woo_variation = new WC_Product_Variation($variation_woo_id);
+                    $woo_variation->update_meta_data($supplier_sku_key, $variation['sku']);
+                    $woo_variation->save();
+
+                    $variation[$supplier_sku_key] = $woo_variation->get_meta($supplier_sku_key);
+                }
+            }
+        }
+
+        return $items;
+    }
+
     // private function process_items_format($items)
     // {
     //     if (!WooTools::is_valid_array($items['data'])) {
@@ -785,6 +845,7 @@ class Supplier_WPS extends Supplier
                 $woo_product->set_length($variation['length']);
                 $woo_product->set_width($variation['width']);
                 $woo_product->set_height($variation['height']);
+                $woo_product->update_meta_data('_ci_product_sku', $variation['sku']);
 
                 $category_ids = [];
                 $category_ids[] = $lookup_terms[$variation['product_type']] ?? 0;
@@ -844,6 +905,7 @@ class Supplier_WPS extends Supplier
                             $woo_variation->set_sku($variation_sku);
                             $woo_variation->update_meta_data('_supplier_class', $this->supplierClass);
                             $woo_variation->update_meta_data('_ci_product_id', $variation['id']);
+                            $woo_variation->update_meta_data('_ci_product_sku', $variation['sku']);
                             $woo_variation->update_meta_data('_ci_supplier_key', $this->key);
                             $woo_variation->update_meta_data('_ci_import_version', $this->import_version);
                         }

@@ -59,7 +59,7 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
     cmd: 'supplier_action',
     supplier_key: supplier.key,
     func: 'get_import_info',
-    func_group: 'importer',
+    func_group: 'importer'
   };
   const dataPoll = useWordpressAjax<IImportStatus>(query, { refetchInterval: 5000 });
 
@@ -78,23 +78,23 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
   });
 
   const startImport = () => {
-    supplierAction.mutate({ func: 'start_import', args:[] }, { onSettled: setImportInfo });
+    supplierAction.mutate({ func: 'start', args: [] }, { onSettled: setImportInfo });
   };
 
   const stopImport = () => {
-    supplierAction.mutate({ func: 'stop_import' }, { onSettled: setImportInfo });
+    supplierAction.mutate({ func: 'stop' }, { onSettled: setImportInfo });
   };
 
   const continueImport = () => {
-    supplierAction.mutate({ func: 'continue_import' }, { onSettled: setImportInfo });
+    supplierAction.mutate({ func: 'continue' }, { onSettled: setImportInfo });
   };
 
   const resetImport = () => {
-    supplierAction.mutate({ func: 'reset_import' }, { onSettled: setImportInfo });
+    supplierAction.mutate({ func: 'reset' }, { onSettled: setImportInfo });
   };
 
   const updateImport = () => {
-    supplierAction.mutate({ func: 'update_import' }, { onSettled: setImportInfo });
+    supplierAction.mutate({ func: 'update' }, { onSettled: setImportInfo });
   };
 
   const [nextImport, setNextImport] = useState('');
@@ -199,14 +199,17 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
   }, [importInfo]);
 
   const $cursorInput = useRef<HTMLInputElement>();
-  const [cursor, setCursor] = useState('w4Ae7lQGM1zE');
+  const [cursor, setCursor] = useState('');
   const $updatedAtInput = useRef<HTMLInputElement>();
-  const [updatedAt, setUpdatedAt] = useState('2024-03-01');
+  const [updatedAt, setUpdatedAt] = useState('');
+  const [importType, setImportType] = useState('');
+  const $importTypeInput = useRef<HTMLSelectElement>();
 
   const customCursor = () => {
     const cursor = $cursorInput.current.value;
     const updatedAt = $updatedAtInput.current.value;
-    supplierAction.mutate({ func: 'start_import', args: [updatedAt, cursor] }, { onSettled: setImportInfo });
+    const importType = $importTypeInput.current.value;
+    supplierAction.mutate({ func: 'custom_start', args: [updatedAt, cursor, importType] }, { onSettled: setImportInfo });
   };
 
   if (dataPoll.isSuccess) {
@@ -264,16 +267,32 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
 
         <div className={`border rounded shadow-sm p-4`}>
           <div className='d-flex flex-column gap-3'>
-            <h5>Custom Cursor</h5>
-            <div className='input-group'>
-              <span className='input-group-text' id='basic-addon3'>
+            <h5>Custom Process</h5>
+            <div className='Xinput-group d-flex gap-2 w-100'>
+              {/* <span className='input-group-text' id='basic-addon3'>
                 Cursor
-              </span>
-              <input type='text' className='form-control' value={cursor} onChange={(e) => setCursor(e.currentTarget.value)} ref={$cursorInput} />
-              <input type='text' className='form-control' value={updatedAt} onChange={(e) => setUpdatedAt(e.currentTarget.value)} ref={$updatedAtInput} />
-              <button type='button' className='btn btn-primary' onClick={customCursor}>
-                Go
-              </button>
+              </span> */}
+              <div>
+                <label className='form-label'>Cursor</label>
+                <input type='text' className='form-control' value={cursor} onChange={(e) => setCursor(e.currentTarget.value)} ref={$cursorInput} />
+              </div>
+              <div>
+                <label className='form-label'>Updated</label>
+                <input type='text' className='form-control' placeholder='YYYY-MM-DD' value={updatedAt} onChange={(e) => setUpdatedAt(e.currentTarget.value)} ref={$updatedAtInput} />
+              </div>
+              <div>
+                <label className='form-label'>Type</label>
+                <select className='form-select w-100' value={importType} onChange={(e) => setImportType(e.currentTarget.value)} ref={$importTypeInput}>
+                  <option value=''>import</option>
+                  <option value='patch'>patch</option>
+                </select>
+              </div>
+              <div>
+                <label className='form-label d-block'>&nbsp;</label>
+                <button type='button' className='btn btn-primary' onClick={customCursor}>
+                  Go
+                </button>
+              </div>
             </div>
           </div>
         </div>

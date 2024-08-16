@@ -36,7 +36,7 @@ trait Supplier_WPS_Data
                 'items:filter(status_id|STK)',
             ];
             $fields['products'] = 'id';
-            $fields['items'] = 'list_price';
+            $fields['items'] = 'sku,list_price';
         }
 
         if ($flag === 'plp') {

@@ -16,7 +16,11 @@ function api_handler()
         require_once $file_path;
         $function_exists = function_exists($func);
         if ($function_exists) {
-            $response = call_user_func($func, ...$args);
+            try {
+                $response = call_user_func($func, ...$args);
+            } catch (\Exception $e) {
+                return ['error' => $e];
+            }
         } else {
             $response['error'] = 'Function not found';
         }

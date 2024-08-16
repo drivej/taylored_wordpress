@@ -13,11 +13,22 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager {
         parent::__construct('wps'); //, ['updated_at' => '2023-01-01', 'cursor' => '']);
     }
 
+    public function custom_start($updated_at, $cursor, $import_type)
+    {
+        error_log('WPSImportManager::custom_start()');
+        return parent::start([
+            'updated_at' => $updated_at,
+            'cursor' => $cursor,
+            'import_type' => $import_type,
+        ]);
+    }
+
     protected function get_default_args()
     {
         return [
             'updated_at' => '2023-01-01',
             'cursor' => '',
+            'import_type' => 'full',
         ];
     }
 
@@ -28,7 +39,7 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager {
         $updated_at = $info['updated_at'] ?? $this->get_default_args()['updated_at'];
         $total = $supplier->get_total_remote_products($updated_at);
         error_log('total=' . $total);
-        return ['total' => $total, 'args' => ['updated_at' => $updated_at, 'cursor' => '']];
+        return ['total' => $total]; //, 'args' => ['updated_at' => $updated_at, 'cursor' => '']];
     }
 
     protected function do_process($info)
@@ -41,11 +52,18 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager {
             $supplier = \Supplier_WPS::instance();
 
             // $items = $supplier->get_products_page($cursor, 'basic', $updated_at);
-            $items = $supplier->import_products_page($cursor, $updated_at);
+            switch ($info['args']['import_type'] ?? '') {
+                case 'patch':
+                    $items = $supplier->patch_products_page($cursor, $updated_at);
+                    break;
+
+                default:
+                    $items = $supplier->import_products_page($cursor, $updated_at);
+            }
 
             $ids = array_map(fn($item) => $item['id'], $items['data'] ?? []);
             $next_cursor = $items['meta']['cursor']['next'] ?? false;
-            error_log('WPSImportManager::do_process() ' . json_encode(['cursor' => $cursor, 'next_cursor' => $next_cursor, 'date' => $updated_at, 'ids' => $ids]));
+            error_log('WPSImportManager::do_process() ' . json_encode(['type' => $info['args']['import_type'] ?? '', 'cursor' => $cursor, 'next_cursor' => $next_cursor, 'date' => $updated_at, 'ids' => $ids]));
             $processed_delta = is_countable($items['data']) ? count($items['data']) : 0;
             $processed = $info['processed'] + $processed_delta;
             $progress = $info['total'] > 0 ? ($processed / $info['total']) : 0;

@@ -28299,8 +28299,15 @@ function fetchWordpressAjax(params) {
         url.pathname = window.ajaxurl; //'/wp-admin/admin-ajax.php';
         Object.keys(params).forEach((k) => {
             if (Array.isArray(params[k])) {
-                params[k].forEach((val) => {
-                    url.searchParams.append(`${k}[]`, val);
+                params[k].forEach((val, i) => {
+                    if (typeof val === 'object') {
+                        Object.keys(val).forEach((_k) => {
+                            url.searchParams.append(`${k}[${i}][${_k}]`, val[_k]);
+                        });
+                    }
+                    else {
+                        url.searchParams.append(`${k}[${i}]`, val);
+                    }
                 });
             }
             else {
@@ -28558,6 +28565,7 @@ const MiscPage = () => {
                     { name: 'basic', value: 'basic' },
                     { name: 'price', value: 'price' },
                     { name: 'pdp', value: 'pdp' },
+                    { name: 'plp', value: 'plp' },
                     { name: 'stock', value: 'stock' }
                 ] })),
         react.createElement(AdminForm, { name: 'Get Products Page', cmd: 'supplier_action' },
@@ -28568,6 +28576,7 @@ const MiscPage = () => {
                     { name: 'basic', value: 'basic' },
                     { name: 'price', value: 'price' },
                     { name: 'pdp', value: 'pdp' },
+                    { name: 'plp', value: 'plp' },
                     { name: 'stock', value: 'stock' }
                 ] })),
         react.createElement(AdminForm, { name: 'WPS API', cmd: 'western_api', allowPolling: true },

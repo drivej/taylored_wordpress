@@ -53,6 +53,7 @@ export const MiscPage = () => {
             { name: 'basic', value: 'basic' },
             { name: 'price', value: 'price' },
             { name: 'pdp', value: 'pdp' },
+            { name: 'plp', value: 'plp' },
             { name: 'stock', value: 'stock' }
           ]}
         />
@@ -69,6 +70,7 @@ export const MiscPage = () => {
             { name: 'basic', value: 'basic' },
             { name: 'price', value: 'price' },
             { name: 'pdp', value: 'pdp' },
+            { name: 'plp', value: 'plp' },
             { name: 'stock', value: 'stock' }
           ]}
         />

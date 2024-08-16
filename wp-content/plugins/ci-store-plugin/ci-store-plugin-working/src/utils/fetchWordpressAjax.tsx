@@ -7,8 +7,14 @@ export async function fetchWordpressAjax<T = Record<string, unknown>, P = Record
   url.pathname = window.ajaxurl; //'/wp-admin/admin-ajax.php';
   Object.keys(params).forEach((k) => {
     if (Array.isArray(params[k])) {
-      params[k].forEach((val: string) => {
-        url.searchParams.append(`${k}[]`, val);
+      params[k].forEach((val: string, i:number) => {
+        if (typeof val === 'object') {
+          Object.keys(val).forEach((_k: string) => {
+            url.searchParams.append(`${k}[${i}][${_k}]`, val![_k]);
+          });
+        } else {
+          url.searchParams.append(`${k}[${i}]`, val);
+        }
       });
     } else {
       url.searchParams.set(k, params[k]);

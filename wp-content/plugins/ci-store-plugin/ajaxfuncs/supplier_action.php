@@ -42,6 +42,9 @@ function supplier_action()
     switch ($func_group) {
         case 'importer':
             $importer = $supplier->get_importer();
+
+            // return ['args' => $args];
+            
             if ($importer) {
                 if (method_exists($importer, $func)) {
                     return call_user_func([$importer, $func], ...$args);

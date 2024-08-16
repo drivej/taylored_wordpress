@@ -15,7 +15,7 @@ enum StockStatus {
 
 export interface ISupplierActionQuery extends IAjaxQuery {
   func: string;
-  args?: (string | number | boolean)[];
+  args?: unknown[];
   supplier_key: string;
 }
 
