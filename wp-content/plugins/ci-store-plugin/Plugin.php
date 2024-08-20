@@ -28,9 +28,9 @@ class Plugin
     {
         include_once CI_STORE_PLUGIN . 'hooks/index.php';
         include_once CI_STORE_PLUGIN . 'Admin.php';
-        include_once CI_STORE_PLUGIN . 'suppliers/Suppliers.php';
-        // include_once CI_STORE_PLUGIN . 'suppliers/WPS.php';
-        include_once CI_STORE_PLUGIN . 'suppliers/wps/Supplier_WPS_ImportManager.php';
+        // include_once CI_STORE_PLUGIN . 'suppliers/Suppliers.php';
+        include_once CI_STORE_PLUGIN . 'suppliers/wps/Supplier_WPS.php';
+        // include_once CI_STORE_PLUGIN . 'suppliers/wps/Supplier_WPS_ImportManager.php';
 
         add_filter('image_downsize', 'CIStore\Hooks\custom_image_downsize', 10, 3);
         add_action('woocommerce_before_shop_loop_item', 'CIStore\Hooks\custom_before_shop_loop_item');
@@ -38,7 +38,8 @@ class Plugin
         add_action('woocommerce_cart_item_thumbnail', 'CIStore\Hooks\custom_modify_cart_item_thumbnail', 10, 3);
         wp_enqueue_style('custom-store-styles', plugins_url('css/ci-styles.css', CI_STORE_PLUGIN_FILE), null, CI_VERSION);
 
-        new \WPSImportManager();
+        new \Supplier_WPS();
+        // new \WPSImportManager();
         // \CIStore\Suppliers\WPS\$importer->init();
         // $this->test();
         // do_action('wps_init');

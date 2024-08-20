@@ -8,6 +8,14 @@ include_once CI_STORE_PLUGIN . 'suppliers/Suppliers.php';
 function test_action()
 {
     $result = [];
+
+    $variation_id = 192138;
+    $variation = wc_get_product($variation_id);
+    $result['woo_sku'] = $variation->get_sku();
+    $result['supplier_sku'] = $variation->get_meta('_ci_product_sku');
+
+    return $result;
+
     $sku = 'MASTER_WPS_369438';
     $woo_id = wc_get_product_id_by_sku($sku);
     $result['woo_id'] = $woo_id;

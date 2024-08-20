@@ -84,13 +84,16 @@ class WooCommerce
      */
     public function orderCreateSupplierOrder($order, $data)
     {
-        error_log('orderCreateSupplierOrder() ' . json_encode(['order' => $order, 'data' => $data]));
+        error_log('orderCreateSupplierOrder()'); // . json_encode(['order' => $order, 'data' => $data]));
 
         $supplierOrderQueue = [];
         $success = [];
 
         foreach ($order->get_items() as $line) {
-            $product = wc_get_product($line->get_product_id());
+            $quantity = $line->get_quantity();
+            $product_id = $line->get_product_id();
+            $product = wc_get_product($product_id);
+            $variation_id = $line->get_variation_id();
 
             $supplier = $this->getObjectSupplier($product);
             if (!$supplier) {
@@ -104,9 +107,22 @@ class WooCommerce
             // $sku = $product->get_sku();
             // woo sku is composedfor woo only
             // the supplier's expected sku lives in meta
-            $sku = $product->get_meta('_ci_product_sku');
+            $sku = '';
 
-            $supplierOrderQueue[$supplier::class]['lines'][] = $sku . ',' . $line->get_quantity();
+            if ($variation_id) {
+                $variation = wc_get_product($variation_id);
+                $sku = $variation->get_meta('_ci_product_sku');
+            } else {
+                $sku = $product->get_meta('_ci_product_sku');
+            }
+            error_log('orderCreateSupplierOrder::product_id=' . $product_id . ' variation_id=' . $variation_id . ' sku=' . $sku . ' quantity=' . $quantity);
+
+            if (!$sku) {
+                error_log('SKU EMPTY!!!');
+                continue;
+            }
+
+            $supplierOrderQueue[$supplier::class]['lines'][] = $sku . ',' . $quantity;
             $supplierOrderQueue[$supplier::class]['instance'] = $supplier;
         }
 

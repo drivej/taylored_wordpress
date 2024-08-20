@@ -1170,7 +1170,7 @@ class WooTools
             }
 
             $variation['attributes'] = $woo_variation->get_attributes($context);
-            $variation['supplier_sku'] = $woo_variation->get_meta('_ci_supplier_sku', true);
+            $variation['supplier_sku'] = $woo_variation->get_meta('_ci_product_sku', true);
             $variations[] = $variation;
             // ci_error_log(__FILE__, __LINE__, ['variation' => $variation]);
         }

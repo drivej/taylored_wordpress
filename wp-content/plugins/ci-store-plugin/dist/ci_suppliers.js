@@ -11586,6 +11586,48 @@ const timeago = (date, epochs = defaultEpochs) => {
     return 'now';
 };
 
+;// CONCATENATED MODULE: ./src/components/ImporterLogs.tsx
+
+
+
+
+
+const ImporterLogs = ({ supplier_key }) => {
+    var _a;
+    const [refetchInterval, setRefetchInterval] = (0,react.useState)(5000);
+    //   const [query, setQuery] = useState<IAjaxQuery & { nonce: number } & Record<string, string | number>>({ action: 'ci_api_handler', cmd, nonce });
+    const query = {
+        action: 'ci_api_handler',
+        cmd: 'supplier_action',
+        supplier_key,
+        // func_group: 'importer'
+    };
+    const logs = useWordpressAjax(Object.assign(Object.assign({}, query), { func: 'contents' }), {
+        refetchInterval
+    });
+    const [logContent, setLogContent] = (0,react.useState)('');
+    (0,react.useEffect)(() => {
+        var _a;
+        setLogContent((_a = logs === null || logs === void 0 ? void 0 : logs.data) !== null && _a !== void 0 ? _a : '');
+    }, [logs.data]);
+    const supplierAction = useMutation({
+        mutationFn: ({ func, args = [] }) => fetchWordpressAjax(Object.assign(Object.assign({}, query), { func, args }))
+    });
+    const clear = () => {
+        if (confirm('Are you sure?')) {
+            supplierAction.mutate({ func: 'clear', args: [] }, { onSettled: setLogContent });
+        }
+    };
+    const refresh = () => {
+        supplierAction.mutate({ func: 'contents', args: [] }, { onSettled: setLogContent });
+    };
+    return (react.createElement("div", { className: 'border rounded shadow-sm p-4' },
+        react.createElement("div", { className: 'btn-group', style: { width: 'min-content' } },
+            react.createElement("button", { className: 'btn btn-sm btn-secondary', onClick: clear }, "Clear"),
+            react.createElement("button", { className: 'btn btn-sm btn-secondary', onClick: refresh }, "Refresh")),
+        react.createElement("div", { style: { maxHeight: 600, overflow: 'auto', fontSize: 11 } }, (_a = logContent === null || logContent === void 0 ? void 0 : logContent.split('\n')) === null || _a === void 0 ? void 0 : _a.map((ln) => react.createElement("div", { style: { whiteSpace: 'nowrap' } }, ln)))));
+};
+
 ;// CONCATENATED MODULE: ./src/components/SupplierImportStatus.tsx
 var SupplierImportStatus_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -11596,6 +11638,7 @@ var SupplierImportStatus_awaiter = (undefined && undefined.__awaiter) || functio
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+
 
 
 
@@ -11632,14 +11675,14 @@ const SupplierImportStatus = ({ supplier }) => {
         func: 'get_import_info',
         func_group: 'importer'
     };
-    const dataPoll = useWordpressAjax(query, { refetchInterval: 5000 });
+    const dataPoll = useWordpressAjax(query, { refetchInterval: 60000 });
     const [importInfo, setImportInfo] = (0,react.useState)({ status: 0 });
     (0,react.useEffect)(() => {
         setImportInfo(dataPoll.data);
     }, [dataPoll.data]);
-    // const refresh = () => {
-    //   supplierAction.mutate('get_import_info', { onSettled: setImportInfo });
-    // };
+    const refresh = () => {
+        supplierAction.mutate({ func: 'get_import_info', args: [] }, { onSettled: setImportInfo });
+    };
     const supplierAction = useMutation({
         mutationFn: ({ func, args = [] }) => fetchWordpressAjax(Object.assign(Object.assign({}, query), { func, args }))
     });
@@ -11657,6 +11700,9 @@ const SupplierImportStatus = ({ supplier }) => {
     };
     const updateImport = () => {
         supplierAction.mutate({ func: 'update' }, { onSettled: setImportInfo });
+    };
+    const killImport = () => {
+        supplierAction.mutate({ func: 'kill' }, { onSettled: setImportInfo });
     };
     const [nextImport, setNextImport] = (0,react.useState)('');
     const getNextImportTime = () => SupplierImportStatus_awaiter(void 0, void 0, void 0, function* () {
@@ -11688,7 +11734,7 @@ const SupplierImportStatus = ({ supplier }) => {
     const active = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === true;
     const canStart = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === false;
     const shouldStop = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.should_stop) === true;
-    const canStop = !shouldStop && (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === true;
+    const canStop = (!shouldStop && (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === true) || (importInfo === null || importInfo === void 0 ? void 0 : importInfo.stalled);
     const canReset = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === false; // && typeof importInfo?.started === 'string';
     const canContinue = canStart && (importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) > 0;
     // if ((active && progress === 0) || shouldStop) progress = 100;
@@ -11775,12 +11821,16 @@ const SupplierImportStatus = ({ supplier }) => {
                     react.createElement("div", { className: 'progress', role: 'progressbar' },
                         react.createElement("div", { className: progressBarClasses.join(' '), style: { width: `${progress}%` } })),
                     react.createElement("div", null, message),
-                    react.createElement("div", { className: 'btn-group', style: { width: 'min-content' } },
-                        react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: startImport }, "Start"),
-                        react.createElement("button", { disabled: !canStop, className: 'btn btn-sm btn-secondary', onClick: stopImport }, "Stop"),
-                        react.createElement("button", { disabled: !canReset, className: 'btn btn-sm btn-secondary', onClick: resetImport }, "Reset"),
-                        react.createElement("button", { disabled: !canContinue, className: 'btn btn-sm btn-secondary', onClick: continueImport }, "Continue"),
-                        react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: updateImport }, "Update")),
+                    react.createElement("div", { className: 'd-flex gap-2 justify-content-between' },
+                        react.createElement("div", { className: 'btn-group', style: { width: 'min-content' } },
+                            react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: startImport }, "Start"),
+                            react.createElement("button", { disabled: !canStop, className: 'btn btn-sm btn-secondary', onClick: stopImport }, "Stop"),
+                            react.createElement("button", { disabled: !canReset, className: 'btn btn-sm btn-secondary', onClick: resetImport }, "Reset"),
+                            react.createElement("button", { disabled: !canContinue, className: 'btn btn-sm btn-secondary', onClick: continueImport }, "Continue"),
+                            react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: updateImport }, "Update"),
+                            react.createElement("button", { disabled: canStart, className: 'btn btn-sm btn-secondary', onClick: killImport }, "Kill")),
+                        react.createElement("div", null,
+                            react.createElement("button", { className: 'btn btn-sm btn-secondary', onClick: refresh }, "Refresh"))),
                     react.createElement("div", { className: 'd-flex justify-content-between' },
                         react.createElement("div", null,
                             "Imported: ",
@@ -11793,6 +11843,7 @@ const SupplierImportStatus = ({ supplier }) => {
                             ' ',
                             react.createElement("b", null, (_d = importInfo === null || importInfo === void 0 ? void 0 : importInfo.processed) !== null && _d !== void 0 ? _d : '-',
                                 " / ", (_e = importInfo === null || importInfo === void 0 ? void 0 : importInfo.total) !== null && _e !== void 0 ? _e : '-'))))),
+            react.createElement(ImporterLogs, { supplier_key: supplier.key }),
             react.createElement("div", { className: `border rounded shadow-sm p-4` },
                 react.createElement("div", { className: 'd-flex flex-column gap-3' },
                     react.createElement("h5", null, "Custom Process"),

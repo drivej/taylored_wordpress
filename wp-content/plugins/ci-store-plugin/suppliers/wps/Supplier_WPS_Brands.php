@@ -33,12 +33,10 @@ trait Supplier_WPS_Brands
 
     public function set_allowed_brand_ids($brand_ids)
     {
-        error_log('set_allowed_brand_ids() is_array=' . is_array($brand_ids));
         if (is_array($brand_ids)) {
-            error_log('set_allowed_brand_ids() ' . implode(',', $brand_ids));
             update_option('wps_allow_brand_ids', $brand_ids);
         } else {
-            error_log('FAIL $brand_ids ' . $brand_ids . ' ' . gettype($brand_ids));
+            $this->log('FAIL $brand_ids ' . $brand_ids . ' ' . gettype($brand_ids));
         }
         wp_cache_flush();
         return $this->get_brands();

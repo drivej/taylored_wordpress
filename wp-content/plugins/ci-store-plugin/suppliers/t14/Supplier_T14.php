@@ -4,7 +4,7 @@
 https://turn14.com/api_settings.php
 
  */
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/Supplier.php';
 // include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/CronJob.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Timer.php';
 // include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14_Background_Process.php';
@@ -15,7 +15,7 @@ include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14_Brands
 
 use Automattic\Jetpack\Constants;
 
-class Supplier_T14 extends Supplier
+class Supplier_T14 extends CIStore\Suppliers\Supplier
 {
     use Supplier_T14_Prices;
     use Supplier_T14_Cronjob;

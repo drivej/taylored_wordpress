@@ -1,9 +1,16 @@
 <?php
 
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/CronJob.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Supplier_Background_Process.php';
+namespace CIStore\Suppliers;
+
+include_once CI_STORE_PLUGIN . 'utils/CronJob.php';
+include_once CI_STORE_PLUGIN . 'utils/CustomErrorLog.php';
 
 use Automattic\Jetpack\Constants;
+use CIStore\Utils\CustomErrorLog;
+use DateTime;
+use DateTimeZone;
+use WC_Product_Variable;
+use WooTools;
 
 class SupplierProductMeta
 {
@@ -36,18 +43,19 @@ class Supplier
     public string $access_token_expires_flag = '';
     public string $import_products_page_flag = '';
     // public string $log_flag = '';
-    public string $log_path = '';
+    // public string $log_path = '';
     public string $start_import_products_flag = '';
     public string $daily_import_flag = '';
     public string $start_daily_import_flag = '';
     // public CronJob $cronjob;
     public bool $deep_debug = false;
     public int $max_age = 24 * 7; // stale product age
-    public Supplier_Background_Process $background_process;
+    protected CustomErrorLog $logger;
 
     public function __construct($config)
     {
         $this->key = $config['key'];
+        $this->logger = new \CIStore\Utils\CustomErrorLog('SUPPLIER_' . strtoupper($this->key));
         $this->name = $config['name'];
         $this->supplierClass = $config['supplierClass'];
         $this->import_version = $config['import_version'];
@@ -62,7 +70,7 @@ class Supplier
         $this->import_report = 'ci_import_' . $this->key . '_report';
         $this->stall_check_action = $this->key . '_stall_check';
         // $this->log_flag = $this->key . '_log';
-        $this->log_path = CI_STORE_PLUGIN . 'logs/' . date('Y-m-d') . '_' . strtoupper($this->key) . '_LOG.log';
+        // $this->log_path = CI_STORE_PLUGIN . 'logs/' . date('Y-m-d') . '_' . strtoupper($this->key) . '_LOG.log';
         $this->daily_import_flag = $this->key . '_daily_import';
         $this->start_daily_import_flag = $this->key . '_start_daily_import';
         // $this->cronjob = new CronJob("cronjob_import_{$this->key}", [$this, 'run_cronjob'], [$this, 'complete_cronjob']);
@@ -75,66 +83,39 @@ class Supplier
         set_error_handler([$this, 'log']);
     }
 
-    // TODO: convert to background process for WPS
-    // public function run_cronjob($args)
+    // public function start_cronjob($args)
     // {
-    //     $args_str = json_encode(['args' => $args]);
-    //     $start_time = microtime(true);
-    //     $this->cronjob->log("run_cronjob() start args:{$args_str}");
-    //     $result = ['continue' => false];
-    //     $end_time = microtime(true);
-    //     $exetime = round($end_time - $start_time);
-    //     $this->cronjob->log("run_cronjob() end args:{$args_str} exe:{$exetime}");
-    //     return $result;
-    // }
-
-    // public function complete_cronjob($result, $args)
-    // {
-    //     $page_index = $args['page_index'];
-    //     $next_page = $page_index + 1;
-
-    //     if ($result['continue'] === true) {
-    //         $args['page_index'] = $next_page;
-    //         $this->cronjob->log('continue() ' . json_encode(['result' => $result, 'args' => $args]));
-    //         $this->cronjob->start($args);
-    //     } else {
-    //         $this->cronjob->log('complete_cronjob() ' . json_encode(['result' => $result, 'args' => $args]));
+    //     error_log('start_cronjob() ' . json_encode($args));
+    //     if ($this->background_process) {
+    //         return $this->background_process->start($args);
     //     }
+    //     error_log('start_cronjob failed');
+    //     return false;
     // }
 
-    public function start_cronjob($args)
-    {
-        error_log('start_cronjob() ' . json_encode($args));
-        if ($this->background_process) {
-            return $this->background_process->start($args);
-        }
-        error_log('start_cronjob failed');
-        return false;
-    }
+    // public function stop_cronjob()
+    // {
+    //     if ($this->background_process) {
+    //         return $this->background_process->cancel();
+    //     }
+    //     return false;
+    // }
 
-    public function stop_cronjob()
-    {
-        if ($this->background_process) {
-            return $this->background_process->cancel();
-        }
-        return false;
-    }
+    // public function continue_cronjob()
+    // {
+    //     if ($this->background_process) {
+    //         return $this->background_process->continue();
+    //     }
+    //     return false;
+    // }
 
-    public function continue_cronjob()
-    {
-        if ($this->background_process) {
-            return $this->background_process->continue();
-        }
-        return false;
-    }
-
-    public function get_cronjob_status()
-    {
-        if ($this->background_process) {
-            return $this->background_process->get_status();
-        }
-        return false;
-    }
+    // public function get_cronjob_status()
+    // {
+    //     if ($this->background_process) {
+    //         return $this->background_process->get_status();
+    //     }
+    //     return false;
+    // }
 
     // placeholder
     public function start_import_products()
@@ -180,48 +161,63 @@ class Supplier
     //     return ['error' => 'get_next_products_page() undefined'];
     // }
 
-    public function log($file, $line = null, $message = null)
+    // public function log($file, $line = null, $message = null)
+    // {
+    //     if ($this->allow_logging()) {
+    //         $spacer = "\n"; //"\n---\n";
+    //         $t = gmdate("c");
+    //         if ($line && $message) {
+    //             $parts = explode('/', $file);
+    //             $filename = end($parts);
+    //             $filename = substr($filename, -30);
+    //             $filename = str_pad($filename, 30, " ");
+    //             $ln = 'ln:' . str_pad($line, 3, " ", STR_PAD_LEFT);
+    //             if (is_object($message) || is_array($message)) {
+    //                 $message = json_encode($message, JSON_PRETTY_PRINT);
+    //             }
+    //             error_log($t . "\t" . $filename . ":" . $ln . "\t" . $message . $spacer, 3, $this->log_path);
+    //         } else {
+    //             if (is_object($file) || is_array($file)) {
+    //                 $file = json_encode($file, JSON_PRETTY_PRINT);
+    //             }
+    //             error_log($t . "\t" . $file . $spacer, 3, $this->log_path);
+    //         }
+    //     }
+    // }
+
+    // public function get_log()
+    // {
+    //     $logContents = file_get_contents($this->log_path);
+    //     // return $logContents;
+    //     $break = "\n";
+    //     $logRows = explode($break, $logContents); //PHP_EOL
+    //     $logRows = array_filter($logRows);
+    //     return $logRows;
+    // }
+
+    // public function clear_log()
+    // {
+    //     if ($fileHandle = fopen($this->log_path, 'w')) {
+    //         ftruncate($fileHandle, 0);
+    //         fclose($fileHandle);
+    //         return true;
+    //     }
+    //     return false;
+    // }
+
+    public function log($message = null)
     {
-        if ($this->allow_logging()) {
-            $spacer = "\n"; //"\n---\n";
-            $t = gmdate("c");
-            if ($line && $message) {
-                $parts = explode('/', $file);
-                $filename = end($parts);
-                $filename = substr($filename, -30);
-                $filename = str_pad($filename, 30, " ");
-                $ln = 'ln:' . str_pad($line, 3, " ", STR_PAD_LEFT);
-                if (is_object($message) || is_array($message)) {
-                    $message = json_encode($message, JSON_PRETTY_PRINT);
-                }
-                error_log($t . "\t" . $filename . ":" . $ln . "\t" . $message . $spacer, 3, $this->log_path);
-            } else {
-                if (is_object($file) || is_array($file)) {
-                    $file = json_encode($file, JSON_PRETTY_PRINT);
-                }
-                error_log($t . "\t" . $file . $spacer, 3, $this->log_path);
-            }
-        }
+        return $this->logger->log('Supplier::' . $message);
     }
 
-    public function get_log()
+    public function contents()
     {
-        $logContents = file_get_contents($this->log_path);
-        // return $logContents;
-        $break = "\n";
-        $logRows = explode($break, $logContents); //PHP_EOL
-        $logRows = array_filter($logRows);
-        return $logRows;
+        return $this->logger->contents();
     }
 
-    public function clear_log()
+    public function clear()
     {
-        if ($fileHandle = fopen($this->log_path, 'w')) {
-            ftruncate($fileHandle, 0);
-            fclose($fileHandle);
-            return true;
-        }
-        return false;
+        return $this->logger->clear();
     }
 
     public function create_product($supplier_product_id)
@@ -410,7 +406,7 @@ class Supplier
     public function update_pdp_product($woo_product)
     {
         // fires woocommerce_before_single_product
-        if (WooTools::should_update_product($woo_product, '_ci_update_pdp')) {
+        if (\WooTools::should_update_product($woo_product, '_ci_update_pdp')) {
             // custom code
         }
     }
@@ -1135,7 +1131,7 @@ class Supplier
     {
         $next = wp_next_scheduled($this->daily_import_flag);
         if (!$next) {
-            $this->log($this->key . ' schedule daily import');
+            $this->log('schedule_daily_import()');
             date_default_timezone_set('UTC');
             // Schedule the event for daily execution at 2:00am EST
             $est_time = time(); //strtotime('02:00:00 -0500');
@@ -1148,7 +1144,7 @@ class Supplier
     {
         $next = wp_next_scheduled($this->daily_import_flag);
         if ($next) {
-            $this->log($this->key . ' unschedule daily import');
+            $this->log('unschedule_daily_import()');
             return wp_unschedule_event($next, $this->daily_import_flag);
         }
         return $next;

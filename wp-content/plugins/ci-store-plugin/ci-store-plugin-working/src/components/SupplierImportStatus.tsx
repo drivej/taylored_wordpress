@@ -10,6 +10,7 @@ import { since } from '../utils/datestamp';
 import { fetchWordpressAjax } from '../utils/fetchWordpressAjax';
 import { timeago } from '../utils/timeago';
 import { useWordpressAjax } from '../utils/useWordpressAjax';
+import { ImporterLogs } from './ImporterLogs';
 import { LoadingPage } from './LoadingPage';
 
 export const SupplierImportStatusPage = ({ supplier_key }: { supplier_key: string }) => {
@@ -47,6 +48,7 @@ interface IImportStatus {
   should_stop: boolean;
   complete: boolean;
   completed: string;
+  stalled: boolean;
 }
 
 export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
@@ -61,7 +63,7 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
     func: 'get_import_info',
     func_group: 'importer'
   };
-  const dataPoll = useWordpressAjax<IImportStatus>(query, { refetchInterval: 5000 });
+  const dataPoll = useWordpressAjax<IImportStatus>(query, { refetchInterval: 60000 });
 
   const [importInfo, setImportInfo] = useState<Partial<IImportStatus>>({ status: 0 });
 
@@ -69,9 +71,9 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
     setImportInfo(dataPoll.data);
   }, [dataPoll.data]);
 
-  // const refresh = () => {
-  //   supplierAction.mutate('get_import_info', { onSettled: setImportInfo });
-  // };
+  const refresh = () => {
+    supplierAction.mutate({ func: 'get_import_info', args: [] }, { onSettled: setImportInfo });
+  };
 
   const supplierAction = useMutation<IImportStatus, unknown, Partial<ISupplierActionQuery>>({
     mutationFn: ({ func, args = [] }) => fetchWordpressAjax<IImportStatus, IAjaxQuery & ISupplierActionQuery>({ ...query, func, args })
@@ -95,6 +97,10 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
 
   const updateImport = () => {
     supplierAction.mutate({ func: 'update' }, { onSettled: setImportInfo });
+  };
+
+  const killImport = () => {
+    supplierAction.mutate({ func: 'kill' }, { onSettled: setImportInfo });
   };
 
   const [nextImport, setNextImport] = useState('');
@@ -131,7 +137,7 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
   const active = importInfo?.active === true;
   const canStart = importInfo?.active === false;
   const shouldStop = importInfo?.should_stop === true;
-  const canStop = !shouldStop && importInfo?.active === true;
+  const canStop = (!shouldStop && importInfo?.active === true) || importInfo?.stalled;
   const canReset = importInfo?.active === false; // && typeof importInfo?.started === 'string';
   const canContinue = canStart && importInfo?.progress > 0;
   // if ((active && progress === 0) || shouldStop) progress = 100;
@@ -226,27 +232,34 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
             </div>
 
             <div>{message}</div>
+            <div className='d-flex gap-2 justify-content-between'>
+              <div className='btn-group' style={{ width: 'min-content' }}>
+                <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={startImport}>
+                  Start
+                </button>
+                <button disabled={!canStop} className='btn btn-sm btn-secondary' onClick={stopImport}>
+                  Stop
+                </button>
+                <button disabled={!canReset} className='btn btn-sm btn-secondary' onClick={resetImport}>
+                  Reset
+                </button>
+                <button disabled={!canContinue} className='btn btn-sm btn-secondary' onClick={continueImport}>
+                  Continue
+                </button>
+                <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={updateImport}>
+                  Update
+                </button>
+                <button disabled={canStart} className='btn btn-sm btn-secondary' onClick={killImport}>
+                  Kill
+                </button>
+              </div>
 
-            <div className='btn-group' style={{ width: 'min-content' }}>
-              <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={startImport}>
-                Start
-              </button>
-              <button disabled={!canStop} className='btn btn-sm btn-secondary' onClick={stopImport}>
-                Stop
-              </button>
-              <button disabled={!canReset} className='btn btn-sm btn-secondary' onClick={resetImport}>
-                Reset
-              </button>
-              <button disabled={!canContinue} className='btn btn-sm btn-secondary' onClick={continueImport}>
-                Continue
-              </button>
-              <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={updateImport}>
-                Update
-              </button>
+              <div>
+                <button className='btn btn-sm btn-secondary' onClick={refresh}>
+                  Refresh
+                </button>
+              </div>
             </div>
-            {/* <button className='btn btn-sm btn-secondary' onClick={refresh}>
-              Refresh
-            </button> */}
 
             <div className='d-flex justify-content-between'>
               <div>
@@ -264,6 +277,8 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
             </div>
           </div>
         </div>
+
+        <ImporterLogs supplier_key={supplier.key} />
 
         <div className={`border rounded shadow-sm p-4`}>
           <div className='d-flex flex-column gap-3'>

@@ -146,7 +146,7 @@ trait Supplier_WPS_Data
                 $fails++;
                 $page_size_index = max(0, $page_size_index - $fails);
                 if ($page_size_index < 3) {
-                    error_log('---------- throttled ----------');
+                    $this->log('---------- throttled ----------');
                     // maybe we're being throttled
                     sleep(10);
                 }
@@ -156,7 +156,7 @@ trait Supplier_WPS_Data
         }
 
         if (isset($items['error'])) {
-            error_log(json_encode(['cursor' => $cursor, 'size' => $page_size, 'fails' => $fails]));
+            $this->log(json_encode(['cursor' => $cursor, 'size' => $page_size, 'fails' => $fails]));
         }
         return $items;
     }

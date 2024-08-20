@@ -14,7 +14,7 @@ function custom_add_sku_selector()
 
             foreach ($variations as $variation_id) {
                 $variation = wc_get_product($variation_id);
-                $variation_supplier_sku = $variation->get_meta('_ci_supplier_sku', true);
+                $variation_supplier_sku = $variation->get_meta('_ci_product_sku', true);
                 echo '<option value="' . esc_attr($variation_id) . '">' . $variation_supplier_sku . '</option>';
             }
 
