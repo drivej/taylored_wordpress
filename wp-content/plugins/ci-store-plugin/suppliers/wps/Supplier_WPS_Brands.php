@@ -35,10 +35,8 @@ trait Supplier_WPS_Brands
     {
         if (is_array($brand_ids)) {
             update_option('wps_allow_brand_ids', $brand_ids);
-        } else {
-            $this->log('FAIL $brand_ids ' . $brand_ids . ' ' . gettype($brand_ids));
+            wp_cache_flush();
         }
-        wp_cache_flush();
         return $this->get_brands();
     }
 

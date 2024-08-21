@@ -44,6 +44,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
      * @since 2.1
      */
     protected static $_instance = null;
+    protected WPSImportManager $importer;
 
     public function __construct()
     {
@@ -53,6 +54,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
             'supplierClass' => 'WooDropship\\Suppliers\\Western',
             'import_version' => '0.4',
         ]);
+        $this->importer = $this->get_importer();
     }
 
     public static function instance()
@@ -194,6 +196,8 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
     {
         $updated_at = $updated_at ?? $this->default_updated_at;
         $items = $this->get_products_page($cursor, 'pdp', $updated_at);
+        $ids = array_map(fn($item) => $item['id'], $items['data'] ?? []);
+        $this->log('import_products_page() ' . json_encode($ids));
         $items = $this->process_items_native($items);
         return $items;
     }
@@ -380,7 +384,18 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                 }
                 $woo_product = new WC_Product_Simple($woo_id);
                 if (!$woo_id) {
-                    $woo_product->set_sku($sku);
+                    try {
+                        $woo_product->set_sku($sku);
+                    } catch (Exception $e) {
+                        $this->log('!------ERROR------!');
+                        $this->log('set_sku("' . $sku . '") supplier.id=' . $product['id']);
+                        $this->log('Exception: ' . $e->getMessage());
+                        $this->log('Code: ' . $e->getCode());
+                        $this->log('File: ' . $e->getFile());
+                        $this->log('Line: ' . $e->getLine());
+                        $this->log('Stack trace: ' . $e->getTraceAsString());
+                        continue;
+                    }
                     $woo_product->update_meta_data('_supplier_class', $this->supplierClass);
                     $woo_product->update_meta_data('_ci_product_id', $product['id']);
                     $woo_product->update_meta_data('_ci_supplier_key', $this->key);
@@ -419,7 +434,18 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                 $woo_product = new WC_Product_Variable($woo_id);
 
                 if (!$woo_id) {
-                    $woo_product->set_sku($sku);
+                    try {
+                        $woo_product->set_sku($sku);
+                    } catch (Exception $e) {
+                        $this->log('!------ERROR------!');
+                        $this->log('set_sku("' . $sku . '") supplier.id=' . $product['id']);
+                        $this->log('Exception: ' . $e->getMessage());
+                        $this->log('Code: ' . $e->getCode());
+                        $this->log('File: ' . $e->getFile());
+                        $this->log('Line: ' . $e->getLine());
+                        $this->log('Stack trace: ' . $e->getTraceAsString());
+                        continue;
+                    }
                     $woo_product->update_meta_data('_supplier_class', $this->supplierClass);
                     $woo_product->update_meta_data('_ci_product_id', $product['id']);
                     $woo_product->update_meta_data('_ci_supplier_key', $this->key);
@@ -543,7 +569,6 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
         }
 
         $exe_time = $timer->lap();
-        // error_log('process_items_native ' . $exe_time);
         $items['exe_time'] = $exe_time;
         return $items;
     }
@@ -672,119 +697,6 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
 
         return $av;
     }
-
-    // public function get_item_images($item, $size = 200)
-    // {
-    //     if (isset($item['images']['data'])) {
-    //         if (count($item['images']['data'])) {
-    //             return array_map(fn($img) => $this->build_western_image_url($img, $size), $item['images']['data']);
-    //         }
-    //     }
-    //     return null;
-    // }
-
-    // public function get_item_images_data($item)
-    // {
-    //     $images = [];
-    //     if (isset($item['images']['data']) && is_countable($item['images']['data']) && count($item['images']['data'])) {
-    //         foreach ($item['images']['data'] as $image) {
-    //             $file = $this->build_western_image_url($image);
-    //             $width = isset($image['width']) ? $image['width'] : 200;
-    //             $height = isset($image['height']) ? $image['height'] : 200;
-    //             $filesize = isset($image['size']) ? $image['size'] : 0;
-    //             $images[] = ['file' => $file, 'width' => $width, 'height' => $height, 'filesize' => $filesize];
-    //         }
-    //     }
-    //     return $images;
-    // }
-
-    // public function extract_attributes($supplier_product)
-    // {
-    //     // if ($this->deep_debug) {
-    //         $this->log('extract_attributes()');
-    //     // }
-
-    //     if (!$supplier_product) {
-    //         return [];
-    //     }
-    //     // extract an array of valid attributes
-    //     $attr_keys = $supplier_product['data']['attributekeys']['data'];
-    //     $attributes = [];
-    //     $lookup_slug_by_id = [];
-
-    //     if (is_countable($attr_keys)) {
-    //         foreach ($attr_keys as $attr_id => $attr) {
-    //             if (!isset($attr['name']) || !isset($attr['slug'])) {
-    //                 $this->log(__FILE__, __LINE__, 'Error', $attr_keys);
-    //             }
-    //             $attributes[$attr['slug']] = [
-    //                 'name' => $attr['name'],
-    //                 'options' => [],
-    //                 'slug' => $attr['slug'],
-    //             ];
-    //             $lookup_slug_by_id[$attr_id] = $attr['slug'];
-    //         }
-    //     }
-
-    //     $items = isset($supplier_product['data']['items']['data']) ? $supplier_product['data']['items']['data'] : [];
-
-    //     $valid_items = array_filter($items, [$this, 'isValidItem']);
-
-    //     foreach ($valid_items as $item) {
-    //         foreach ($item['attributevalues']['data'] as $item_attr) {
-    //             $attr_id = $item_attr['attributekey_id'];
-    //             $attr_value = $item_attr['name'];
-    //             $attr_slug = $lookup_slug_by_id[$attr_id];
-
-    //             if (!isset($attributes[$attr_slug]['options'][$attr_value])) {
-    //                 $attributes[$attr_slug]['options'][$attr_value] = 0;
-    //             }
-    //             $attributes[$attr_slug]['options'][$attr_value]++;
-    //         }
-    //     }
-
-    //     $changes = [];
-    //     $valid_items_count = count($valid_items);
-    //     foreach ($attributes as $attr_slug => $attribute) {
-    //         foreach ($attribute['options'] as $attr_value => $option_count) {
-    //             if ($option_count === 0 || $option_count === $valid_items_count) {
-    //                 unset($attribute['options'][$attr_value]);
-    //                 $changes[] = "remove {$attr_slug} -> {$attr_value}";
-    //             }
-    //         }
-
-    //         if (count($attribute['options'])) {
-    //             $attributes[$attr_slug]['options'] = array_keys($attributes[$attr_slug]['options']);
-    //         } else {
-    //             unset($attributes[$attr_slug]);
-    //             $changes[] = "delete {$attr_slug}";
-    //         }
-    //     }
-
-    //     // if (!count($attributes)) {
-    //     //     // with no other attributes, a variable product requires something to validate it for adding to cart
-    //     //     $attributes['__required_attr'] = [
-    //     //         'name' => '__required_attr',
-    //     //         'options' => ['1'],
-    //     //         'slug' => '__required_attr',
-    //     //         'visible' => 0,
-    //     //         'variation' => 0,
-    //     //     ];
-    //     // }
-
-    //     $valid_skus = array_map(fn($v) => $v['sku'], $valid_items);
-
-    //     // if (count($valid_skus)) {
-    //     // if there's only 1 sku, we don't need a sku selector
-    //     $attributes['supplier_sku'] = [
-    //         'name' => 'supplier_sku',
-    //         'options' => array_map(fn($v) => $v['sku'], $valid_items),
-    //         'slug' => 'supplier_sku',
-    //     ];
-    //     // }
-
-    //     return array_values($attributes);
-    // }
 
     public function is_available($supplier_product)
     {

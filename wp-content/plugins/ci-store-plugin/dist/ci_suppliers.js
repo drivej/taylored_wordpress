@@ -11592,17 +11592,11 @@ const timeago = (date, epochs = defaultEpochs) => {
 
 
 
-const ImporterLogs = ({ supplier_key }) => {
+const ErrorLogs = ({ baseQuery }) => {
     var _a;
     const [refetchInterval, setRefetchInterval] = (0,react.useState)(5000);
-    //   const [query, setQuery] = useState<IAjaxQuery & { nonce: number } & Record<string, string | number>>({ action: 'ci_api_handler', cmd, nonce });
-    const query = {
-        action: 'ci_api_handler',
-        cmd: 'supplier_action',
-        supplier_key,
-        // func_group: 'importer'
-    };
-    const logs = useWordpressAjax(Object.assign(Object.assign({}, query), { func: 'contents' }), {
+    const query = Object.assign({ action: 'ci_api_handler', cmd: 'supplier_action', supplier_key: '' }, baseQuery);
+    const logs = useWordpressAjax(Object.assign(Object.assign({}, query), { func: 'logs' }), {
         refetchInterval
     });
     const [logContent, setLogContent] = (0,react.useState)('');
@@ -11610,23 +11604,24 @@ const ImporterLogs = ({ supplier_key }) => {
         var _a;
         setLogContent((_a = logs === null || logs === void 0 ? void 0 : logs.data) !== null && _a !== void 0 ? _a : '');
     }, [logs.data]);
-    const supplierAction = useMutation({
+    const action = useMutation({
         mutationFn: ({ func, args = [] }) => fetchWordpressAjax(Object.assign(Object.assign({}, query), { func, args }))
     });
     const clear = () => {
-        if (confirm('Are you sure?')) {
-            supplierAction.mutate({ func: 'clear', args: [] }, { onSettled: setLogContent });
-        }
+        action.mutate({ func: 'clear' }, { onSettled: setLogContent });
     };
     const refresh = () => {
-        supplierAction.mutate({ func: 'contents', args: [] }, { onSettled: setLogContent });
+        action.mutate({ func: 'logs' }, { onSettled: setLogContent });
     };
     return (react.createElement("div", { className: 'border rounded shadow-sm p-4' },
-        react.createElement("div", { className: 'btn-group', style: { width: 'min-content' } },
-            react.createElement("button", { className: 'btn btn-sm btn-secondary', onClick: clear }, "Clear"),
-            react.createElement("button", { className: 'btn btn-sm btn-secondary', onClick: refresh }, "Refresh")),
-        react.createElement("div", { style: { maxHeight: 600, overflow: 'auto', fontSize: 11 } }, (_a = logContent === null || logContent === void 0 ? void 0 : logContent.split('\n')) === null || _a === void 0 ? void 0 : _a.map((ln) => react.createElement("div", { style: { whiteSpace: 'nowrap' } }, ln)))));
+        react.createElement("div", null,
+            react.createElement("div", { className: 'btn-group', style: { width: 'min-content' } },
+                react.createElement("button", { disabled: action.isPending, className: 'btn btn-sm btn-secondary', onClick: clear }, "Clear"),
+                react.createElement("button", { disabled: action.isPending, className: 'btn btn-sm btn-secondary', onClick: refresh }, "Refresh"))),
+        react.createElement("div", { style: { maxHeight: 600, overflow: 'auto', fontSize: 11 } }, (_a = logContent === null || logContent === void 0 ? void 0 : logContent.split('\n')) === null || _a === void 0 ? void 0 : _a.map((ln, i) => (react.createElement("div", { key: `ln${i}`, style: { whiteSpace: 'nowrap' } }, ln))))));
 };
+const SupplierLogs = ({ supplier_key }) => React.createElement(ErrorLogs, { baseQuery: { supplier_key, cmd: 'supplier_action' } });
+const ImporterLogs = ({ supplier_key }) => React.createElement(ErrorLogs, { baseQuery: { supplier_key, cmd: 'supplier_action' } });
 
 ;// CONCATENATED MODULE: ./src/components/SupplierImportStatus.tsx
 var SupplierImportStatus_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -11692,8 +11687,8 @@ const SupplierImportStatus = ({ supplier }) => {
     const stopImport = () => {
         supplierAction.mutate({ func: 'stop' }, { onSettled: setImportInfo });
     };
-    const continueImport = () => {
-        supplierAction.mutate({ func: 'continue' }, { onSettled: setImportInfo });
+    const resumeImport = () => {
+        supplierAction.mutate({ func: 'resume' }, { onSettled: setImportInfo });
     };
     const resetImport = () => {
         supplierAction.mutate({ func: 'reset' }, { onSettled: setImportInfo });
@@ -11735,27 +11730,11 @@ const SupplierImportStatus = ({ supplier }) => {
     const canStart = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === false;
     const shouldStop = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.should_stop) === true;
     const canStop = (!shouldStop && (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === true) || (importInfo === null || importInfo === void 0 ? void 0 : importInfo.stalled);
-    const canReset = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === false; // && typeof importInfo?.started === 'string';
+    const canReset = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === false;
     const canContinue = canStart && (importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) > 0;
-    // if ((active && progress === 0) || shouldStop) progress = 100;
     const isComplete = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.complete) === true;
     let progress = active && ((importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) === 0 || shouldStop) ? 100 : ((_a = importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) !== null && _a !== void 0 ? _a : 0) * 100;
     const [progressBarClasses, setProgressBarClasses] = (0,react.useState)(['progress-bar']);
-    // const progressBarClasses = ['progress-bar'];
-    // if (active) {
-    //   progressBarClasses.push(...['progress-bar-striped', 'progress-bar-animated']);
-    //   if (progress === 0) {
-    //     progressBarClasses.push('bg-warning');
-    //   } else if (shouldStop) {
-    //     progressBarClasses.push('bg-danger');
-    //   }
-    // } else {
-    //   if (isComplete) {
-    //     progressBarClasses.push('bg-success');
-    //   } else {
-    //     progressBarClasses.push('bg-secondary');
-    //   }
-    // }
     const [message, setMessage] = (0,react.useState)('');
     (0,react.useEffect)(() => {
         var _a, _b;
@@ -11800,9 +11779,9 @@ const SupplierImportStatus = ({ supplier }) => {
         setProgressBarClasses(c);
     }, [importInfo]);
     const $cursorInput = (0,react.useRef)();
-    const [cursor, setCursor] = (0,react.useState)('');
+    const [cursor, setCursor] = (0,react.useState)('g9akM2pNYlKO');
     const $updatedAtInput = (0,react.useRef)();
-    const [updatedAt, setUpdatedAt] = (0,react.useState)('');
+    const [updatedAt, setUpdatedAt] = (0,react.useState)('2023-01-01');
     const [importType, setImportType] = (0,react.useState)('');
     const $importTypeInput = (0,react.useRef)();
     const customCursor = () => {
@@ -11826,7 +11805,7 @@ const SupplierImportStatus = ({ supplier }) => {
                             react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: startImport }, "Start"),
                             react.createElement("button", { disabled: !canStop, className: 'btn btn-sm btn-secondary', onClick: stopImport }, "Stop"),
                             react.createElement("button", { disabled: !canReset, className: 'btn btn-sm btn-secondary', onClick: resetImport }, "Reset"),
-                            react.createElement("button", { disabled: !canContinue, className: 'btn btn-sm btn-secondary', onClick: continueImport }, "Continue"),
+                            react.createElement("button", { disabled: !canContinue, className: 'btn btn-sm btn-secondary', onClick: resumeImport }, "Resume"),
                             react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: updateImport }, "Update"),
                             react.createElement("button", { disabled: canStart, className: 'btn btn-sm btn-secondary', onClick: killImport }, "Kill")),
                         react.createElement("div", null,
@@ -11843,11 +11822,11 @@ const SupplierImportStatus = ({ supplier }) => {
                             ' ',
                             react.createElement("b", null, (_d = importInfo === null || importInfo === void 0 ? void 0 : importInfo.processed) !== null && _d !== void 0 ? _d : '-',
                                 " / ", (_e = importInfo === null || importInfo === void 0 ? void 0 : importInfo.total) !== null && _e !== void 0 ? _e : '-'))))),
-            react.createElement(ImporterLogs, { supplier_key: supplier.key }),
+            react.createElement(ErrorLogs, { baseQuery: { supplier_key: supplier.key, cmd: 'supplier_action' } }),
             react.createElement("div", { className: `border rounded shadow-sm p-4` },
                 react.createElement("div", { className: 'd-flex flex-column gap-3' },
                     react.createElement("h5", null, "Custom Process"),
-                    react.createElement("div", { className: 'Xinput-group d-flex gap-2 w-100' },
+                    react.createElement("div", { className: 'd-flex gap-2' },
                         react.createElement("div", null,
                             react.createElement("label", { className: 'form-label' }, "Cursor"),
                             react.createElement("input", { type: 'text', className: 'form-control', value: cursor, onChange: (e) => setCursor(e.currentTarget.value), ref: $cursorInput })),
@@ -11856,12 +11835,12 @@ const SupplierImportStatus = ({ supplier }) => {
                             react.createElement("input", { type: 'text', className: 'form-control', placeholder: 'YYYY-MM-DD', value: updatedAt, onChange: (e) => setUpdatedAt(e.currentTarget.value), ref: $updatedAtInput })),
                         react.createElement("div", null,
                             react.createElement("label", { className: 'form-label' }, "Type"),
-                            react.createElement("select", { className: 'form-select w-100', value: importType, onChange: (e) => setImportType(e.currentTarget.value), ref: $importTypeInput },
-                                react.createElement("option", { value: '' }, "import"),
+                            react.createElement("select", { className: 'form-select', value: importType, onChange: (e) => setImportType(e.currentTarget.value), ref: $importTypeInput },
+                                react.createElement("option", { value: 'import' }, "import"),
                                 react.createElement("option", { value: 'patch' }, "patch"))),
                         react.createElement("div", null,
                             react.createElement("label", { className: 'form-label d-block' }, "\u00A0"),
-                            react.createElement("button", { type: 'button', className: 'btn btn-primary', onClick: customCursor }, "Go"))))),
+                            react.createElement("button", { type: 'button', className: 'btn btn-primary btn-sm', onClick: customCursor }, "Go"))))),
             react.createElement("div", { className: `border rounded shadow-sm p-4 ${nextImport === 'never' ? 'bg-warning' : ''}` },
                 react.createElement("div", { className: 'd-flex flex-column gap-3' },
                     react.createElement("div", null,
@@ -11873,7 +11852,7 @@ const SupplierImportStatus = ({ supplier }) => {
                             react.createElement("label", { className: 'switch' },
                                 react.createElement("input", { type: 'checkbox', checked: nextImport !== 'never', onChange: onChangeAutoImport }),
                                 react.createElement("span", { className: 'slider round' })))))),
-            react.createElement("pre", null, JSON.stringify({ importInfo, is_running: active, canStart }, null, 2))));
+            react.createElement("pre", { style: { fontSize: 11 } }, JSON.stringify({ importInfo, is_running: active, canStart }, null, 2))));
     }
     return react.createElement(LoadingPage, null);
 };

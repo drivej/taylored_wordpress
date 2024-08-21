@@ -10,7 +10,7 @@ import { since } from '../utils/datestamp';
 import { fetchWordpressAjax } from '../utils/fetchWordpressAjax';
 import { timeago } from '../utils/timeago';
 import { useWordpressAjax } from '../utils/useWordpressAjax';
-import { ImporterLogs } from './ImporterLogs';
+import { ErrorLogs } from './ImporterLogs';
 import { LoadingPage } from './LoadingPage';
 
 export const SupplierImportStatusPage = ({ supplier_key }: { supplier_key: string }) => {
@@ -87,8 +87,8 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
     supplierAction.mutate({ func: 'stop' }, { onSettled: setImportInfo });
   };
 
-  const continueImport = () => {
-    supplierAction.mutate({ func: 'continue' }, { onSettled: setImportInfo });
+  const resumeImport = () => {
+    supplierAction.mutate({ func: 'resume' }, { onSettled: setImportInfo });
   };
 
   const resetImport = () => {
@@ -138,30 +138,11 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
   const canStart = importInfo?.active === false;
   const shouldStop = importInfo?.should_stop === true;
   const canStop = (!shouldStop && importInfo?.active === true) || importInfo?.stalled;
-  const canReset = importInfo?.active === false; // && typeof importInfo?.started === 'string';
+  const canReset = importInfo?.active === false;
   const canContinue = canStart && importInfo?.progress > 0;
-  // if ((active && progress === 0) || shouldStop) progress = 100;
   const isComplete = importInfo?.complete === true;
   let progress = active && (importInfo?.progress === 0 || shouldStop) ? 100 : (importInfo?.progress ?? 0) * 100;
-
   const [progressBarClasses, setProgressBarClasses] = useState(['progress-bar']);
-
-  // const progressBarClasses = ['progress-bar'];
-  // if (active) {
-  //   progressBarClasses.push(...['progress-bar-striped', 'progress-bar-animated']);
-  //   if (progress === 0) {
-  //     progressBarClasses.push('bg-warning');
-  //   } else if (shouldStop) {
-  //     progressBarClasses.push('bg-danger');
-  //   }
-  // } else {
-  //   if (isComplete) {
-  //     progressBarClasses.push('bg-success');
-  //   } else {
-  //     progressBarClasses.push('bg-secondary');
-  //   }
-  // }
-
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -205,9 +186,9 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
   }, [importInfo]);
 
   const $cursorInput = useRef<HTMLInputElement>();
-  const [cursor, setCursor] = useState('');
+  const [cursor, setCursor] = useState('g9akM2pNYlKO');
   const $updatedAtInput = useRef<HTMLInputElement>();
-  const [updatedAt, setUpdatedAt] = useState('');
+  const [updatedAt, setUpdatedAt] = useState('2023-01-01');
   const [importType, setImportType] = useState('');
   const $importTypeInput = useRef<HTMLSelectElement>();
 
@@ -243,8 +224,8 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
                 <button disabled={!canReset} className='btn btn-sm btn-secondary' onClick={resetImport}>
                   Reset
                 </button>
-                <button disabled={!canContinue} className='btn btn-sm btn-secondary' onClick={continueImport}>
-                  Continue
+                <button disabled={!canContinue} className='btn btn-sm btn-secondary' onClick={resumeImport}>
+                  Resume
                 </button>
                 <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={updateImport}>
                   Update
@@ -278,15 +259,12 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
           </div>
         </div>
 
-        <ImporterLogs supplier_key={supplier.key} />
+        <ErrorLogs baseQuery={{ supplier_key: supplier.key, cmd: 'supplier_action' }} />
 
         <div className={`border rounded shadow-sm p-4`}>
           <div className='d-flex flex-column gap-3'>
             <h5>Custom Process</h5>
-            <div className='Xinput-group d-flex gap-2 w-100'>
-              {/* <span className='input-group-text' id='basic-addon3'>
-                Cursor
-              </span> */}
+            <div className='d-flex gap-2'>
               <div>
                 <label className='form-label'>Cursor</label>
                 <input type='text' className='form-control' value={cursor} onChange={(e) => setCursor(e.currentTarget.value)} ref={$cursorInput} />
@@ -297,14 +275,14 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
               </div>
               <div>
                 <label className='form-label'>Type</label>
-                <select className='form-select w-100' value={importType} onChange={(e) => setImportType(e.currentTarget.value)} ref={$importTypeInput}>
-                  <option value=''>import</option>
+                <select className='form-select' value={importType} onChange={(e) => setImportType(e.currentTarget.value)} ref={$importTypeInput}>
+                  <option value='import'>import</option>
                   <option value='patch'>patch</option>
                 </select>
               </div>
               <div>
                 <label className='form-label d-block'>&nbsp;</label>
-                <button type='button' className='btn btn-primary' onClick={customCursor}>
+                <button type='button' className='btn btn-primary btn-sm' onClick={customCursor}>
                   Go
                 </button>
               </div>
@@ -327,7 +305,7 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
           </div>
         </div>
 
-        <pre>{JSON.stringify({ importInfo, is_running: active, canStart }, null, 2)}</pre>
+        <pre style={{fontSize:11}}>{JSON.stringify({ importInfo, is_running: active, canStart }, null, 2)}</pre>
       </div>
     );
   }

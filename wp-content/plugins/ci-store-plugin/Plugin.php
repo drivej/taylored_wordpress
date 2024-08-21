@@ -20,7 +20,6 @@ class Plugin
         } else {
             $init_func = 'init_error';
         }
-        // error_log($init_func);
         add_action('init', [$this, $init_func]);
     }
 
@@ -38,7 +37,10 @@ class Plugin
         add_action('woocommerce_cart_item_thumbnail', 'CIStore\Hooks\custom_modify_cart_item_thumbnail', 10, 3);
         wp_enqueue_style('custom-store-styles', plugins_url('css/ci-styles.css', CI_STORE_PLUGIN_FILE), null, CI_VERSION);
 
-        new \Supplier_WPS();
+        add_action('test_event', 'CIStore\Hooks\custom_before_shop_loop_item');
+
+        $supplier_wps = new \Supplier_WPS();
+        $importer_wps = $supplier_wps->get_importer();
         // new \WPSImportManager();
         // \CIStore\Suppliers\WPS\$importer->init();
         // $this->test();

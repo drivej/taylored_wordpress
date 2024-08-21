@@ -6,21 +6,20 @@ import { ISupplierActionQuery } from '../utilities/StockPage';
 import { fetchWordpressAjax } from '../utils/fetchWordpressAjax';
 import { useWordpressAjax } from '../utils/useWordpressAjax';
 
-export const ImporterLogs = ({ supplier_key }: { supplier_key: string }) => {
+export const ErrorLogs = ({ baseQuery }: { baseQuery: Partial<IAjaxQuery> }) => {
   const [refetchInterval, setRefetchInterval] = useState<number | false>(5000);
-  //   const [query, setQuery] = useState<IAjaxQuery & { nonce: number } & Record<string, string | number>>({ action: 'ci_api_handler', cmd, nonce });
 
   const query = {
     action: 'ci_api_handler',
     cmd: 'supplier_action',
-    supplier_key,
-    // func_group: 'importer'
+    supplier_key: '',
+    ...baseQuery
   };
 
   const logs = useWordpressAjax<string>(
     {
       ...query,
-      func: 'contents'
+      func: 'logs'
     },
     {
       refetchInterval
@@ -33,31 +32,46 @@ export const ImporterLogs = ({ supplier_key }: { supplier_key: string }) => {
     setLogContent(logs?.data ?? '');
   }, [logs.data]);
 
-  const supplierAction = useMutation<unknown, unknown, Partial<ISupplierActionQuery>>({
-    mutationFn: ({ func, args = [] }) => fetchWordpressAjax<string, IAjaxQuery & ISupplierActionQuery>({ ...query, func, args })
+  const action = useMutation<unknown, unknown, Partial<ISupplierActionQuery>>({
+    mutationFn: ({ func, args = [] }) => fetchWordpressAjax<string, IAjaxQuery>({ ...query, func, args })
   });
 
   const clear = () => {
-    if (confirm('Are you sure?')) {
-      supplierAction.mutate({ func: 'clear', args: [] }, { onSettled: setLogContent });
-    }
+    action.mutate({ func: 'clear' }, { onSettled: setLogContent });
   };
 
   const refresh = () => {
-    supplierAction.mutate({ func: 'contents', args: [] }, { onSettled: setLogContent });
+    action.mutate({ func: 'logs' }, { onSettled: setLogContent });
   };
 
   return (
     <div className='border rounded shadow-sm p-4'>
-      <div className='btn-group' style={{ width: 'min-content' }}>
-        <button className='btn btn-sm btn-secondary' onClick={clear}>
-          Clear
-        </button>
-        <button className='btn btn-sm btn-secondary' onClick={refresh}>
-          Refresh
-        </button>
+      <div>
+        <div className='btn-group' style={{ width: 'min-content' }}>
+          <button disabled={action.isPending} className='btn btn-sm btn-secondary' onClick={clear}>
+            Clear
+          </button>
+          <button disabled={action.isPending} className='btn btn-sm btn-secondary' onClick={refresh}>
+            Refresh
+          </button>
+          {/* <span>{JSON.stringify(refetchInterval)}</span> */}
+          {/* <select className='form-select' value={JSON.stringify(refetchInterval)} onChange={(e) => setRefetchInterval(JSON.parse(e.currentTarget.value))}>
+            <option value={JSON.stringify(false)}>Off</option>
+            <option value={JSON.stringify(5000)}>On</option>
+          </select> */}
+        </div>
       </div>
-      <div style={{ maxHeight: 600, overflow: 'auto', fontSize: 11 }}>{logContent?.split('\n')?.map((ln) => <div style={{ whiteSpace: 'nowrap' }}>{ln}</div>)}</div>
+      <div style={{ maxHeight: 600, overflow: 'auto', fontSize: 11 }}>
+        {logContent?.split('\n')?.map((ln, i) => (
+          <div key={`ln${i}`} style={{ whiteSpace: 'nowrap' }}>
+            {ln}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
+
+export const SupplierLogs = ({ supplier_key }: { supplier_key: string }) => <ErrorLogs baseQuery={{ supplier_key, cmd: 'supplier_action' }} />;
+
+export const ImporterLogs = ({ supplier_key }: { supplier_key: string }) => <ErrorLogs baseQuery={{ supplier_key, cmd: 'supplier_action' }} />;

@@ -5,9 +5,7 @@ https://turn14.com/api_settings.php
 
  */
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/Supplier.php';
-// include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/CronJob.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Timer.php';
-// include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14_Background_Process.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14_Prices.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14_Cronjob.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14_API.php';
@@ -1357,7 +1355,7 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
     //     return $this->get_api("/items/{$supplier_product_id}");
     // }
 
-    public function get_product($supplier_product_id, $flag = 'full')
+    public function get_product($supplier_product_id, $flag = 'pdp')
     {
         $response = $this->get_api("/items/{$supplier_product_id}");
 
@@ -1365,7 +1363,7 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
             return $response;
         }
 
-        if ($flag === 'full' || $flag === 'pdp') {
+        if ($flag === 'pdp') {
             $item_data = $this->get_api("/items/data/{$supplier_product_id}");
             $fitments = $this->get_api("/items/fitment/{$supplier_product_id}");
             $pricing = $this->get_api("/pricing/{$supplier_product_id}");

@@ -8,21 +8,6 @@ trait Supplier_WPS_Data
         $fields = [];
         $includes = [];
 
-        if ($flag === 'full') {
-            $includes = [
-                'features', //
-                'tags',
-                'blocks',
-                'taxonomyterms',
-                'attributekeys',
-                'attributevalues',
-                'items.images',
-                'items.attributevalues',
-                'items.taxonomyterms',
-                'items:filter(status_id|STK)',
-            ];
-        }
-
         if ($flag === 'stock') {
             $includes = [
                 'items:filter(status_id|STK)',
@@ -67,6 +52,7 @@ trait Supplier_WPS_Data
             $fields['taxonomyterms'] = 'name,slug';
             $fields['images'] = 'domain,path,filename,mime,width,height,size';
         }
+
         if (count($includes)) {
             $params['include'] = implode(',', $includes);
         }
@@ -76,7 +62,7 @@ trait Supplier_WPS_Data
         return $params;
     }
 
-    public function get_product($product_id, $flag = 'full')
+    public function get_product($product_id, $flag = 'pdp')
     {
         if (!isset($product_id)) {
             $message = "No product id passed";
@@ -144,11 +130,12 @@ trait Supplier_WPS_Data
 
             if (isset($items['error']) && $page_size > 1) {
                 $fails++;
+                $sleep_time = $fails * 5;
                 $page_size_index = max(0, $page_size_index - $fails);
                 if ($page_size_index < 3) {
-                    $this->log('---------- throttled ----------');
+                    $this->log('---------- throttled (' . $sleep_time . 's sleep) ---------- page_size=' . $page_size);
                     // maybe we're being throttled
-                    sleep(10);
+                    sleep($sleep_time);
                 }
             } else {
                 break;

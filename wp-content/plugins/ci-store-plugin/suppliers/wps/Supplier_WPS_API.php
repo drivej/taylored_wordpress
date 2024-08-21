@@ -8,7 +8,6 @@ trait Supplier_WPS_API
     public function get_api($path, $params = [], $use_cache = true)
     {
         if (!isset($path)) {
-            $this->log('WPS.get_api() ERROR path not set path=' . $path . '' . 'params=' . json_encode($params));
             return ['error' => 'path not set'];
         }
 
@@ -21,10 +20,6 @@ trait Supplier_WPS_API
         if (false === $response) {
             $should_cache = true;
             $remote_url = implode("/", [$this->api_url, trim($path, '/')]) . '?' . $query_string;
-
-            if ($this->deep_debug) {
-                $this->log('get_api() ' . $path . '?' . urldecode($query_string));
-            }
             $response = wp_safe_remote_request($remote_url, ['headers' => [
                 'Authorization' => "Bearer {$this->bearer_token}",
                 'Content-Type' => 'application/json',

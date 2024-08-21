@@ -2,7 +2,6 @@
 
 namespace CIStore\Suppliers;
 
-include_once CI_STORE_PLUGIN . 'utils/CronJob.php';
 include_once CI_STORE_PLUGIN . 'utils/CustomErrorLog.php';
 
 use Automattic\Jetpack\Constants;
@@ -83,55 +82,21 @@ class Supplier
         set_error_handler([$this, 'log']);
     }
 
-    // public function start_cronjob($args)
-    // {
-    //     error_log('start_cronjob() ' . json_encode($args));
-    //     if ($this->background_process) {
-    //         return $this->background_process->start($args);
-    //     }
-    //     error_log('start_cronjob failed');
-    //     return false;
-    // }
-
-    // public function stop_cronjob()
-    // {
-    //     if ($this->background_process) {
-    //         return $this->background_process->cancel();
-    //     }
-    //     return false;
-    // }
-
-    // public function continue_cronjob()
-    // {
-    //     if ($this->background_process) {
-    //         return $this->background_process->continue();
-    //     }
-    //     return false;
-    // }
-
-    // public function get_cronjob_status()
-    // {
-    //     if ($this->background_process) {
-    //         return $this->background_process->get_status();
-    //     }
-    //     return false;
-    // }
-
     // placeholder
     public function start_import_products()
     {
         return ['error' => 'start_import_products() undefined'];
     }
 
-    public function resume_import()
-    {
-        $scheduled = false;
-        $is_scheduled = (bool) wp_next_scheduled($this->import_products_page_flag);
-        if (!$is_scheduled) {
-            $scheduled = wp_schedule_single_event(time(), $this->import_products_page_flag);
-        }
-        return $scheduled;
-    }
+    // public function resume_import()
+    // {
+    //     $scheduled = false;
+    //     $is_scheduled = (bool) wp_next_scheduled($this->import_products_page_flag);
+    //     if (!$is_scheduled) {
+    //         $scheduled = wp_schedule_single_event(time(), $this->import_products_page_flag);
+    //     }
+    //     return $scheduled;
+    // }
 
     // placeholder
     public function import_products_page()
@@ -156,63 +121,18 @@ class Supplier
         return ['error' => 'get_products_page() undefined'];
     }
 
-    // public function get_next_products_page($previous_result)
-    // {
-    //     return ['error' => 'get_next_products_page() undefined'];
-    // }
-
-    // public function log($file, $line = null, $message = null)
-    // {
-    //     if ($this->allow_logging()) {
-    //         $spacer = "\n"; //"\n---\n";
-    //         $t = gmdate("c");
-    //         if ($line && $message) {
-    //             $parts = explode('/', $file);
-    //             $filename = end($parts);
-    //             $filename = substr($filename, -30);
-    //             $filename = str_pad($filename, 30, " ");
-    //             $ln = 'ln:' . str_pad($line, 3, " ", STR_PAD_LEFT);
-    //             if (is_object($message) || is_array($message)) {
-    //                 $message = json_encode($message, JSON_PRETTY_PRINT);
-    //             }
-    //             error_log($t . "\t" . $filename . ":" . $ln . "\t" . $message . $spacer, 3, $this->log_path);
-    //         } else {
-    //             if (is_object($file) || is_array($file)) {
-    //                 $file = json_encode($file, JSON_PRETTY_PRINT);
-    //             }
-    //             error_log($t . "\t" . $file . $spacer, 3, $this->log_path);
-    //         }
-    //     }
-    // }
-
-    // public function get_log()
-    // {
-    //     $logContents = file_get_contents($this->log_path);
-    //     // return $logContents;
-    //     $break = "\n";
-    //     $logRows = explode($break, $logContents); //PHP_EOL
-    //     $logRows = array_filter($logRows);
-    //     return $logRows;
-    // }
-
-    // public function clear_log()
-    // {
-    //     if ($fileHandle = fopen($this->log_path, 'w')) {
-    //         ftruncate($fileHandle, 0);
-    //         fclose($fileHandle);
-    //         return true;
-    //     }
-    //     return false;
-    // }
-
-    public function log($message = null)
+    public function log($message = null, $context = 'unknown')
     {
-        return $this->logger->log('Supplier::' . $message);
+        if ($message === 2) {
+            $this->logger->log('context ' . $context);
+            return;
+        }
+        return $this->logger->log('Supplier::' . $this->key . '::' . $message);
     }
 
-    public function contents()
+    public function logs()
     {
-        return $this->logger->contents();
+        return $this->logger->logs();
     }
 
     public function clear()
@@ -246,23 +166,19 @@ class Supplier
     // placeholder
     public function insert_product($supplier_product_id, $supplier_product = null)
     {
-        $this->log('insert_product() not defined for ' . $this->key);
     }
     // placeholder
     public function update_product($supplier_product_id, $supplier_product = null)
     {
-        $this->log('update_product() not defined for ' . $this->key);
     }
     // placeholder
     public function get_api($path, $params = [])
     {
-        $this->log('get_api() not defined for ' . $this->key);
         return null;
     }
     // placeholder
     public function get_product($product_id, $flag = 'pdp')
     {
-        $this->log('get_product() not defined for ' . $this->key);
         return [];
     }
 
@@ -282,7 +198,6 @@ class Supplier
     // placeholder
     public function get_description($supplier_product)
     {
-        $this->log('get_description() not defined for ' . $this->key);
         return '';
     }
     // placeholder
@@ -295,31 +210,6 @@ class Supplier
     {
         return [];
     }
-    /**
-     * Retrieves WooCommerce tag IDs based on provided tags array.
-     *
-     * @param array $tags An array containing tags data with 'name' and 'slug' keys.
-     * @return array An array containing WooCommerce tag IDs.
-     */
-    // public function get_tag_ids($tags)
-    // {
-    //     foreach ($tags as $i => $tag) {
-    //         $woo_tag = get_term_by('slug', $tag['slug'], 'product_tag');
-    //         if ($woo_tag) {
-    //             $tags[$i]['woo'] = $woo_tag; //
-    //             $tags[$i]['woo_term_id'] = $woo_tag->term_id; //
-    //             if ($woo_tag->name !== $tag['name']) {
-    //                 $update = wp_update_term($woo_tag->term_id, 'product_tag', ['name' => $tag['name']]);
-    //                 $tags[$i]['update'] = $update;
-    //             }
-    //         } else {
-    //             $woo_tag = wp_insert_term($tag['name'], 'product_tag', ['slug' => $tag['slug']]);
-    //             $tags[$i]['woo_term_id'] = $woo_tag->term_id; //
-    //         }
-    //     }
-
-    //     return array_map(fn($tag) => $tag['woo_term_id'], $tags);
-    // }
 
     public function get_tag_ids($terms)
     {
@@ -520,49 +410,6 @@ class Supplier
         return wp_delete_post($woo_product_id, $force);
     }
 
-    // public function delete_orphaned_meta()
-    // {
-    //     global $wpdb;
-    //     $sql = "DELETE pm
-    //         FROM wp_postmeta pm
-    //         LEFT JOIN wp_posts p ON pm.post_id = p.ID
-    //         WHERE p.ID IS NULL;
-    //     ";
-
-    //     $result = $wpdb->query($sql);
-    //     if ($result === false) {
-    //         $this->log("Error deleting orphaned attachments: " . $wpdb->last_error);
-    //     } else {
-    //         $this->log("Deleted orphaned attachments.");
-    //     }
-    // }
-
-    // public function delete_orphaned_attachments()
-    // {
-    //     global $wpdb;
-    //     $sql = "DELETE a
-    //         FROM {$wpdb->posts} a
-    //         LEFT JOIN {$wpdb->posts} p ON a.post_parent = p.ID AND p.post_type = 'product'
-    //         WHERE a.post_type = 'attachment'
-    //         AND a.post_parent > 0
-    //         AND p.ID IS NULL
-    //     ";
-    //     // $sql = "DELETE FROM {$wpdb->posts}
-    //     // WHERE post_type = 'attachment'
-    //     // AND post_parent > 0
-    //     // AND post_parent
-    //     // NOT IN (
-    //     //     SELECT ID FROM {$wpdb->posts} WHERE post_type = 'product'
-    //     // )";
-
-    //     $result = $wpdb->query($sql);
-    //     if ($result === false) {
-    //         $this->log("Error deleting orphaned attachments: " . $wpdb->last_error);
-    //     } else {
-    //         $this->log("Deleted orphaned attachments.");
-    //     }
-    // }
-
     public function get_base_metadata()
     {
         $base_metadata = [
@@ -640,136 +487,22 @@ class Supplier
 
         $product_ids = array_unique([ ...$post_name_search, ...$meta_search]);
         $product_ids = array_filter($product_ids, fn($id) => (bool) $id);
-        // return $product_ids;//$wpdb->prepare($post_name_sql, $post_name_pattern);
-
-        // $product_ids = $wpdb->get_results($wpdb->prepare($main_sql, $this->key));
-        // return $product_ids;
-        /*
-        $meta_key = '_ci_supplier_key';
-        $meta_value = $this->key;
-        $main_sql = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s AND meta_value = %s";
-        $proper_search = $wpdb->get_col($wpdb->prepare($main_sql, $meta_key, $meta_value));
-
-        // find by sku....
-        $sku_sql = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_sku' AND meta_value LIKE %s";
-        $sku_pattern = '%' . $wpdb->esc_like($this->get_product_sku('')) . '%';
-        $sku_search = $wpdb->get_col($wpdb->prepare($sku_sql, $sku_pattern));
-
-        $post_name_sql = "SELECT ID FROM {$wpdb->posts} WHERE post_name LIKE %s";
-        $post_name_pattern = '%' . $wpdb->esc_like("-" . $this->key . "-product");
-        $post_name_search = $wpdb->get_col($wpdb->prepare($post_name_sql, $post_name_pattern));
-
-        $product_ids = array_unique(array_merge($proper_search, $sku_search, $post_name_search));
-        // return ['test' => $monkey_search, 'product_ids' => $product_ids];
-
-        return $product_ids;
-
-        if (empty($product_ids)) {
-        $this->log("No products found to delete for meta_key: {$meta_key}, meta_value: {$meta_value}");
-        return ['meta' => [
-        'supplier' => $this->key,
-        'product_ids' => 0,
-        ]];
-        }
-
-         */
-
-        // Create a new WC_Product_Query with the specified arguments
-        // $product_query = new WC_Product_Query($args);
-
-        // $products = wc_get_products([
-        //     'limit'      => -1, // Retrieve all products
-        //     'status'     => 'publish', // Only get published products
-        //     'meta_query' => [
-        //         [
-        //             'key'   => '_ci_supplier_key',
-        //             'value' => $this->key,
-        //             'compare' => '='
-        //         ]
-        //     ]
-        // ]);
-        // return $products;
 
         $chunks = array_chunk($product_ids, 10000);
         $results = [];
 
         foreach ($chunks as $chunk) {
             $results[] = WooTools::delete_products($chunk);
-            /*
-            $placeholders = implode(',', array_fill(0, count($chunk), '%d'));
-
-            $sql = "DELETE FROM {$wpdb->term_relationships} WHERE object_id IN ($placeholders)";
-            $result1 = $wpdb->query($wpdb->prepare($sql, $chunk));
-            if ($result1 === false) {
-            $this->log("Error deleting products: " . $wpdb->last_error);
-            }
-
-            $sql = "DELETE FROM {$wpdb->postmeta} WHERE post_id IN ($placeholders)";
-            $result2 = $wpdb->query($wpdb->prepare($sql, $chunk));
-            if ($result2 === false) {
-            $this->log("Error deleting products: " . $wpdb->last_error);
-            }
-
-            $sql = "DELETE FROM {$wpdb->posts} WHERE ID IN ($placeholders)";
-            $result3 = $wpdb->query($wpdb->prepare($sql, $chunk));
-            if ($result3 === false) {
-            $this->log("Error deleting products: " . $wpdb->last_error);
-            }
-             */
-
-            // $sql = "DELETE p, pm, tr
-            //     FROM {$wpdb->posts} p
-            //     LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-            //     LEFT JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id
-            //     WHERE p.post_type = 'product'
-            //     AND p.ID IN ($placeholders)
-            // ";
-            // $result = $wpdb->query($wpdb->prepare($sql, $chunk));
-            // if ($result === false) {
-            //     $this->log("Error deleting products: " . $wpdb->last_error);
-            // } else {
-            //     $this->log("Deleted " . count($chunk) . " products.");
-            // }
-            // $a = $chunk[0];
-            // $this->log("delete {$a}...1000");
         }
-        /*
-        // $total = count($product_ids);
-        // $this->log("deleted {$total} products");
-
-        $leftover_product_ids = [];//$wpdb->get_col($wpdb->prepare($main_sql, $meta_key, $meta_value));
-
-        foreach ($leftover_product_ids as $product_id) {
-        $ids[] = $product_id;
-        $success = wp_delete_post($product_id, true);
-        $bool = json_encode((bool) $success);
-        $this->log("delete (!) {$product_id} success={$bool}");
-        }
-        $total = count($leftover_product_ids);
-         */
-        // $this->log("deleted {$total} leftover products");
-
-        // WooTools::delete_orphaned_attachments();
-        // WooTools::delete_orphaned_meta();
-        // WooTools::delete_orphaned_meta_lookup();
 
         return [
             'meta' => [
                 'results' => $results,
-                // 'meta_key' => '_ci_supplier_key',
                 'supplier' => $this->key,
                 'product_ids' => ($product_ids),
-                // 'leftover_product_ids' => count($leftover_product_ids),
             ],
-            // 'data' => $product_ids,
         ];
     }
-    // $ids = [];
-    // foreach ($product_ids as $product_id) {
-    //     $ids[] = $product_id;
-    //     $this->log("delete {$product_id}");
-    //     wp_delete_post($product_id, true);
-    // }
 
     public function get_update_action($supplier_product)
     {
@@ -785,7 +518,6 @@ class Supplier
             $supplier_product = ['data' => $supplier_product];
         }
         if (!isset($supplier_product['data']['id'])) {
-            $this->log('Houston...' . json_encode(['supplier_product' => $supplier_product]));
             return 'ignore';
         }
         $action = 'ignore';
@@ -810,7 +542,6 @@ class Supplier
             }
         } else {
             if ($is_available) {
-                // $this->log('sku='.$sku.' woo_product_id='.$woo_product_id);
                 $action = 'insert';
             }
         }
@@ -887,7 +618,7 @@ class Supplier
         if (isset($allow)) {
             $updated = update_option($option_name, (bool) $allow);
             if (!$updated) {
-                error_log("Failed to update option: $option_name");
+                // $this->log("Failed to update option: $option_name");
                 return $allow;
             }
         }

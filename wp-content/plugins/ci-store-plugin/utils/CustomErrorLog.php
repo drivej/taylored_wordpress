@@ -35,7 +35,7 @@ class CustomErrorLog
         }
     }
 
-    public function contents()
+    public function logs()
     {
         if (file_exists($this->log_path)) {
             return file_get_contents($this->log_path);
@@ -49,6 +49,6 @@ class CustomErrorLog
             ftruncate($fileHandle, 0);
             fclose($fileHandle);
         }
-        return $this->contents();
+        return $this->logs();
     }
 }

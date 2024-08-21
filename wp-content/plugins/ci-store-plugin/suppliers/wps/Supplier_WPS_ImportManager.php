@@ -5,17 +5,13 @@ include_once CI_STORE_PLUGIN . 'suppliers/wps/Supplier_WPS.php';
 
 class WPSImportManager extends CIStore\Suppliers\ImportManager {
 
-    // protected $default_updated_at = '2023-01-01';
-    // protected $default_args = ['updated_at' => '2023-01-01', 'cursor' => ''];
-
     public function __construct($logger = null)
     {
-        parent::__construct('wps', $logger); //, ['updated_at' => '2023-01-01', 'cursor' => '']);
+        parent::__construct('wps', $logger);
     }
 
     public function custom_start($updated_at, $cursor, $import_type)
     {
-        $this->log('WPSImportManager::custom_start()');
         return parent::start([
             'updated_at' => $updated_at,
             'cursor' => $cursor,
@@ -28,7 +24,7 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager {
         return [
             'updated_at' => '2023-01-01',
             'cursor' => '',
-            'import_type' => 'full',
+            'import_type' => 'import',
         ];
     }
 
@@ -44,8 +40,9 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager {
 
     protected function do_process($info)
     {
-        // $this->log('WPSImportManager::do_process() ' . json_encode($info['args']));
+        $this->log('WPSImportManager::do_process() ' . json_encode($info['args']));
         $cursor = $info['args']['cursor'];
+        $import_type = $info['args']['import_type'] ?? 'default';
 
         if (is_string($cursor)) {
             try {
@@ -53,18 +50,19 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager {
                 $supplier = \Supplier_WPS::instance();
 
                 // $items = $supplier->get_products_page($cursor, 'basic', $updated_at);
-                switch ($info['args']['import_type'] ?? '') {
+                switch ($import_type) {
                     case 'patch':
                         $items = $supplier->patch_products_page($cursor, $updated_at);
                         break;
 
+                    case 'import':
                     default:
                         $items = $supplier->import_products_page($cursor, $updated_at);
                 }
 
                 $ids = array_map(fn($item) => $item['id'], $items['data'] ?? []);
                 $next_cursor = $items['meta']['cursor']['next'] ?? false;
-                $this->log('WPSImportManager::do_process() ' . json_encode(['type' => $info['args']['import_type'] ?? '', 'cursor' => $cursor, 'next_cursor' => $next_cursor, 'date' => $updated_at, 'ids' => $ids]));
+                $this->log('WPSImportManager::do_process() ' . json_encode(['type' => $import_type, 'cursor' => $cursor, 'next_cursor' => $next_cursor, 'date' => $updated_at, 'ids' => $ids]));
                 $processed_delta = is_countable($items['data']) ? count($items['data']) : 0;
                 $processed = $info['processed'] + $processed_delta;
                 $progress = $info['total'] > 0 ? ($processed / $info['total']) : 0;
@@ -79,11 +77,11 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager {
                 ];
             } catch (Exception $e) {
                 $this->log('!------ERROR------!');
-                error_log('Exception: ' . $e->getMessage());
-                error_log('Code: ' . $e->getCode());
-                error_log('File: ' . $e->getFile());
-                error_log('Line: ' . $e->getLine());
-                error_log('Stack trace: ' . $e->getTraceAsString());
+                $this->log('Exception: ' . $e->getMessage());
+                $this->log('Code: ' . $e->getCode());
+                $this->log('File: ' . $e->getFile());
+                $this->log('Line: ' . $e->getLine());
+                $this->log('Stack trace: ' . $e->getTraceAsString());
             }
         } else {
             return [

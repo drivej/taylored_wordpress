@@ -823,32 +823,6 @@ class WooTools
         ];
     }
 
-    // public static function delete_orphaned_attachments()
-    // {
-    //     global $wpdb;
-    //     $sql = "DELETE a
-    //         FROM {$wpdb->posts} a
-    //         LEFT JOIN {$wpdb->posts} p ON a.post_parent = p.ID AND p.post_type = 'product'
-    //         WHERE a.post_type = 'attachment'
-    //         AND a.post_parent > 0
-    //         AND p.ID IS NULL
-    //     ";
-    //     // $sql = "DELETE FROM {$wpdb->posts}
-    //     // WHERE post_type = 'attachment'
-    //     // AND post_parent > 0
-    //     // AND post_parent
-    //     // NOT IN (
-    //     //     SELECT ID FROM {$wpdb->posts} WHERE post_type = 'product'
-    //     // )";
-
-    //     $result = $wpdb->query($sql);
-    //     if ($result === false) {
-    //         error_log("Error deleting orphaned attachments: " . $wpdb->last_error);
-    //         // } else {
-    //         // $this->log("Deleted orphaned attachments.");
-    //     }
-    // }
-
     public static function delete_orphaned_attachments()
     {
         $attachments = get_posts([
@@ -1010,7 +984,6 @@ class WooTools
 
     public static function sync_images($woo_product, $supplier_product, $supplier)
     {
-        $supplier->log('sync_images()');
         $woo_product_id = $woo_product->get_id();
         $supplier_variations = $supplier->extract_variations($supplier_product);
         $master_image_ids = [];
