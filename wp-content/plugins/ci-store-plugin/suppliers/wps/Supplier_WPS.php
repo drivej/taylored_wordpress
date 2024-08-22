@@ -184,7 +184,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
     public function import_product($supplier_product_id)
     {
         $supplier_product = $this->get_product($supplier_product_id);
-        if ($supplier_product['error']) {
+        if (array_key_exists('error', $supplier_product)) {
             return $supplier_product;
         }
         $items = ['data' => [$supplier_product['data']]];
@@ -278,16 +278,11 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
     private function process_items_native($items)
     {
         $timer = new Timer();
-
-        // tag valid products
-        // foreach ($items['data'] as &$product) {
-        //     $product['is_valid'] = $this->isValidProduct($product);
-        // }
-
         // ------------------------------------------------------------>
         // START: Bulk Images
         // ------------------------------------------------------------>
         $attachments = [];
+        $valid_items = 0;
 
         // bulk images: skip the default image import/resize process
         foreach ($items['data'] as &$product) {
@@ -301,9 +296,17 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                         $product['attachments'][] = $image_attachment;
                         $attachments[] = $image_attachment;
                     }
+                    $variation['__valid'] = true;
+                    $valid_items++;
                 }
             }
         }
+
+        if ($valid_items === 0) {
+            //  nothing to see here...
+            return $items;
+        }
+
         $lookup_attachment = WooTools::attachment_data_to_postids($attachments);
         // ------------------------------------------------------------>
         // END: Bulk Images
@@ -355,6 +358,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
         // ------------------------------------------------------------>
 
         foreach ($items['data'] as &$product) {
+            // $this->log($product['id'] . ' product loop');
             // get product object
             $sku = $this->get_product_sku($product['id']);
             $woo_id = wc_get_product_id_by_sku($sku);
@@ -373,6 +377,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
             }
 
             if (count($valid_items) === 1) {
+                // $this->log($product['id'] . ' simple product');
                 // simple product
                 $woo_product = wc_get_product($woo_id);
                 if ($product_exists && $woo_product->get_type() === 'variable') {
@@ -408,10 +413,15 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                 $woo_product->set_name($product['name']);
                 $woo_product->set_short_description($this->get_short_description(['data' => $product]));
                 $woo_product->set_description($this->get_description(['data' => $product]));
-                $woo_product->set_image_id($lookup_attachment[$product['attachments'][0]['file']]);
+
+                $image_file = $product['attachments'][0]['file'] ?? '';
+                $image_id = $lookup_attachment[$image_file] ?? 0;
+                if ($image_id) {
+                    $woo_product->set_image_id($image_id);
+                }
                 // get simple product data from item
                 $variation = $valid_items[0];
-                $gallery_attachments = (is_countable($variation['attachments']) && count($variation['attachments']) > 1) ? array_slice($variation['attachments'], 1) : [];
+                $gallery_attachments = (is_array($variation['attachments']) && count($variation['attachments']) > 1) ? array_slice($variation['attachments'], 1) : [];
                 $gallery_ids = array_map(fn($a) => $lookup_attachment[$a['file']], $gallery_attachments);
                 $woo_product->set_gallery_image_ids($gallery_ids);
                 $woo_product->set_regular_price($variation['list_price']);
@@ -431,6 +441,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
 
                 $product['woo_id'] = $woo_product->save();
             } else {
+                // $this->log($product['id'] . ' variable product');
                 $woo_product = new WC_Product_Variable($woo_id);
 
                 if (!$woo_id) {
@@ -453,6 +464,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                     // we need to manually unlink children to clean out the rogue variations if they exist
                     WooTools::unlink_children($woo_id);
                 }
+
                 $woo_product->update_meta_data('_ci_import_version', $this->import_version);
                 $woo_product->update_meta_data('_ci_import_timestamp', gmdate("c"));
                 $woo_product->update_meta_data('_ci_update_plp', gmdate("c"));
@@ -461,12 +473,15 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                 $woo_product->set_name($product['name']);
                 $woo_product->set_short_description($this->get_short_description(['data' => $product]));
                 $woo_product->set_description($this->get_description(['data' => $product]));
-                $woo_product->set_image_id($lookup_attachment[$product['attachments'][0]['file']]);
+
+                $master_image_id = 0;
+                // $woo_product->set_image_id($lookup_attachment[$product['attachments'][0]['file']]);
 
                 if (!$woo_id) {
                     $woo_id = $woo_product->save();
                 }
 
+                // $this->log($product['id'] . ' attributes');
                 $children = [];
                 $attributes = ['sku' => ['name' => 'SKU', 'position' => 10, 'values' => []]];
                 $lookup_attribute_slug = [];
@@ -479,6 +494,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
 
                 foreach ($product['items']['data'] as &$variation) {
                     if ($this->isValidItem($variation)) {
+                        // $this->log($product['id'] . '::' . $variation['sku'] . ' variations loop');
                         // get variation object
                         $variation_sku = $this->get_variation_sku($product['id'], $variation['id']);
                         $variation_woo_id = wc_get_product_id_by_sku($variation_sku);
@@ -495,7 +511,18 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                         $woo_variation->update_meta_data('_ci_import_version', $this->import_version);
                         $woo_variation->update_meta_data('_ci_product_sku', $variation['sku']);
                         $woo_variation->set_name($variation['name']);
-                        $woo_variation->set_image_id($lookup_attachment[$variation['attachments'][0]['file']]);
+
+                        $image_file = $variation['attachments'][0]['file'] ?? '';
+                        $image_id = $lookup_attachment[$image_file] ?? 0;
+                        // $this->log($product['id'] . '::' . $variation['sku'] . ' image_id=' . $image_id);
+                        if ($image_id) {
+                            $woo_variation->set_image_id($lookup_attachment[$variation['attachments'][0]['file']]);
+                        }
+                        if (!$master_image_id && $image_id) {
+                            $master_image_id = $image_id;
+                            // $this->log('set master image ' . $master_image_id);
+                            $woo_product->set_image_id($image_id);
+                        }
                         $woo_variation->set_regular_price($variation['list_price']);
                         $woo_variation->set_parent_id($woo_id);
                         $woo_variation->set_stock_status('instock');
@@ -503,16 +530,20 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                         $woo_variation->set_length($variation['length']);
                         $woo_variation->set_width($variation['width']);
                         $woo_variation->set_height($variation['height']);
-
+                        // $this->log($product['id'] . '::' . $variation['sku'] . ' taxonomy');
                         // taxonomy
                         $category_ids = [];
                         $category_ids[] = $lookup_terms[$variation['product_type']] ?? 0;
                         foreach ($variation['taxonomyterms']['data'] as $taxonomy_term) {
-                            $category_ids[] = $lookup_terms[$taxonomy_term['name']] ?? 0;
+                            $term_id = $lookup_terms[$taxonomy_term['name']] ?? 0;
+                            if ($term_id) {
+                                $category_ids[] = $term_id;
+                            }
                         }
                         $variation['category_ids'] = $category_ids;
                         $woo_variation->set_category_ids($category_ids);
 
+                        // $this->log($product['id'] . '::' . $variation['sku'] . ' attachments');
                         $gallery_attachments = array_slice($variation['attachments'], 1);
                         $gallery_ids = array_map(fn($a) => $lookup_attachment[$a['file']], $gallery_attachments);
                         $woo_variation->set_gallery_image_ids($gallery_ids);
@@ -537,6 +568,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                         $attributes['sku']['values'][] = $variation['sku'];
 
                         $variation_woo_id = $woo_variation->save();
+                        // $this->log($product['id'] . '::' . $variation['sku'] . ' save');
 
                         $variation['woo_id'] = $variation_woo_id;
                         $variation['woo_sku'] = $variation_sku;

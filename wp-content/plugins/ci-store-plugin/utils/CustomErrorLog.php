@@ -2,6 +2,8 @@
 
 namespace CIStore\Utils;
 
+// error_reporting(E_ALL);
+
 class CustomErrorLog
 {
     protected $log_path = '';

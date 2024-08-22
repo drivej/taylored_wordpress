@@ -124,7 +124,7 @@ class Supplier
     public function log($message = null, $context = 'unknown')
     {
         if ($message === 2) {
-            $this->logger->log('context ' . $context);
+            $this->logger->log('context=' . $context . ' message=' . $message . ' key=' . $this->key);
             return;
         }
         return $this->logger->log('Supplier::' . $this->key . '::' . $message);
