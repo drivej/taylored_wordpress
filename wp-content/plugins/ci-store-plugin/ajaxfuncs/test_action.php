@@ -50,12 +50,36 @@ function test_action()
     // $supplier_key = 'wps';
     // $supplier = \CIStore\Suppliers\get_supplier($supplier_key);
     // return $supplier->patch_products_page();
+
+    // $term_names = ["Piston kits & Components"];
+    // $terms = get_terms(['name' => $term_names, 'taxonomy' => 'product_cat', 'hide_empty' => false]);
+    // $lookup_terms = array_column($terms, 'term_id', 'name');
+
+    // foreach ($lookup_terms as $term_name => $term_id) {
+    //     $sanitized_term_name = esc_html($term_name);
+    //     if ($sanitized_term_name !== $term_name) {
+    //         $lookup_terms[$sanitized_term_name] = $term_id;
+    //     }
+    //     $decoded_term_name = wp_specialchars_decode($term_name);
+    //     if ($decoded_term_name !== $term_name) {
+    //         $lookup_terms[$decoded_term_name] = $term_id;
+    //     }
+    // }
+    
+    // return $lookup_terms;
+
     $supplier_key = 'wps';
     $supplier = \CIStore\Suppliers\get_supplier($supplier_key);
 
-    $product_id = 6150;
-    $result = $supplier->import_product($product_id);
+    // $product_ids = [20909, 21077, 21099, 21138, 21153, 21163, 21167, 21169, 21203, 21207, 21215, 21217, 21226, 21228, 21233, 21234, 21235, 21236, 21241, 21242, 21249, 21256, 21260, 21264, 21276, 21284, 21299, 21300, 21309, 21319, 21355, 21381, 21385, 21387, 21389, 21391, 21393, 21411, 21412, 21416, 21455, 21456, 21479, 21499, 21508, 21514, 21524, 21525];
+    // $products = [];
+    // foreach ($product_ids as $product_id) {
+    //     $products[] = $supplier->get_product($product_id);
+    // }
+    // $result = $products;
 
+    $product_id = 21499;
+    $result = $supplier->import_product($product_id);
 
     // $cursor = 'JqKPYxrzMNDv';
     // $result = $supplier->import_products_page($cursor, '2023-01-01');

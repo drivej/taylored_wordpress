@@ -11615,9 +11615,12 @@ const ErrorLogs = ({ baseQuery }) => {
     };
     return (react.createElement("div", { className: 'border rounded shadow-sm p-4' },
         react.createElement("div", null,
-            react.createElement("div", { className: 'btn-group', style: { width: 'min-content' } },
-                react.createElement("button", { disabled: action.isPending, className: 'btn btn-sm btn-secondary', onClick: clear }, "Clear"),
-                react.createElement("button", { disabled: action.isPending, className: 'btn btn-sm btn-secondary', onClick: refresh }, "Refresh"))),
+            react.createElement("div", { className: 'input-group input-group-sm' },
+                react.createElement("button", { disabled: action.isPending, className: 'btn btn-secondary', onClick: clear }, "Clear"),
+                react.createElement("button", { disabled: action.isPending, className: 'btn btn-secondary', onClick: refresh }, "Refresh"),
+                react.createElement("div", { className: 'input-group-text' },
+                    react.createElement("input", { onChange: (e) => setRefetchInterval(e.currentTarget.checked ? 5000 : false), className: 'form-check-input', checked: refetchInterval !== false, type: 'checkbox', value: '', id: 'flexCheckDefault' }),
+                    react.createElement("label", { className: 'form-check-label', htmlFor: 'flexCheckDefault' }, "Poll")))),
         react.createElement("div", { style: { maxHeight: 600, overflow: 'auto', fontSize: 11 } }, (_a = logContent === null || logContent === void 0 ? void 0 : logContent.split('\n')) === null || _a === void 0 ? void 0 : _a.map((ln, i) => (react.createElement("div", { key: `ln${i}`, style: { whiteSpace: 'nowrap' } }, ln))))));
 };
 const SupplierLogs = ({ supplier_key }) => React.createElement(ErrorLogs, { baseQuery: { supplier_key, cmd: 'supplier_action' } });

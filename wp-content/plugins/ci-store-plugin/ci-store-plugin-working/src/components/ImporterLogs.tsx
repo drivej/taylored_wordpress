@@ -47,18 +47,21 @@ export const ErrorLogs = ({ baseQuery }: { baseQuery: Partial<IAjaxQuery> }) => 
   return (
     <div className='border rounded shadow-sm p-4'>
       <div>
-        <div className='btn-group' style={{ width: 'min-content' }}>
-          <button disabled={action.isPending} className='btn btn-sm btn-secondary' onClick={clear}>
+        <div className='input-group input-group-sm'>
+          <button disabled={action.isPending} className='btn btn-secondary' onClick={clear}>
             Clear
           </button>
-          <button disabled={action.isPending} className='btn btn-sm btn-secondary' onClick={refresh}>
+
+          <button disabled={action.isPending} className='btn btn-secondary' onClick={refresh}>
             Refresh
           </button>
-          {/* <span>{JSON.stringify(refetchInterval)}</span> */}
-          {/* <select className='form-select' value={JSON.stringify(refetchInterval)} onChange={(e) => setRefetchInterval(JSON.parse(e.currentTarget.value))}>
-            <option value={JSON.stringify(false)}>Off</option>
-            <option value={JSON.stringify(5000)}>On</option>
-          </select> */}
+
+          <div className='input-group-text'>
+            <input onChange={(e) => setRefetchInterval(e.currentTarget.checked ? 5000 : false)} className='form-check-input' checked={refetchInterval !== false} type='checkbox' value='' id='flexCheckDefault' />
+            <label className='form-check-label' htmlFor='flexCheckDefault'>
+              Poll
+            </label>
+          </div>
         </div>
       </div>
       <div style={{ maxHeight: 600, overflow: 'auto', fontSize: 11 }}>
