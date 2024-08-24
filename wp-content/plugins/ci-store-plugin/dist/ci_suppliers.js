@@ -11702,6 +11702,9 @@ const SupplierImportStatus = ({ supplier }) => {
     const killImport = () => {
         supplierAction.mutate({ func: 'kill' }, { onSettled: setImportInfo });
     };
+    const autoImportImport = () => {
+        supplierAction.mutate({ func: 'auto_import' }, { onSettled: refresh });
+    };
     const [nextImport, setNextImport] = (0,react.useState)('');
     const getNextImportTime = () => SupplierImportStatus_awaiter(void 0, void 0, void 0, function* () {
         const res = yield fetchWordpressAjax(Object.assign(Object.assign({}, query), { func: 'get_next_import_time' }));
@@ -11810,7 +11813,8 @@ const SupplierImportStatus = ({ supplier }) => {
                             react.createElement("button", { disabled: !canReset, className: 'btn btn-sm btn-secondary', onClick: resetImport }, "Reset"),
                             react.createElement("button", { disabled: !canContinue, className: 'btn btn-sm btn-secondary', onClick: resumeImport }, "Resume"),
                             react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: updateImport }, "Update"),
-                            react.createElement("button", { disabled: canStart, className: 'btn btn-sm btn-secondary', onClick: killImport }, "Kill")),
+                            react.createElement("button", { disabled: canStart, className: 'btn btn-sm btn-secondary', onClick: killImport }, "Kill"),
+                            react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: autoImportImport }, "Auto\u00A0Import")),
                         react.createElement("div", null,
                             react.createElement("button", { className: 'btn btn-sm btn-secondary', onClick: refresh }, "Refresh"))),
                     react.createElement("div", { className: 'd-flex justify-content-between' },
@@ -11851,7 +11855,7 @@ const SupplierImportStatus = ({ supplier }) => {
                         nextImport === '' ? react.createElement("p", null, "loading...") : nextImport === 'never' ? react.createElement("p", null, "The import will not run automatically. To schedule the importer to run, click the toggle below.") : react.createElement("p", null,
                             "The next import will run: ",
                             nextImport),
-                        react.createElement("div", { className: 'btn-group Xd-flex Xgap-2' },
+                        react.createElement("div", { className: 'btn-group' },
                             react.createElement("label", { className: 'switch' },
                                 react.createElement("input", { type: 'checkbox', checked: nextImport !== 'never', onChange: onChangeAutoImport }),
                                 react.createElement("span", { className: 'slider round' })))))),

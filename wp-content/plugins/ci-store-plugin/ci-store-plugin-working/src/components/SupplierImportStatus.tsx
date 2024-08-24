@@ -103,6 +103,10 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
     supplierAction.mutate({ func: 'kill' }, { onSettled: setImportInfo });
   };
 
+  const autoImportImport = () => {
+    supplierAction.mutate({ func: 'auto_import' }, { onSettled: refresh });
+  };
+
   const [nextImport, setNextImport] = useState('');
 
   const getNextImportTime = async () => {
@@ -233,6 +237,9 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
                 <button disabled={canStart} className='btn btn-sm btn-secondary' onClick={killImport}>
                   Kill
                 </button>
+                <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={autoImportImport}>
+                  Auto&nbsp;Import
+                </button>
               </div>
 
               <div>
@@ -295,7 +302,7 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
             <div>
               <h5>Auto-Import</h5>
               {nextImport === '' ? <p>loading...</p> : nextImport === 'never' ? <p>The import will not run automatically. To schedule the importer to run, click the toggle below.</p> : <p>The next import will run: {nextImport}</p>}
-              <div className='btn-group Xd-flex Xgap-2'>
+              <div className='btn-group'>
                 <label className='switch'>
                   <input type='checkbox' checked={nextImport !== 'never'} onChange={onChangeAutoImport} />
                   <span className='slider round'></span>
@@ -305,7 +312,7 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
           </div>
         </div>
 
-        <pre style={{fontSize:11}}>{JSON.stringify({ importInfo, is_running: active, canStart }, null, 2)}</pre>
+        <pre style={{ fontSize: 11 }}>{JSON.stringify({ importInfo, is_running: active, canStart }, null, 2)}</pre>
       </div>
     );
   }

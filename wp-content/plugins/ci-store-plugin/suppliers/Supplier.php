@@ -50,6 +50,7 @@ class Supplier
     public bool $deep_debug = false;
     public int $max_age = 24 * 7; // stale product age
     protected CustomErrorLog $logger;
+    // protected $importer;
 
     public function __construct($config)
     {

@@ -10,6 +10,7 @@ include_once CI_STORE_PLUGIN . 'utils/CustomErrorLog.php';
 class ImportManager
 {
     protected $id = 'none';
+    protected $auto_import_hook;
     protected $import_start_hook;
     protected $import_loop_hook;
     protected $import_complete_hook;
@@ -24,6 +25,7 @@ class ImportManager
     public function __construct($id, $logger)
     {
         $this->id = $id;
+        $this->auto_import_hook = "CIStore\Suppliers\\{$id}\auto_import";
         $this->import_start_hook = "CIStore\Suppliers\\{$id}\start_import";
         $this->import_loop_hook = "CIStore\Suppliers\\{$id}\import_loop";
         $this->import_complete_hook = "CIStore\Suppliers\\{$id}\import_complete";
@@ -34,6 +36,9 @@ class ImportManager
         $this->log_path = CI_STORE_PLUGIN . 'logs/' . date('Y-m-d') . '_' . strtoupper($id) . '_IMPORT_LOG.log';
         $this->logger = $logger ?? new \CIStore\Utils\CustomErrorLog(strtoupper($id) . '_IMPORT');
 
+        if (!has_action($this->auto_import_hook, [$this, 'auto_import'])) {
+            add_action($this->auto_import_hook, [$this, 'auto_import'], 10, 1);
+        }
         if (!has_action($this->import_start_hook, [$this, 'start'])) {
             add_action($this->import_start_hook, [$this, 'start'], 10, 1);
         }
@@ -54,6 +59,61 @@ class ImportManager
         //         $this->stop_processing();
         //     }
         // }
+    }
+
+    public function get_auto_import_args()
+    {
+        return $this->get_default_args();
+    }
+
+    public function auto_import()
+    {
+        if ($this->is_active()) {
+            $this->log('Auto import aborted. Import currently active.');
+            return;
+        }
+        $args = $this->get_auto_import_args();
+        $this->start($args);
+    }
+
+    public function get_next_import_time()
+    {
+        $next_scheduled = wp_next_scheduled($this->auto_import_hook);
+        if ($next_scheduled) {
+            return ['data' => date("Y-m-d H:i:s", $next_scheduled)];
+        }
+        return ['data' => false];
+    }
+
+    public function create_scheduled_import()
+    {
+        error_log('schedule_import()');
+        // $this->import_start_hook
+        $next_scheduled = wp_next_scheduled($this->auto_import_hook);
+        if (!$next_scheduled) {
+            $timestamp = strtotime('today midnight') - get_option('gmt_offset') * HOUR_IN_SECONDS;
+            $scheduled = wp_schedule_event($timestamp, 'daily', $this->auto_import_hook);
+            if (!is_wp_error($scheduled)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function cancel_scheduled_import()
+    {
+        error_log('cancel_scheduled_import()');
+        $next_scheduled = wp_next_scheduled($this->auto_import_hook);
+        if ($next_scheduled) {
+            $cancelled = wp_unschedule_event($next_scheduled, $this->auto_import_hook);
+            if (!is_wp_error($cancelled)) {
+                return true;
+                // error_log('wp_unschedule_event failed ' . json_encode($cancelled));
+            }
+            // } else {
+            //     error_log('not scheduled');
+        }
+        return false;
     }
 
     public function log($message = null)

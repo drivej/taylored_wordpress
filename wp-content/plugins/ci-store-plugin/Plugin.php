@@ -50,8 +50,8 @@ class Plugin
     function init_admin()
     {
         include_once CI_STORE_PLUGIN . 'hooks/index.php';
-        include_once CI_STORE_PLUGIN . 'utils/AjaxManager.php';
-        include_once CI_STORE_PLUGIN . 'ajax/index.php';
+        // include_once CI_STORE_PLUGIN . 'utils/AjaxManager.php';
+        // include_once CI_STORE_PLUGIN . 'ajax/index.php';
         require_once CI_STORE_PLUGIN . 'utils/ReactSubpage.php';
         include_once CI_STORE_PLUGIN . 'Admin.php';
         include_once CI_STORE_PLUGIN . 'Ajax.php';
@@ -71,7 +71,7 @@ class Plugin
         // do_action('wps_init');
         // $this->test();
 
-        new \AjaxManager();
+        // new \AjaxManager();
         new \CIStore\Utils\ReactSubpage('utilities', 'Utilities', 'ci-store-plugin-page', 'ci-store_page_');
         new \CIStore\Utils\ReactSubpage('suppliers', 'Suppliers', 'ci-store-plugin-page', 'ci-store_page_');
     }

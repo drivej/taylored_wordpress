@@ -44,7 +44,7 @@ function supplier_action()
     // special cvase to target importer functions
     switch ($func_group) {
         case 'importer':
-            $importer = $supplier->get_importer();
+            $importer = $supplier->importer;
 
             // return ['args' => $args];
             

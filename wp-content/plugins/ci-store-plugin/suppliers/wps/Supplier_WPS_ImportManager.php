@@ -19,7 +19,7 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager {
         ]);
     }
 
-    protected function get_default_args()
+    public function get_default_args()
     {
         return [
             'updated_at' => '2023-01-01',
@@ -28,7 +28,7 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager {
         ];
     }
 
-    protected function before_start($info)
+    public function before_start($info)
     {
         $this->log('WPSImportManager::before_start() ' . json_encode($info['args']));
         $supplier = \Supplier_WPS::instance();
@@ -38,7 +38,7 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager {
         return ['total' => $total]; //, 'args' => ['updated_at' => $updated_at, 'cursor' => '']];
     }
 
-    protected function do_process($info)
+    public function do_process($info)
     {
         $this->log('WPSImportManager::do_process() ' . json_encode($info['args']));
         $cursor = $info['args']['cursor'];
@@ -88,6 +88,22 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager {
                 'complete' => true,
             ];
         }
+    }
+
+    public function get_auto_import_args()
+    {
+        $info = $this->get_info();
+
+        if ($info['completed']) {
+            $completed = new \DateTime($info['completed']);
+            $updated_at = $completed->format('Y-m-d');
+            return [
+                'updated_at' => $updated_at,
+                'cursor' => '',
+                'import_type' => 'import',
+            ];
+        }
+        return [];
     }
 }
 

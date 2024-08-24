@@ -44,7 +44,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
      * @since 2.1
      */
     protected static $_instance = null;
-    protected WPSImportManager $importer;
+    public WPSImportManager $importer;
 
     public function __construct()
     {
@@ -448,6 +448,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
             } else {
                 // $this->log($product['id'] . ' variable product');
                 $woo_product = new WC_Product_Variable($woo_id);
+                // $all_image_ids = [];
 
                 if (!$woo_id) {
                     try {
@@ -555,7 +556,11 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                         $gallery_attachments = array_slice($variation['attachments'], 1);
                         $gallery_ids = array_map(fn($a) => $lookup_attachment[$a['file']], $gallery_attachments);
                         $woo_variation->set_gallery_image_ids($gallery_ids);
-                        // $this->log('gallery=' . json_encode($gallery_ids));
+
+                        // using WooCommerce Additional Variation Images
+                        $woo_variation->update_meta_data('_wc_additional_variation_images', implode(',', $gallery_ids));
+                        // array_push($all_image_ids, ...$gallery_ids);
+                        // $this->log('gallery_ids=' . json_encode($gallery_ids));
                         // $woo_variation->set_description($product['description']);
                         $woo_variation->set_price($variation['list_price']);
 
@@ -584,6 +589,9 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                         $children[] = $variation_woo_id;
                     }
                 }
+
+                // $this->log(json_encode(['all_image_ids' => $all_image_ids]));
+                // $woo_product->get_gallery_image_ids($all_image_ids);
 
                 // create attributes object for parent
                 $attrs = [];
