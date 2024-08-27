@@ -1,5 +1,4 @@
 <?php
-// TODO: link to wps image size generator
 
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/debug_hook.php';
 

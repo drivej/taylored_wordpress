@@ -65,7 +65,7 @@ function test_action()
     //         $lookup_terms[$decoded_term_name] = $term_id;
     //     }
     // }
-    
+
     // return $lookup_terms;
 
     $supplier_key = 'wps';
@@ -78,8 +78,21 @@ function test_action()
     // }
     // $result = $products;
 
-    $product_id = 21499;
-    $result = $supplier->import_product($product_id);
+    $supplier_product_id = 221936;
+    $woo_sku = $supplier->get_product_sku($supplier_product_id);
+    $woo_id = wc_get_product_id_by_sku($woo_sku);
+
+    if ($woo_id) {
+        $woo_product = $supplier->get_woo_product($supplier_product_id);
+        $woo_product->delete(true);
+        $result['data'] = $woo_product->get_data();
+    }
+
+    $result['supplier_product_id'] = $supplier_product_id;
+    $result['woo_sku'] = $woo_sku;
+    $result['woo_id'] = $woo_id;
+
+    // $result = $supplier->import_product($product_id);
 
     // $cursor = 'JqKPYxrzMNDv';
     // $result = $supplier->import_products_page($cursor, '2023-01-01');

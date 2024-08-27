@@ -30,17 +30,15 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager {
 
     public function before_start($info)
     {
-        $this->log('WPSImportManager::before_start() ' . json_encode($info['args']));
         $supplier = \Supplier_WPS::instance();
-        $updated_at = $info['updated_at'] ?? $this->get_default_args()['updated_at'];
+        $updated_at = $info['args']['updated_at'] ?? $this->get_default_args()['updated_at'];
         $total = $supplier->get_total_remote_products($updated_at);
-        $this->log('total=' . $total);
-        return ['total' => $total]; //, 'args' => ['updated_at' => $updated_at, 'cursor' => '']];
+        return ['total' => $total];
     }
 
     public function do_process($info)
     {
-        $this->log('WPSImportManager::do_process() ' . json_encode($info['args']));
+        // $this->log('WPSImportManager::do_process() ' . json_encode($info['args']));
         $cursor = $info['args']['cursor'];
         $import_type = $info['args']['import_type'] ?? 'default';
 
@@ -104,6 +102,17 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager {
             ];
         }
         return [];
+    }
+
+    public function get_rerun_args()
+    {
+        $info = $this->get_info();
+        $args = [
+             ...($info['args'] ?? []),
+            'cursor' => '',
+        ];
+        return $args;
+
     }
 }
 

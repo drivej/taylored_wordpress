@@ -66,6 +66,11 @@ class ImportManager
         return $this->get_default_args();
     }
 
+    public function get_rerun_args()
+    {
+        return $this->get_default_args();
+    }
+
     public function auto_import()
     {
         if ($this->is_active()) {
@@ -316,6 +321,11 @@ class ImportManager
         $info = $this->get_info();
         $this->schedule($this->import_loop_hook);
         return array_merge($info, $this->get_report());
+    }
+
+    public function rerun()
+    {
+        return $this->start($this->get_rerun_args());
     }
 
     public function get_import_info()

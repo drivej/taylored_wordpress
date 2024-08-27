@@ -49,6 +49,8 @@ interface IImportStatus {
   complete: boolean;
   completed: string;
   stalled: boolean;
+  //
+  args: Record<string, string | boolean>;
 }
 
 export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
@@ -63,13 +65,22 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
     func: 'get_import_info',
     func_group: 'importer'
   };
-  const dataPoll = useWordpressAjax<IImportStatus>(query, { refetchInterval: 60000 });
+  const [refetchInterval, setRefetchInterval] = useState<number | false>(60000);
+  const dataPoll = useWordpressAjax<IImportStatus>(query, { refetchInterval });
 
   const [importInfo, setImportInfo] = useState<Partial<IImportStatus>>({ status: 0 });
 
   useEffect(() => {
     setImportInfo(dataPoll.data);
   }, [dataPoll.data]);
+
+  useEffect(() => {
+    if (importInfo?.active) {
+      setRefetchInterval(10000);
+    } else {
+      setRefetchInterval(60000);
+    }
+  }, [importInfo]);
 
   const refresh = () => {
     supplierAction.mutate({ func: 'get_import_info', args: [] }, { onSettled: setImportInfo });
@@ -101,6 +112,10 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
 
   const killImport = () => {
     supplierAction.mutate({ func: 'kill' }, { onSettled: setImportInfo });
+  };
+
+  const rerunImport = () => {
+    supplierAction.mutate({ func: 'rerun' }, { onSettled: setImportInfo });
   };
 
   const autoImportImport = () => {
@@ -152,11 +167,11 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
   useEffect(() => {
     if (importInfo?.complete) {
       const count = importInfo?.processed ?? 0;
-      const updated = importInfo?.updated_at ?? '?';
+      const updated = importInfo?.completed ?? '?';
       const ago = timeago(new Date(Date.parse(importInfo?.completed))); // since(importInfo?.completed);
 
       // setMessage(`Completed processing ${importInfo?.processed ?? 0} products updated after ${importInfo?.updated_at},  ${since(importInfo?.completed)} ago.`);
-      setMessage(`Completed. ${count} products updated since ${updated}. Updated ${ago}.`);
+      setMessage(`Completed. ${count} products updated ${ago}.`);
     } else if (importInfo?.active === true) {
       let started = '';
       if (typeof importInfo?.started === 'string') {
@@ -211,7 +226,7 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
       <div className='d-flex flex-column gap-4'>
         <div className='border rounded shadow-sm p-4'>
           <div className='d-flex flex-column gap-3'>
-            <h5>Import Status</h5>
+            <h5>Import Status {refetchInterval}</h5>
             <div className='progress' role='progressbar'>
               <div className={progressBarClasses.join(' ')} style={{ width: `${progress}%` }}></div>
             </div>
@@ -230,6 +245,9 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
                 </button>
                 <button disabled={!canContinue} className='btn btn-sm btn-secondary' onClick={resumeImport}>
                   Resume
+                </button>
+                <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={rerunImport}>
+                  Rerun
                 </button>
                 <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={updateImport}>
                   Update

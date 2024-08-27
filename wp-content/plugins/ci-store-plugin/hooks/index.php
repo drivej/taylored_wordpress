@@ -31,7 +31,6 @@ include_once __DIR__ . '/image_downsize.php';
 
 // add_filter('wp_get_attachment_url', 'custom_wp_get_attachment_url', 10, 2);
 
-// TODO: this is a test
 // function custom_woocommerce_single_product_image($html, $post_id)
 // {
 //     debug_hook('woocommerce_single_product_image');

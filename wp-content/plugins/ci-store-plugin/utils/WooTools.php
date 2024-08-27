@@ -161,7 +161,6 @@ class WooTools
 
     public static function get_max_age($flag)
     {
-        // return new DateInterval('PT1M'); // TODO: for testing only
         switch ($flag) {
             case 'pdp':
                 return new DateInterval('P1D');
@@ -280,7 +279,7 @@ class WooTools
         $variation->set_status('publish');
         $variation->set_stock_status('instock');
         $variation->set_regular_price($supplier_variation['list_price']);
-        $variation->set_description($supplier_variation['name']); // TODO: this shows below the attributes when selected
+        $variation->set_description($supplier_variation['name']); // this shows below the attributes when selected
 
         foreach ($supplier_variation['meta_data'] as $meta) {
             $variation->update_meta_data($meta['key'], $meta['value']);
@@ -737,91 +736,91 @@ class WooTools
     }
 
     // TODO:  not working
-    public static function bulkCreateRemoteAttachments($images, $supplier_key)
-    {
-        global $wpdb;
+    // public static function bulkCreateRemoteAttachments($images, $supplier_key)
+    // {
+    //     global $wpdb;
 
-        if (empty($images)) {
-            return [
-                'success' => [],
-                'failure' => [],
-                'message' => 'No images to insert',
-            ];
-        }
+    //     if (empty($images)) {
+    //         return [
+    //             'success' => [],
+    //             'failure' => [],
+    //             'message' => 'No images to insert',
+    //         ];
+    //     }
 
-        $attachments = [];
-        foreach ($images as $image) {
-            $attachments[] = [
-                'post_data' => [
-                    'post_parent' => 0,
-                    'post_type' => 'attachment',
-                    'post_mime_type' => 'image/jpeg',
-                    'post_status' => 'inherit',
-                ],
-                'meta_data' => [
-                    '_wp_attached_file' => $image['file'],
-                    'width' => $image['width'],
-                    'height' => $image['height'],
-                    'filesize' => isset($image['filesize']) ? $image['filesize'] : 1,
-                    '_ci_remote_image' => true,
-                    '_ci_supplier_key' => $supplier_key,
-                    'sizes' => [$image['size']],
-                ],
-            ];
-        }
+    //     $attachments = [];
+    //     foreach ($images as $image) {
+    //         $attachments[] = [
+    //             'post_data' => [
+    //                 'post_parent' => 0,
+    //                 'post_type' => 'attachment',
+    //                 'post_mime_type' => 'image/jpeg',
+    //                 'post_status' => 'inherit',
+    //             ],
+    //             'meta_data' => [
+    //                 '_wp_attached_file' => $image['file'],
+    //                 'width' => $image['width'],
+    //                 'height' => $image['height'],
+    //                 'filesize' => isset($image['filesize']) ? $image['filesize'] : 1,
+    //                 '_ci_remote_image' => true,
+    //                 '_ci_supplier_key' => $supplier_key,
+    //                 'sizes' => [$image['size']],
+    //             ],
+    //         ];
+    //     }
 
-        $post_values = [];
-        $meta_values = [];
-        $post_data_map = []; // To keep track of which post data maps to which meta data
+    //     $post_values = [];
+    //     $meta_values = [];
+    //     $post_data_map = []; // To keep track of which post data maps to which meta data
 
-        foreach ($attachments as $index => $attachment) {
-            $post_data = $attachment['post_data'];
-            $post_values[] = $wpdb->prepare("(%d, %s, %s, %s)", $post_data['post_parent'], $post_data['post_type'], $post_data['post_mime_type'], $post_data['post_status']);
-            $post_data_map[$index] = $attachment['meta_data'];
-        }
+    //     foreach ($attachments as $index => $attachment) {
+    //         $post_data = $attachment['post_data'];
+    //         $post_values[] = $wpdb->prepare("(%d, %s, %s, %s)", $post_data['post_parent'], $post_data['post_type'], $post_data['post_mime_type'], $post_data['post_status']);
+    //         $post_data_map[$index] = $attachment['meta_data'];
+    //     }
 
-        $post_values = implode(',', $post_values);
-        $result = $wpdb->query("INSERT INTO {$wpdb->posts} (post_parent, post_type, post_mime_type, post_status) VALUES $post_values");
+    //     $post_values = implode(',', $post_values);
+    //     $result = $wpdb->query("INSERT INTO {$wpdb->posts} (post_parent, post_type, post_mime_type, post_status) VALUES $post_values");
 
-        if ($result === false) {
-            return [
-                'success' => [],
-                'failure' => $attachments,
-                'message' => 'Failed to insert posts',
-            ];
-        }
+    //     if ($result === false) {
+    //         return [
+    //             'success' => [],
+    //             'failure' => $attachments,
+    //             'message' => 'Failed to insert posts',
+    //         ];
+    //     }
 
-        $last_post_id = $wpdb->insert_id;
-        $success = [];
-        $failure = [];
+    //     $last_post_id = $wpdb->insert_id;
+    //     $success = [];
+    //     $failure = [];
 
-        foreach ($post_data_map as $index => $meta_data) {
-            $current_post_id = $last_post_id + $index;
-            $meta_inserts = [];
+    //     foreach ($post_data_map as $index => $meta_data) {
+    //         $current_post_id = $last_post_id + $index;
+    //         $meta_inserts = [];
 
-            foreach ($meta_data as $meta_key => $meta_value) {
-                $meta_inserts[] = $wpdb->prepare("(%d, %s, %s)", $current_post_id, $meta_key, $meta_value);
-            }
+    //         foreach ($meta_data as $meta_key => $meta_value) {
+    //             $meta_inserts[] = $wpdb->prepare("(%d, %s, %s)", $current_post_id, $meta_key, $meta_value);
+    //         }
 
-            $meta_values = implode(',', $meta_inserts);
-            $meta_result = $wpdb->query("INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value) VALUES $meta_values");
+    //         $meta_values = implode(',', $meta_inserts);
+    //         $meta_result = $wpdb->query("INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value) VALUES $meta_values");
 
-            if ($meta_result === false) {
-                $failure[] = [
-                    'post_id' => $current_post_id,
-                    'meta_data' => $meta_data,
-                ];
-            } else {
-                $success[] = $current_post_id;
-            }
-        }
+    //         if ($meta_result === false) {
+    //             $failure[] = [
+    //                 'post_id' => $current_post_id,
+    //                 'meta_data' => $meta_data,
+    //             ];
+    //         } else {
+    //             $success[] = $current_post_id;
+    //         }
+    //     }
 
-        return [
-            'success' => $success,
-            'failure' => $failure,
-            'message' => 'Bulk insert completed',
-        ];
-    }
+    //     return [
+    //         'success' => $success,
+    //         'failure' => $failure,
+    //         'message' => 'Bulk insert completed',
+    //     ];
+    // }
 
     public static function delete_orphaned_attachments()
     {
@@ -962,7 +961,14 @@ class WooTools
     {
         global $wpdb;
         // $s = "SELECT * FROM {$wpdb->posts} WHERE `ID` = '{$woo_id}'";
-        $post = $wpdb->get_results($wpdb->prepare("SELECT ID,post_title,post_name,post_type,post_parent FROM {$wpdb->posts} WHERE `ID` = %d", $woo_id), ARRAY_A)[0];
+        $sql = "SELECT ID,post_title,post_name,post_type,post_parent FROM {$wpdb->posts} WHERE `ID` = %d";
+        $sql_query = $wpdb->prepare($sql, $woo_id);
+        $sql_result = $wpdb->get_results($sql_query, ARRAY_A);
+
+        if (!count($sql_result)) {
+            return ['error' => "$woo_id not found"];
+        }
+        $post = $sql_result[0];
         // $limit_meta_keys = "`meta_key` IN ('_sku','_ci_product_id','_thumbnail_id','_price','_product_type','_stock_status') AND";
         $metadata_raw = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->postmeta} WHERE `post_id` = %d", $woo_id));
         $post['metadata'] = [];

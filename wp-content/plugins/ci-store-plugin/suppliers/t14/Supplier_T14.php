@@ -1032,179 +1032,179 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
     //
     //
 
-    public function import_images_page($page_index = 1)
-    {
-        // return \WooTools::delete_orphaned_attachments();
+    // public function import_images_page($page_index = 1)
+    // {
+    //     // return \WooTools::delete_orphaned_attachments();
 
-        $start_time = microtime(true);
-        // $r = [];
-        $items = $this->get_api("/items/data", ['page' => $page_index]);
-        $image_urls = [];
-        $all_images = [];
-        $skus = [];
-        $products = [];
+    //     $start_time = microtime(true);
+    //     // $r = [];
+    //     $items = $this->get_api("/items/data", ['page' => $page_index]);
+    //     $image_urls = [];
+    //     $all_images = [];
+    //     $skus = [];
+    //     $products = [];
 
-        foreach ($items['data'] as $i => $product) {
-            $sku = $this->get_product_sku($product['id']);
-            $product = [
-                'data' => [
-                    'id' => $product['id'],
-                    'item_data' => $product,
-                ],
-                'meta' => [
-                    'sku' => $this->get_product_sku($product['id']),
-                ],
-            ];
-            $images = $this->extract_images($product);
-            $product['meta']['images'] = $images;
-            $urls = array_column($images, 'file');
-            array_push($image_urls, ...$urls);
-            $products[] = $product;
-            $skus[] = $sku;
-        }
+    //     foreach ($items['data'] as $i => $product) {
+    //         $sku = $this->get_product_sku($product['id']);
+    //         $product = [
+    //             'data' => [
+    //                 'id' => $product['id'],
+    //                 'item_data' => $product,
+    //             ],
+    //             'meta' => [
+    //                 'sku' => $this->get_product_sku($product['id']),
+    //             ],
+    //         ];
+    //         $images = $this->extract_images($product);
+    //         $product['meta']['images'] = $images;
+    //         $urls = array_column($images, 'file');
+    //         array_push($image_urls, ...$urls);
+    //         $products[] = $product;
+    //         $skus[] = $sku;
+    //     }
 
-        $lookup_woo_id = WooTools::lookup_woo_ids_by_skus($skus);
-        $lookup_attachment_id = \WooTools::getAllAttachmentImagesIdByUrl($image_urls);
-        $created = 0;
+    //     $lookup_woo_id = WooTools::lookup_woo_ids_by_skus($skus);
+    //     $lookup_attachment_id = \WooTools::getAllAttachmentImagesIdByUrl($image_urls);
+    //     $created = 0;
 
-        foreach ($products as $i => $supplier_product) {
-            $products[$i]['meta']['woo_id'] = $lookup_woo_id[$supplier_product['meta']['sku']];
-            $attachment_ids = [];
+    //     foreach ($products as $i => $supplier_product) {
+    //         $products[$i]['meta']['woo_id'] = $lookup_woo_id[$supplier_product['meta']['sku']];
+    //         $attachment_ids = [];
 
-            foreach ($supplier_product['meta']['images'] as $ii => $image) {
-                $attachment_id = $lookup_attachment_id[$image['file']];
+    //         foreach ($supplier_product['meta']['images'] as $ii => $image) {
+    //             $attachment_id = $lookup_attachment_id[$image['file']];
 
-                if (!$attachment_id) {
-                    $attachment_id = \WooTools::createRemoteAttachment($image, $this->key);
-                    $created++;
-                }
+    //             if (!$attachment_id) {
+    //                 $attachment_id = \WooTools::createRemoteAttachment($image, $this->key);
+    //                 $created++;
+    //             }
 
-                $products[$i]['meta']['images'][$ii]['attachment_id'] = $attachment_id;
-                $attachment_ids[] = $attachment_id;
-            }
-            $products[$i]['meta']['attachment_ids'] = $attachment_ids;
-            $woo_id = $products[$i]['meta']['woo_id'];
+    //             $products[$i]['meta']['images'][$ii]['attachment_id'] = $attachment_id;
+    //             $attachment_ids[] = $attachment_id;
+    //         }
+    //         $products[$i]['meta']['attachment_ids'] = $attachment_ids;
+    //         $woo_id = $products[$i]['meta']['woo_id'];
 
-            if ($woo_id) {
-                if (count($attachment_ids) > 0) {
-                    $woo_product = wc_get_product_object('simple', $woo_id);
-                    if ($woo_product) {
-                        $woo_product->update_meta_data('_thumbnail_id', $attachment_ids[0]);
-                        if (count($attachment_ids) > 1) {
-                            $woo_product->set_gallery_image_ids(array_slice($attachment_ids, 1));
-                        }
-                    }
-                }
-            }
+    //         if ($woo_id) {
+    //             if (count($attachment_ids) > 0) {
+    //                 $woo_product = wc_get_product_object('simple', $woo_id);
+    //                 if ($woo_product) {
+    //                     $woo_product->update_meta_data('_thumbnail_id', $attachment_ids[0]);
+    //                     if (count($attachment_ids) > 1) {
+    //                         $woo_product->set_gallery_image_ids(array_slice($attachment_ids, 1));
+    //                     }
+    //                 }
+    //             }
+    //         }
 
-        }
+    //     }
 
-        return ['created' => $created, 'meta' => ['page_index' => $page_index, 'total_pages' => $items['meta']['total_pages']]];
+    //     return ['created' => $created, 'meta' => ['page_index' => $page_index, 'total_pages' => $items['meta']['total_pages']]];
 
-        //////////
-        //////////
+    //     //////////
+    //     //////////
 
-        $lookup_woo_id = WooTools::lookup_woo_ids_by_skus($skus);
-        // $woo_ids = array_values($lookup_woo_id);
+    //     $lookup_woo_id = WooTools::lookup_woo_ids_by_skus($skus);
+    //     // $woo_ids = array_values($lookup_woo_id);
 
-        foreach ($products as $i => $supplier_product) {
-            // $products[$i]['meta']['woo_id'] = $lookup_woo_id[$supplier_product['meta']['sku']];
-            // $products[$i]['meta']['images'] = $this->extract_images(['data' => ['id' => $supplier_product['id'], 'item_data' => $item]]);
-            // 'sku' => $this->get_product_sku($supplier_product['data']['id']);
-            // $this->build_product_meta($supplier_product, $lookup_woo_id, $lookup_updated, $lookup_version);
-            // ]
-        }
+    //     foreach ($products as $i => $supplier_product) {
+    //         // $products[$i]['meta']['woo_id'] = $lookup_woo_id[$supplier_product['meta']['sku']];
+    //         // $products[$i]['meta']['images'] = $this->extract_images(['data' => ['id' => $supplier_product['id'], 'item_data' => $item]]);
+    //         // 'sku' => $this->get_product_sku($supplier_product['data']['id']);
+    //         // $this->build_product_meta($supplier_product, $lookup_woo_id, $lookup_updated, $lookup_version);
+    //         // ]
+    //     }
 
-        return $products;
+    //     return $products;
 
-        foreach ($items['data'] as $i => $item) {
-            $images = $this->extract_images(['data' => ['id' => $item['id'], 'item_data' => $item]]);
-            $urls = array_column($images, 'file');
-            array_push($image_urls, ...$urls);
-            array_push($all_images, ...$images);
-            // $sku = $this->get_product_sku($item['id']);
-            // $r[] = ['sku' => $sku, 'images' => $images];
-        }
-        // $urls = array_column($all_images, 'file');
-        $lookup_attachment_id = \WooTools::getAllAttachmentImagesIdByUrl($image_urls);
+    //     foreach ($items['data'] as $i => $item) {
+    //         $images = $this->extract_images(['data' => ['id' => $item['id'], 'item_data' => $item]]);
+    //         $urls = array_column($images, 'file');
+    //         array_push($image_urls, ...$urls);
+    //         array_push($all_images, ...$images);
+    //         // $sku = $this->get_product_sku($item['id']);
+    //         // $r[] = ['sku' => $sku, 'images' => $images];
+    //     }
+    //     // $urls = array_column($all_images, 'file');
+    //     $lookup_attachment_id = \WooTools::getAllAttachmentImagesIdByUrl($image_urls);
 
-        // return ['count' => count($lookup_attachment_id), 'lookup_attachment_id' => $lookup_attachment_id];
-        // return ['all_images' => $all_images, 'urls' => $image_urls];
-        // return $lookup_attachment_id;
-        $created = [];
+    //     // return ['count' => count($lookup_attachment_id), 'lookup_attachment_id' => $lookup_attachment_id];
+    //     // return ['all_images' => $all_images, 'urls' => $image_urls];
+    //     // return $lookup_attachment_id;
+    //     $created = [];
 
-        $new_images = [];
-        // $test = 0;
-        $inserts = [];
+    //     $new_images = [];
+    //     // $test = 0;
+    //     $inserts = [];
 
-        foreach ($all_images as $i => $image) {
-            if ($lookup_attachment_id[$image['file']]) {
-                $all_images[$i]['attachment_id'] = $lookup_attachment_id[$image['file']];
-            } else {
-                $attachment_id = \WooTools::createRemoteAttachment($image, $this->key);
-                $all_images[$i]['attachment_id'] = $attachment_id; // . ' !NEW';
-                $inserts[] = ['result' => $attachment_id, 'image' => $image];
-            }
-        }
+    //     foreach ($all_images as $i => $image) {
+    //         if ($lookup_attachment_id[$image['file']]) {
+    //             $all_images[$i]['attachment_id'] = $lookup_attachment_id[$image['file']];
+    //         } else {
+    //             $attachment_id = \WooTools::createRemoteAttachment($image, $this->key);
+    //             $all_images[$i]['attachment_id'] = $attachment_id; // . ' !NEW';
+    //             $inserts[] = ['result' => $attachment_id, 'image' => $image];
+    //         }
+    //     }
 
-        $products = []; //array_column($all_images, null, 'supplier_product_id');
+    //     $products = []; //array_column($all_images, null, 'supplier_product_id');
 
-        foreach ($all_images as $image) {
-            $sku = $this->get_product_sku($image['supplier_product_id']);
-            if (!isset($products, $sku)) {
-                $products[$sku] = [];
-            }
-            $products[$sku][] = $image['attachment_id'];
-        }
-        return ['products' => $products];
+    //     foreach ($all_images as $image) {
+    //         $sku = $this->get_product_sku($image['supplier_product_id']);
+    //         if (!isset($products, $sku)) {
+    //             $products[$sku] = [];
+    //         }
+    //         $products[$sku][] = $image['attachment_id'];
+    //     }
+    //     return ['products' => $products];
 
-        // $insert = \WooTools::bulkCreateRemoteAttachments($new_images, $this->key);
+    //     // $insert = \WooTools::bulkCreateRemoteAttachments($new_images, $this->key);
 
-        // foreach ($new_images as $image) {
-        // $inserts[] = WooTools::createRemoteAttachment($image, $this->key);
-        // }
-        // $inserts[] = \WooTools::createRemoteAttachment($new_images[0], $this->key);
+    //     // foreach ($new_images as $image) {
+    //     // $inserts[] = WooTools::createRemoteAttachment($image, $this->key);
+    //     // }
+    //     // $inserts[] = \WooTools::createRemoteAttachment($new_images[0], $this->key);
 
-        $end_time = microtime(true);
-        $exetime = round($end_time - $start_time);
+    //     $end_time = microtime(true);
+    //     $exetime = round($end_time - $start_time);
 
-        return [
-            'exetime' => $exetime,
-            'count' => count($inserts),
-            'insertsC' => count($inserts),
-            'inserts' => $inserts,
-            // 'new_images' => $new_images,
-            'all_images' => $all_images,
-            'lookup_attachment_id' => $lookup_attachment_id,
-        ];
+    //     return [
+    //         'exetime' => $exetime,
+    //         'count' => count($inserts),
+    //         'insertsC' => count($inserts),
+    //         'inserts' => $inserts,
+    //         // 'new_images' => $new_images,
+    //         'all_images' => $all_images,
+    //         'lookup_attachment_id' => $lookup_attachment_id,
+    //     ];
 
-        $insert = \WooTools::bulkCreateRemoteAttachments($new_images, $this->key);
+    //     $insert = \WooTools::bulkCreateRemoteAttachments($new_images, $this->key);
 
-        return ['insert' => $insert, 'all_images' => $all_images, 'new_images' => $new_images];
+    //     return ['insert' => $insert, 'all_images' => $all_images, 'new_images' => $new_images];
 
-        foreach ($lookup_attachment_id as $url => $attachment_id) {
-            if (!$attachment_id) {
-                $created[] = ['url' => $url, 'key' => $this->key];
-                $attachment_id = WooTools::createRemoteAttachment($url, $this->key);
-                if ($attachment_id) {
-                    // $lookup_attachment_id[$url] = 'NEW '.$attachment_id;
-                    // $created++;
-                }
-            }
-        }
+    //     foreach ($lookup_attachment_id as $url => $attachment_id) {
+    //         if (!$attachment_id) {
+    //             $created[] = ['url' => $url, 'key' => $this->key];
+    //             $attachment_id = WooTools::createRemoteAttachment($url, $this->key);
+    //             if ($attachment_id) {
+    //                 // $lookup_attachment_id[$url] = 'NEW '.$attachment_id;
+    //                 // $created++;
+    //             }
+    //         }
+    //     }
 
-        /*
-        if (count($master_image_ids) > 0) {
-        $woo_product->update_meta_data('_thumbnail_id', $master_image_ids[0]);
-        if (count($master_image_ids) > 1) {
-        $woo_product->set_gallery_image_ids(array_slice($master_image_ids, 1));
-        }
-        }
-         */
+    //     /*
+    //     if (count($master_image_ids) > 0) {
+    //     $woo_product->update_meta_data('_thumbnail_id', $master_image_ids[0]);
+    //     if (count($master_image_ids) > 1) {
+    //     $woo_product->set_gallery_image_ids(array_slice($master_image_ids, 1));
+    //     }
+    //     }
+    //      */
 
-        return ['all_images' => $all_images, 'created' => $created, 'image_urls' => $image_urls, 'lookup_attachment_id' => $lookup_attachment_id];
-        // return $r;
-    }
+    //     return ['all_images' => $all_images, 'created' => $created, 'image_urls' => $image_urls, 'lookup_attachment_id' => $lookup_attachment_id];
+    //     // return $r;
+    // }
 
     // public function get_products_page($cursor = 1, $size = 10, $updated = '2020-01-01')
     // {

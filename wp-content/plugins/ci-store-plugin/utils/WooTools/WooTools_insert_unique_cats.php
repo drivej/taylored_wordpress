@@ -1,9 +1,9 @@
 <?php
-
+/*
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Timer.php';
 
 // NOT USED
-// TODO: maybe delete???
+// TODO: delete
 trait WooTools_insert_unique_cats
 {
     public static function insert_unique_cats($all_cats)
@@ -132,3 +132,4 @@ trait WooTools_insert_unique_cats
         return $lookup_woo_id;
     }
 }
+*/

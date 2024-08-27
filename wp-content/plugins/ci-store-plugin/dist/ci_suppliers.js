@@ -11673,11 +11673,20 @@ const SupplierImportStatus = ({ supplier }) => {
         func: 'get_import_info',
         func_group: 'importer'
     };
-    const dataPoll = useWordpressAjax(query, { refetchInterval: 60000 });
+    const [refetchInterval, setRefetchInterval] = (0,react.useState)(60000);
+    const dataPoll = useWordpressAjax(query, { refetchInterval });
     const [importInfo, setImportInfo] = (0,react.useState)({ status: 0 });
     (0,react.useEffect)(() => {
         setImportInfo(dataPoll.data);
     }, [dataPoll.data]);
+    (0,react.useEffect)(() => {
+        if (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) {
+            setRefetchInterval(10000);
+        }
+        else {
+            setRefetchInterval(60000);
+        }
+    }, [importInfo]);
     const refresh = () => {
         supplierAction.mutate({ func: 'get_import_info', args: [] }, { onSettled: setImportInfo });
     };
@@ -11701,6 +11710,9 @@ const SupplierImportStatus = ({ supplier }) => {
     };
     const killImport = () => {
         supplierAction.mutate({ func: 'kill' }, { onSettled: setImportInfo });
+    };
+    const rerunImport = () => {
+        supplierAction.mutate({ func: 'rerun' }, { onSettled: setImportInfo });
     };
     const autoImportImport = () => {
         supplierAction.mutate({ func: 'auto_import' }, { onSettled: refresh });
@@ -11746,10 +11758,10 @@ const SupplierImportStatus = ({ supplier }) => {
         var _a, _b;
         if (importInfo === null || importInfo === void 0 ? void 0 : importInfo.complete) {
             const count = (_a = importInfo === null || importInfo === void 0 ? void 0 : importInfo.processed) !== null && _a !== void 0 ? _a : 0;
-            const updated = (_b = importInfo === null || importInfo === void 0 ? void 0 : importInfo.updated_at) !== null && _b !== void 0 ? _b : '?';
+            const updated = (_b = importInfo === null || importInfo === void 0 ? void 0 : importInfo.completed) !== null && _b !== void 0 ? _b : '?';
             const ago = timeago(new Date(Date.parse(importInfo === null || importInfo === void 0 ? void 0 : importInfo.completed))); // since(importInfo?.completed);
             // setMessage(`Completed processing ${importInfo?.processed ?? 0} products updated after ${importInfo?.updated_at},  ${since(importInfo?.completed)} ago.`);
-            setMessage(`Completed. ${count} products updated since ${updated}. Updated ${ago}.`);
+            setMessage(`Completed. ${count} products updated ${ago}.`);
         }
         else if ((importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === true) {
             let started = '';
@@ -11802,7 +11814,9 @@ const SupplierImportStatus = ({ supplier }) => {
         return (react.createElement("div", { className: 'd-flex flex-column gap-4' },
             react.createElement("div", { className: 'border rounded shadow-sm p-4' },
                 react.createElement("div", { className: 'd-flex flex-column gap-3' },
-                    react.createElement("h5", null, "Import Status"),
+                    react.createElement("h5", null,
+                        "Import Status ",
+                        refetchInterval),
                     react.createElement("div", { className: 'progress', role: 'progressbar' },
                         react.createElement("div", { className: progressBarClasses.join(' '), style: { width: `${progress}%` } })),
                     react.createElement("div", null, message),
@@ -11812,6 +11826,7 @@ const SupplierImportStatus = ({ supplier }) => {
                             react.createElement("button", { disabled: !canStop, className: 'btn btn-sm btn-secondary', onClick: stopImport }, "Stop"),
                             react.createElement("button", { disabled: !canReset, className: 'btn btn-sm btn-secondary', onClick: resetImport }, "Reset"),
                             react.createElement("button", { disabled: !canContinue, className: 'btn btn-sm btn-secondary', onClick: resumeImport }, "Resume"),
+                            react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: rerunImport }, "Rerun"),
                             react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: updateImport }, "Update"),
                             react.createElement("button", { disabled: canStart, className: 'btn btn-sm btn-secondary', onClick: killImport }, "Kill"),
                             react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: autoImportImport }, "Auto\u00A0Import")),

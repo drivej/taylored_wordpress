@@ -167,7 +167,7 @@ function update_products_stock_status($params)
     //             'products_count' => $products_count,
     //             'cursor' => '',
     //             'started' => gmdate("c"),
-    //             'page_size' => 10, // TODO: raise the page size
+    //             'page_size' => 10,
     //         ]);
     //     }
     //     $scheduled = $supplier->schedule_import();

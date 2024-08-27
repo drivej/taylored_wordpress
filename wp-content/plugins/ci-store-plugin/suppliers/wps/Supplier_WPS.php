@@ -380,8 +380,11 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
             }
 
             if (count($valid_items) === 1) {
-                // $this->log($product['id'] . ' simple product');
-                // simple product
+                //
+                //
+                // Simple Product Import
+                //
+                //
                 $woo_product = wc_get_product($woo_id);
                 if ($product_exists && $woo_product->get_type() === 'variable') {
                     // product is variable, rebuild as simple
@@ -446,9 +449,12 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
 
                 $product['woo_id'] = $woo_product->save();
             } else {
-                // $this->log($product['id'] . ' variable product');
+                //
+                //
+                // Variable Product Import
+                //
+                //
                 $woo_product = new WC_Product_Variable($woo_id);
-                // $all_image_ids = [];
 
                 if (!$woo_id) {
                     try {
@@ -487,7 +493,6 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                     $woo_id = $woo_product->save();
                 }
 
-                // $this->log($product['id'] . ' attributes');
                 $children = [];
                 $attributes = ['sku' => ['name' => 'SKU', 'position' => 10, 'values' => []]];
                 $lookup_attribute_slug = [];
@@ -500,7 +505,6 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
 
                 foreach ($product['items']['data'] as &$variation) {
                     if ($this->isValidItem($variation)) {
-                        // $this->log($product['id'] . '::' . $variation['sku'] . ' variations loop');
                         // get variation object
                         $variation_sku = $this->get_variation_sku($product['id'], $variation['id']);
                         $variation_woo_id = wc_get_product_id_by_sku($variation_sku);
@@ -537,7 +541,6 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                         $woo_variation->set_length($variation['length']);
                         $woo_variation->set_width($variation['width']);
                         $woo_variation->set_height($variation['height']);
-                        // $this->log($product['id'] . '::' . $variation['sku'] . ' taxonomy');
                         // taxonomy
                         $category_ids = [];
                         $term_name = $variation['product_type'];
@@ -648,7 +651,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
 
     public function get_cached_attributekeys()
     {
-        wp_cache_flush();
+        // wp_cache_flush(); // TODO: do I need this???
         return get_option('wps_attributekeys', []);
     }
 

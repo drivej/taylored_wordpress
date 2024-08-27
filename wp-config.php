@@ -38,11 +38,11 @@ define('DB_CHARSET', 'utf8');
 /** The database collate type. Don't change this if in doubt. */
 define('DB_COLLATE', '');
 
-// TODO: change this for the live server - should already be set by kinsta
-define('WP_MEMORY_LIMIT', '256M');
-define('WP_DEBUG', true);
-define('WP_DEBUG_LOG', true);
-define('WP_DEBUG_DISPLAY', true);
+// NOTE: change this for the live server - should already be set by kinsta
+// define('WP_MEMORY_LIMIT', '256M');
+// define('WP_DEBUG', true);
+// define('WP_DEBUG_LOG', true);
+// define('WP_DEBUG_DISPLAY', true);
 
 /**#@+
  * Authentication unique keys and salts.

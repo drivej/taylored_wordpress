@@ -192,3 +192,14 @@ wp-content/plugins/woocommerce-gateway-stripe/templates/emails/failed-renewal-au
 wp-content/plugins/woocommerce-gateway-stripe/templates/emails/plain/failed-preorder-authentication.php
 wp-content/plugins/woocommerce-gateway-stripe/templates/emails/plain/failed-renewal-authentication-requested.php
 wp-content/plugins/woocommerce-gateway-stripe/templates/emails/plain/failed-renewal-authentication.php
+wp-content/plugins/woocommerce-additional-variation-images/changelog.txt
+wp-content/plugins/woocommerce-additional-variation-images/woocommerce-additional-variation-images.php
+wp-content/plugins/woocommerce-additional-variation-images/assets/css/admin.css
+wp-content/plugins/woocommerce-additional-variation-images/assets/css/admin.scss
+wp-content/plugins/woocommerce-additional-variation-images/assets/js/admin-settings.js
+wp-content/plugins/woocommerce-additional-variation-images/assets/js/admin-settings.min.js
+wp-content/plugins/woocommerce-additional-variation-images/assets/js/variation-images-frontend.js
+wp-content/plugins/woocommerce-additional-variation-images/assets/js/variation-images-frontend.min.js
+wp-content/plugins/woocommerce-additional-variation-images/includes/class-wc-additional-variation-images-admin.php
+wp-content/plugins/woocommerce-additional-variation-images/includes/class-wc-additional-variation-images-frontend.php
+wp-content/plugins/woocommerce-additional-variation-images/languages/woocommerce-additional-variation-images.pot
