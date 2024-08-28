@@ -202,11 +202,17 @@ class ImportManager
 
     public function import_complete()
     {
-        $this->update_info([
+        $info = $this->update_info([
             'complete' => true,
             'completed' => gmdate("c"),
             'progress' => 1,
         ]);
+        $this->on_complete($info);
+    }
+
+    public function on_complete($info)
+    {
+        // customize...
     }
 
     public function stop()

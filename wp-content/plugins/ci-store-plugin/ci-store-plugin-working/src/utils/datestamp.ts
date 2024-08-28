@@ -12,8 +12,16 @@ export function parseDate(s: string) {
   return new Date(Date.parse(s));
 }
 
+export function dateAge(s: string) {
+  try {
+    const d = new Date(Date.parse(s));
+    const dif = Date.now() - d.getTime();
+    return dif / 1000;
+  } catch (err) {
+    return 0;
+  }
+}
+
 export function since(s: string) {
-  const d = new Date(Date.parse(s));
-  const dif = Date.now() - d.getTime();
-  return formatDuration(dif / 1000);
+  return formatDuration(dateAge(s));
 }

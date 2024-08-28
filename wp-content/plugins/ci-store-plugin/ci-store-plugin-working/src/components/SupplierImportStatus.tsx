@@ -6,7 +6,7 @@ import { ISupplierActionQuery } from '../utilities/StockPage';
 import { ISupplier, useSuppliers } from '../utilities/useSuppliers';
 import { useTotalProducts } from '../utilities/useTotalProducts';
 import { useTotalRemoteProducts } from '../utilities/useTotalRemoteProducts';
-import { since } from '../utils/datestamp';
+import { dateAge, since } from '../utils/datestamp';
 import { fetchWordpressAjax } from '../utils/fetchWordpressAjax';
 import { timeago } from '../utils/timeago';
 import { useWordpressAjax } from '../utils/useWordpressAjax';
@@ -49,6 +49,7 @@ interface IImportStatus {
   complete: boolean;
   completed: string;
   stalled: boolean;
+  updated: string; // date since last processing ping
   //
   args: Record<string, string | boolean>;
 }
@@ -159,7 +160,12 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
   const canStop = (!shouldStop && importInfo?.active === true) || importInfo?.stalled;
   const canReset = importInfo?.active === false;
   const canContinue = canStart && importInfo?.progress > 0;
-  const isComplete = importInfo?.complete === true;
+  // const isComplete = importInfo?.complete === true;
+
+  const max_stall_age = 60 * 10; // 10 min stall age
+  const stall_age_seconds = dateAge(importInfo?.updated ?? '');
+  const canKill = stall_age_seconds > max_stall_age && importInfo?.active === true;
+
   let progress = active && (importInfo?.progress === 0 || shouldStop) ? 100 : (importInfo?.progress ?? 0) * 100;
   const [progressBarClasses, setProgressBarClasses] = useState(['progress-bar']);
   const [message, setMessage] = useState('');
@@ -226,12 +232,13 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
       <div className='d-flex flex-column gap-4'>
         <div className='border rounded shadow-sm p-4'>
           <div className='d-flex flex-column gap-3'>
-            <h5>Import Status {refetchInterval}</h5>
+            <h5>Import Status</h5>
             <div className='progress' role='progressbar'>
               <div className={progressBarClasses.join(' ')} style={{ width: `${progress}%` }}></div>
             </div>
 
             <div>{message}</div>
+
             <div className='d-flex gap-2 justify-content-between'>
               <div className='btn-group' style={{ width: 'min-content' }}>
                 <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={startImport}>
@@ -252,12 +259,17 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
                 <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={updateImport}>
                   Update
                 </button>
-                <button disabled={canStart} className='btn btn-sm btn-secondary' onClick={killImport}>
-                  Kill
-                </button>
-                <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={autoImportImport}>
+                {/* <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={autoImportImport}>
                   Auto&nbsp;Import
-                </button>
+                </button> */}
+              </div>
+
+              <div className='btn-group' style={{ width: 'min-content' }}>
+                {canKill ? (
+                  <button disabled={!canKill} className='btn btn-sm btn-secondary' onClick={killImport}>
+                    Kill
+                  </button>
+                ) : null}
               </div>
 
               <div>
@@ -279,6 +291,21 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
                 <b>
                   {importInfo?.processed ?? '-'} / {importInfo?.total ?? '-'}
                 </b>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className={`border rounded shadow-sm p-4 ${nextImport === 'never' ? 'bg-warning' : ''}`}>
+          <div className='d-flex flex-column gap-3'>
+            <div>
+              <h5>Auto-Import</h5>
+              {nextImport === '' ? <p>loading...</p> : nextImport === 'never' ? <p>The import will not run automatically. To schedule the importer to run, click the toggle below.</p> : <p>The next import will run: {nextImport}</p>}
+              <div className='btn-group'>
+                <label className='switch'>
+                  <input type='checkbox' checked={nextImport !== 'never'} onChange={onChangeAutoImport} />
+                  <span className='slider round'></span>
+                </label>
               </div>
             </div>
           </div>
@@ -310,21 +337,6 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
                 <button type='button' className='btn btn-primary btn-sm' onClick={customCursor}>
                   Go
                 </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className={`border rounded shadow-sm p-4 ${nextImport === 'never' ? 'bg-warning' : ''}`}>
-          <div className='d-flex flex-column gap-3'>
-            <div>
-              <h5>Auto-Import</h5>
-              {nextImport === '' ? <p>loading...</p> : nextImport === 'never' ? <p>The import will not run automatically. To schedule the importer to run, click the toggle below.</p> : <p>The next import will run: {nextImport}</p>}
-              <div className='btn-group'>
-                <label className='switch'>
-                  <input type='checkbox' checked={nextImport !== 'never'} onChange={onChangeAutoImport} />
-                  <span className='slider round'></span>
-                </label>
               </div>
             </div>
           </div>

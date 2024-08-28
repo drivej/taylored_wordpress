@@ -59,6 +59,7 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager {
                 }
 
                 $ids = array_map(fn($item) => $item['id'], $items['data'] ?? []);
+                $this->log(json_encode(['cursor' => $items['meta']['cursor']], JSON_PRETTY_PRINT));
                 $next_cursor = $items['meta']['cursor']['next'] ?? false;
                 $this->log('WPSImportManager::do_process() ' . json_encode(['type' => $import_type, 'cursor' => $cursor, 'next_cursor' => $next_cursor, 'date' => $updated_at, 'ids' => $ids]));
                 $processed_delta = is_countable($items['data']) ? count($items['data']) : 0;
@@ -113,6 +114,11 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager {
         ];
         return $args;
 
+    }
+
+    public function on_complete($info)
+    {
+        $this->log('WPS Import Complete');
     }
 }
 

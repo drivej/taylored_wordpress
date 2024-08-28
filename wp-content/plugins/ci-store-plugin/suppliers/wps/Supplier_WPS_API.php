@@ -15,7 +15,7 @@ trait Supplier_WPS_API
         $pathKey = trim($path, '/') . '?' . $query_string;
         $pathHash = md5($pathKey);
         $transient_name = "{$this->key}_get_api_{$pathHash}_{$this->import_version}";
-        $response = $use_cache ? get_transient($transient_name) : false;
+        $response = false;//$use_cache ? get_transient($transient_name) : false;
 
         if (false === $response) {
             $should_cache = true;

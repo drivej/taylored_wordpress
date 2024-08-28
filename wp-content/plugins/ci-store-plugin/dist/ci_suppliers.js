@@ -11552,10 +11552,18 @@ function datestamp() {
 function parseDate(s) {
     return new Date(Date.parse(s));
 }
+function dateAge(s) {
+    try {
+        const d = new Date(Date.parse(s));
+        const dif = Date.now() - d.getTime();
+        return dif / 1000;
+    }
+    catch (err) {
+        return 0;
+    }
+}
 function since(s) {
-    const d = new Date(Date.parse(s));
-    const dif = Date.now() - d.getTime();
-    return formatDuration(dif / 1000);
+    return formatDuration(dateAge(s));
 }
 
 ;// CONCATENATED MODULE: ./src/utils/timeago.ts
@@ -11662,7 +11670,7 @@ const SupplierImportStatusPage = ({ supplier_key }) => {
     return react.createElement(LoadingPage, null);
 };
 const SupplierImportStatus = ({ supplier }) => {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c, _d, _e, _f;
     const queryClient = useQueryClient();
     const totalProducts = useTotalProducts(supplier.key);
     const totalRemoteProducts = useTotalRemoteProducts(supplier.key);
@@ -11750,8 +11758,11 @@ const SupplierImportStatus = ({ supplier }) => {
     const canStop = (!shouldStop && (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === true) || (importInfo === null || importInfo === void 0 ? void 0 : importInfo.stalled);
     const canReset = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === false;
     const canContinue = canStart && (importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) > 0;
-    const isComplete = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.complete) === true;
-    let progress = active && ((importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) === 0 || shouldStop) ? 100 : ((_a = importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) !== null && _a !== void 0 ? _a : 0) * 100;
+    // const isComplete = importInfo?.complete === true;
+    const max_stall_age = 60 * 10; // 10 min stall age
+    const stall_age_seconds = dateAge((_a = importInfo === null || importInfo === void 0 ? void 0 : importInfo.updated) !== null && _a !== void 0 ? _a : '');
+    const canKill = stall_age_seconds > max_stall_age && (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === true;
+    let progress = active && ((importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) === 0 || shouldStop) ? 100 : ((_b = importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) !== null && _b !== void 0 ? _b : 0) * 100;
     const [progressBarClasses, setProgressBarClasses] = (0,react.useState)(['progress-bar']);
     const [message, setMessage] = (0,react.useState)('');
     (0,react.useEffect)(() => {
@@ -11814,9 +11825,7 @@ const SupplierImportStatus = ({ supplier }) => {
         return (react.createElement("div", { className: 'd-flex flex-column gap-4' },
             react.createElement("div", { className: 'border rounded shadow-sm p-4' },
                 react.createElement("div", { className: 'd-flex flex-column gap-3' },
-                    react.createElement("h5", null,
-                        "Import Status ",
-                        refetchInterval),
+                    react.createElement("h5", null, "Import Status"),
                     react.createElement("div", { className: 'progress', role: 'progressbar' },
                         react.createElement("div", { className: progressBarClasses.join(' '), style: { width: `${progress}%` } })),
                     react.createElement("div", null, message),
@@ -11827,23 +11836,33 @@ const SupplierImportStatus = ({ supplier }) => {
                             react.createElement("button", { disabled: !canReset, className: 'btn btn-sm btn-secondary', onClick: resetImport }, "Reset"),
                             react.createElement("button", { disabled: !canContinue, className: 'btn btn-sm btn-secondary', onClick: resumeImport }, "Resume"),
                             react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: rerunImport }, "Rerun"),
-                            react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: updateImport }, "Update"),
-                            react.createElement("button", { disabled: canStart, className: 'btn btn-sm btn-secondary', onClick: killImport }, "Kill"),
-                            react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: autoImportImport }, "Auto\u00A0Import")),
+                            react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: updateImport }, "Update")),
+                        react.createElement("div", { className: 'btn-group', style: { width: 'min-content' } }, canKill ? (react.createElement("button", { disabled: !canKill, className: 'btn btn-sm btn-secondary', onClick: killImport }, "Kill")) : null),
                         react.createElement("div", null,
                             react.createElement("button", { className: 'btn btn-sm btn-secondary', onClick: refresh }, "Refresh"))),
                     react.createElement("div", { className: 'd-flex justify-content-between' },
                         react.createElement("div", null,
                             "Imported: ",
-                            react.createElement("b", null, (_b = totalProducts === null || totalProducts === void 0 ? void 0 : totalProducts.data) !== null && _b !== void 0 ? _b : '-')),
+                            react.createElement("b", null, (_c = totalProducts === null || totalProducts === void 0 ? void 0 : totalProducts.data) !== null && _c !== void 0 ? _c : '-')),
                         react.createElement("div", null,
                             "Total: ",
-                            react.createElement("b", null, (_c = totalRemoteProducts === null || totalRemoteProducts === void 0 ? void 0 : totalRemoteProducts.data) !== null && _c !== void 0 ? _c : '-')),
+                            react.createElement("b", null, (_d = totalRemoteProducts === null || totalRemoteProducts === void 0 ? void 0 : totalRemoteProducts.data) !== null && _d !== void 0 ? _d : '-')),
                         react.createElement("div", null,
                             "Processed:",
                             ' ',
-                            react.createElement("b", null, (_d = importInfo === null || importInfo === void 0 ? void 0 : importInfo.processed) !== null && _d !== void 0 ? _d : '-',
-                                " / ", (_e = importInfo === null || importInfo === void 0 ? void 0 : importInfo.total) !== null && _e !== void 0 ? _e : '-'))))),
+                            react.createElement("b", null, (_e = importInfo === null || importInfo === void 0 ? void 0 : importInfo.processed) !== null && _e !== void 0 ? _e : '-',
+                                " / ", (_f = importInfo === null || importInfo === void 0 ? void 0 : importInfo.total) !== null && _f !== void 0 ? _f : '-'))))),
+            react.createElement("div", { className: `border rounded shadow-sm p-4 ${nextImport === 'never' ? 'bg-warning' : ''}` },
+                react.createElement("div", { className: 'd-flex flex-column gap-3' },
+                    react.createElement("div", null,
+                        react.createElement("h5", null, "Auto-Import"),
+                        nextImport === '' ? react.createElement("p", null, "loading...") : nextImport === 'never' ? react.createElement("p", null, "The import will not run automatically. To schedule the importer to run, click the toggle below.") : react.createElement("p", null,
+                            "The next import will run: ",
+                            nextImport),
+                        react.createElement("div", { className: 'btn-group' },
+                            react.createElement("label", { className: 'switch' },
+                                react.createElement("input", { type: 'checkbox', checked: nextImport !== 'never', onChange: onChangeAutoImport }),
+                                react.createElement("span", { className: 'slider round' })))))),
             react.createElement(ErrorLogs, { baseQuery: { supplier_key: supplier.key, cmd: 'supplier_action' } }),
             react.createElement("div", { className: `border rounded shadow-sm p-4` },
                 react.createElement("div", { className: 'd-flex flex-column gap-3' },
@@ -11863,17 +11882,6 @@ const SupplierImportStatus = ({ supplier }) => {
                         react.createElement("div", null,
                             react.createElement("label", { className: 'form-label d-block' }, "\u00A0"),
                             react.createElement("button", { type: 'button', className: 'btn btn-primary btn-sm', onClick: customCursor }, "Go"))))),
-            react.createElement("div", { className: `border rounded shadow-sm p-4 ${nextImport === 'never' ? 'bg-warning' : ''}` },
-                react.createElement("div", { className: 'd-flex flex-column gap-3' },
-                    react.createElement("div", null,
-                        react.createElement("h5", null, "Auto-Import"),
-                        nextImport === '' ? react.createElement("p", null, "loading...") : nextImport === 'never' ? react.createElement("p", null, "The import will not run automatically. To schedule the importer to run, click the toggle below.") : react.createElement("p", null,
-                            "The next import will run: ",
-                            nextImport),
-                        react.createElement("div", { className: 'btn-group' },
-                            react.createElement("label", { className: 'switch' },
-                                react.createElement("input", { type: 'checkbox', checked: nextImport !== 'never', onChange: onChangeAutoImport }),
-                                react.createElement("span", { className: 'slider round' })))))),
             react.createElement("pre", { style: { fontSize: 11 } }, JSON.stringify({ importInfo, is_running: active, canStart }, null, 2))));
     }
     return react.createElement(LoadingPage, null);

@@ -49,6 +49,7 @@ class Plugin
 
     function init_admin()
     {
+        include_once CI_STORE_PLUGIN . 'utils/user_has_access.php';
         include_once CI_STORE_PLUGIN . 'hooks/index.php';
         // include_once CI_STORE_PLUGIN . 'utils/AjaxManager.php';
         // include_once CI_STORE_PLUGIN . 'ajax/index.php';
@@ -60,20 +61,28 @@ class Plugin
 
         register_activation_hook(__FILE__, [$this, 'activation']);
 
-        // add_action('wp_ajax_ci_api_handler', [$this, 'api_handler']);
-        add_action('wp_ajax_ci_api_handler', 'CIStore\Ajax\api_handler');
-        add_action('admin_menu', 'CIStore\Admin\create_admin_menu');
-        add_filter('manage_edit-product_columns', 'CIStore\Admin\custom_manage_product_posts_columns');
-        add_action('manage_product_posts_custom_column', 'CIStore\Admin\custom_manage_product_posts_custom_column', 10, 2);
-        wp_enqueue_style('custom-admin-styles', plugins_url('css/ci-admin.css', CI_STORE_PLUGIN_FILE));
+        add_action('show_user_profile', 'CIStore\Hooks\add_custom_access_checkbox');
+        add_action('edit_user_profile', 'CIStore\Hooks\add_custom_access_checkbox');
+        add_action('personal_options_update', 'CIStore\Hooks\save_custom_access_checkbox');
+        add_action('edit_user_profile_update', 'CIStore\Hooks\save_custom_access_checkbox');
 
-        // \CIStore\Suppliers\WPS\init();
-        // do_action('wps_init');
-        // $this->test();
+        $allow = \CIStore\Utils\user_has_access();
 
-        // new \AjaxManager();
-        new \CIStore\Utils\ReactSubpage('utilities', 'Utilities', 'ci-store-plugin-page', 'ci-store_page_');
-        new \CIStore\Utils\ReactSubpage('suppliers', 'Suppliers', 'ci-store-plugin-page', 'ci-store_page_');
+        error_log(json_encode(['allow' => $allow]));
+
+        if ($allow) {
+            add_action('wp_ajax_ci_api_handler', 'CIStore\Ajax\api_handler');
+            add_action('admin_menu', 'CIStore\Admin\create_admin_menu');
+            add_filter('manage_edit-product_columns', 'CIStore\Admin\custom_manage_product_posts_columns');
+            add_action('manage_product_posts_custom_column', 'CIStore\Admin\custom_manage_product_posts_custom_column', 10, 2);
+            wp_enqueue_style('custom-admin-styles', plugins_url('css/ci-admin.css', CI_STORE_PLUGIN_FILE));
+
+            $expert_access = \CIStore\Utils\user_has_expert_access();
+            if($expert_access){
+                new \CIStore\Utils\ReactSubpage('utilities', 'Utilities', 'ci-store-plugin-page', 'ci-store_page_');
+            }
+            new \CIStore\Utils\ReactSubpage('suppliers', 'Suppliers', 'ci-store-plugin-page', 'ci-store_page_');
+        }
     }
 
     function init_error()
