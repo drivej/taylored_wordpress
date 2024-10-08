@@ -164,7 +164,7 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
 
   const max_stall_age = 60 * 10; // 10 min stall age
   const stall_age_seconds = dateAge(importInfo?.updated ?? '');
-  const canKill = stall_age_seconds > max_stall_age && importInfo?.active === true;
+  const canKill = true;//stall_age_seconds > max_stall_age && importInfo?.active === true;
 
   let progress = active && (importInfo?.progress === 0 || shouldStop) ? 100 : (importInfo?.progress ?? 0) * 100;
   const [progressBarClasses, setProgressBarClasses] = useState(['progress-bar']);

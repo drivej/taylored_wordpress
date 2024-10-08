@@ -12,6 +12,69 @@ class WooTools
     use WooTools_attachment_urls_to_postids;
     use WooTools_insert_product_meta_lookup;
 
+    public static function get_or_create_global_attribute_term($attribute_name, $attribute_value)
+    {
+        // Use the attribute name as a taxonomy (e.g., 'pa_color', 'pa_size')
+        $taxonomy = wc_attribute_taxonomy_name($attribute_name);
+
+        // Check if the attribute exists in WooCommerce
+        $exists = taxonomy_exists($taxonomy);
+        // $attribute = wc_get_attribute_taxonomy_id_by_name($attribute_name);
+
+        if (!$exists) {
+            // Create the attribute if it doesn't exist
+            $attribute_id = wc_create_attribute([
+                'name' => $attribute_name, //ucfirst($attribute_name), // Display name
+                'slug' => $attribute_name, // Slug
+                'type' => 'select', // Default type for attributes
+                'order_by' => 'menu_order', // Sorting method
+                'has_archives' => false, // No archives needed for this attribute
+            ]);
+
+            if (is_wp_error($attribute_id)) {
+                return new WP_Error('invalid_taxonomy', 'Failed to create attribute');
+            }
+
+            // Register the new attribute
+            // $taxonomy = 'pa_' . $attribute_name;
+            register_taxonomy($taxonomy, 'product', [
+                'label' => ucfirst($attribute_name),
+                'public' => false,
+                'hierarchical' => false,
+                'show_ui' => false,
+                'query_var' => true,
+                'rewrite' => false,
+            ]);
+        }
+
+        // Now we add the term to the attribute
+        $term = term_exists($attribute_value, $taxonomy);
+
+        if (!$term) {
+            $term = wp_insert_term($attribute_value, $taxonomy);
+        }
+
+        if (is_wp_error($term)) {
+            return new WP_Error('invalid_term', 'Failed to create or retrieve term');
+        }
+
+        return $term['term_id'];
+
+        // // Check if the term exists in the taxonomy
+        // $term = get_term_by('name', $attribute_value, $taxonomy);
+        // if (!$term) {
+        //     // If it doesn't exist, create it
+        //     $term = wp_insert_term($attribute_value, $taxonomy);
+        //     if (!is_wp_error($term)) {
+        //         return $term['term_id'];
+        //     } else {
+        //         // Handle error in creating term
+        //         return [$term, $taxonomy];
+        //     }
+        // }
+        // return $term->term_id;
+    }
+
     /**
      *
      * @param WC_Product    $product

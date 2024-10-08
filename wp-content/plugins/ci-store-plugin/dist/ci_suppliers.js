@@ -11761,7 +11761,7 @@ const SupplierImportStatus = ({ supplier }) => {
     // const isComplete = importInfo?.complete === true;
     const max_stall_age = 60 * 10; // 10 min stall age
     const stall_age_seconds = dateAge((_a = importInfo === null || importInfo === void 0 ? void 0 : importInfo.updated) !== null && _a !== void 0 ? _a : '');
-    const canKill = stall_age_seconds > max_stall_age && (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === true;
+    const canKill = true; //stall_age_seconds > max_stall_age && importInfo?.active === true;
     let progress = active && ((importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) === 0 || shouldStop) ? 100 : ((_b = importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) !== null && _b !== void 0 ? _b : 0) * 100;
     const [progressBarClasses, setProgressBarClasses] = (0,react.useState)(['progress-bar']);
     const [message, setMessage] = (0,react.useState)('');

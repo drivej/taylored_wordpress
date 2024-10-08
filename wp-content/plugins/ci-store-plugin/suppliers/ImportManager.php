@@ -230,7 +230,7 @@ class ImportManager
             'completed' => false,
         ]);
 
-        if ($info['stalled']) {
+        if (array_key_exists('stalled', $info) && $info['stalled']) {
             $this->log('try to break stalled state');
             $this->stop_processing();
             $this->clear_stop();
@@ -369,8 +369,13 @@ class ImportManager
 
     protected function update_info($delta)
     {
+        // $this->log(json_encode(['delta' => $delta]));
         $info = $this->get_info();
-        return $this->set_info(array_merge($info, $delta, ['updated' => gmdate("c")]));
+        try {
+            return $this->set_info(array_merge($info, $delta, ['updated' => gmdate("c")]));
+        } catch (\Exception $e) {
+            throw new \Exception("update_info(): " . json_encode(['delta' => $delta]));
+        }
     }
 
     protected function is_stalled()

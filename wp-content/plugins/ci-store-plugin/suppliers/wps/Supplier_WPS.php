@@ -28,6 +28,7 @@ include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Brands
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Data.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Taxonomy.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_ImportManager.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Attributes.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Timer.php';
 
 class Supplier_WPS extends CIStore\Suppliers\Supplier
@@ -37,6 +38,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
     use Supplier_WPS_Data;
     use Supplier_WPS_Taxonomy;
     use Supplier_WPS_ImportManager;
+    use Supplier_WPS_Attributes;
     /**
      * The single instance of the class.
      *
@@ -52,7 +54,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
             'key' => 'wps',
             'name' => 'Western Power Sports',
             'supplierClass' => 'WooDropship\\Suppliers\\Western',
-            'import_version' => '0.4',
+            'import_version' => '0.5',
         ]);
         $this->importer = $this->get_importer();
     }
@@ -198,7 +200,8 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
         $updated_at = $updated_at ?? $this->default_updated_at;
         $items = $this->get_products_page($cursor, 'pdp', $updated_at);
         $ids = array_map(fn($item) => $item['id'], $items['data'] ?? []);
-        $this->log('import_products_page() ' . json_encode($ids));
+        $this->log("import_products_page('$cursor', '$updated_at')");
+        // $this->log(json_encode($items));
         $items = $this->process_items_native($items);
         return $items;
     }
@@ -276,6 +279,8 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
         ];
     }
 
+    // import page of products from API
+    // native means it uses wp and wc function instead of direct database calls
     private function process_items_native($items)
     {
         $timer = new Timer();
@@ -360,15 +365,14 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
         // ------------------------------------------------------------>
 
         foreach ($items['data'] as &$product) {
-            // $this->log($product['id'] . ' product loop');
             // get product object
             $sku = $this->get_product_sku($product['id']);
             $woo_id = wc_get_product_id_by_sku($sku);
+            // $this->log('process_items_native()' . ' sid:' . $product['id'] . ' sku:' . $sku . ' woo_id:' . $woo_id);
             $product_exists = (bool) $woo_id;
             $product['exists'] = $product_exists;
             $product['woo_sku'] = $sku;
             $valid_items = array_filter($product['items']['data'], [$this, 'isValidItem']);
-            // $this->log('woo_id=' . $woo_id);
 
             // delete invalid product
             if (count($valid_items) === 0) {
@@ -494,14 +498,22 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                 }
 
                 $children = [];
-                $attributes = ['sku' => ['name' => 'SKU', 'position' => 10, 'values' => []]];
-                $lookup_attribute_slug = [];
 
-                $lookup_attribute_slug = $this->get_attributes_from_product(['data' => $product]);
+                //
+                // $attributes = ['sku' => ['name' => 'SKU', 'position' => 10, 'values' => []]];
+                // $lookup_attribute_slug = [];
 
-                foreach ($lookup_attribute_slug as $attr) {
-                    $attributes[$attr['slug']] = ['name' => $attr['name'], 'position' => 1, 'values' => []];
-                }
+                // $lookup_attribute_slug = $this->get_attributes_from_product(['data' => $product]);
+
+                // foreach ($lookup_attribute_slug as $attr) {
+                //     $attributes[$attr['slug']] = ['name' => $attr['name'], 'position' => 1, 'values' => []];
+                // }
+                //
+                $product_attributes = $this->process_product_attributes($product); // NEW
+                $product_attributes_lookup = $this->build_attributes_lookup($product_attributes); // NEW
+                $product_attributes_lookup_slug = array_column($product_attributes, 'slug', 'key'); // NEW
+                $woo_attributes = $this->build_woo_product_attributes($product_attributes); // NEW
+                // $woo_product->set_attributes($woo_attributes); // NEW
 
                 foreach ($product['items']['data'] as &$variation) {
                     if ($this->isValidItem($variation)) {
@@ -567,22 +579,44 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                         // $woo_variation->set_description($product['description']);
                         $woo_variation->set_price($variation['list_price']);
 
-                        // attributes
+                        //
+                        // START NEW Attributes
+                        //
+                        $this->clean_product_attributes($variation_woo_id); // optional for initial cleanup
+
+                        $variation_attributes = $this->process_varition_attributes($variation, $product_attributes_lookup);
+
+                        foreach ($variation_attributes as $key => $term) {
+                            $term_id = $term['id'];
+                            $term_value = $term['value'];
+                            $slug = $product_attributes_lookup_slug[$key];
+                            wp_set_object_terms($variation_woo_id, $term_id, $key, true);
+                            $woo_variation->update_meta_data("attribute_{$slug}", $term_value);
+                        }
+                        //
+                        // END NEW Attributes
+                        //
+
+                        // attributes (OLD)
+                        /*
                         $variation['variaton_attributes'] = [];
 
                         foreach ($variation['attributevalues']['data'] as $attributevalue) {
-                            $attr_id = $attributevalue['attributekey_id'];
-                            if (array_key_exists($attr_id, $lookup_attribute_slug)) {
-                                $attr_slug = $lookup_attribute_slug[$attr_id]['slug'];
-                                $attributes[$attr_slug]['values'][] = $attributevalue['name'];
-                                $woo_variation->update_meta_data("attribute_{$attr_slug}", $attributevalue['name'], true);
-                                $variation['variaton_attributes']["attribute_{$attr_slug}"] = $attributevalue['name'];
-                            }
+                        $attr_id = $attributevalue['attributekey_id'];
+                        if (array_key_exists($attr_id, $lookup_attribute_slug)) {
+                        $attr_slug = $lookup_attribute_slug[$attr_id]['slug'];
+                        $attributes[$attr_slug]['values'][] = $attributevalue['name'];
+                        $woo_variation->update_meta_data("attribute_{$attr_slug}", $attributevalue['name'], true);
+                        $variation['variaton_attributes']["attribute_{$attr_slug}"] = $attributevalue['name'];
                         }
+                        }
+                         */
+
+                        // TODO: make attributes global
 
                         // manually add SKU attribute
                         $woo_variation->update_meta_data('attribute_sku', $variation['sku'], true);
-                        $attributes['sku']['values'][] = $variation['sku'];
+                        // $attributes['sku']['values'][] = $variation['sku'];
 
                         $variation_woo_id = $woo_variation->save();
                         // $this->log($product['id'] . '::' . $variation['sku'] . ' save');
@@ -592,31 +626,29 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                         $children[] = $variation_woo_id;
                     }
                 }
-
-                // $this->log(json_encode(['all_image_ids' => $all_image_ids]));
-                // $woo_product->get_gallery_image_ids($all_image_ids);
-
                 // create attributes object for parent
+                /*
                 $attrs = [];
                 foreach ($attributes as $attr_key => &$attribute) {
-                    $attribute['values'] = array_values(array_unique($attribute['values']));
-                    if (count($attribute['values']) === 1) {
-                        continue;
-                    }
-                    $attr = new WC_Product_Attribute();
-                    $attr->set_name($attribute['name']);
-                    $attr->set_options($attribute['values']);
-                    $attr->set_visible(1);
-                    $attr->set_variation(1);
-                    $attr->set_position($attribute['position']);
-                    $attrs[$attr_key] = $attr;
+                $attribute['values'] = array_values(array_unique($attribute['values']));
+                if (count($attribute['values']) === 1) {
+                continue;
                 }
-
+                $attr = new WC_Product_Attribute();
+                $attr->set_name($attribute['name']);
+                $attr->set_options($attribute['values']);
+                $attr->set_visible(1);
+                $attr->set_variation(1);
+                $attr->set_position($attribute['position']);
+                $attrs[$attr_key] = $attr;
+                }
                 $woo_product->set_attributes($attrs);
+                 */
+                $woo_product->set_attributes($woo_attributes);
                 $woo_product->set_children($children);
                 $woo_product->save();
                 $product['woo_id'] = $woo_id;
-                $product['attributes'] = $attributes;
+                // $product['attributes'] = $attributes;
             }
         }
 
@@ -647,107 +679,6 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
             return $supplier_product['data']['description'];
         }
         return '';
-    }
-
-    public function get_cached_attributekeys()
-    {
-        // wp_cache_flush(); // TODO: do I need this???
-        return get_option('wps_attributekeys', []);
-    }
-
-    public function get_attributes_from_product($supplier_product) // wps_product
-    {
-        $wps_attributekeys = $this->get_cached_attributekeys();
-        $wps_attributekeys_updated = false;
-
-        // cleanup
-        foreach ($wps_attributekeys as $id => $attr) {
-            if (count(array_keys($wps_attributekeys[$id])) > 2) {
-                $wps_attributekeys[$id] = ['name' => $attr['name'], 'slug' => $attr['slug']];
-                $wps_attributekeys_updated = true;
-            }
-            if (!isset($wps_attributekeys[$id]['name']) || !isset($wps_attributekeys[$id]['slug'])) {
-                unset($wps_attributekeys[$id]);
-                $wps_attributekeys_updated = true;
-            }
-        }
-
-        // this is a utility because the attribute data is not entirely in the product request
-        $attribute_ids = [];
-
-        if (isset($supplier_product['data']['items']['data'])) {
-            foreach ($supplier_product['data']['items']['data'] as $item) {
-                foreach ($item['attributevalues']['data'] as $attr) {
-                    if (!array_key_exists($attr['attributekey_id'], $attribute_ids)) {
-                        $attribute_ids[$attr['attributekey_id']] = 0;
-                    }
-                    $attribute_ids[$attr['attributekey_id']]++;
-                }
-            }
-        }
-
-        $all_ids = array_keys($attribute_ids);
-
-        // find attributevalues not in out nice cached object
-        $ids = array_values(array_filter($all_ids, fn($id) => !array_key_exists($id, $wps_attributekeys)));
-
-        $cursor = '';
-        $data = [];
-
-        if (count($ids) === 1) {
-            // handle request for single item
-            $res = $this->get_api('attributekeys/' . implode(',', $ids));
-            try {
-                // this explodes if another product exists with the same sku
-                $res['data']['slug'] = sanitize_title($res['data']['name']);
-                // $wps_attributekeys[$ids[0]] = $res['data'];
-                if (isset($res['data']['slug']) && isset($res['data']['name'])) {
-                    $wps_attributekeys[$ids[0]] = ['name' => $res['data']['name'], 'slug' => $res['data']['slug']];
-                }
-                $wps_attributekeys_updated = true;
-            } catch (\Exception $e) {
-                $this->log('CAUGHT!!! wps:get_attributes_from_product()', $res);
-            }
-            // $attributes[] = $res['data'];
-        } else if (count($ids)) {
-            // handle request for multiple items
-            // gather data with pagination
-            while (isset($cursor)) {
-                $res = $this->get_api('attributekeys/' . implode(',', $ids), ['page[size]' => 20, 'page[cursor]' => $cursor]);
-                if (isset($res['data'])) {
-                    foreach ($res['data'] as $attr) {
-                        $attr['slug'] = sanitize_title($attr['name']);
-                        if (isset($attr['slug']) && isset($attr['name'])) {
-                            $wps_attributekeys[$attr['id']] = ['name' => $attr['name'], 'slug' => $attr['slug']];
-                            $wps_attributekeys_updated = true;
-                        }
-                    }
-                } else {
-                    $this->log('wps:get_attributes_from_product() Warning ' . json_encode($res, JSON_PRETTY_PRINT));
-                }
-                if (is_array($res['data'])) {
-                    array_push($data, ...$res['data']);
-                }
-                if (isset($res['meta']['cursor']['next'])) {
-                    $cursor = $res['meta']['cursor']['next'];
-                } else {
-                    unset($cursor);
-                }
-            }
-        }
-
-        $valid_ids = array_filter($all_ids, fn($id) => array_key_exists($id, $wps_attributekeys));
-
-        $av = [];
-        foreach ($valid_ids as $valid_id) {
-            $av[$valid_id] = $wps_attributekeys[$valid_id];
-        }
-
-        if ($wps_attributekeys_updated) {
-            update_option('wps_attributekeys', $wps_attributekeys);
-        }
-
-        return $av;
     }
 
     public function is_available($supplier_product)

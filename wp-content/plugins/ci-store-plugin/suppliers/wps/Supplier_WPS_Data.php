@@ -39,8 +39,8 @@ trait Supplier_WPS_Data
                 'tags',
                 'blocks',
                 'taxonomyterms',
-                'attributekeys',
-                'attributevalues',
+                'attributekeys', // these are always blank - API error?
+                'attributevalues', // these are always blank - API error?
                 'items.images',
                 'items.attributevalues',
                 'items.taxonomyterms',
@@ -51,6 +51,7 @@ trait Supplier_WPS_Data
             $fields['attributevalues'] = 'attributekey_id,name';
             $fields['taxonomyterms'] = 'name,slug';
             $fields['images'] = 'domain,path,filename,mime,width,height,size';
+            $fields['features'] = 'name';
         }
 
         if (count($includes)) {
@@ -112,6 +113,7 @@ trait Supplier_WPS_Data
 
     public function get_products_page($cursor = '', $flag = 'pdp', $updated = null)
     {
+        // $this->log("get_products_page('$cursor', '$flag', '$updated')");
         // attempt to load 48, then step down in count until response is valid
         $page_sizes = [1, 4, 8, 16, 24, 48];
         $page_size = end($page_sizes);

@@ -127,7 +127,7 @@ class Supplier
         if ($message === 2) {
             $this->logger->log('context=' . $context . ' message=' . $message . ' key=' . $this->key);
         }
-        $this->logger->log('Supplier::' . $this->key . '::' . $message);
+        $this->logger->log('Supplier::' . $this->key . '::' . json_encode($message));
         return false;
     }
 
