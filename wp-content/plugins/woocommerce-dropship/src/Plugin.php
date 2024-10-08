@@ -55,7 +55,7 @@ class Plugin
         // add_action('woocommerce_thankyou', [$this, 'custom_woocommerce_thankyou'], 10, 1);
         // add_action('woocommerce_checkout_order_processed', [$this, 'custom_woocommerce_checkout_order_processed'], 10, 3);
 
-        add_action('woocommerce_checkout_create_order', [$this->wooCommerce, 'orderCreateSupplierOrder'], 10, 2);
+        add_action('woocommerce_payment_complete', [$this->wooCommerce, 'orderCreateSupplierOrder'], 10, 2);
         add_action('init', [$this->wooCommerce, 'registerShippedStatus']);
 
         // Register settings pages defined above
