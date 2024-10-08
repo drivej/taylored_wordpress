@@ -82,8 +82,9 @@ class WooCommerce
     /**
      * @param WC_Order $order
      */
-    public function orderCreateSupplierOrder($order, $data)
+    public function orderCreateSupplierOrder($order_id, $data)
     {
+        $order = wc_get_order( $order_id );
         error_log('orderCreateSupplierOrder()'); // . json_encode(['order' => $order, 'data' => $data]));
 
         $supplierOrderQueue = [];
