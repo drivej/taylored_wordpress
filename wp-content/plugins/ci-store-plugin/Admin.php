@@ -9,6 +9,7 @@ function copyright()
     ?>
     <p>&copy; Contento Interactive, 2024. All rights reserved.</p>
     <p>This WordPress plugin and its code are the property of Contento Interactive Group, LLC. Unauthorized copying, alteration, distribution, or use of this code in any form without express written permission from Contento Interactive Group, LLC is strictly prohibited.</p>
+    <p><?=CI_VERSION?></p>
     <?php
 }
 

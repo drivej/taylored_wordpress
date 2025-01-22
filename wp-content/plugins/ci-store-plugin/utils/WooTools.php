@@ -140,13 +140,13 @@ class WooTools
 
     // NOTE: need to update these when suppliers are added
     // I didn't want to instantiate each supplier class just to get this info
-    public static function get_suppliers()
-    {
-        return [
-            ['key' => 'wps', 'name' => 'Western Power Sports'],
-            ['key' => 't14', 'name' => 'Turn14'],
-        ];
-    }
+    // public static function g et_suppliers()
+    // {
+    //     return [
+    //         ['key' => 'wps', 'name' => 'Western Power Sports'],
+    //         ['key' => 't14', 'name' => 'Turn14'],
+    //     ];
+    // }
 
     public static function get_supplier($supplier_key)
     {

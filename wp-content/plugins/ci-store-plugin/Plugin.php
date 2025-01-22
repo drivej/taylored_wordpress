@@ -27,9 +27,9 @@ class Plugin
     {
         include_once CI_STORE_PLUGIN . 'hooks/index.php';
         include_once CI_STORE_PLUGIN . 'Admin.php';
-        // include_once CI_STORE_PLUGIN . 'suppliers/Suppliers.php';
-        include_once CI_STORE_PLUGIN . 'suppliers/wps/Supplier_WPS.php';
-        // include_once CI_STORE_PLUGIN . 'suppliers/wps/Supplier_WPS_ImportManager.php';
+        include_once CI_STORE_PLUGIN . 'suppliers/Suppliers.php';
+        // include_once CI_STORE_PLUGIN . 'suppliers/wps/Supplier_WPS.php';
+        include_once CI_STORE_PLUGIN . 'suppliers/wps/Supplier_WPS_ImportManager.php';
 
         add_filter('image_downsize', 'CIStore\Hooks\custom_image_downsize', 10, 3);
         add_action('woocommerce_before_shop_loop_item', 'CIStore\Hooks\custom_before_shop_loop_item');
@@ -39,8 +39,14 @@ class Plugin
 
         add_action('test_event', 'CIStore\Hooks\custom_before_shop_loop_item');
 
-        $supplier_wps = new \Supplier_WPS();
-        $importer_wps = $supplier_wps->get_importer();
+        // import managers need to be initialized so their hooks are added
+        // otherwise the scheduled tasks will not fire
+        $importer = new \WPSImportManager();
+
+        // \CIStore\Suppliers\get_supplier('wps');
+
+        // $supplier_wps = new \Supplier_WPS(); // TODO: Do I need to instantiate these to get auto import running? Prob not
+        // $importer_wps = $supplier_wps->get_importer();
         // new \WPSImportManager();
         // \CIStore\Suppliers\WPS\$importer->init();
         // $this->test();
@@ -51,13 +57,10 @@ class Plugin
     {
         include_once CI_STORE_PLUGIN . 'utils/user_has_access.php';
         include_once CI_STORE_PLUGIN . 'hooks/index.php';
-        // include_once CI_STORE_PLUGIN . 'utils/AjaxManager.php';
-        // include_once CI_STORE_PLUGIN . 'ajax/index.php';
         require_once CI_STORE_PLUGIN . 'utils/ReactSubpage.php';
         include_once CI_STORE_PLUGIN . 'Admin.php';
         include_once CI_STORE_PLUGIN . 'Ajax.php';
         include_once CI_STORE_PLUGIN . 'suppliers/Suppliers.php';
-        // include_once CI_STORE_PLUGIN . 'suppliers/WPS.php';
 
         register_activation_hook(__FILE__, [$this, 'activation']);
 
@@ -68,8 +71,6 @@ class Plugin
 
         $allow = \CIStore\Utils\user_has_access();
 
-        error_log(json_encode(['allow' => $allow]));
-
         if ($allow) {
             add_action('wp_ajax_ci_api_handler', 'CIStore\Ajax\api_handler');
             add_action('admin_menu', 'CIStore\Admin\create_admin_menu');
@@ -78,7 +79,7 @@ class Plugin
             wp_enqueue_style('custom-admin-styles', plugins_url('css/ci-admin.css', CI_STORE_PLUGIN_FILE));
 
             $expert_access = \CIStore\Utils\user_has_expert_access();
-            if($expert_access){
+            if ($expert_access) {
                 new \CIStore\Utils\ReactSubpage('utilities', 'Utilities', 'ci-store-plugin-page', 'ci-store_page_');
             }
             new \CIStore\Utils\ReactSubpage('suppliers', 'Suppliers', 'ci-store-plugin-page', 'ci-store_page_');

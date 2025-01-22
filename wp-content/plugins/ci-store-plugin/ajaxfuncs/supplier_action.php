@@ -41,7 +41,7 @@ function supplier_action()
     ksort($args);
     $args = array_values($args);
 
-    // special cvase to target importer functions
+    // special case to target importer functions
     switch ($func_group) {
         case 'importer':
             $importer = $supplier->importer;

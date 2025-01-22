@@ -28337,7 +28337,7 @@ const useWordpressAjax = (query, options = {}) => useQuery(Object.assign({ query
 
 ;// CONCATENATED MODULE: ./src/utilities/Pre.tsx
 
-const Pre = ({ data }) => {
+const Pre_Pre = ({ data }) => {
     return react.createElement("pre", { style: { fontSize: 11 } }, JSON.stringify(data, null, 2));
 };
 
@@ -28364,14 +28364,14 @@ const CSVTable = ({ data }) => {
     var _a;
     if ((data === null || data === void 0 ? void 0 : data.rows) && Array.isArray(data.rows)) {
         const rows = (_a = data === null || data === void 0 ? void 0 : data.rows) !== null && _a !== void 0 ? _a : [];
-        return (react.createElement(react.Fragment, null,
-            react.createElement("table", { className: 'table table-sm border', style: { fontSize: 11 } },
-                react.createElement("thead", null,
-                    react.createElement("tr", null, rows[0].map((r) => (react.createElement("td", null, r))))),
-                react.createElement("tbody", null, rows.slice(1).map((r) => (react.createElement("tr", null, r.map((c) => (react.createElement("td", null, c)))))))),
-            react.createElement(Pre, { data: Object.assign(Object.assign({}, data), { rows: undefined }) })));
+        return (React.createElement(React.Fragment, null,
+            React.createElement("table", { className: 'table table-sm border', style: { fontSize: 11 } },
+                React.createElement("thead", null,
+                    React.createElement("tr", null, rows[0].map((r) => (React.createElement("td", null, r))))),
+                React.createElement("tbody", null, rows.slice(1).map((r) => (React.createElement("tr", null, r.map((c) => (React.createElement("td", null, c)))))))),
+            React.createElement(Pre, { data: Object.assign(Object.assign({}, data), { rows: undefined }) })));
     }
-    return react.createElement(Pre, { data: data });
+    return React.createElement(Pre, { data: data });
 };
 const ErrorLogs = ({ data }) => {
     const $pre = (0,react.useRef)();
@@ -28431,15 +28431,15 @@ const TextInput = (_a) => {
     return react.createElement("input", Object.assign({}, props, { type: type, className: 'form-control', name: name, value: value, onChange: onChange }));
 };
 const CheckboxInput = ({ name, checked: isChecked = false }) => {
-    const [value, setValue] = (0,react.useState)(isChecked ? '1' : '0');
-    const [checked, setChecked] = (0,react.useState)(isChecked);
+    const [value, setValue] = useState(isChecked ? '1' : '0');
+    const [checked, setChecked] = useState(isChecked);
     const onChange = (e) => {
         setChecked(e.currentTarget.checked);
         setValue(e.currentTarget.checked ? '1' : '0');
     };
-    return (react.createElement("label", null,
-        react.createElement("input", { type: 'hidden', name: name, value: value }),
-        react.createElement("input", { type: 'checkbox', checked: checked, onChange: onChange }),
+    return (React.createElement("label", null,
+        React.createElement("input", { type: 'hidden', name: name, value: value }),
+        React.createElement("input", { type: 'checkbox', checked: checked, onChange: onChange }),
         name));
     // return (
     //   <div className='btn-group' role='group'>
@@ -28453,7 +28453,7 @@ const CheckboxInput = ({ name, checked: isChecked = false }) => {
 const useSuppliers = () => {
     return useWordpressAjax({ action: 'ci_api_handler', cmd: 'get_suppliers' });
 };
-const AdminForm = ({ name, label = name, cmd, allowPolling = false, children = null, RenderResult = Pre }) => {
+const AdminForm = ({ name, label = name, cmd, allowPolling = false, children = null, RenderResult = Pre_Pre }) => {
     const $form = (0,react.useRef)(null);
     const [isPolling, setIsPolling] = (0,react.useState)(false);
     const [nonce, setNonce] = (0,react.useState)(0);
@@ -28583,8 +28583,6 @@ const MiscPage = () => {
                     { name: 'plp', value: 'plp' },
                     { name: 'stock', value: 'stock' }
                 ] })),
-        react.createElement(AdminForm, { name: 'WPS API', cmd: 'western_api', allowPolling: true },
-            react.createElement(TextInput, { name: 'url', defaultValue: '/' })),
         react.createElement(AdminForm, { name: 'Import Product', cmd: 'import_product' },
             react.createElement(SelectSupplier, null),
             react.createElement(ProductInput, null)),
@@ -28623,33 +28621,17 @@ const MonkeyWrenchPage = () => {
 
 const ProductsPage = () => {
     return (react.createElement(react.Fragment, null,
-        react.createElement(AdminForm, { name: 'Get Product', cmd: 'get_product' },
+        react.createElement(AdminForm, { name: 'Get Product', cmd: 'supplier_action' },
             react.createElement(SelectSupplier, null),
-            react.createElement(ProductInput, null),
-            react.createElement(CheckboxInput, { name: 'light', checked: false })),
-        react.createElement(AdminForm, { name: 'Update Product', cmd: 'update_product' },
+            react.createElement(TextInput, { name: 'func', defaultValue: 'get_product', hidden: true }),
+            react.createElement(TextInput, { name: 'args[0]', defaultValue: '', placeholder: 'Supplier ID...' })),
+        react.createElement(AdminForm, { name: 'Import Product', cmd: 'supplier_action' },
             react.createElement(SelectSupplier, null),
-            react.createElement(ProductInput, null)),
-        react.createElement(AdminForm, { name: 'Extract Product Tags', cmd: 'extract_product_tags' },
+            react.createElement(TextInput, { name: 'func', defaultValue: 'import_product', hidden: true }),
+            react.createElement(TextInput, { name: 'args[0]', defaultValue: '', placeholder: 'Supplier ID...' })),
+        react.createElement(AdminForm, { name: 'Supplier API', cmd: 'supplier_api' },
             react.createElement(SelectSupplier, null),
-            react.createElement(ProductInput, null)),
-        react.createElement(AdminForm, { name: 'View Attributes', cmd: 'view_attributes', RenderResult: CSVTable },
-            react.createElement(SelectSupplier, null),
-            react.createElement(ProductInput, null)),
-        react.createElement(AdminForm, { name: 'View Variations', cmd: 'view_variations', RenderResult: VariationsTable },
-            react.createElement(SelectSupplier, null),
-            react.createElement(ProductInput, null)),
-        react.createElement(AdminForm, { name: 'WPS API', cmd: 'western_api', allowPolling: true },
-            react.createElement(TextInput, { name: 'url', defaultValue: '/' })),
-        react.createElement(AdminForm, { name: 'Import Product', cmd: 'import_product' },
-            react.createElement(SelectSupplier, null),
-            react.createElement(ProductInput, null)),
-        react.createElement(AdminForm, { name: 'Get Product Status', cmd: 'get_product_status', allowPolling: true },
-            react.createElement(SelectSupplier, null),
-            react.createElement(ProductInput, null)),
-        react.createElement(AdminForm, { name: 'Import Product Status', cmd: 'get_import_product_status', allowPolling: true },
-            react.createElement(SelectSupplier, null),
-            react.createElement(ProductInput, null))));
+            react.createElement(TextInput, { name: 'url', defaultValue: '/' }))));
 };
 /*
 [{"file":"https:\/\/cdn.wpsstatic.com\/images\/200_max\/80c4-63d80b8053eff.png","width":1962,"height":1962,"filesize":4970814},{"file":"https:\/\/cdn.wpsstatic.com\/images\/200_max\/a1f9-63d80b8043f94.png","width":1869,"height":1869,"filesize":4068106},{"file":"https:\/\/cdn.wpsstatic.com\/images\/200_max\/5aab-63d80b8067ef8.png","width":2011,"height":2011,"filesize":3380976},{"file":"https:\/\/cdn.wpsstatic.com\/images\/200_max\/5afa-63d80b8053baf.png","width":1523,"height":1523,"filesize":2687793}]
@@ -28661,7 +28643,7 @@ const VariationsTable = ({ data }) => {
             if (typeof c === 'string' && c.indexOf('file') > -1) {
                 try {
                     const data = JSON.parse(c);
-                    return data.map((r) => react.createElement("img", { src: r.file, style: { width: 20, height: 20 } }));
+                    return data.map((r) => React.createElement("img", { src: r.file, style: { width: 20, height: 20 } }));
                 }
                 catch (err) {
                     return c;
@@ -28672,13 +28654,13 @@ const VariationsTable = ({ data }) => {
     };
     if ((data === null || data === void 0 ? void 0 : data.rows) && Array.isArray(data.rows)) {
         const rows = (_a = data === null || data === void 0 ? void 0 : data.rows) !== null && _a !== void 0 ? _a : [];
-        return (react.createElement(react.Fragment, null,
-            react.createElement("table", { className: 'table table-sm border', style: { fontSize: 11 } },
-                react.createElement("thead", null,
-                    react.createElement("tr", null, rows[0].map((r) => (react.createElement("td", null, r))))),
-                react.createElement("tbody", null, rows.slice(1).map((r) => (react.createElement("tr", null, r.map((c) => (react.createElement("td", null, processData(c)))))))))));
+        return (React.createElement(React.Fragment, null,
+            React.createElement("table", { className: 'table table-sm border', style: { fontSize: 11 } },
+                React.createElement("thead", null,
+                    React.createElement("tr", null, rows[0].map((r) => (React.createElement("td", null, r))))),
+                React.createElement("tbody", null, rows.slice(1).map((r) => (React.createElement("tr", null, r.map((c) => (React.createElement("td", null, processData(c)))))))))));
     }
-    return react.createElement(Pre, { data: data });
+    return React.createElement(Pre, { data: data });
 };
 
 ;// CONCATENATED MODULE: ./src/utils/formatDuration.ts

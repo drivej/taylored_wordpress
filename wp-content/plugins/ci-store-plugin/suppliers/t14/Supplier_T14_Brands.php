@@ -8,14 +8,14 @@ Burly Brand
 DragonFire Racing
 Firstgear
 Kuryakyn
-*ProTaper* (Most Important)
+ *ProTaper* (Most Important)
 Quadboss
 RiverRoad
 Speed and Strength
 Twin Power
 Vance & Hines
 
-*/
+ */
 trait Supplier_T14_Brands
 {
     public function get_brands()
@@ -24,7 +24,12 @@ trait Supplier_T14_Brands
         $allowed = $this->get_allowed_brand_ids();
         $output = [];
         foreach ($brands['data'] as &$brand) {
-            $output[] = ['id' => (string) $brand['id'], 'name' => $brand['attributes']['name'], 'allowed' => (bool) $allowed[$brand['id']]];
+            $isAllowed = in_array($brand['id'], $allowed);
+            $output[] = [
+                'id' => (string) $brand['id'],
+                'name' => $brand['attributes']['name'],
+                'allowed' => $isAllowed,
+            ];
         }
         return ['data' => $output, 'meta' => ['allowed' => $allowed]];
     }

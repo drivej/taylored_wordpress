@@ -6,22 +6,25 @@
 3. "pa_type" is a reserved term so we need to change it to "pa_item_type". See: https://codex.wordpress.org/Reserved_Terms
 
  */
-trait Supplier_WPS_Attributes
-{
+trait Supplier_WPS_Attributes {
+    public function get_attributes_from_product_id($supplier_product_id) {
+        $supplier_product = $this->get_product($supplier_product_id);
+        // return $supplier_product;
+        return $this->get_attributes_from_product($supplier_product);
+    }
     // this is specific to WPS because the attribute names are not returned with the API call
-    public function get_attributes_from_product($supplier_product) // wps_product
-    {
+    public function get_attributes_from_product($supplier_product) {
         // $this->log('get_attributes_from_product()');
-        $wps_attributekeys = get_option('wps_attributekeys', []);
+        $wps_attributekeys         = get_option('wps_attributekeys', []);
         $wps_attributekeys_updated = false;
 
         // cleanup
         foreach ($wps_attributekeys as $id => $attr) {
             if (count(array_keys($wps_attributekeys[$id])) > 2) {
-                $wps_attributekeys[$id] = ['name' => $attr['name'], 'slug' => $attr['slug']];
+                $wps_attributekeys[$id]    = ['name' => $attr['name'], 'slug' => $attr['slug']];
                 $wps_attributekeys_updated = true;
             }
-            if (!isset($wps_attributekeys[$id]['name']) || !isset($wps_attributekeys[$id]['slug'])) {
+            if (! isset($wps_attributekeys[$id]['name']) || ! isset($wps_attributekeys[$id]['slug'])) {
                 unset($wps_attributekeys[$id]);
                 $wps_attributekeys_updated = true;
             }
@@ -33,7 +36,7 @@ trait Supplier_WPS_Attributes
         if (isset($supplier_product['items']['data'])) {
             foreach ($supplier_product['items']['data'] as $item) {
                 foreach ($item['attributevalues']['data'] as $attr) {
-                    if (!array_key_exists($attr['attributekey_id'], $attribute_ids)) {
+                    if (! array_key_exists($attr['attributekey_id'], $attribute_ids)) {
                         $attribute_ids[$attr['attributekey_id']] = 0;
                     }
                     $attribute_ids[$attr['attributekey_id']]++;
@@ -43,11 +46,11 @@ trait Supplier_WPS_Attributes
 
         $all_ids = array_keys($attribute_ids);
 
-        // find attributevalues not in out nice cached object
-        $ids = array_values(array_filter($all_ids, fn($id) => !array_key_exists($id, $wps_attributekeys)));
+        // find attributevalues not in our nice cached object
+        $ids = array_values(array_filter($all_ids, fn($id) => ! array_key_exists($id, $wps_attributekeys)));
 
         $cursor = '';
-        $data = [];
+        $data   = [];
 
         if (count($ids) === 1) {
             // handle request for single item
@@ -64,7 +67,7 @@ trait Supplier_WPS_Attributes
                 $this->log('CAUGHT!!! wps:get_attributes_from_product()', $res);
             }
             // $attributes[] = $res['data'];
-        } else if (count($ids)) {
+        } elseif (count($ids)) {
             // handle request for multiple items
             // gather data with pagination
             while (isset($cursor)) {
@@ -74,7 +77,7 @@ trait Supplier_WPS_Attributes
                         $attr['slug'] = sanitize_title($attr['name']);
                         if (isset($attr['slug']) && isset($attr['name'])) {
                             $wps_attributekeys[$attr['id']] = ['name' => $attr['name'], 'slug' => $attr['slug']];
-                            $wps_attributekeys_updated = true;
+                            $wps_attributekeys_updated      = true;
                         }
                     }
                 } else {
@@ -105,14 +108,13 @@ trait Supplier_WPS_Attributes
         return $lookup_by_id;
     }
 
-    private $lookup_global_attribute_id = [];
+    private $__lookup_global_attribute_id = [];
 
-    public function upsert_global_attribute_id_by_name($attribute_name)
-    {
+    public function upsert_global_attribute_id_by_name($attribute_name) {
         // $this->log('upsert_global_attribute_id_by_name() ' . $attribute_name . ' esc:' . esc_html($attribute_name));
-        if (array_key_exists(esc_html($attribute_name), $this->lookup_global_attribute_id)) {
-            // $this->log(json_encode($this->lookup_global_attribute_id[esc_html($attribute_name)]));
-            return $this->lookup_global_attribute_id[esc_html($attribute_name)];
+        if (array_key_exists(esc_html($attribute_name), $this->__lookup_global_attribute_id)) {
+            // $this->log(json_encode($this->__lookup_global_attribute_id[esc_html($attribute_name)]));
+            return $this->__lookup_global_attribute_id[esc_html($attribute_name)];
         }
         $attribute_key = wc_attribute_taxonomy_name($attribute_name);
 
@@ -120,31 +122,142 @@ trait Supplier_WPS_Attributes
         // if ($attribute_key === 'pa_type') {
         //     $attribute_key = 'pa_item_type';
         // }
-        $exists = taxonomy_exists($attribute_key);
+        $exists       = taxonomy_exists($attribute_key);
         $attribute_id = false;
 
-        // $this->log(json_encode(['exists' => $exists, '$attribute_key' => $attribute_key]));
+        // $this->log('upsert_global_attribute_id_by_name() '.json_encode(['exists' => $exists, '$attribute_key' => $attribute_key]));
         if ($exists) {
             $attribute_id = wc_attribute_taxonomy_id_by_name($attribute_name);
         } else {
             $attribute_id = wc_create_attribute(['name' => $attribute_name]);
-            // $this->log(json_encode(['attribute_id' => $attribute_id]));
+            $this->log(json_encode(['attribute_id' => $attribute_id]));
             if (is_wp_error($attribute_id)) {
                 error_log("Failed to create attribute: {$attribute_name}");
                 throw new Exception("Failed to create attribute: {$attribute_name}");
             }
         }
-        $this->lookup_global_attribute_id[esc_html($attribute_name)] = $attribute_id;
+        $this->__lookup_global_attribute_id[esc_html($attribute_name)] = $attribute_id;
+        // $this->log(json_encode('attribute_id '.$attribute_id));
         return $attribute_id;
     }
 
-    public function process_product_attributes(&$product)
-    {
+    // NEW!!!
+    /*
+    [
+  {
+    "name": "Product Type",
+    "slug": "product-type",
+    "values": [
+      {
+        "name": "Straps/Tie-Downs",
+        "id": 17332
+      },
+      "Straps/Tie-Downs"
+    ],
+    "key": "pa_product-type",
+    "id": 5
+  },
+  {
+    "name": "SKU",
+    "slug": "sku",
+    "values": [
+      {
+        "name": "52-4826"
+      },
+      {
+        "name": "52-4827"
+      }
+    ],
+    "key": "sku",
+    "position": 20
+  }
+]
+
+*/
+    public function XXextract_product_attributes(&$product) {
+        $master_attributes = $this->get_attributes_from_product($product);
+        foreach ($master_attributes as $id => $master_attribute) {
+            $master_attributes[$id]['values'] = [];
+        }
+        $test = [];
+
+        foreach ($product['items']['data'] as $i => $variation) {
+            $test[$variation['id']] = [];
+            foreach ($variation['attributevalues']['data'] as $attr) {
+                // match master attribute on attributekey_id
+                $master_attribute         = $master_attributes[$attr['attributekey_id']];
+                $test[$variation['id']][] = ['name' => $master_attribute['name'], 'slug' => $master_attribute['slug'], 'value' => $attr['name']];
+                // gather attribute values
+                $master_attributes[$attr['attributekey_id']]['values'][] = $attr['name'];
+            }
+        }
+
+        foreach ($master_attributes as &$master_attribute) {
+            // change siple array of attribute value to object so preprocess_attribute can populate with woo ids
+            // make sure values are unique
+            $master_attribute['values'] = array_map(fn($e) => ['name' => $e], array_unique($master_attribute['values']));
+        }
+
+        $attributes = array_values($master_attributes);
+
+        foreach ($attributes as &$attribute) {
+            $this->preprocess_attribute($attribute);
+        }
+
+        return ['master_attributes' => $master_attributes, 'test' => $test, 'attributes' => $attributes];
+    }
+
+    public function XXproduct_needs_sku_attribute($product) {
+        $varattrs = [];
+        foreach ($product['items']['data'] as $item) {
+            $varattrs[] = implode('|', array_values(array_column($item['attributevalues']['data'], 'name', 'attribute_name')));
+        }
+        $use_sku = count(array_unique($varattrs)) < count($product['items']['data']);
+        return $use_sku;
+
+        if ($use_sku) {
+            $attributes[] = [
+                'name'     => 'SKU',
+                'slug'     => 'sku',
+                'values'   => $skus,
+                'key'      => 'sku',
+                'position' => 20,
+            ];
+        }
+    }
+
+    public function process_product_attributes(&$product) {
         // $this->log('process_product_attributes()');
         // extract attributes from product. If they aren't loaded, make an API to WPS call to get them
         // this returns an array where the key is the "attributekey_id" from WPS
         $lookup_attribute_slug = $this->get_attributes_from_product($product);
-        // $this->log(json_encode(['get_attributes_from_product()' => $lookup_attribute_slug], JSON_PRETTY_PRINT));
+
+        // $this->log('lookup_attribute_slug: ' . json_encode($lookup_attribute_slug));
+        //
+        // if an attribute appears in each item, remove it
+        //
+        $dupes            = [];
+        $removed_attr     = [];
+        $count_variations = count($product['items']['data']);
+        foreach ($product['items']['data'] as $i => $item) {
+            foreach ($item['attributevalues']['data'] as $ii => $attributevalue) {
+                $dupes[$attributevalue['attributekey_id']][] = $attributevalue['name'];
+            }
+        }
+        foreach ($dupes as $attributekey_id => $dupe) {
+            $unique_values = array_unique($dupe);
+            if (count($unique_values) === 1) {
+                if (count($dupe) === $count_variations) {
+                    // $this->log('!!!!remove attribute ' . $attributekey_id);
+                    $removed_attr[] = $attributekey_id;
+                    unset($lookup_attribute_slug[$attributekey_id]);
+                }
+            }
+        }
+        // $this->log('dupes: ' . json_encode($dupes));
+        //
+        //
+        //
         $product['lookup_attribute_slug'] = $lookup_attribute_slug;
 
         foreach ($lookup_attribute_slug as &$attribute) {
@@ -154,31 +267,26 @@ trait Supplier_WPS_Attributes
         $skus = [];
 
         // loop the variations and map variation attribute to the WPS attribute values
-        foreach ($product['items']['data'] as &$item) {
+        foreach ($product['items']['data'] as $i => $item) {
             $skus[] = ['name' => $item['sku']];
-            // $this->log('----------> SKU:' . $item['sku']);
-
-            foreach ($item['attributevalues']['data'] as &$attributevalue) {
+            foreach ($item['attributevalues']['data'] as $ii => &$attributevalue) {
                 $attr_id = strval($attributevalue['attributekey_id']);
-                // $this->log('----------> attr_id:' . $attr_id);
                 if (array_key_exists($attr_id, $lookup_attribute_slug)) {
-                    // $this->log('Success: ' . $attr_id . ' found');
-                    if (!in_array($attributevalue['name'], $lookup_attribute_slug[$attr_id]['values'])) {
+                    if (! in_array($attributevalue['name'], $lookup_attribute_slug[$attr_id]['values'])) {
                         $lookup_attribute_slug[$attr_id]['values'][] = $attributevalue['name'];
                     }
-                    // if (!array_key_exists('key', $lookup_attribute_slug[$attr_id])) {
-                    //     $this->log('FOUND YOU!!!! ' . $attr_id);
-                    //     $attributevalue['attribute_key'] = 'unknown';
-                    // } else {
-                    //     $attributevalue['attribute_key'] = $lookup_attribute_slug[$attr_id]['key'];
-                    // }
-                    $attributevalue['attribute_name'] = $lookup_attribute_slug[$attr_id]['name'];
-                    $attributevalue['attribute_slug'] = $lookup_attribute_slug[$attr_id]['slug'];
+                    // $attributevalue['attribute_name'] = $lookup_attribute_slug[$attr_id]['name'];
+                    $product['items']['data'][$i]['attributevalues']['data'][$ii]['attribute_name'] = $lookup_attribute_slug[$attr_id]['name'];
+                    // $attributevalue['attribute_slug'] = $lookup_attribute_slug[$attr_id]['slug'];
+                    $product['items']['data'][$i]['attributevalues']['data'][$ii]['attribute_slug'] = $lookup_attribute_slug[$attr_id]['slug'];
                 } else {
-                    // $this->log('attr_id:' . $attr_id . ' not found in lookup_attribute_slug');
+                    if (in_array($attr_id, $removed_attr)) {
+                        // $this->log('ITS OK attr_id:' . $attr_id . ' not found in lookup_attribute_slug');
+                    } else {
+                        $this->log('attr_id:' . $attr_id . ' not found in lookup_attribute_slug');
+                    }
                 }
             }
-            // $this->log(json_encode(['attributevalues' => $item['attributevalues']['data']], JSON_PRETTY_PRINT));
         }
 
         $attributes = array_values($lookup_attribute_slug);
@@ -189,29 +297,42 @@ trait Supplier_WPS_Attributes
             }
         }
 
+        // $this->log(json_encode($attributes));
+
         foreach ($attributes as &$attribute) {
             $this->preprocess_attribute($attribute);
         }
-        return $attributes;
+        // $this->log(json_encode($attribute, JSON_PRETTY_PRINT));
+        // return $attributes;
 
         foreach ($product['items']['data'] as $item) {
             foreach ($item['attributevalues']['data'] as $attributevalue) {
                 $attr_id = $attributevalue['attributekey_id'];
                 if (array_key_exists($attr_id, $lookup_attribute_slug)) {
-                    if (!in_array($attributevalue['name'], $lookup_attribute_slug[$attr_id]['values'])) {
+                    if (! in_array($attributevalue['name'], $lookup_attribute_slug[$attr_id]['values'])) {
                         $lookup_attribute_slug[$attr_id]['values'][] = $attributevalue['name'];
                     }
                 }
             }
         }
 
-        $attributes[] = [
-            'name' => 'SKU',
-            'slug' => 'sku',
-            'values' => $skus,
-            'key' => 'sku',
-            'position' => 20,
-        ];
+        // check if we need the sku facet
+        // does each variation have a unique facet arrangement
+        $varattrs = [];
+        foreach ($product['items']['data'] as $item) {
+            $varattrs[] = implode('|', array_values(array_column($item['attributevalues']['data'], 'name', 'attribute_name')));
+        }
+        $use_sku = count(array_unique($varattrs)) < count($product['items']['data']);
+
+        if ($use_sku) {
+            $attributes[] = [
+                'name'     => 'SKU',
+                'slug'     => 'sku',
+                'values'   => $skus,
+                'key'      => 'sku',
+                'position' => 20,
+            ];
+        }
 
         $product['__attributes'] = $attributes;
 
@@ -237,21 +358,20 @@ trait Supplier_WPS_Attributes
     //     ],
     // ];
     // create/select the taxonomy and return the data
-    public function preprocess_attribute(&$attr)
-    {
+    public function preprocess_attribute(&$attr) {
         // $this->log('preprocess_attribute()');
 
         if (strtolower($attr['name']) === 'type') {
             $attr['name'] = 'Item Type';
         }
 
-        $attr['key'] = wc_attribute_taxonomy_name($attr['name']); // Color => pa_color
-        $attr['slug'] = wc_attribute_taxonomy_slug($attr['name']); // Color => color
-        $attr['id'] = $this->upsert_global_attribute_id_by_name($attr['name']); // Color => 523
-        $names = array_column($attr['values'], 'name');
-        $terms = get_terms(['taxonomy' => $attr['key'], 'name' => $names, 'hide_empty' => false]);
+        $attr['key']  = wc_attribute_taxonomy_name($attr['name']);                // Color => pa_color
+        $attr['slug'] = wc_attribute_taxonomy_slug($attr['name']);                // Color => color
+        $attr['id']   = $this->upsert_global_attribute_id_by_name($attr['name']); // Color => 523
+        $names        = array_column($attr['values'], 'name');
+        $terms        = get_terms(['taxonomy' => $attr['key'], 'name' => $names, 'hide_empty' => false]);
 
-        if (!is_array($terms)) {
+        if (! is_array($terms)) {
             $terms = [];
         }
         $lookup_term_name = array_column($terms, 'term_id', 'name');
@@ -266,7 +386,7 @@ trait Supplier_WPS_Attributes
                 // found attribute
                 // $this->log('found term ' . $attr_val['name']);
                 $attr_val['id'] = $lookup_term_name[$attr_val['name']];
-            } else if (array_key_exists(esc_html($attr_val['name']), $lookup_term_name)) {
+            } elseif (array_key_exists(esc_html($attr_val['name']), $lookup_term_name)) {
                 // account for varoous characters in the name
                 // $this->log('found term ' . $attr_val['name']);
                 $attr_val['id'] = $lookup_term_name[esc_html($attr_val['name'])];
@@ -274,12 +394,12 @@ trait Supplier_WPS_Attributes
                 // attribute needs to be created
                 // $this->log('need to create term ' . $attr_val['name']);
                 $term_exists = term_exists($attr_val['name'], $attr['key']);
-                if (!$term_exists) {
+                if (! $term_exists) {
                     $term_exists = wp_insert_term($attr_val['name'], $attr['key']);
                 }
                 if (is_wp_error($term_exists)) {
                     $error_string = $term_exists->get_error_message();
-                    $this->log($error_string);
+                    $this->log('error_string: ' . $error_string);
                     // throw new Exception($error_string);
                 } else {
                     if ($term_exists) {
@@ -291,43 +411,49 @@ trait Supplier_WPS_Attributes
         }
     }
 
-    public function process_varition_attributes($variation, $product_attributes_lookup)
-    {
-        // $this->log('process_varition_attributes()');
+    public function process_varition_attributes($variation, $product_attributes_lookup) {
+        // $this->log('process_varition_attributes() ' . $variation['id']);
+        // $this->log(json_encode($product_attributes_lookup, JSON_PRETTY_PRINT));
+        // $this->log(json_encode($variation['attributevalues']['data'], JSON_PRETTY_PRINT));
+
         $attributes = [];
 
-        foreach ($variation['attributevalues']['data'] as $attr) {
-            $attr_name = $attr['attribute_name'];
-            if (array_key_exists($attr_name, $product_attributes_lookup)) {
-                $attr_val = $attr['name'];
-                $attributes[$product_attributes_lookup[$attr_name]['key']] = [
-                    'id' => $product_attributes_lookup[$attr_name]['lookup_value'][$attr_val],
-                    'value' => $attr_val,
-                ];
+        if (is_countable($variation['attributevalues']['data'])) {
+            foreach ($variation['attributevalues']['data'] as $attr) {
+                if (! array_key_exists('attribute_name', $attr)) {
+                    // $this->log('process_varition_attributes() FOUND YOU!!' . json_encode($attr)); // TODO: WTF?
+                } else {
+                    $attr_name = $attr['attribute_name'];
+                    if (array_key_exists($attr_name, $product_attributes_lookup)) {
+                        $attr_val                                                  = $attr['name'];
+                        $attributes[$product_attributes_lookup[$attr_name]['key']] = [
+                            'id'    => $product_attributes_lookup[$attr_name]['lookup_value'][$attr_val],
+                            'value' => $attr_val,
+                        ];
+                    }
+                }
             }
         }
         return $attributes;
     }
 
-    public function build_attributes_lookup($product_attributes)
-    {
+    public function build_attributes_lookup($product_attributes) {
         $lookup = [];
         foreach ($product_attributes as $i => $attr) {
-            $attr['lookup_value'] = array_column($attr['values'], 'id', 'name');
+            $attr['lookup_value']  = array_column($attr['values'], 'id', 'name');
             $lookup[$attr['name']] = $attr;
         }
         return $lookup;
     }
 
-    public function build_woo_product_attributes($product_attributes)
-    {
+    public function build_woo_product_attributes($product_attributes) {
         // $this->log('build_woo_product_attributes()');
         $woo_attributes = [];
         foreach ($product_attributes as $i => $attribute) {
             $values = $attribute['values'];
 
-            if (!array_key_exists('key', $attribute)) {
-                $this->log(json_encode($product_attributes, JSON_PRETTY_PRINT));
+            if (! array_key_exists('key', $attribute)) {
+                $this->log('build_woo_product_attributes() No Key ' . json_encode($product_attributes, JSON_PRETTY_PRINT));
             }
             if (count($values) > 1) {
                 $attr = new WC_Product_Attribute();
@@ -342,8 +468,7 @@ trait Supplier_WPS_Attributes
         return $woo_attributes;
     }
 
-    public function clean_product_attributes($post_id)
-    {
+    public function delete_product_attributes($post_id) {
         global $wpdb;
 
         $wpdb->query(

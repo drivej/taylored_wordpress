@@ -95,6 +95,7 @@ define('LOGGED_IN_SALT', 'kToQV1Nwh8+sKg9NRD7buNYu2n5cwAegQfkuVVWFGOyDDpqmcCG1/A
 define('NONCE_SALT', 'TLbQAyJgIWL1qpP07of+72KvqkgymLms2zMZcTsURQAXMuRKjxruhBzUR7L9QydOrWkeyO2nJy9RNII/czkPvg==');
 define('WP_ENVIRONMENT_TYPE', 'local');
 /* That's all, stop editing! Happy publishing. */
+define('DISABLE_WP_CRON', false); // should not be needed
 
 /** Absolute path to the WordPress directory. */
 if (!defined('ABSPATH')) {

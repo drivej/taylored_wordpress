@@ -5,71 +5,66 @@ include_once CI_STORE_PLUGIN . 'suppliers/wps/Supplier_WPS.php';
 
 class WPSImportManager extends CIStore\Suppliers\ImportManager {
 
-    public function __construct($logger = null)
-    {
+    public function __construct($logger = null) {
         parent::__construct('wps', $logger);
     }
 
-    public function custom_start($updated_at, $cursor, $import_type)
-    {
+    public function custom_start($updated_at, $cursor, $import_type) {
         return parent::start([
-            'updated_at' => $updated_at,
-            'cursor' => $cursor,
+            'updated_at'  => $updated_at,
+            'cursor'      => $cursor,
             'import_type' => $import_type,
         ]);
     }
 
-    public function get_default_args()
-    {
+    public function get_default_args() {
         return [
-            'updated_at' => '2023-01-01',
-            'cursor' => '',
+            'updated_at'  => '2023-01-01',
+            'cursor'      => '',
             'import_type' => 'import',
         ];
     }
 
-    public function before_start($info)
-    {
-        $supplier = \Supplier_WPS::instance();
+    public function before_start($info) {
+        $supplier   = \Supplier_WPS::instance();
         $updated_at = $info['args']['updated_at'] ?? $this->get_default_args()['updated_at'];
-        $total = $supplier->get_total_remote_products($updated_at);
+        $total      = $supplier->get_total_remote_products($updated_at);
         return ['total' => $total];
     }
 
-    public function do_process($info)
-    {
-        // $this->log('WPSImportManager::do_process() ' . json_encode($info['args']));
-        $cursor = $info['args']['cursor'];
+    public function do_process($info) {
+        $this->log('WPSImportManager::do_process() ' . json_encode($info['args']));
+        $cursor      = $info['args']['cursor'];
         $import_type = $info['args']['import_type'] ?? 'default';
 
         if (is_string($cursor)) {
             try {
                 $updated_at = $info['args']['updated_at'] ?? $this->get_default_args()['updated_at'];
-                $supplier = \Supplier_WPS::instance();
+                $supplier   = \Supplier_WPS::instance();
 
                 // $items = $supplier->get_products_page($cursor, 'basic', $updated_at);
                 switch ($import_type) {
-                    case 'patch':
-                        $items = $supplier->patch_products_page($cursor, $updated_at);
-                        break;
+                case 'patch':
+                    $items = $supplier->patch_products_page($cursor, $updated_at);
+                    break;
 
-                    case 'import':
-                    default:
-                        $items = $supplier->import_products_page($cursor, $updated_at);
+                case 'import':
+                default:
+                    $items = $supplier->import_products_page($cursor, $updated_at);
                 }
 
                 $ids = array_map(fn($item) => $item['id'], $items['data'] ?? []);
-                $this->log(json_encode(['cursor' => $items['meta']['cursor']], JSON_PRETTY_PRINT));
+                // $this->log(json_encode(['cursor' => $items['meta']['cursor']], JSON_PRETTY_PRINT));
                 $next_cursor = $items['meta']['cursor']['next'] ?? false;
                 $this->log('WPSImportManager::do_process() ' . json_encode(['type' => $import_type, 'cursor' => $cursor, 'next_cursor' => $next_cursor, 'date' => $updated_at, 'ids' => $ids]));
                 $processed_delta = is_countable($items['data']) ? count($items['data']) : 0;
-                $processed = $info['processed'] + $processed_delta;
-                $progress = $info['total'] > 0 ? ($processed / $info['total']) : 0;
+                $processed       = $info['processed'] + $processed_delta;
+                $progress        = $info['total'] > 0 ? ($processed / $info['total']) : 0;
                 return [
-                    'cursor' => $next_cursor,
+                    'cursor'    => $next_cursor,
                     'processed' => $processed,
-                    'progress' => $progress,
-                    'args' => [
+                    'progress'  => $progress,
+                    'args'      => [
                          ...$info['args'],
                         'cursor' => $next_cursor,
                     ],
@@ -81,32 +76,36 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager {
                 $this->log('File: ' . $e->getFile());
                 $this->log('Line: ' . $e->getLine());
                 $this->log('Stack trace: ' . $e->getTraceAsString());
+
+                return [
+                    'complete' => false,
+                    'error'    => $e->getMessage(),
+                ];
             }
         } else {
+            $this->log('do_process - complete');
             return [
                 'complete' => true,
             ];
         }
     }
 
-    public function get_auto_import_args()
-    {
+    public function get_auto_import_args() {
         $info = $this->get_info();
 
         if ($info['completed']) {
-            $completed = new \DateTime($info['completed']);
+            $completed  = new \DateTime($info['completed']);
             $updated_at = $completed->format('Y-m-d');
             return [
-                'updated_at' => $updated_at,
-                'cursor' => '',
+                'updated_at'  => $updated_at,
+                'cursor'      => '',
                 'import_type' => 'import',
             ];
         }
         return [];
     }
 
-    public function get_rerun_args()
-    {
+    public function get_rerun_args() {
         $info = $this->get_info();
         $args = [
              ...($info['args'] ?? []),
@@ -116,20 +115,17 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager {
 
     }
 
-    public function on_complete($info)
-    {
+    public function on_complete($info) {
         $this->log('WPS Import Complete');
     }
 }
 
-trait Supplier_WPS_ImportManager
-{
+trait Supplier_WPS_ImportManager {
     private string $default_updated_at = '2023-01-01';
     // protected WPSImportManager $importer = WPSImportManager::instance($this->key);
 
-    public function get_importer()
-    {
-        // return WPSImportManager::instance($this->key);
+    public function get_importer() {
+        // $this->log('Supplier_WPS_ImportManager::get_importer()');
         return new WPSImportManager($this->logger);
     }
 }

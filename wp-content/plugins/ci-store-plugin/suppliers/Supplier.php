@@ -81,6 +81,7 @@ class Supplier
         // add_action('wp', array($this, 'schedule_daily_import'));
         // add_action($this->start_daily_import_flag, array($this, 'start_daily_import'), 10);
         set_error_handler([$this, 'log']);
+        // $this->log('Supplier::__construct()::'.$this->key);
     }
 
     // placeholder

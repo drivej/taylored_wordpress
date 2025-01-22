@@ -69,7 +69,7 @@ export const render = (id: string) => {
           <Route path='' element={<SupplierWrapper />}>
             <Route path='t14' element={<SupplierLinks tabs={Suppliers.t14.tabs} />}>
               <Route index={true} element={<SupplierT14Overview />} />
-              <Route index={true} element={<SupplierImportStatusPage supplier_key='t14' />} />
+              <Route path='import' element={<SupplierImportStatusPage supplier_key='t14' />} />
               <Route path='brands' element={<SupplierBrandsPage supplier_key='t14' />} />
             </Route>
             <Route path='wps' element={<SupplierLinks tabs={Suppliers.wps.tabs} />}>

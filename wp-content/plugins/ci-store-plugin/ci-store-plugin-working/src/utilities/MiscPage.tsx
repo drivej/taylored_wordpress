@@ -149,10 +149,10 @@ export const MiscPage = () => {
       {/* <AdminForm name='T14 API' cmd='turn14_api' allowPolling={true}>
         <TextInput name='url' defaultValue='/' />
       </AdminForm> */}
-
+{/* 
       <AdminForm name='WPS API' cmd='western_api' allowPolling={true}>
         <TextInput name='url' defaultValue='/' />
-      </AdminForm>
+      </AdminForm> */}
 
       {/* <AdminForm name='Stock Update' cmd='update_products_stock_status' allowPolling={true}>
         <SelectSupplier />

@@ -1,11 +1,9 @@
 <?php
 
-trait Supplier_WPS_Data
-{
-    public function get_params_for_query($flag = 'basic')
-    {
-        $params = [];
-        $fields = [];
+trait Supplier_WPS_Data {
+    public function get_params_for_query($flag = 'basic') {
+        $params   = [];
+        $fields   = [];
         $includes = [];
 
         if ($flag === 'stock') {
@@ -13,7 +11,7 @@ trait Supplier_WPS_Data
                 'items:filter(status_id|STK)',
             ];
             $fields['products'] = 'name,description';
-            $fields['items'] = 'status_id';
+            $fields['items']    = 'status_id';
         }
 
         if ($flag === 'price') {
@@ -21,7 +19,7 @@ trait Supplier_WPS_Data
                 'items:filter(status_id|STK)',
             ];
             $fields['products'] = 'id';
-            $fields['items'] = 'sku,list_price';
+            $fields['items']    = 'sku,list_price';
         }
 
         if ($flag === 'plp') {
@@ -30,7 +28,7 @@ trait Supplier_WPS_Data
                 'items:filter(status_id|STK)',
             ];
             $fields['products'] = 'name,description';
-            $fields['items'] = 'brand_id,sku,name,list_price,status_id,product_type';
+            $fields['items']    = 'brand_id,sku,name,list_price,status_id,product_type';
         }
 
         if ($flag === 'pdp') {
@@ -39,19 +37,19 @@ trait Supplier_WPS_Data
                 'tags',
                 'blocks',
                 'taxonomyterms',
-                'attributekeys', // these are always blank - API error?
+                'attributekeys',   // these are always blank - API error?
                 'attributevalues', // these are always blank - API error?
                 'items.images',
                 'items.attributevalues',
                 'items.taxonomyterms',
                 'items:filter(status_id|STK)',
             ];
-            $fields['products'] = 'name,description';
-            $fields['items'] = 'brand_id,sku,name,list_price,length,width,height,weight,status_id,product_type';
+            $fields['products']        = 'name,description';
+            $fields['items']           = 'brand_id,sku,name,list_price,length,width,height,weight,status_id,product_type';
             $fields['attributevalues'] = 'attributekey_id,name';
-            $fields['taxonomyterms'] = 'name,slug';
-            $fields['images'] = 'domain,path,filename,mime,width,height,size';
-            $fields['features'] = 'name';
+            $fields['taxonomyterms']   = 'name,slug';
+            $fields['images']          = 'domain,path,filename,mime,width,height,size';
+            $fields['features']        = 'name';
         }
 
         if (count($includes)) {
@@ -63,15 +61,14 @@ trait Supplier_WPS_Data
         return $params;
     }
 
-    public function get_product($product_id, $flag = 'pdp')
-    {
-        if (!isset($product_id)) {
+    public function get_product($product_id, $flag = 'pdp') {
+        if (! isset($product_id)) {
             $message = "No product id passed";
             throw new InvalidArgumentException($message);
             return ['error' => $message];
         }
 
-        $params = $this->get_params_for_query($flag);
+        $params  = $this->get_params_for_query($flag);
         $product = $this->get_api('products/' . $product_id, $params);
 
         if (isset($product['status_code']) && $product['status_code'] === 404) {
@@ -81,9 +78,8 @@ trait Supplier_WPS_Data
         return $product;
     }
 
-    public function get_products($product_ids, $flag = 'basic')
-    {
-        if (!count($product_ids)) {
+    public function get_products($product_ids, $flag = 'basic') {
+        if (! count($product_ids)) {
             $message = "No products ids passed";
             throw new InvalidArgumentException($message);
             return ['error' => $message];
@@ -98,7 +94,7 @@ trait Supplier_WPS_Data
         if (count($products['data']) < count($product_ids)) {
             // missing some products - probably they do not exist
             $found_ids = array_column($products['data'], 'id');
-            $lost_ids = array_diff($product_ids, $found_ids);
+            $lost_ids  = array_diff($product_ids, $found_ids);
 
             foreach ($lost_ids as $lost_id) {
                 $product = $this->get_product($lost_id);
@@ -111,28 +107,27 @@ trait Supplier_WPS_Data
         return $products;
     }
 
-    public function get_products_page($cursor = '', $flag = 'pdp', $updated = null)
-    {
+    public function get_products_page($cursor = '', $flag = 'pdp', $updated = null) {
         // $this->log("get_products_page('$cursor', '$flag', '$updated')");
-        // attempt to load 48, then step down in count until response is valid
-        $page_sizes = [1, 4, 8, 16, 24, 48];
-        $page_size = end($page_sizes);
+        // attempt to load the max, then step down in count until response is valid
+        $page_sizes      = [1, 8, 16];
+        $page_size       = end($page_sizes);
         $page_size_index = count($page_sizes) - 1;
-        $items = [];
-        $fails = 0;
-        $params = $this->get_params_for_query($flag);
+        $items           = [];
+        $fails           = 0;
+        $params          = $this->get_params_for_query($flag);
         if ($updated) {
             $params['filter[updated_at][gt]'] = $updated;
         }
 
         while (is_string($cursor) && $page_size > 1) {
-            $page_size = $page_sizes[$page_size_index];
+            $page_size      = $page_sizes[$page_size_index];
             $params['page'] = ['cursor' => $cursor, 'size' => $page_size];
-            $items = $this->get_api('/products', $params);
+            $items          = $this->get_api('/products', $params);
 
             if (isset($items['error']) && $page_size > 1) {
                 $fails++;
-                $sleep_time = $fails * 5;
+                $sleep_time      = $fails * 5;
                 $page_size_index = max(0, $page_size_index - $fails);
                 if ($page_size_index < 3) {
                     $this->log('---------- throttled (' . $sleep_time . 's sleep) ---------- page_size=' . $page_size);
@@ -150,12 +145,11 @@ trait Supplier_WPS_Data
         return $items;
     }
 
-    public function get_total_remote_products($updated_at = null)
-    {
+    public function get_total_remote_products($updated_at = null) {
         $updated_at = $updated_at ?? $this->default_updated_at;
-        $result = $this->get_api('products', [
+        $result     = $this->get_api('products', [
             'filter[updated_at][gt]' => $updated_at,
-            'countOnly' => 'true',
+            'countOnly'              => 'true',
         ]);
         return $result['data']['count'] ?? -1;
     }

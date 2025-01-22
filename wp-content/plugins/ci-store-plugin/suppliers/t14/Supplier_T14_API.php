@@ -42,36 +42,56 @@ trait Supplier_T14_API
     }
 
     // This API has a 5000 request/hr limit so we cache in transients
-    public function get_api($path, $params = [], $retry = 0, $use_cache = true)
+    public function get_api($path, $params = [], $use_cache = true, $expiration = WEEK_IN_SECONDS, $retry = 0)
     {
         $query_string = http_build_query($params);
-        $pathKey = trim($path, '/') . '?' . $query_string;
-        $pathHash = md5($pathKey);
-        $transient_name = "{$this->key}_get_api_{$pathHash}_{$this->import_version}";
+        $remote_url = implode('/', ['https://' . $this->api_domain, $this->api_version, trim($path, '/')]) . ($query_string ? '?' . $query_string : '');
+        $pathHash = md5($remote_url);
+        $transient_name = "{$this->key}_api_{$this->import_version}_{$pathHash}";
         $response = $use_cache ? get_transient($transient_name) : false;
 
         if (false === $response) {
             $should_cache = true;
             $access_token = $this->getAccessToken();
-            $remote_url = implode('/', ['https://' . $this->api_domain, $this->api_version, trim($path, '/')]) . ($query_string ? '?' . $query_string : '');
             $response = wp_safe_remote_request($remote_url, ['headers' => [
                 'Authorization' => "Bearer " . $access_token,
                 'Content-Type' => 'application/json',
             ]]);
+
             if (is_wp_error($response)) {
-                return ['error' => 'Request failed', 'message' => $response];
+                $data = ['error' => 'Request failed', 'message' => $response];
+            } else {
+                $response_body = wp_remote_retrieve_body($response);
+                $data = json_decode($response_body, true);
             }
-            $response_body = wp_remote_retrieve_body($response);
-            $data = json_decode($response_body, true);
 
             if (isset($data['error'])) {
-                if ($data['error'] === 'invalid_token') {
-                    if ($retry === 0) {
-                        $this->flushAccessToken();
-                        return $this->get_api($path, $params = [], $retry + 1);
-                    }
+                switch ($data['error']) {
+                    case 'invalid_token':
+                    case 'Request failed':
+                        if ($retry === 0) {
+                            sleep(5);
+                            $this->flushAccessToken();
+                            return $this->get_api($path, $params, $use_cache, $expiration, $retry + 1);
+                        }
+                        break;
                 }
+                // if ($data['error'] === 'invalid_token') {
+                //     if ($retry === 0) {
+                //         sleep(5);
+                //         $this->flushAccessToken();
+                //         return $this->get_api($path, $params, $use_cache, $expiration, $retry + 1);
+                //     }
+                // }
+                // if ($data['error'] === 'Request failed') {
+                //     if ($retry === 0) {
+                //         sleep(5);
+                //         $this->flushAccessToken();
+                //         return $this->get_api($path, $params, $use_cache, $expiration, $retry + 1);
+                //     }
+                // }
             }
+
             if (isset($data['errors'])) {
                 if ($data['errors']['status'] === '404') {
                     // product not found - cache this response
@@ -80,12 +100,15 @@ trait Supplier_T14_API
                 }
                 $data['error'] = $data['errors']['title'];
             }
+
             if (isset($data['message'])) {
                 $data['error'] = $data['message'];
             }
+
             if (!isset($data['meta'])) {
                 $data['meta'] = [];
             }
+
             $data['meta']['transient_name'] = $transient_name;
             $data['meta']['fetched'] = gmdate("c");
             $data['meta']['remote_url'] = $remote_url;
@@ -94,7 +117,7 @@ trait Supplier_T14_API
             $response = $data;
 
             if ($should_cache) {
-                set_transient($transient_name, $response, WEEK_IN_SECONDS);
+                set_transient($transient_name, $response, $expiration);
             }
         }
         return $response;

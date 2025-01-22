@@ -11984,7 +11984,7 @@ const render = (id) => {
                 react.createElement(Route, { path: '', element: react.createElement(SupplierWrapper, null) },
                     react.createElement(Route, { path: 't14', element: react.createElement(SupplierLinks, { tabs: Suppliers.t14.tabs }) },
                         react.createElement(Route, { index: true, element: react.createElement(SupplierT14Overview, null) }),
-                        react.createElement(Route, { index: true, element: react.createElement(SupplierImportStatusPage, { supplier_key: 't14' }) }),
+                        react.createElement(Route, { path: 'import', element: react.createElement(SupplierImportStatusPage, { supplier_key: 't14' }) }),
                         react.createElement(Route, { path: 'brands', element: react.createElement(SupplierBrandsPage, { supplier_key: 't14' }) })),
                     react.createElement(Route, { path: 'wps', element: react.createElement(SupplierLinks, { tabs: Suppliers.wps.tabs }) },
                         react.createElement(Route, { index: true, element: react.createElement(SupplierWPSOverview, null) }),

@@ -1,54 +1,79 @@
 import * as React from 'react';
 import { Pre } from './Pre';
-import { AdminForm, CSVTable, CheckboxInput, ProductInput, SelectSupplier, TextInput } from './UtilitiesPage';
+import { AdminForm, SelectSupplier, TextInput } from './UtilitiesPage';
 
 export const ProductsPage = () => {
   return (
     <>
-      <AdminForm name='Get Product' cmd='get_product'>
+      <AdminForm name='Get Product' cmd='supplier_action'>
+        <SelectSupplier />
+        <TextInput name='func' defaultValue='get_product' hidden={true} />
+        <TextInput name='args[0]' defaultValue='' placeholder='Supplier ID...' />
+      </AdminForm>
+
+      <AdminForm name='Import Product' cmd='supplier_action'>
+        <SelectSupplier />
+        <TextInput name='func' defaultValue='import_product' hidden={true} />
+        <TextInput name='args[0]' defaultValue='' placeholder='Supplier ID...' />
+      </AdminForm>
+
+      {/* <AdminForm name='Get Product Attributes' cmd='supplier_action'>
+        <SelectSupplier />
+        <TextInput name='func' defaultValue='get_attributes_from_product_id' hidden={true} />
+        <TextInput name='args[0]' defaultValue='' placeholder='Supplier ID...' />
+      </AdminForm> */}
+
+      {/* <AdminForm name='Get Product' cmd='get_product'>
         <SelectSupplier />
         <ProductInput />
         <CheckboxInput name='light' checked={false} />
-      </AdminForm>
+      </AdminForm> */}
 
-      <AdminForm name='Update Product' cmd='update_product'>
+      {/* <AdminForm name='Update Product' cmd='update_product'>
         <SelectSupplier />
         <ProductInput />
-      </AdminForm>
-
+      </AdminForm> */}
+      {/* 
       <AdminForm name='Extract Product Tags' cmd='extract_product_tags'>
         <SelectSupplier />
         <ProductInput />
-      </AdminForm>
-
+      </AdminForm> */}
+      {/* 
       <AdminForm name='View Attributes' cmd='view_attributes' RenderResult={CSVTable}>
         <SelectSupplier />
         <ProductInput />
-      </AdminForm>
+      </AdminForm> */}
 
-      <AdminForm name='View Variations' cmd='view_variations' RenderResult={VariationsTable}>
+      {/* <AdminForm name='View Variations' cmd='view_variations' RenderResult={VariationsTable}>
         <SelectSupplier />
         <ProductInput />
-      </AdminForm>
+      </AdminForm> */}
 
-      <AdminForm name='WPS API' cmd='western_api' allowPolling={true}>
+      {/* <AdminForm name='WPS API' cmd='western_api' allowPolling={true}>
+        <TextInput name='url' defaultValue='/' />
+      </AdminForm> */}
+
+      <AdminForm name='Supplier API' cmd='supplier_api'>
+        <SelectSupplier />
         <TextInput name='url' defaultValue='/' />
       </AdminForm>
 
-      <AdminForm name='Import Product' cmd='import_product'>
-        <SelectSupplier />
-        <ProductInput />
-      </AdminForm>
+      {/* <AdminForm name='Test' cmd='test_action'></AdminForm> */}
 
-      <AdminForm name='Get Product Status' cmd='get_product_status' allowPolling={true}>
+      {/* <AdminForm name='Import Product' cmd='import_product'>
         <SelectSupplier />
         <ProductInput />
-      </AdminForm>
+      </AdminForm> */}
 
-      <AdminForm name='Import Product Status' cmd='get_import_product_status' allowPolling={true}>
+      {/* <AdminForm name='Get Product Status' cmd='get_product_status' allowPolling={true}>
         <SelectSupplier />
         <ProductInput />
-      </AdminForm>
+      </AdminForm> */}
+
+      {/* <AdminForm name='Import Product Status' cmd='get_import_product_status' allowPolling={true}>
+        <SelectSupplier />
+        <ProductInput />
+      </AdminForm> */}
     </>
   );
 };
@@ -56,7 +81,6 @@ export const ProductsPage = () => {
 [{"file":"https:\/\/cdn.wpsstatic.com\/images\/200_max\/80c4-63d80b8053eff.png","width":1962,"height":1962,"filesize":4970814},{"file":"https:\/\/cdn.wpsstatic.com\/images\/200_max\/a1f9-63d80b8043f94.png","width":1869,"height":1869,"filesize":4068106},{"file":"https:\/\/cdn.wpsstatic.com\/images\/200_max\/5aab-63d80b8067ef8.png","width":2011,"height":2011,"filesize":3380976},{"file":"https:\/\/cdn.wpsstatic.com\/images\/200_max\/5afa-63d80b8053baf.png","width":1523,"height":1523,"filesize":2687793}]
 */
 const VariationsTable = ({ data }: { data: { rows: string[][] } }) => {
-
   const processData = (c: string) => {
     if (c) {
       if (typeof c === 'string' && c.indexOf('file') > -1) {
