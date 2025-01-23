@@ -7,7 +7,7 @@
     - Check if product needs an update
     - WooTools::should_update_product() => Supplier::update_pdp_product()
 
-### Updates:
+## Updates:
 
 #### 2025-01-22
 - Products with same facet across each variation skip adding that facet. This avoid unnecessary selection of a facet.
