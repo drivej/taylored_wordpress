@@ -3,9 +3,9 @@
 ## Notes:
 
 ### Hooks:
-    - woocommerce_before_single_product
-        - Check if product needs an update
-        - WooTools::should_update_product() => Supplier::update_pdp_product()
+- woocommerce_before_single_product
+    - Check if product needs an update
+    - WooTools::should_update_product() => Supplier::update_pdp_product()
 
 ### Updates:
 
