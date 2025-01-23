@@ -90,10 +90,35 @@ include_once CI_STORE_PLUGIN . 'suppliers/Suppliers.php';
 function test_action() {
 
     /** @var Supplier_WPS $supplier */
-    $supplier = WooTools::get_supplier('wps');
-    $product  = $supplier->get_product(53591);
-    $attr     = $supplier->process_product_attributes($product['data']);
-    return $attr;
+    $supplier              = WooTools::get_supplier('wps');
+    $product               = $supplier->get_product(207532);
+
+    /*
+    $lookup_attribute_slug = $supplier->get_attributes_from_product($product['data']);
+    // return $lookup_attribute_slug;
+
+    $v = [];
+    foreach ($product['data']['items']['data'] as $variation) {
+        $info = ['name' => $variation['name']];
+        $a   = [];
+        foreach ($variation['attributevalues']['data'] as $attr) {
+            $master_attr = $lookup_attribute_slug[$attr['attributekey_id']];
+            if (! isset($a[$master_attr['name']])) {
+                $a[$master_attr['name']] = [];
+            }
+            $a[$master_attr['name']][] = $attr['name'];
+        }
+        foreach ($a as $name => $value) {
+            $a[$name] = implode(', ',$value);
+        }
+        $info['attributes'] = $a;
+        $v[] = $info;
+    }
+    return $v;
+    */
+    
+    $attr = $supplier->process_product_attributes($product['data']);
+    return ['attr' => $attr, 'product' => $product];
 
 //     $result = [];
 //     global $wp_filter;

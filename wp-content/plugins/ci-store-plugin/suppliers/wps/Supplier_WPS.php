@@ -52,7 +52,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
             'key'            => 'wps',
             'name'           => 'Western Power Sports',
             'supplierClass'  => 'WooDropship\\Suppliers\\Western',
-            'import_version' => '0.5',
+            'import_version' => '0.6',
         ]);
         $this->importer = $this->get_importer();
     }
@@ -512,8 +512,6 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
                 // }
                 //
                 $product_attributes = $this->process_product_attributes($product);
-
-                                                                                                            // NEW
                 $product_attributes_lookup      = $this->build_attributes_lookup($product_attributes);      // NEW
                 $product_attributes_lookup_slug = array_column($product_attributes, 'slug', 'key');         // NEW
                 $woo_attributes                 = $this->build_woo_product_attributes($product_attributes); // NEW
@@ -536,7 +534,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
                     }
                     $woo_variation->update_meta_data('_ci_import_version', $this->import_version);
                     $woo_variation->update_meta_data('_ci_product_sku', $variation['sku']);
-                    $woo_variation->set_name($variation['name']);
+                    
 
                     // add primary variation image
                     $image_file = $variation['attachments'][0]['file'] ?? '';
@@ -550,6 +548,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
                         $master_image_id = $image_id;
                         $woo_product->set_image_id($image_id);
                     }
+                    $woo_variation->set_name($variation['name']);
                     $woo_variation->set_regular_price($variation['list_price']);
                     $woo_variation->set_parent_id($woo_id);
                     $woo_variation->set_stock_status('instock');
@@ -557,6 +556,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
                     $woo_variation->set_length($variation['length']);
                     $woo_variation->set_width($variation['width']);
                     $woo_variation->set_height($variation['height']);
+                    $woo_variation->set_description($variation['name']);
                     // taxonomy
                     $category_ids   = [];
                     $term_name      = $variation['product_type'];

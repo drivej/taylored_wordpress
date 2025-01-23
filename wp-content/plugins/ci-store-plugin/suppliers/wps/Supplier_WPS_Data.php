@@ -110,7 +110,7 @@ trait Supplier_WPS_Data {
     public function get_products_page($cursor = '', $flag = 'pdp', $updated = null) {
         // $this->log("get_products_page('$cursor', '$flag', '$updated')");
         // attempt to load the max, then step down in count until response is valid
-        $page_sizes      = [1, 8, 16];
+        $page_sizes      = [1, 8, 16, 32];
         $page_size       = end($page_sizes);
         $page_size_index = count($page_sizes) - 1;
         $items           = [];
@@ -124,6 +124,10 @@ trait Supplier_WPS_Data {
             $page_size      = $page_sizes[$page_size_index];
             $params['page'] = ['cursor' => $cursor, 'size' => $page_size];
             $items          = $this->get_api('/products', $params);
+
+            if (! isset($items['data']) || ! is_countable($items['data'])) {
+                $this->log('API throttled' . json_encode(['items' => $items]));
+            }
 
             if (isset($items['error']) && $page_size > 1) {
                 $fails++;

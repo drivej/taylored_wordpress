@@ -130,7 +130,7 @@ trait Supplier_WPS_Attributes {
             $attribute_id = wc_attribute_taxonomy_id_by_name($attribute_name);
         } else {
             $attribute_id = wc_create_attribute(['name' => $attribute_name]);
-            $this->log(json_encode(['attribute_id' => $attribute_id]));
+            // $this->log(json_encode(['attribute_id' => $attribute_id]));
             if (is_wp_error($attribute_id)) {
                 error_log("Failed to create attribute: {$attribute_name}");
                 throw new Exception("Failed to create attribute: {$attribute_name}");
@@ -141,101 +141,83 @@ trait Supplier_WPS_Attributes {
         return $attribute_id;
     }
 
-    // NEW!!!
-    /*
-    [
-  {
-    "name": "Product Type",
-    "slug": "product-type",
-    "values": [
-      {
-        "name": "Straps/Tie-Downs",
-        "id": 17332
-      },
-      "Straps/Tie-Downs"
-    ],
-    "key": "pa_product-type",
-    "id": 5
-  },
-  {
-    "name": "SKU",
-    "slug": "sku",
-    "values": [
-      {
-        "name": "52-4826"
-      },
-      {
-        "name": "52-4827"
-      }
-    ],
-    "key": "sku",
-    "position": 20
-  }
-]
-
-*/
-    public function XXextract_product_attributes(&$product) {
-        $master_attributes = $this->get_attributes_from_product($product);
-        foreach ($master_attributes as $id => $master_attribute) {
-            $master_attributes[$id]['values'] = [];
-        }
-        $test = [];
-
-        foreach ($product['items']['data'] as $i => $variation) {
-            $test[$variation['id']] = [];
-            foreach ($variation['attributevalues']['data'] as $attr) {
-                // match master attribute on attributekey_id
-                $master_attribute         = $master_attributes[$attr['attributekey_id']];
-                $test[$variation['id']][] = ['name' => $master_attribute['name'], 'slug' => $master_attribute['slug'], 'value' => $attr['name']];
-                // gather attribute values
-                $master_attributes[$attr['attributekey_id']]['values'][] = $attr['name'];
-            }
-        }
-
-        foreach ($master_attributes as &$master_attribute) {
-            // change siple array of attribute value to object so preprocess_attribute can populate with woo ids
-            // make sure values are unique
-            $master_attribute['values'] = array_map(fn($e) => ['name' => $e], array_unique($master_attribute['values']));
-        }
-
-        $attributes = array_values($master_attributes);
-
-        foreach ($attributes as &$attribute) {
-            $this->preprocess_attribute($attribute);
-        }
-
-        return ['master_attributes' => $master_attributes, 'test' => $test, 'attributes' => $attributes];
-    }
-
-    public function XXproduct_needs_sku_attribute($product) {
-        $varattrs = [];
-        foreach ($product['items']['data'] as $item) {
-            $varattrs[] = implode('|', array_values(array_column($item['attributevalues']['data'], 'name', 'attribute_name')));
-        }
-        $use_sku = count(array_unique($varattrs)) < count($product['items']['data']);
-        return $use_sku;
-
-        if ($use_sku) {
-            $attributes[] = [
-                'name'     => 'SKU',
-                'slug'     => 'sku',
-                'values'   => $skus,
-                'key'      => 'sku',
-                'position' => 20,
-            ];
-        }
-    }
-
     public function process_product_attributes(&$product) {
         // $this->log('process_product_attributes()');
         // extract attributes from product. If they aren't loaded, make an API to WPS call to get them
         // this returns an array where the key is the "attributekey_id" from WPS
         $lookup_attribute_slug = $this->get_attributes_from_product($product);
 
-        // $this->log('lookup_attribute_slug: ' . json_encode($lookup_attribute_slug));
+        // TODO: make sure every variation has every attribute - fill in blanks with "N/A"
+        // gather unique attribute ids
+        $attributekey_ids      = [];
+        $dummy_attributes      = [];
+        $item_attributekey_ids = [];
+        foreach ($product['items']['data'] as $i => $item) {
+            $item_attributekey_ids[$item['id']] = [];
+            foreach ($item['attributevalues']['data'] as $ii => $attributevalue) {
+                $attributekey_ids[] = $attributevalue['attributekey_id'];
+                if (! in_array($item['id'], $item_attributekey_ids)) {
+                    $item_attributekey_ids[$item['id']][]                 = $attributevalue['attributekey_id'];
+                    $dummy_attributes[$attributevalue['attributekey_id']] = [
+                         ...$attributevalue,
+                        'name' => 'N/A',
+                    ];
+                }
+            }
+        }
+        $attributekey_ids = array_values(array_unique($attributekey_ids));
+        // error_log(json_encode(['attributekey_ids' => $attributekey_ids], JSON_PRETTY_PRINT));
+        // error_log(json_encode(['dummy_attributes' => $dummy_attributes], JSON_PRETTY_PRINT));
+
+        // append dummy attributes where necessary
+        $log_attribute_error = false;
+        foreach ($product['items']['data'] as $i => $item) {
+            if (count($item['attributevalues']['data']) < count($attributekey_ids)) {
+                // error_log('found missing attr');
+                $dif = array_diff($attributekey_ids, $item_attributekey_ids[$item['id']]);
+                foreach ($dif as $attributekey_id) {
+                    $product['items']['data'][$i]['attributevalues']['data'][] = $dummy_attributes[$attributekey_id];
+                }
+                $log_attribute_error = true;
+            }
+        }
+        if ($log_attribute_error) {
+            error_log('product ' . $product['id'] . ' has inconsistent attributes');
+        }
+
+        // This code processes a product's attribute values to identify and handle duplicate attributes
+        // (based on their attributekey_id) within each item's data. When duplicate attribute values are found,
+        // it combines them into a single entry with their names concatenated.
+
+        foreach ($product['items']['data'] as $i => $item) {
+            $dupes  = [];
+            $lookup = [];
+            foreach ($item['attributevalues']['data'] as $ii => $attributevalue) {
+                $dupes[$attributevalue['attributekey_id']][] = $attributevalue['name'];
+                $lookup[$attributevalue['attributekey_id']]  = $attributevalue;
+            }
+            foreach ($dupes as $attributekey_id => $dupe) {
+                if (count($dupe) > 1) {
+                    sort($dupe);
+                    $attr     = $lookup[$attributekey_id];
+                    $new_attr = [
+                        //  ...$attr,
+                        "id"              => $attr['id'],
+                        "attributekey_id" => $attr['attributekey_id'],
+                        "name"            => implode(', ', $dupe),
+                    ];
+
+                    // remove stupid attributes
+                    $attributes = array_filter($item['attributevalues']['data'], fn($e) => $e['attributekey_id'] !== $attributekey_id);
+
+                    $attributes[]                                            = $new_attr;
+                    $product['items']['data'][$i]['attributevalues']['data'] = $attributes;
+                }
+            }
+        }
+
         //
-        // if an attribute appears in each item, remove it
-        //
+        // Identify attributes that have the same value across all product variations and removes them if they are redundant.
         $dupes            = [];
         $removed_attr     = [];
         $count_variations = count($product['items']['data']);
@@ -248,16 +230,15 @@ trait Supplier_WPS_Attributes {
             $unique_values = array_unique($dupe);
             if (count($unique_values) === 1) {
                 if (count($dupe) === $count_variations) {
-                    // $this->log('!!!!remove attribute ' . $attributekey_id);
                     $removed_attr[] = $attributekey_id;
                     unset($lookup_attribute_slug[$attributekey_id]);
                 }
             }
         }
-        // $this->log('dupes: ' . json_encode($dupes));
         //
         //
         //
+
         $product['lookup_attribute_slug'] = $lookup_attribute_slug;
 
         foreach ($lookup_attribute_slug as &$attribute) {
@@ -283,7 +264,7 @@ trait Supplier_WPS_Attributes {
                     if (in_array($attr_id, $removed_attr)) {
                         // $this->log('ITS OK attr_id:' . $attr_id . ' not found in lookup_attribute_slug');
                     } else {
-                        $this->log('attr_id:' . $attr_id . ' not found in lookup_attribute_slug');
+                        // $this->log('attr_id:' . $attr_id . ' not found in lookup_attribute_slug');
                     }
                 }
             }
@@ -307,10 +288,12 @@ trait Supplier_WPS_Attributes {
 
         foreach ($product['items']['data'] as $item) {
             foreach ($item['attributevalues']['data'] as $attributevalue) {
-                $attr_id = $attributevalue['attributekey_id'];
-                if (array_key_exists($attr_id, $lookup_attribute_slug)) {
-                    if (! in_array($attributevalue['name'], $lookup_attribute_slug[$attr_id]['values'])) {
-                        $lookup_attribute_slug[$attr_id]['values'][] = $attributevalue['name'];
+                if (array_key_exists('attributekey_id', $attributevalue)) {
+                    $attr_id = $attributevalue['attributekey_id'];
+                    if (array_key_exists($attr_id, $lookup_attribute_slug)) {
+                        if (! in_array($attributevalue['name'], $lookup_attribute_slug[$attr_id]['values'])) {
+                            $lookup_attribute_slug[$attr_id]['values'][] = $attributevalue['name'];
+                        }
                     }
                 }
             }
@@ -455,15 +438,15 @@ trait Supplier_WPS_Attributes {
             if (! array_key_exists('key', $attribute)) {
                 $this->log('build_woo_product_attributes() No Key ' . json_encode($product_attributes, JSON_PRETTY_PRINT));
             }
-            if (count($values) > 1) {
-                $attr = new WC_Product_Attribute();
-                $attr->set_name($attribute['name']);
-                $attr->set_options(array_column($values, 'name'));
-                $attr->set_visible(1);
-                $attr->set_variation(1);
-                $attr->set_position($attribute['position'] ?? $i);
-                $woo_attributes[$attribute['key']] = $attr;
-            }
+            // if (count($values) > 1) {
+            $attr = new WC_Product_Attribute();
+            $attr->set_name($attribute['name']);
+            $attr->set_options(array_column($values, 'name'));
+            $attr->set_visible(1);
+            $attr->set_variation(1);
+            $attr->set_position($attribute['position'] ?? $i);
+            $woo_attributes[$attribute['key']] = $attr;
+            // }
         }
         return $woo_attributes;
     }

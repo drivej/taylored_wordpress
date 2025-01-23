@@ -5,15 +5,13 @@ require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_insert_un
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_attachment_urls_to_postids.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_insert_product_meta_lookup.php';
 
-class WooTools
-{
+class WooTools {
     use WooTools_insert_unique_posts;
     use WooTools_insert_unique_metas;
     use WooTools_attachment_urls_to_postids;
     use WooTools_insert_product_meta_lookup;
 
-    public static function get_or_create_global_attribute_term($attribute_name, $attribute_value)
-    {
+    public static function get_or_create_global_attribute_term($attribute_name, $attribute_value) {
         // Use the attribute name as a taxonomy (e.g., 'pa_color', 'pa_size')
         $taxonomy = wc_attribute_taxonomy_name($attribute_name);
 
@@ -21,14 +19,14 @@ class WooTools
         $exists = taxonomy_exists($taxonomy);
         // $attribute = wc_get_attribute_taxonomy_id_by_name($attribute_name);
 
-        if (!$exists) {
+        if (! $exists) {
             // Create the attribute if it doesn't exist
             $attribute_id = wc_create_attribute([
-                'name' => $attribute_name, //ucfirst($attribute_name), // Display name
-                'slug' => $attribute_name, // Slug
-                'type' => 'select', // Default type for attributes
-                'order_by' => 'menu_order', // Sorting method
-                'has_archives' => false, // No archives needed for this attribute
+                'name'         => $attribute_name, //ucfirst($attribute_name), // Display name
+                'slug'         => $attribute_name, // Slug
+                'type'         => 'select',        // Default type for attributes
+                'order_by'     => 'menu_order',    // Sorting method
+                'has_archives' => false,           // No archives needed for this attribute
             ]);
 
             if (is_wp_error($attribute_id)) {
@@ -38,19 +36,19 @@ class WooTools
             // Register the new attribute
             // $taxonomy = 'pa_' . $attribute_name;
             register_taxonomy($taxonomy, 'product', [
-                'label' => ucfirst($attribute_name),
-                'public' => false,
+                'label'        => ucfirst($attribute_name),
+                'public'       => false,
                 'hierarchical' => false,
-                'show_ui' => false,
-                'query_var' => true,
-                'rewrite' => false,
+                'show_ui'      => false,
+                'query_var'    => true,
+                'rewrite'      => false,
             ]);
         }
 
         // Now we add the term to the attribute
         $term = term_exists($attribute_value, $taxonomy);
 
-        if (!$term) {
+        if (! $term) {
             $term = wp_insert_term($attribute_value, $taxonomy);
         }
 
@@ -80,8 +78,7 @@ class WooTools
      * @param WC_Product    $product
      * @param string    $units
      */
-    public static function get_product_age($product, $units = 'hours')
-    {
+    public static function get_product_age($product, $units = 'hours') {
         $last_updated = $product->get_meta('_last_updated', true);
         return $last_updated ? WooTools::get_age($last_updated, $units) : 99999;
     }
@@ -115,16 +112,14 @@ class WooTools
      *
      * @param WC_Product    $woo_product
      */
-    public static function get_product_supplier_key($woo_product)
-    {
+    public static function get_product_supplier_key($woo_product) {
         return $woo_product->get_meta('_ci_supplier_key', true);
     }
     /**
      *
      * @param WC_Product    $woo_product
      */
-    public static function has_images($woo_product)
-    {
+    public static function has_images($woo_product) {
         $image = $woo_product->get_image_id();
         if ($image) {
             return true;
@@ -148,18 +143,17 @@ class WooTools
     //     ];
     // }
 
-    public static function get_supplier($supplier_key)
-    {
+    public static function get_supplier($supplier_key) {
         switch ($supplier_key) {
-            case 'wps':
-                include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS.php';
-                return Supplier_WPS::instance();
-                break;
+        case 'wps':
+            include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS.php';
+            return Supplier_WPS::instance();
+            break;
 
-            case 't14':
-                include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14.php';
-                return Supplier_T14::instance();
-                break;
+        case 't14':
+            include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14.php';
+            return Supplier_T14::instance();
+            break;
         }
         return false;
     }
@@ -167,14 +161,12 @@ class WooTools
      *
      * @param WC_Product    $woo_product
      */
-    public static function get_product_supplier($woo_product)
-    {
+    public static function get_product_supplier($woo_product) {
         $supplier_key = WooTools::get_product_supplier_key($woo_product);
         return WooTools::get_supplier($supplier_key);
     }
 
-    public static function array_lookup($objects, $key = 'id')
-    {
+    public static function array_lookup($objects, $key = 'id') {
         $lookup = [];
         foreach ($objects as $object) {
             $lookup[$object[$key]] = $object;
@@ -185,27 +177,24 @@ class WooTools
      *
      * @param WC_Product    $woo_product
      */
-    public static function get_attributes_data($woo_product)
-    {
+    public static function get_attributes_data($woo_product) {
         $attributes = $woo_product->get_attributes('edit');
         return WooTools::attributes_to_data($attributes);
     }
 
-    public static function attributes_to_data($attributes)
-    {
+    public static function attributes_to_data($attributes) {
         $result = [];
         if (isset($attributes)) {
             foreach ($attributes as $slug => $attribute) {
-                $data = $attribute->get_data();
+                $data         = $attribute->get_data();
                 $data['slug'] = $slug;
-                $result[] = $data;
+                $result[]     = $data;
             }
         }
         return $result;
     }
 
-    public static function build_attribute($name, $options)
-    {
+    public static function build_attribute($name, $options) {
         $new_attribute = new WC_Product_Attribute();
         $new_attribute->set_name($name);
         $new_attribute->set_options($options);
@@ -215,21 +204,19 @@ class WooTools
         return $new_attribute;
     }
 
-    public static function fix_variations($supplier_variations, $parent_id)
-    {
+    public static function fix_variations($supplier_variations, $parent_id) {
         foreach ($supplier_variations as $supplier_variation) {
             WooTools::fix_variation($supplier_variation, $parent_id);
         }
     }
 
-    public static function get_max_age($flag)
-    {
+    public static function get_max_age($flag) {
         switch ($flag) {
-            case 'pdp':
-                return new DateInterval('P1D');
-            case 'plp':
-            default:
-                return new DateInterval('P7D');
+        case 'pdp':
+            return new DateInterval('P1D');
+        case 'plp':
+        default:
+            return new DateInterval('P7D');
         }
     }
     /**
@@ -237,22 +224,32 @@ class WooTools
      * @param WC_Product    $woo_product
      * @param string    $flag 'pdp' | 'plp'
      */
-    public static function should_update_product($product, $flag)
-    {
-        // the existence of this meta key indicates a 3rd party supplier
-        $meta_key = "_ci_update_{$flag}";
-        $update = $product->get_meta($meta_key);
+    public static function should_update_product($product, $flag) {
+        if ($product instanceof WC_Product) {
+            // the existence of this meta key indicates a 3rd party supplier
+            $meta_key   = "_ci_update_{$flag}";
+            $update     = $product->get_meta($meta_key);
+            $supplier   = self::get_product_supplier($product);
+            $deprecated = $flag==='pdp' && $supplier->is_deprecated($product->get_id());
 
-        if (is_string($update)) {
-            $max_age = self::get_max_age($flag);
-            $expiry_date = (new DateTime($update))->add($max_age);
-            return $expiry_date < new DateTime();
+            if ($deprecated) {
+                error_log('update deprecated ' . $flag);
+                return true;
+            }
+
+            if (is_string($update)) {
+                $max_age     = self::get_max_age($flag);
+                $expiry_date = (new DateTime($update))->add($max_age);
+                return $expiry_date < new DateTime();
+            }
+            return true;
+        } else {
+            error_log('!!!NOT instanceof WC_Product');
         }
-        return true;
+        return false;
     }
 
-    public static function fix_variation($supplier_variation, $parent_id)
-    {
+    public static function fix_variation($supplier_variation, $parent_id) {
         // TODO: should we delete these rogue variations or try to recover them?
         $variation_id = wc_get_product_id_by_sku($supplier_variation['sku']);
         if ($variation_id) {
@@ -260,7 +257,7 @@ class WooTools
             $obj = wc_get_product($variation_id);
             if ($obj) {
                 $this_parent_id = $obj->get_parent_id();
-                if (!$this_parent_id) {
+                if (! $this_parent_id) {
                     // $report->addLog('fix_variation() ERROR This sku is being used by post ' . $variation_id);
                     $obj->set_parent_id($parent_id);
                     // $report->addLog('fix_variation() ERROR Corrected variation id=' . $variation_id . ', sku=' . $supplier_variation['sku'] . ' with parent_id=0 to parent_id= ' . $parent_id);
@@ -286,8 +283,7 @@ class WooTools
         }
     }
 
-    public static function cleanup_variations($woo_product_id)
-    {
+    public static function cleanup_variations($woo_product_id) {
         // sometimes a variation get's saved/attached to a post but it has no sku - delete it and try again
         $cleaned = false;
         // these is a huge difference between these 2 functions
@@ -314,11 +310,10 @@ class WooTools
         return $cleaned;
     }
 
-    public static function delete_variations($woo_product_id)
-    {
-        $woo_product = wc_get_product($woo_product_id);
+    public static function delete_variations($woo_product_id) {
+        $woo_product    = wc_get_product($woo_product_id);
         $woo_variations = $woo_product->get_children(); // removed get_children with false
-        $count = 0;
+        $count          = 0;
         if (count($woo_variations)) {
             foreach ($woo_variations as $woo_variation_id) {
                 $woo_variation = new WC_Product_Variation($woo_variation_id);
@@ -336,8 +331,7 @@ class WooTools
         }
     }
 
-    public static function update_variation_props($variation, $supplier_variation, $report = new Report())
-    {
+    public static function update_variation_props($variation, $supplier_variation, $report = new Report()) {
         // we assume that the sku, parent_id are set - this is for fast updates
         $variation->set_status('publish');
         $variation->set_stock_status('instock');
@@ -350,8 +344,7 @@ class WooTools
         $variation->set_attributes($supplier_variation['attributes']);
     }
 
-    public static function populate_variation($variation, $supplier_variation, $parent_id, $report = new Report())
-    {
+    public static function populate_variation($variation, $supplier_variation, $parent_id, $report = new Report()) {
         try {
             // this explodes if another product exists with the same sku
             $variation->set_sku($supplier_variation['sku']);
@@ -374,25 +367,23 @@ class WooTools
         return true;
     }
 
-    public static function supplier_variation_to_object($supplier_variation, $parent_id, $report = new Report())
-    {
+    public static function supplier_variation_to_object($supplier_variation, $parent_id, $report = new Report()) {
         $variation = new WC_Product_Variation();
-        $success = WooTools::populate_variation($variation, $supplier_variation, $parent_id, $report);
+        $success   = WooTools::populate_variation($variation, $supplier_variation, $parent_id, $report);
         // $report->addLog('Create variation for parent ' . $parent_id . ' ' . ($success ? 'Success' : 'Failed'));
         return $success ? $variation : null;
     }
 
-    public static function sync_variations($woo_product, $supplier_variations)
-    {
+    public static function sync_variations($woo_product, $supplier_variations) {
         // $report->addLog('do_sync_variations()');
         $parent_id = $woo_product->get_id();
 
         // necessary evil
         WooTools::fix_variations($supplier_variations, $parent_id);
 
-        $supplier_skus = array_column($supplier_variations, 'sku');
+        $supplier_skus  = array_column($supplier_variations, 'sku');
         $woo_variations = WooTools::get_variations_objects($woo_product);
-        $woo_skus = array_map(fn($v) => $v->get_sku('edit'), $woo_variations);
+        $woo_skus       = array_map(fn($v) => $v->get_sku('edit'), $woo_variations);
 
         $deletes = array_values(array_diff($woo_skus, $supplier_skus));
         $inserts = array_values(array_diff($supplier_skus, $woo_skus));
@@ -447,20 +438,19 @@ class WooTools
      * @param Report   $report
      * }
      */
-    public static function sync_attributes($woo_product, $supplier_attributes)
-    {
-        $result = [];
-        $changed = false;
-        $woo_attributes_raw = $woo_product->get_attributes('edit');
-        $woo_attributes = WooTools::get_attributes_data($woo_product);
+    public static function sync_attributes($woo_product, $supplier_attributes) {
+        $result                        = [];
+        $changed                       = false;
+        $woo_attributes_raw            = $woo_product->get_attributes('edit');
+        $woo_attributes                = WooTools::get_attributes_data($woo_product);
         $result['supplier_attributes'] = $supplier_attributes;
-        $woo_names = array_column($woo_attributes, 'slug');
-        $supplier_names = array_column($supplier_attributes, 'slug');
-        $deletes = array_values(array_diff($woo_names, $supplier_names));
-        $inserts = array_values(array_diff($supplier_names, $woo_names));
-        $updates = array_values(array_diff($woo_names, $deletes, $inserts));
-        $woo_lookup = WooTools::array_lookup($woo_attributes, 'slug');
-        $supplier_lookup = WooTools::array_lookup($supplier_attributes, 'slug');
+        $woo_names                     = array_column($woo_attributes, 'slug');
+        $supplier_names                = array_column($supplier_attributes, 'slug');
+        $deletes                       = array_values(array_diff($woo_names, $supplier_names));
+        $inserts                       = array_values(array_diff($supplier_names, $woo_names));
+        $updates                       = array_values(array_diff($woo_names, $deletes, $inserts));
+        $woo_lookup                    = WooTools::array_lookup($woo_attributes, 'slug');
+        $supplier_lookup               = WooTools::array_lookup($supplier_attributes, 'slug');
 
         $result['actions'] = [];
         $result['deletes'] = $deletes;
@@ -468,11 +458,11 @@ class WooTools
         $result['updates'] = $updates;
 
         foreach ($inserts as $attr_slug) {
-            $result['actions'][] = 'insert ' . $attr_slug;
-            $attr = $supplier_lookup[$attr_slug];
-            $attr_slug = sanitize_title($attr['name']);
+            $result['actions'][]            = 'insert ' . $attr_slug;
+            $attr                           = $supplier_lookup[$attr_slug];
+            $attr_slug                      = sanitize_title($attr['name']);
             $woo_attributes_raw[$attr_slug] = WooTools::build_attribute($attr['name'], $attr['options']);
-            $changed = true;
+            $changed                        = true;
         }
 
         foreach ($deletes as $attr_slug) {
@@ -482,32 +472,31 @@ class WooTools
         }
 
         foreach ($updates as $attr_slug) {
-            $local_options = $woo_lookup[$attr_slug]['options'];
+            $local_options  = $woo_lookup[$attr_slug]['options'];
             $remote_options = $supplier_lookup[$attr_slug]['options'];
             sort($local_options);
             sort($remote_options);
             if ($local_options != $remote_options) {
-                $result['actions'][] = 'update ' . $attr_slug;
-                $attr = $woo_attributes_raw[$attr_slug];
+                $result['actions'][]            = 'update ' . $attr_slug;
+                $attr                           = $woo_attributes_raw[$attr_slug];
                 $woo_attributes_raw[$attr_slug] = WooTools::build_attribute($attr->get_name(), $remote_options);
-                $changed = true;
+                $changed                        = true;
             }
         }
 
         if ($changed) {
             $woo_product->set_attributes($woo_attributes_raw);
-            $product_id = $woo_product->save();
+            $product_id      = $woo_product->save();
             $result['saved'] = $product_id;
         }
 
         $result['changed'] = $changed;
     }
 
-    public static function getAllAttachmentImagesIdByUrl($urls)
-    {
+    public static function getAllAttachmentImagesIdByUrl($urls) {
         global $wpdb;
 
-        if (!count($urls)) {
+        if (! count($urls)) {
             return [];
         }
         $placeholders = implode(',', array_fill(0, count($urls), '%s'));
@@ -536,36 +525,33 @@ class WooTools
         return $result;
     }
 
-    public static function get_age($dateString, $units = 'hours')
-    {
-        $date = new DateTime($dateString);
-        $now = new DateTime();
+    public static function get_age($dateString, $units = 'hours') {
+        $date     = new DateTime($dateString);
+        $now      = new DateTime();
         $interval = $now->diff($date);
         return $interval;
     }
 
-    public static function unpublish($post_ids)
-    {
-        if (!is_array($post_ids) || count($post_ids) === 0) {
+    public static function unpublish($post_ids) {
+        if (! is_array($post_ids) || count($post_ids) === 0) {
             return true;
         }
         global $wpdb;
         $post_ids_placeholder = implode(',', array_fill(0, count($post_ids), '%d'));
-        $sql = $wpdb->prepare("UPDATE {$wpdb->posts} SET post_status = 'draft' WHERE ID IN ($post_ids_placeholder)", $post_ids);
+        $sql                  = $wpdb->prepare("UPDATE {$wpdb->posts} SET post_status = 'draft' WHERE ID IN ($post_ids_placeholder)", $post_ids);
         $wpdb->query($sql);
         error_log('WooTools::unpublish() ' . count($post_ids));
     }
 
-    public static function get_metas($post_ids, $meta_keys)
-    {
-        if (!is_array($post_ids) || count($post_ids) === 0) {
+    public static function get_metas($post_ids, $meta_keys) {
+        if (! is_array($post_ids) || count($post_ids) === 0) {
             return [];
         }
         global $wpdb;
         // $post_ids = [1, 2, 3, 4]; // replace with your array of post IDs
         // $meta_keys = ['_meta_key1', '_meta_key2', '_meta_key3']; // replace with your meta keys
 
-        $placeholders = implode(',', array_fill(0, count($post_ids), '%d'));
+        $placeholders      = implode(',', array_fill(0, count($post_ids), '%d'));
         $meta_placeholders = implode(',', array_fill(0, count($meta_keys), '%s'));
 
         $sql = "
@@ -580,12 +566,12 @@ class WooTools
                 AND meta_key IN ($meta_placeholders)
         ";
 
-        $query = $wpdb->prepare($sql, array_merge($post_ids, $meta_keys));
+        $query   = $wpdb->prepare($sql, array_merge($post_ids, $meta_keys));
         $results = $wpdb->get_results($query);
 
         $lookup = [];
         foreach ($results as $row) {
-            if (!isset($lookup[$row->post_id])) {
+            if (! isset($lookup[$row->post_id])) {
                 $lookup[$row->post_id] = [];
             }
             $lookup[$row->post_id][$row->meta_key] = $row->meta_value;
@@ -593,15 +579,14 @@ class WooTools
         return $lookup;
     }
 
-    public static function get_meta_lookup_by_ids($ids, $meta_key)
-    {
-        if (!is_array($ids) || count($ids) === 0) {
+    public static function get_meta_lookup_by_ids($ids, $meta_key) {
+        if (! is_array($ids) || count($ids) === 0) {
             return [];
         }
         global $wpdb;
-        $meta_key = esc_sql($meta_key);
+        $meta_key     = esc_sql($meta_key);
         $placeholders = implode(',', array_fill(0, count($ids), '%d'));
-        $sql = "
+        $sql          = "
             SELECT post_id, meta_value
             FROM {$wpdb->postmeta}
             WHERE meta_key = '{$meta_key}'
@@ -613,8 +598,7 @@ class WooTools
         return $lookup;
     }
 
-    public static function get_import_timestamps_by_ids($ids)
-    {
+    public static function get_import_timestamps_by_ids($ids) {
         return WooTools::get_meta_lookup_by_ids($ids, '_ci_import_timestamp');
         // global $wpdb;
         // $placeholders = implode(',', array_fill(0, count($ids), '%d'));
@@ -629,8 +613,7 @@ class WooTools
         // return $lookup;
     }
 
-    public static function get_import_version_by_ids($ids)
-    {
+    public static function get_import_version_by_ids($ids) {
         return WooTools::get_meta_lookup_by_ids($ids, '_ci_import_version');
         // global $wpdb;
         // $placeholders = implode(',', array_fill(0, count($ids), '%d'));
@@ -645,14 +628,13 @@ class WooTools
         // return $lookup;
     }
 
-    public static function lookup_woo_ids_by_skus($skus)
-    {
-        if (!WooTools::is_valid_array($skus)) {
+    public static function lookup_woo_ids_by_skus($skus) {
+        if (! WooTools::is_valid_array($skus)) {
             return [];
         }
         global $wpdb;
         $placeholders = implode(',', array_fill(0, count($skus), '%s'));
-        $sql = "
+        $sql          = "
                 SELECT p.ID, pm.meta_value AS sku
                 FROM {$wpdb->posts} p
                 INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
@@ -660,19 +642,18 @@ class WooTools
                 AND pm.meta_key = '_sku'
                 AND pm.meta_value IN ($placeholders)
             ";
-        $results = $wpdb->get_results($wpdb->prepare($sql, $skus));
+        $results       = $wpdb->get_results($wpdb->prepare($sql, $skus));
         $lookup_woo_id = array_column($results, 'ID', 'sku');
         return $lookup_woo_id;
     }
 
-    public static function lookup_woo_ids_by_name($post_names)
-    {
-        if (!WooTools::is_valid_array($post_names)) {
+    public static function lookup_woo_ids_by_name($post_names) {
+        if (! WooTools::is_valid_array($post_names)) {
             return [];
         }
         global $wpdb;
         // $placeholders = implode(',', array_fill(0, count($post_names), '%s'));
-        $sql = "SELECT * FROM {$wpdb->posts} WHERE ";
+        $sql        = "SELECT * FROM {$wpdb->posts} WHERE ";
         $conditions = [];
         foreach ($post_names as $name) {
             $conditions[] = $wpdb->prepare("post_name LIKE %s", '%' . $wpdb->esc_like($name) . '%');
@@ -692,63 +673,60 @@ class WooTools
         return $lookup;
     }
 
-    public static function get_product_ids_by_skus($skus)
-    {
+    public static function get_product_ids_by_skus($skus) {
         global $wpdb;
-        $placeholders = implode(',', array_fill(0, count($skus), '%s'));
-        $sql = $wpdb->prepare("SELECT meta_value AS sku, post_id AS variation_id FROM {$wpdb->prefix}postmeta WHERE meta_key = '_sku' AND meta_value IN ($placeholders)", ...$skus);
-        $results = $wpdb->get_results($wpdb->prepare($sql, $skus), ARRAY_A);
+        $placeholders        = implode(',', array_fill(0, count($skus), '%s'));
+        $sql                 = $wpdb->prepare("SELECT meta_value AS sku, post_id AS variation_id FROM {$wpdb->prefix}postmeta WHERE meta_key = '_sku' AND meta_value IN ($placeholders)", ...$skus);
+        $results             = $wpdb->get_results($wpdb->prepare($sql, $skus), ARRAY_A);
         $sku_to_variation_id = array_column($results, 'variation_id', 'sku');
         return $sku_to_variation_id;
     }
 
-    public static function delete_transients()
-    {
+    public static function delete_transients() {
         global $wpdb;
         return $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE ('%_transient_%')");
     }
 
-    public static function createRemoteAttachment($image, $supplier_key)
-    {
-        if (!is_array($image) || !isset($image['file']) || !isset($image['width']) || !isset($image['height'])) {
+    public static function createRemoteAttachment($image, $supplier_key) {
+        if (! is_array($image) || ! isset($image['file']) || ! isset($image['width']) || ! isset($image['height'])) {
             return false;
         }
         $filesize = isset($image['filesize']) ? $image['filesize'] : 1;
 
         $attachment_id = wp_insert_post([
-            'post_parent' => 0,
-            'post_type' => 'attachment',
+            'post_parent'    => 0,
+            'post_type'      => 'attachment',
             'post_mime_type' => 'image/jpeg',
-            'post_status' => 'inherit',
-            'meta_input' => [
-                '_wp_attached_file' => $image['file'],
+            'post_status'    => 'inherit',
+            'meta_input'     => [
+                '_wp_attached_file'       => $image['file'],
                 '_wp_attachment_metadata' => [
-                    "width" => $image['width'],
-                    "height" => $image['height'],
-                    "file" => '',
-                    "filesize" => $filesize,
-                    "sizes" => [],
+                    "width"      => $image['width'],
+                    "height"     => $image['height'],
+                    "file"       => '',
+                    "filesize"   => $filesize,
+                    "sizes"      => [],
                     "image_meta" => [
-                        "aperture" => "0",
-                        "credit" => "",
-                        "camera" => "",
-                        "caption" => "",
+                        "aperture"          => "0",
+                        "credit"            => "",
+                        "camera"            => "",
+                        "caption"           => "",
                         "created_timestamp" => "0",
-                        "copyright" => "",
-                        "focal_length" => "0",
-                        "iso" => "0",
-                        "shutter_speed" => "0",
-                        "title" => "",
-                        "orientation" => "0",
-                        "keywords" => [],
+                        "copyright"         => "",
+                        "focal_length"      => "0",
+                        "iso"               => "0",
+                        "shutter_speed"     => "0",
+                        "title"             => "",
+                        "orientation"       => "0",
+                        "keywords"          => [],
                     ],
                 ],
-                'width' => $image['width'],
-                'height' => $image['height'],
-                'filesize' => isset($image['filesize']) ? $image['filesize'] : 1,
-                '_ci_remote_image' => true,
-                '_ci_supplier_key' => $supplier_key,
-                'sizes' => [],
+                'width'                   => $image['width'],
+                'height'                  => $image['height'],
+                'filesize'                => isset($image['filesize']) ? $image['filesize'] : 1,
+                '_ci_remote_image'        => true,
+                '_ci_supplier_key'        => $supplier_key,
+                'sizes'                   => [],
             ],
         ], false, false);
 
@@ -768,8 +746,7 @@ class WooTools
      * @param array|object $data An iterable object or array to modify.
      * @param string       $prop The name of the property to remove.
      */
-    public static function deep_unset_prop(array | object &$data, string $prop)
-    {
+    public static function deep_unset_prop(array | object &$data, string $prop) {
         if (is_object($data)) {
             unset($data->{$prop});
         }
@@ -786,8 +763,7 @@ class WooTools
      * @param array|object $data An iterable object or array to modify.
      * @param string       $key  The name of the array key to remove.
      */
-    public static function deep_unset_key(array | object &$data, string $key)
-    {
+    public static function deep_unset_key(array | object &$data, string $key) {
         if (is_array($data)) {
             unset($data[$key]);
         }
@@ -885,12 +861,11 @@ class WooTools
     //     ];
     // }
 
-    public static function delete_orphaned_attachments()
-    {
+    public static function delete_orphaned_attachments() {
         $attachments = get_posts([
-            'post_type' => 'attachment',
+            'post_type'   => 'attachment',
             'numberposts' => -1,
-            'fields' => 'ids',
+            'fields'      => 'ids',
             'post_parent' => 0,
         ]);
 
@@ -935,8 +910,7 @@ class WooTools
      */
     }
 
-    public static function delete_orphaned_meta()
-    {
+    public static function delete_orphaned_meta() {
         global $wpdb;
         $sql = "DELETE pm
             FROM {$wpdb->postmeta} pm
@@ -950,8 +924,7 @@ class WooTools
         }
     }
 
-    public static function delete_orphaned_meta_lookup()
-    {
+    public static function delete_orphaned_meta_lookup() {
         global $wpdb;
         $sql = "DELETE pm
             FROM {$wpdb->prefix}wc_product_meta_lookup pm
@@ -968,8 +941,7 @@ class WooTools
         }
     }
 
-    public static function delete_edit_locks()
-    {
+    public static function delete_edit_locks() {
         global $wpdb;
         $sql = "DELETE FROM {$wpdb->postmeta} WHERE `meta_key` = '_edit_lock'";
 
@@ -982,8 +954,7 @@ class WooTools
         }
     }
 
-    public static function clean_up_orphaned_term_relationships()
-    {
+    public static function clean_up_orphaned_term_relationships() {
         global $wpdb;
 
         // SQL query to delete orphaned term relationships
@@ -1006,13 +977,11 @@ class WooTools
         }
     }
 
-    public static function is_valid_array($arr)
-    {
+    public static function is_valid_array($arr) {
         return isset($arr) && is_array($arr) && count($arr);
     }
 
-    public static function hydrate_metadata($post_id, $keyvals)
-    {
+    public static function hydrate_metadata($post_id, $keyvals) {
         $metadata = [];
         foreach ($keyvals as $key => $val) {
             $metadata[] = ['post_id' => $post_id, 'meta_key' => $key, 'meta_value' => $val];
@@ -1020,20 +989,19 @@ class WooTools
         return $metadata;
     }
 
-    public static function get_raw_woo_data($woo_id)
-    {
+    public static function get_raw_woo_data($woo_id) {
         global $wpdb;
         // $s = "SELECT * FROM {$wpdb->posts} WHERE `ID` = '{$woo_id}'";
-        $sql = "SELECT ID,post_title,post_name,post_type,post_parent FROM {$wpdb->posts} WHERE `ID` = %d";
-        $sql_query = $wpdb->prepare($sql, $woo_id);
+        $sql        = "SELECT ID,post_title,post_name,post_type,post_parent FROM {$wpdb->posts} WHERE `ID` = %d";
+        $sql_query  = $wpdb->prepare($sql, $woo_id);
         $sql_result = $wpdb->get_results($sql_query, ARRAY_A);
 
-        if (!count($sql_result)) {
+        if (! count($sql_result)) {
             return ['error' => "$woo_id not found"];
         }
         $post = $sql_result[0];
         // $limit_meta_keys = "`meta_key` IN ('_sku','_ci_product_id','_thumbnail_id','_price','_product_type','_stock_status') AND";
-        $metadata_raw = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->postmeta} WHERE `post_id` = %d", $woo_id));
+        $metadata_raw     = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->postmeta} WHERE `post_id` = %d", $woo_id));
         $post['metadata'] = [];
         foreach ($metadata_raw as $m) {
             $post['metadata'][$m->meta_key] = is_serialized($m->meta_value) ? unserialize($m->meta_value) : $m->meta_value;
@@ -1041,7 +1009,7 @@ class WooTools
         $variations = $wpdb->get_results($wpdb->prepare("SELECT ID,post_title,post_name,post_type FROM {$wpdb->posts} WHERE `post_parent` = %d", $woo_id), ARRAY_A);
 
         foreach ($variations as &$variation) {
-            $metadata_raw = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->postmeta} WHERE `post_id` = %d", $variation['ID']));
+            $metadata_raw          = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->postmeta} WHERE `post_id` = %d", $variation['ID']));
             $variation['metadata'] = [];
             foreach ($metadata_raw as $m) {
                 $variation['metadata'][$m->meta_key] = is_serialized($m->meta_value) ? unserialize($m->meta_value) : $m->meta_value;
@@ -1051,16 +1019,15 @@ class WooTools
         return ['post' => $post, 'variations' => $variations];
     }
 
-    public static function sync_images($woo_product, $supplier_product, $supplier)
-    {
-        $woo_product_id = $woo_product->get_id();
+    public static function sync_images($woo_product, $supplier_product, $supplier) {
+        $woo_product_id      = $woo_product->get_id();
         $supplier_variations = $supplier->extract_variations($supplier_product);
-        $master_image_ids = [];
-        $result = [];
-        $result[] = ['woo_id', 'variation_id', 'attachment_id', 'image', 'width', 'height', 'filesize', 'type', 'action'];
-        $image_urls = [];
-        $valid_variations = [];
-        $variation_skus = [];
+        $master_image_ids    = [];
+        $result              = [];
+        $result[]            = ['woo_id', 'variation_id', 'attachment_id', 'image', 'width', 'height', 'filesize', 'type', 'action'];
+        $image_urls          = [];
+        $valid_variations    = [];
+        $variation_skus      = [];
 
         // build lookup table for variation sku=>id
         $variation_skus = array_map(fn($variation) => $variation['sku'], $supplier_variations);
@@ -1070,19 +1037,19 @@ class WooTools
 
         // build lookup table for variation image url=>attachment_id
         foreach ($supplier_variations as $variation) {
-            $variation_id = $lookup_variation_id[$variation['sku']] ?? null;
+            $variation_id                  = $lookup_variation_id[$variation['sku']] ?? null;
             $variation['woo_variation_id'] = $variation_id;
 
             if ($variation_id) {
                 $valid_variations[] = $variation;
                 if (isset($variation['images_data']) && is_countable($variation['images_data'])) {
                     $new_image_urls = array_map(fn($image) => $image['file'], $variation['images_data']);
-                    $image_urls = array_merge($image_urls, $new_image_urls);
+                    $image_urls     = array_merge($image_urls, $new_image_urls);
                 }
             }
         }
 
-        if (!count($image_urls)) {
+        if (! count($image_urls)) {
             return false;
         }
 
@@ -1099,14 +1066,14 @@ class WooTools
                         $action = 'found';
                         // $attachment_id = WooTools::getAttachmentImageIdByUrl($image['file']);
                         $attachment_id = $lookup_attachment_id[$image['file']];
-                        if (!$attachment_id) {
-                            $action = 'create';
+                        if (! $attachment_id) {
+                            $action        = 'create';
                             $attachment_id = WooTools::createRemoteAttachment($image, $supplier->key);
                         }
                         if ($attachment_id) {
                             $variation_image_ids[] = $attachment_id;
-                            $master_image_ids[] = $attachment_id;
-                            $result[] = [$woo_product_id, $variation_id, $attachment_id, $image['file'], $image['width'], $image['height'], $image['filesize'], $i == 0 ? 'primary' : 'secondary', $action];
+                            $master_image_ids[]    = $attachment_id;
+                            $result[]              = [$woo_product_id, $variation_id, $attachment_id, $image['file'], $image['width'], $image['height'], $image['filesize'], $i == 0 ? 'primary' : 'secondary', $action];
                         }
                     }
                     // set variation primary image
@@ -1142,12 +1109,11 @@ class WooTools
         return $result;
     }
 
-    public static function delete_products($product_ids)
-    {
-        $deleted_posts = 0;
+    public static function delete_products($product_ids) {
+        $deleted_posts      = 0;
         $deleted_variations = 0;
-        $deleted_terms = 0;
-        $deleted_meta = 0;
+        $deleted_terms      = 0;
+        $deleted_meta       = 0;
 
         if (WooTools::is_valid_array($product_ids)) {
             global $wpdb;
@@ -1172,13 +1138,12 @@ class WooTools
         return ['message' => "Deleted products:{$deleted_posts} meta:{$deleted_meta} term_rel:{$deleted_terms} variations:{$deleted_variations}"];
     }
 
-    public static function delete_product_variations($woo_product)
-    {
+    public static function delete_product_variations($woo_product) {
         $deleted = [];
         if ($woo_product) {
             $woo_variations = $woo_product->get_children();
             foreach ($woo_variations as $woo_variation_id) {
-                $woo_variation = wc_get_product($woo_variation_id);
+                $woo_variation              = wc_get_product($woo_variation_id);
                 $deleted[$woo_variation_id] = $woo_variation->delete(true);
             }
         }
@@ -1187,18 +1152,17 @@ class WooTools
     /**
      * @param WC_Product_Variable $woo_product
      */
-    public static function get_variations($woo_product, $context = 'view')
-    {
+    public static function get_variations($woo_product, $context = 'view') {
         $woo_variations = $woo_product->get_children(); // removed get_children with false
-        $variations = [];
+        $variations     = [];
         foreach ($woo_variations as $woo_variation_id) {
-            $woo_variation = wc_get_product_object('variation', $woo_variation_id);
-            $variation = [];
-            $variation['id'] = $woo_variation_id;
-            $variation['sku'] = $woo_variation->get_sku($context);
-            $variation['name'] = $woo_variation->get_name($context);
+            $woo_variation           = wc_get_product_object('variation', $woo_variation_id);
+            $variation               = [];
+            $variation['id']         = $woo_variation_id;
+            $variation['sku']        = $woo_variation->get_sku($context);
+            $variation['name']       = $woo_variation->get_name($context);
             $variation['list_price'] = $woo_variation->get_regular_price($context);
-            $variation['images'] = [];
+            $variation['images']     = [];
 
             $images = $woo_variation->get_meta('_ci_additional_images', true, $context);
             if (is_array($images)) {
@@ -1211,27 +1175,25 @@ class WooTools
                 // $variation['images'] = unserialize($woo_variation->get_meta('_ci_additional_images', true, $context));
             }
 
-            $variation['attributes'] = $woo_variation->get_attributes($context);
+            $variation['attributes']   = $woo_variation->get_attributes($context);
             $variation['supplier_sku'] = $woo_variation->get_meta('_ci_product_sku', true);
-            $variations[] = $variation;
+            $variations[]              = $variation;
             // ci_error_log(__FILE__, __LINE__, ['variation' => $variation]);
         }
         return $variations;
     }
 
     // this seems inefficiant
-    public static function get_variations_objects($woo_product)
-    {
+    public static function get_variations_objects($woo_product) {
         $woo_variations = $woo_product->get_children(); // removed get_children with false
-        $variations = [];
+        $variations     = [];
         foreach ($woo_variations as $woo_variation_id) {
             $variations[] = new WC_Product_Variation($woo_variation_id);
         }
         return $variations;
     }
 
-    public static function set_product_visibility($woo_id, $visible = true)
-    {
+    public static function set_product_visibility($woo_id, $visible = true) {
         if ($visible) {
             wp_set_object_terms($woo_id, [], 'product_visibility');
         } else {
@@ -1239,12 +1201,11 @@ class WooTools
         }
     }
 
-    public static function removeProductAttribute($product_id, $attribute_name)
-    {
+    public static function removeProductAttribute($product_id, $attribute_name) {
         // delete attribute from product and it's variations
-        $saved = false;
+        $saved       = false;
         $woo_product = wc_get_product($product_id);
-        $attributes = $woo_product->get_attributes('edit');
+        $attributes  = $woo_product->get_attributes('edit');
 
         $update = [];
         foreach ($attributes as $attribute) {
@@ -1263,8 +1224,8 @@ class WooTools
 
         foreach ($woo_variation_ids as $woo_variation_id) {
             $woo_product = wc_get_product($woo_variation_id);
-            $variation = new WC_Product_Variation($woo_variation_id);
-            $attributes = $variation->get_attributes('edit');
+            $variation   = new WC_Product_Variation($woo_variation_id);
+            $attributes  = $variation->get_attributes('edit');
 
             $has_attr = isset($attributes[$attribute_name]);
             if ($has_attr) {
@@ -1313,8 +1274,7 @@ class WooTools
         // }
     }
 
-    public static function clamp_image_size($width, $height, $max_dimension = 500)
-    {
+    public static function clamp_image_size($width, $height, $max_dimension = 500) {
         // Calculate the aspect ratio
         $aspect_ratio = $width / $height;
 
@@ -1325,19 +1285,18 @@ class WooTools
 
         // If the width is greater than the height, scale based on the width
         if ($aspect_ratio > 1) {
-            $new_width = $max_dimension;
+            $new_width  = $max_dimension;
             $new_height = $max_dimension / $aspect_ratio;
         } else {
             // Otherwise, scale based on the height
             $new_height = $max_dimension;
-            $new_width = $max_dimension * $aspect_ratio;
+            $new_width  = $max_dimension * $aspect_ratio;
         }
 
         return ['width' => round($new_width), 'height' => round($new_height)];
     }
 
-    public static function unlink_children($product_id)
-    {
+    public static function unlink_children($product_id) {
         // Woo does not unlink children reliably so you may have rogure variations attached to products
         global $wpdb;
         $sql = $wpdb->prepare("UPDATE $wpdb->posts SET post_parent = 0 WHERE post_parent = %d", $product_id);
