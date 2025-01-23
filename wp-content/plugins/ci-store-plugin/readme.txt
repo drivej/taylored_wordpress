@@ -15,3 +15,5 @@ Updates:
 - added description to variation which shows on PDP
 2025-01-23
 - Fix issue where product attributes are not consistent across variations and require a dummy N/A facet for woo to work
+- added hook to show variation name in SKU dropdown
+- added custom size sort (custom_woocommerce_dropdown_variation_attribute_options_args)

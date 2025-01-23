@@ -35,6 +35,8 @@ class Plugin
         add_action('woocommerce_before_single_product', 'CIStore\Hooks\custom_before_single_product', 20);
         add_action('woocommerce_cart_item_thumbnail', 'CIStore\Hooks\custom_modify_cart_item_thumbnail', 10, 3);
         add_filter('woocommerce_variation_option_name', 'CIStore\Hooks\custom_woocommerce_variation_option_name', 10, 4);
+        add_filter('woocommerce_dropdown_variation_attribute_options_args', 'CIStore\Hooks\custom_woocommerce_dropdown_variation_attribute_options_args', 10, 1);
+
         // add_action('pre_get_posts', 'CIStore\Hooks\custom_pre_get_posts', 10, 1);
         wp_enqueue_style('custom-store-styles', plugins_url('css/ci-styles.css', CI_STORE_PLUGIN_FILE), null, CI_VERSION);
 

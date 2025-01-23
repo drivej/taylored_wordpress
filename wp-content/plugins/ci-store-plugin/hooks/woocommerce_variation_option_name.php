@@ -13,4 +13,5 @@ function custom_woocommerce_variation_option_name($name, $term, $attribute, $pro
             }
         }
     }
+    return $name;
 }
