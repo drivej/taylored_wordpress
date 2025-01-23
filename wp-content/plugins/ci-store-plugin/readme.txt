@@ -13,3 +13,5 @@ Updates:
 - Fixed an issue where attributes were not saving to the product
 - Fixed issue where importer was not being triggered
 - added description to variation which shows on PDP
+2025-01-23
+- Fix issue where product attributes are not consistent across variations and require a dummy N/A facet for woo to work

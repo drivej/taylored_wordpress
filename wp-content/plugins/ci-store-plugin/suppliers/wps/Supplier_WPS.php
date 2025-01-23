@@ -426,6 +426,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
                 $woo_product->set_short_description($this->get_short_description(['data' => $product]));
                 $woo_product->set_description($this->get_description(['data' => $product]));
 
+                // primary image
                 $image_file = $product['attachments'][0]['file'] ?? '';
                 $image_id   = $lookup_attachment[$image_file] ?? 0;
                 if ($image_id) {
@@ -492,6 +493,13 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
                 $woo_product->set_short_description($this->get_short_description(['data' => $product]));
                 $woo_product->set_description($this->get_description(['data' => $product]));
 
+                //
+                $variation           = $product['items']['data'][0];
+                // $gallery_attachments = array_map(fn($e) => $e['attachments'],$product['items']['data']);
+                // $gallery_attachments = (is_array($variation['attachments']) && count($variation['attachments']) > 1) ? array_slice($variation['attachments'], 1) : [];
+                
+                $woo_product->set_gallery_image_ids(array_values($lookup_attachment));
+
                 $master_image_id = 0;
                 // $woo_product->set_image_id($lookup_attachment[$product['attachments'][0]['file']]);
 
@@ -511,14 +519,12 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
                 //     $attributes[$attr['slug']] = ['name' => $attr['name'], 'position' => 1, 'values' => []];
                 // }
                 //
-                $product_attributes = $this->process_product_attributes($product);
-                $product_attributes_lookup      = $this->build_attributes_lookup($product_attributes);      // NEW
-                $product_attributes_lookup_slug = array_column($product_attributes, 'slug', 'key');         // NEW
-                $woo_attributes                 = $this->build_woo_product_attributes($product_attributes); // NEW
-                                                                                                            // $woo_product->set_attributes($woo_attributes); // NEW
+                $product_attributes             = $this->process_product_attributes($product);
+                $product_attributes_lookup      = $this->build_attributes_lookup($product_attributes);
+                $product_attributes_lookup_slug = array_column($product_attributes, 'slug', 'key');
+                $woo_attributes                 = $this->build_woo_product_attributes($product_attributes);
 
                 foreach ($product['items']['data'] as &$variation) {
-                    // $this->log('Variation: ' . json_encode(['variation_id' => $variation['id']]));
                     // get variation object
                     $variation_sku       = $this->get_variation_sku($product['id'], $variation['id']);
                     $variation_woo_id    = wc_get_product_id_by_sku($variation_sku);
@@ -534,7 +540,6 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
                     }
                     $woo_variation->update_meta_data('_ci_import_version', $this->import_version);
                     $woo_variation->update_meta_data('_ci_product_sku', $variation['sku']);
-                    
 
                     // add primary variation image
                     $image_file = $variation['attachments'][0]['file'] ?? '';
@@ -557,6 +562,8 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
                     $woo_variation->set_width($variation['width']);
                     $woo_variation->set_height($variation['height']);
                     $woo_variation->set_description($variation['name']);
+                    $woo_variation->set_price($variation['list_price']);
+
                     // taxonomy
                     $category_ids   = [];
                     $term_name      = $variation['product_type'];
@@ -571,17 +578,13 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
                     $variation['category_ids'] = $category_ids;
                     $woo_variation->set_category_ids($category_ids);
 
-                    // $this->log($product['id'] . '::' . $variation['sku'] . ' attachments');
+                    // images
                     $gallery_attachments = array_slice($variation['attachments'], 1);
                     $gallery_ids         = array_map(fn($a) => $lookup_attachment[$a['file']], $gallery_attachments);
                     $woo_variation->set_gallery_image_ids($gallery_ids);
 
                     // using WooCommerce Additional Variation Images
                     $woo_variation->update_meta_data('_wc_additional_variation_images', implode(',', $gallery_ids));
-                    // array_push($all_image_ids, ...$gallery_ids);
-                    // $this->log('gallery_ids=' . json_encode($gallery_ids));
-                    // $woo_variation->set_description($product['description']);
-                    $woo_variation->set_price($variation['list_price']);
 
                     //
                     // START NEW Attributes

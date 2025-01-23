@@ -166,8 +166,6 @@ trait Supplier_WPS_Attributes {
             }
         }
         $attributekey_ids = array_values(array_unique($attributekey_ids));
-        // error_log(json_encode(['attributekey_ids' => $attributekey_ids], JSON_PRETTY_PRINT));
-        // error_log(json_encode(['dummy_attributes' => $dummy_attributes], JSON_PRETTY_PRINT));
 
         // append dummy attributes where necessary
         $log_attribute_error = false;
