@@ -91,7 +91,7 @@ function test_action() {
 
     /** @var Supplier_WPS $supplier */
     $supplier              = WooTools::get_supplier('wps');
-    $product               = $supplier->get_product(381878);
+    $product               = $supplier->get_product(321436);
     $attr = $supplier->process_product_attributes($product['data']);
     return ['attr' => $attr, 'product' => $product];
 

@@ -493,32 +493,16 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
                 $woo_product->set_short_description($this->get_short_description(['data' => $product]));
                 $woo_product->set_description($this->get_description(['data' => $product]));
 
-                //
-                $variation           = $product['items']['data'][0];
-                // $gallery_attachments = array_map(fn($e) => $e['attachments'],$product['items']['data']);
-                // $gallery_attachments = (is_array($variation['attachments']) && count($variation['attachments']) > 1) ? array_slice($variation['attachments'], 1) : [];
-                
-                $woo_product->set_gallery_image_ids(array_values($lookup_attachment));
+                $variation          = $product['items']['data'][0];
+                $master_gallery_ids = [];
 
                 $master_image_id = 0;
-                // $woo_product->set_image_id($lookup_attachment[$product['attachments'][0]['file']]);
 
                 if (! $woo_id) {
                     $woo_id = $woo_product->save();
                 }
 
-                $children = [];
-
-                //
-                // $attributes = ['sku' => ['name' => 'SKU', 'position' => 10, 'values' => []]];
-                // $lookup_attribute_slug = [];
-
-                // $lookup_attribute_slug = $this->get_attributes_from_product(['data' => $product]);
-
-                // foreach ($lookup_attribute_slug as $attr) {
-                //     $attributes[$attr['slug']] = ['name' => $attr['name'], 'position' => 1, 'values' => []];
-                // }
-                //
+                $children                       = [];
                 $product_attributes             = $this->process_product_attributes($product);
                 $product_attributes_lookup      = $this->build_attributes_lookup($product_attributes);
                 $product_attributes_lookup_slug = array_column($product_attributes, 'slug', 'key');
@@ -544,6 +528,10 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
                     // add primary variation image
                     $image_file = $variation['attachments'][0]['file'] ?? '';
                     $image_id   = $lookup_attachment[$image_file] ?? 0;
+                    // collect first image from each variation for the master gallery
+                    if ($image_id) {
+                        $master_gallery_ids[] = $image_id;
+                    }
 
                     if ($image_id) {
                         $woo_variation->set_image_id($image_id);
@@ -586,9 +574,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
                     // using WooCommerce Additional Variation Images
                     $woo_variation->update_meta_data('_wc_additional_variation_images', implode(',', $gallery_ids));
 
-                    //
                     // START NEW Attributes
-                    //
                     // optional for initial cleanup
                     $this->delete_product_attributes($variation_woo_id);
                     // $this->log('product_attributes_lookup' . json_encode($product_attributes_lookup, JSON_PRETTY_PRINT));
@@ -601,62 +587,22 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
                         wp_set_object_terms($variation_woo_id, $term_id, $key, true);
                         $woo_variation->update_meta_data("attribute_{$slug}", $term_value);
                     }
-                    //
                     // END NEW Attributes
-                    //
-
-                    // attributes (OLD)
-                    /*
-                        $variation['variaton_attributes'] = [];
-
-                        foreach ($variation['attributevalues']['data'] as $attributevalue) {
-                        $attr_id = $attributevalue['attributekey_id'];
-                        if (array_key_exists($attr_id, $lookup_attribute_slug)) {
-                        $attr_slug = $lookup_attribute_slug[$attr_id]['slug'];
-                        $attributes[$attr_slug]['values'][] = $attributevalue['name'];
-                        $woo_variation->update_meta_data("attribute_{$attr_slug}", $attributevalue['name'], true);
-                        $variation['variaton_attributes']["attribute_{$attr_slug}"] = $attributevalue['name'];
-                        }
-                        }
-                         */
-
-                    // TODO: make attributes global
 
                     // manually add SKU attribute
                     $woo_variation->update_meta_data('attribute_sku', $variation['sku'], true);
-                    // $attributes['sku']['values'][] = $variation['sku'];
-
-                    $variation_woo_id = $woo_variation->save();
-                    // $this->log($product['id'] . '::' . $variation['sku'] . ' save');
-
+                    $variation_woo_id     = $woo_variation->save();
                     $variation['woo_id']  = $variation_woo_id;
                     $variation['woo_sku'] = $variation_sku;
                     $children[]           = $variation_woo_id;
 
                 }
-                // create attributes object for parent
-                /*
-                $attrs = [];
-                foreach ($attributes as $attr_key => &$attribute) {
-                $attribute['values'] = array_values(array_unique($attribute['values']));
-                if (count($attribute['values']) === 1) {
-                continue;
-                }
-                $attr = new WC_Product_Attribute();
-                $attr->set_name($attribute['name']);
-                $attr->set_options($attribute['values']);
-                $attr->set_visible(1);
-                $attr->set_variation(1);
-                $attr->set_position($attribute['position']);
-                $attrs[$attr_key] = $attr;
-                }
-                $woo_product->set_attributes($attrs);
-                 */
+
+                $woo_product->set_gallery_image_ids($master_gallery_ids);
                 $woo_product->set_attributes($woo_attributes);
                 $woo_product->set_children($children);
                 $woo_product->save();
                 $product['woo_id'] = $woo_id;
-                // $product['attributes'] = $attributes;
             }
         }
 
