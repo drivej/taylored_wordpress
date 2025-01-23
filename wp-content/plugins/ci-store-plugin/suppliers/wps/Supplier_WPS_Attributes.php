@@ -284,20 +284,23 @@ trait Supplier_WPS_Attributes {
             $this->preprocess_attribute($attribute);
         }
         // $this->log(json_encode($attribute, JSON_PRETTY_PRINT));
-        // return $attributes;
 
-        foreach ($product['items']['data'] as $item) {
-            foreach ($item['attributevalues']['data'] as $attributevalue) {
-                if (array_key_exists('attributekey_id', $attributevalue)) {
-                    $attr_id = $attributevalue['attributekey_id'];
-                    if (array_key_exists($attr_id, $lookup_attribute_slug)) {
-                        if (! in_array($attributevalue['name'], $lookup_attribute_slug[$attr_id]['values'])) {
-                            $lookup_attribute_slug[$attr_id]['values'][] = $attributevalue['name'];
-                        }
-                    }
-                }
-            }
-        }
+        // foreach ($product['items']['data'] as $item) {
+        //     foreach ($item['attributevalues']['data'] as $attributevalue) {
+        //         // Ensure 'attributekey_id' exists in the current attribute value
+        //         if (isset($attributevalue['attributekey_id'])) {
+        //             $attr_id = $attributevalue['attributekey_id'];
+        
+        //             // Check if the attribute key exists in the lookup array
+        //             if (isset($lookup_attribute_slug[$attr_id])) {
+        //                 // Avoid duplicates by checking before adding
+        //                 if (!in_array($attributevalue['name'], $lookup_attribute_slug[$attr_id]['values'], true)) {
+        //                     $lookup_attribute_slug[$attr_id]['values'][] = $attributevalue['name'];
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
         // check if we need the sku facet
         // does each variation have a unique facet arrangement
