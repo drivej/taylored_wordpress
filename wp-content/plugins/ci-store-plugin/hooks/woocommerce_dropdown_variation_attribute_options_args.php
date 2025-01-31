@@ -1,100 +1,31 @@
 <?php
 namespace CIStore\Hooks;
 
-// sort sizes
-function custom_woocommerce_dropdown_variation_attribute_options_args($args) {
+// TODO: why doesn't the Attribute Admin allow us to organize these? Is there a flag?
+
+// This enforces the order that the attributes appear in the attribute manager page
+// to change the order, do it in Woo admin!
+
+function custom_woocommerce_dropdown_variation_attribute_options_args($args)
+{
     if ($args['attribute'] === "Size") {
+        $attribute_name = 'pa_size';
 
-        $custom_order = [
-            'One Size Fits Most',
-            'Infant',
-            'Child',
-            'Youth',
-            'Youth 01',
-            'Youth 10',
-            'Youth 11',
-            'Youth 12',
-            'Youth 13',
-            'Youth Small',
-            'Youth Small - Large',
-            'Youth Small - Medium',
-            'Youth Medium',
-            'Youth Medium - Large',
-            'Youth Large',
-            'Youth Large - Adult Small',
-            'Youth Large - X-Large',
-            'Youth X-Large',
-            '2X-Small',
-            '2X-Small Tall',
-            '2X-Small - X-Small',
-            'X-Small',
-            'X-Small - Medium',
-            'X-Small - Large',
-            'X-Small Tall',
-            'X-Small - Small',
-            'Small',
-            'Small - Medium',
-            'Small - Large',
-            'Medium',
-            'Medium - Large',
-            'Medium Tall',
-            'Medium - Large Tall',
-            'Medium - X-Large',
-            'Medium - 2X-Large',
-            'Large',
-            'Large - 2X-Large',
-            'Large - X-Large',
-            'Large Tall',
-            'X-Large',
-            'X-Large Tall',
-            '1X-Large', //
-            'X-Large - 2X-Large',
-            '2X-Large',
-            '2X-Large - 3X-Large',
-            '2X-Large Tall',
-            '3X-Large',
-            '3X-Large Tall',
-            'X-Large - 4X-Large',
-            '4X-Large',
-            '4X-Large - 5X-Large',
-            '4X-Large Tall',
-            '5X-Large',
-            '5X-Large Tall',
-            'US 01',
-            'US 02',
-            'US 03',
-            'US 04',
-            'US 05',
-            'US 06',
-            'US 07',
-            'US 07/08',
-            'US 08',
-            'US 09',
-            'US 09/10',
-            'US 10',
-            'US 11',
-            'US 12',
-            'US 13',
-            'US 14',
-            'US 15',
-            'US 16',
-            'US 30',
-            'US 32',
-            'US 32 Tall',
-            'US 34',
-            'US 34 Tall',
-            'US 36',
-            'US 36 Tall',
-            'US 38',
-            'US 38 Tall',
-            'US 40',
-            'US 40 Tall',
-            'US 42',
-        ];
+        // Check if the attribute is a taxonomy (global attribute)
+        if (taxonomy_exists($attribute_name)) {
+            $terms = get_terms([
+                'taxonomy'   => $attribute_name,
+                'orderby'    => 'menu_order', // Ensure menu order is respected
+                'hide_empty' => false,        // Include all terms, even if not used
+            ]);
 
-        usort($args['options'], function ($a, $b) use ($custom_order) {
-            return array_search($a, $custom_order) - array_search($b, $custom_order);
-        });
+            $custom_order = array_map(fn($t) => $t->name, $terms);
+
+            usort($args['options'], function ($a, $b) use ($custom_order) {
+                return array_search($a, $custom_order) - array_search($b, $custom_order);
+            });
+        }
     }
+
     return $args;
 }

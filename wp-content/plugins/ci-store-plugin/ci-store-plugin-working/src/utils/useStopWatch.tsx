@@ -2,13 +2,12 @@ import { useEffect, useState } from 'react';
 
 export const useStopWatch = () => {
   const [isRunning, setIsRunning] = useState(false);
-  const [offsetSeconds, setOffsetSeconds] = useState(0);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [startTime, setStartTime] = useState(Date.now());
 
   useEffect(() => {
     const onTick = () => {
-      setElapsedSeconds(offsetSeconds + (Date.now() - startTime) / 1000);
+      setElapsedSeconds((Date.now() - startTime) / 1000);
     };
     onTick();
 

@@ -5,13 +5,9 @@ import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { RouterProvider, createHashRouter } from 'react-router-dom';
-import { ImportPage } from './ImportPage';
 import { LogsPage } from './LogsPage';
 import { MiscPage } from './MiscPage';
-import { MonkeyWrenchPage } from './MonkeyWrench';
 import { ProductsPage } from './ProductsPage';
-import { StockPage } from './StockPage';
-import { TaskPage } from './TaskPage';
 import { UtilitiesRoot } from './UtilitiesRoot';
 
 const router = createHashRouter([
@@ -20,14 +16,10 @@ const router = createHashRouter([
     element: <UtilitiesRoot />,
     errorElement: <div>Error</div>,
     children: [
-      {
-        path: 'import',
-        element: <ImportPage />
-      },
-      {
-        path: 'monkeywrench',
-        element: <MonkeyWrenchPage />
-      },
+      // {
+      //   path: 'monkeywrench',
+      //   element: <MonkeyWrenchPage />
+      // },
       {
         path: 'products',
         element: <ProductsPage />
@@ -40,14 +32,14 @@ const router = createHashRouter([
         path: 'logs',
         element: <LogsPage />
       },
-      {
-        path: 'tasks',
-        element: <TaskPage />
-      },
-      {
-        path: 'stock',
-        element: <StockPage />
-      }
+      // {
+      //   path: 'tasks',
+      //   element: <TaskPage />
+      // },
+      // {
+      //   path: 'stock',
+      //   element: <StockPage />
+      // }
     ]
   }
 ]);

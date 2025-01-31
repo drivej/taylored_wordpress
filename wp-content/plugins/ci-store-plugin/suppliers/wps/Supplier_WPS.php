@@ -21,6 +21,8 @@ https://www.wps-inc.com/data-depot/v4/api/introduction
 
  */
 
+use function CIStore\Suppliers\get_supplier_import_version;
+
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/Supplier.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_API.php';
@@ -29,35 +31,39 @@ include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Data.p
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Taxonomy.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_ImportManager.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Attributes.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Update.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Timer.php';
 
-class Supplier_WPS extends CIStore\Suppliers\Supplier {
+class Supplier_WPS extends CIStore\Suppliers\Supplier
+{
     use Supplier_WPS_API;
     use Supplier_WPS_Brands;
     use Supplier_WPS_Data;
     use Supplier_WPS_Taxonomy;
     use Supplier_WPS_ImportManager;
     use Supplier_WPS_Attributes;
+    use Supplier_WPS_Update;
     /**
      * The single instance of the class.
      *
      * @var Supplier_WPS
-     * @since 2.1
      */
     protected static $_instance = null;
     public WPSImportManager $importer;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct([
             'key'            => 'wps',
             'name'           => 'Western Power Sports',
             'supplierClass'  => 'WooDropship\\Suppliers\\Western',
-            'import_version' => '0.6',
+            'import_version' => get_supplier_import_version('wps'),
         ]);
         $this->importer = $this->get_importer();
     }
 
-    public static function instance() {
+    public static function instance()
+    {
         if (is_null(self::$_instance)) {
             self::$_instance = new self();
             // self::$_instance->log('Supplier_WPS::instance()');
@@ -65,19 +71,27 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
         return self::$_instance;
     }
 
-    public static function build_western_image_url($img, $size = 200) {
+    public static function build_western_image_url($img, $size = 200)
+    {
         if (! isset($img)) {
             return '';
         }
         return implode('', ['https://', $img['domain'], $img['path'], $size . '_max', '/', $img['filename']]);
     }
 
-    public function isValidItem($item) {
+    public function isValidItem($item)
+    {
         $status_ids = ['DIR', 'NEW', 'STK'];
         return in_array($item['status_id'], $status_ids);
     }
 
-    public function isValidProduct($supplier_product) {
+    public function should_update_product()
+    {
+        return false;
+    }
+
+    public function isValidProduct($supplier_product)
+    {
         if (! count($supplier_product['items']['data'] ?? [])) {
             return false;
         }
@@ -88,124 +102,57 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
         return true;
     }
 
-    public function update_plp_product($woo_product) {
-        // $this->log('wps->update_plp_product(' . $woo_product->get_id() . ')');
-        // don't include check here!!
-        /*
-        $should_update = $this->should_update_pdp_product($woo_product);
-        return ['should_update' => $should_update];
-
-        $update_plp = $woo_product->get_meta('_ci_update_plp', true);
-        $should_update = !(bool) $update_plp;
-
-        if ($update_plp) {
-        $age = $update_plp ? WooTools::get_age($update_plp, 'hours') : 99999;
-        $max_age = 0;//24 * 7;
-        $should_update = $age > $max_age;
-        }
-        $sku = $woo_product->get_sku();
-         */
-
-        // $needs_update = $this->product_needs_update($woo_product);
-        // $has_images = WooTools::has_images($woo_product);
-
-        // if ($should_update) {
-        // TODO: check if product exists
-        $timer = new Timer();
-        // $product_id = $woo_product->get_id();
-        $supplier_product_id = $woo_product->get_meta('_ci_product_id', true);
-        $supplier_product    = $this->get_product($supplier_product_id);
-        $is_available        = $this->is_available($supplier_product);
-
-        if (! $is_available) {
-            $woo_product->delete();
-            // return true;
-        } else {
-
-            // $this->update_product_images($woo_product, $supplier_product);
-            $items = ['data' => [$supplier_product['data']]];
-            $this->process_items_native($items);
-            $woo_product->update_meta_data('_ci_update_plp', gmdate("c"));
-            // $this->import_product($supplier_product_id);
-            // $woo_id = $woo_product->get_id();
-            // $woo_product->update_meta_data('_last_updated', gmdate("c"));
-            // update_post_meta($woo_id, '_last_updated', gmdate("c"));
-            // update_post_meta($woo_id, '_ci_update_plp', gmdate("c"));
-            // clean_post_cache($product_id);
-            // return true;
-        }
-        // clean_post_cache($product_id);
-        $exe_time = $timer->lap();
-        // $this->log('update_plp_product(' . $woo_product->get_id() . ') ' . $exe_time);
-        // }
-        // return false;
-    }
-
-    public function update_pdp_product($woo_product) {
-        if (is_string($woo_product) || is_numeric($woo_product)) {
-            $woo_product = wc_get_product($woo_product);
-            if (! $woo_product) {
-                return ['error' => 'Invalid ID'];
-            }
-        }
-
-        $timer               = new Timer();
-        $supplier_product_id = $woo_product->get_meta('_ci_product_id', true);
-        $supplier_product    = $this->get_product($supplier_product_id);
-        $is_available        = $this->is_available($supplier_product);
-        $message             = '';
-
-        if (! $is_available) {
-            $woo_product->delete();
-            $message = 'Product Deleted';
-        } else {
-            $this->import_product($supplier_product_id);
-            $woo_product->update_meta_data('_ci_update_pdp', gmdate("c"));
-            $woo_product->get_meta_data('_ci_update_pdp', gmdate("c"));
-            // $result = $this->import_product($supplier_product_id);
-            // $product_id = $woo_product->get_id();
-            // update_post_meta($product_id, '_last_updated', gmdate("c"));
-            $message = 'Product Updated';
-        }
-        $exe_time = $timer->lap();
-        return ['message' => $message, 'exe_time' => $exe_time];
-        // clean_post_cache($product_id);
-        // return $result;
-        // }
-        // $age = WooTools::get_product_age($woo_product);
-        // return ['updated' => false, 'age' => $age, 'reason' => 'does not need update'];
-    }
-
-    public function import_product($supplier_product_id) {
-        $this->log('import_product(' . $supplier_product_id . ')');
+    public function import_product($supplier_product_id)
+    {
+        // $this->log(__FUNCTION__, $supplier_product_id);
         $supplier_product = $this->get_product($supplier_product_id);
         if (array_key_exists('error', $supplier_product)) {
             return $supplier_product;
         }
         $items = ['data' => [$supplier_product['data']]];
         $items = $this->process_items_native($items);
+        // $this->log(__FUNCTION__, 'END', $supplier_product_id);
         return $items;
     }
 
-    public function import_products_page($cursor = '', $updated_at = null) {
+    public function import_products_page($cursor = '', $updated_at = null)
+    {
+        $timer      = new Timer();
         $updated_at = $updated_at ?? $this->default_updated_at;
         $items      = $this->get_products_page($cursor, 'pdp', $updated_at);
-        // $ids        = array_map(fn($item) => $item['id'], $items['data'] ?? []);
-        $count = is_countable($items['data']) ? count($items['data']) : 0;
-        $this->log("import_products_page('$cursor', '$updated_at') " . $count);
-        // $this->log(json_encode($items));
-        $items = $this->process_items_native($items);
+        $is_valid   = isset($items['data']) && is_countable($items['data']) && count($items['data']);
+        $count      = $is_valid ? count($items['data']) : 0;
+        $timer_api  = $timer->lap();
+
+        if ($is_valid) {
+            $items         = $this->process_items_native($items);
+            $timer_process = $timer->lap();
+        }
+
+        $timer_all = $timer_api + $timer_process;
+        $this->log(__FUNCTION__, json_encode([
+            'is_valid'   => $is_valid,
+            'cursor'     => $cursor,
+            'updated_at' => $updated_at,
+            'count'      => $count,
+            'all'        => $timer_all,
+            'api'        => $timer_api,
+            'process'    => $timer_process,
+            'item'       => $count ? floor($timer_all / $count) : -1,
+        ]));
         return $items;
     }
 
-    public function patch_products_page($cursor = '', $updated_at = null, $patch = '') {
+    public function patch_products_page($cursor = '', $updated_at = null, $patch = '')
+    {
         $updated_at = $updated_at ?? $this->default_updated_at;
         $items      = $this->get_products_page($cursor, 'price', $updated_at);
         $items      = $this->patch_products_sku($items);
         return $items;
     }
 
-    public function patch_products_sku($items) {
+    public function patch_products_sku($items)
+    {
         foreach ($items['data'] as &$product) {
             // get product object
             $sku                = $this->get_product_sku($product['id']);
@@ -256,19 +203,26 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
         return $items;
     }
 
-    private function convert_image_to_attachment_data($image) {
+    private function convert_image_to_attachment_data($image, $caption)
+    {
         // convert WPS image object to attachment format
         $size = WooTools::clamp_image_size($image['width'], $image['height'], 500);
 
+        // TODO: caption/title data added to images in case we need to show which product is related
         return [
-            "width"    => $size['width'],
-            "height"   => $size['height'],
-            "file"     => $this->build_western_image_url($image, 500),
-            "filesize" => $image['size'],
+            "width"      => $size['width'],
+            "height"     => $size['height'],
+            "file"       => $this->build_western_image_url($image, 500),
+            "filesize"   => $image['size'],
+            "image_meta" => [
+                "caption" => $caption,
+                "title"   => $caption,
+            ],
         ];
     }
 
-    public function getValidItems($product) {
+    public function getValidItems($product)
+    {
         // checks for stock availability flags
         $valid_items = array_filter($product['items']['data'], [$this, 'isValidItem']);
         // Begin: WTF - Sometimes, we get multiple items with the same frickin' id and sku. Seriously.
@@ -282,7 +236,14 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
 
     // import page of products from API
     // native means it uses wp and wc function instead of direct database calls
-    public function process_items_native($items) {
+    public function process_items_native($items)
+    {
+        // validate arguments
+        $is_valid = isset($items['data']) && is_countable($items['data']) && count($items['data']);
+        if (! $is_valid) {
+            return $items;
+        }
+
         // $this->log('process_items_native() '.count($items['data']));
         $timer = new Timer();
 
@@ -299,7 +260,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
                 if ($this->isValidItem($variation)) {
                     $variation['attachments'] = [];
                     foreach ($variation['images']['data'] as $image) {
-                        $image_attachment           = $this->convert_image_to_attachment_data($image);
+                        $image_attachment           = $this->convert_image_to_attachment_data($image, $variation['name'] . ' (' . $variation['sku'] . ')');
                         $variation['attachments'][] = $image_attachment;
                         $product['attachments'][]   = $image_attachment;
                         $attachments[]              = $image_attachment;
@@ -404,20 +365,14 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
                     try {
                         $woo_product->set_sku($sku);
                     } catch (Exception $e) {
-                        $this->log('!------ERROR------!');
-                        $this->log('set_sku("' . $sku . '") supplier.id=' . $product['id']);
-                        $this->log('Exception: ' . $e->getMessage());
-                        $this->log('Code: ' . $e->getCode());
-                        $this->log('File: ' . $e->getFile());
-                        $this->log('Line: ' . $e->getLine());
-                        $this->log('Stack trace: ' . $e->getTraceAsString());
+                        WooTools::log_exception($e, $this, ['msg' => 'simple product set_sku error', 'supplier_id' => $product['id']]);
                         continue;
                     }
                     $woo_product->update_meta_data('_supplier_class', $this->supplierClass);
                     $woo_product->update_meta_data('_ci_product_id', $product['id']);
                     $woo_product->update_meta_data('_ci_supplier_key', $this->key);
-                    $woo_product->update_meta_data('_ci_import_version', $this->import_version);
                 }
+                $woo_product->update_meta_data('_ci_import_version', $this->import_version);
                 $woo_product->update_meta_data('_ci_import_timestamp', gmdate("c"));
                 $woo_product->update_meta_data('_ci_update_plp', gmdate("c"));
                 $woo_product->update_meta_data('_ci_update_pdp', gmdate("c"));
@@ -467,13 +422,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
                     try {
                         $woo_product->set_sku($sku);
                     } catch (Exception $e) {
-                        $this->log('!------ERROR------!');
-                        $this->log('set_sku("' . $sku . '") supplier.id=' . $product['id']);
-                        $this->log('Exception: ' . $e->getMessage());
-                        $this->log('Code: ' . $e->getCode());
-                        $this->log('File: ' . $e->getFile());
-                        $this->log('Line: ' . $e->getLine());
-                        $this->log('Stack trace: ' . $e->getTraceAsString());
+                        WooTools::log_exception($e, $this, ['msg' => 'variable product set_sku error', 'supplier_id' => $product['id']]);
                         continue;
                     }
                     $woo_product->update_meta_data('_supplier_class', $this->supplierClass);
@@ -549,7 +498,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
                     $woo_variation->set_length($variation['length']);
                     $woo_variation->set_width($variation['width']);
                     $woo_variation->set_height($variation['height']);
-                    $woo_variation->set_description($variation['name']);
+                    $woo_variation->set_description($variation['name']); //  this is what shows when variation is selected
                     $woo_variation->set_price($variation['list_price']);
 
                     // taxonomy
@@ -611,7 +560,8 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
         return $items;
     }
 
-    public function get_description($supplier_product) {
+    public function get_description($supplier_product)
+    {
         $htm = [];
         if (isset($supplier_product['data']['description'])) {
             $htm[] = '<p>' . $supplier_product['data']['description'] . '</p>';
@@ -619,21 +569,53 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
         if (isset($supplier_product['data']['features']['data'])) {
             $htm[] = '<ul>';
             foreach ($supplier_product['data']['features']['data'] as $feature) {
-                $htm[] = '<li>' . $feature['name'] . '</li>';
+                // some have a bullet already added - remove it
+                $text  = trim(ltrim(trim($feature['name']), "•"));
+                $htm[] = '<li>' . $text . '</li>';
             }
             $htm[] = '<ul>';
         }
         return implode('', $htm);
     }
 
-    public function get_short_description($supplier_product) {
+    public function get_short_description($supplier_product)
+    {
+        $desc = '';
+        if (isset($supplier_product['data']['description'])) {
+            $desc = $supplier_product['data']['description'];
+        }
+
+        // Simple products can sometimes be variable products with 1 item available.
+        // In this case, the size and color is missing from the description. So we need to add it.
+        if (isset($supplier_product['data']['items']['data']) && count($supplier_product['data']['items']['data']) === 1) {
+            // TODO: single product: add attributes to description
+            $attrs  = $this->get_attributes_from_product($supplier_product['data']);
+            $vals   = $supplier_product['data']['items']['data'][0]['attributevalues']['data'];
+            $result = [];
+            if ($desc) {
+                $result[] = "<p>{$desc}</p>";
+            }
+            $approved_attribute_slugs = ['color', 'size'];
+            foreach ($vals as $val) {
+                if (isset($attrs[$val['attributekey_id']])) {
+                    $attr = $attrs[$val['attributekey_id']];
+                    if (in_array($attr['slug'], $approved_attribute_slugs)) {
+                        $attr_name  = $attrs[$val['attributekey_id']]['name'];
+                        $attr_value = $val['name'];
+                        $result[]   = "<li>{$attr_name}: {$attr_value}</li>";
+                    }
+                }
+            }
+            return implode('', $result);
+        }
         if (isset($supplier_product['data']['description'])) {
             return $supplier_product['data']['description'];
         }
         return '';
     }
 
-    public function is_available($supplier_product) {
+    public function is_available($supplier_product)
+    {
         if (isset($supplier_product['status_code']) && $supplier_product['status_code'] === 404) {
             return false;
         }
@@ -645,7 +627,8 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
         return false;
     }
 
-    public function get_stock_status($product_id) {
+    public function get_stock_status($product_id)
+    {
         // $status = 'instock';
         $supplier_product = self::get_product($product_id, 'stock');
         return self::extract_stock_status($supplier_product);
@@ -660,7 +643,8 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
         // return $status;
     }
 
-    public function extract_stock_status($supplier_product) {
+    public function extract_stock_status($supplier_product)
+    {
         $status = 'instock';
 
         if ($supplier_product['status_code'] === '404' || isset($supplier_product['error'])) {
@@ -676,7 +660,8 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier {
         return $status;
     }
 
-    public function resize_image($src, $width = 200) {
+    public function resize_image($src, $width = 200)
+    {
         // https://www.wps-inc.com/data-depot/v4/api/services/images
         // 200_max, 500_max, 1000_max, full
         $size_str = '200_max';

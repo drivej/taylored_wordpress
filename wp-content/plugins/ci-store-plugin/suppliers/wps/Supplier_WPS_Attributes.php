@@ -6,14 +6,32 @@
 3. "pa_type" is a reserved term so we need to change it to "pa_item_type". See: https://codex.wordpress.org/Reserved_Terms
 
  */
-trait Supplier_WPS_Attributes {
-    public function get_attributes_from_product_id($supplier_product_id) {
+trait Supplier_WPS_Attributes
+{
+    public function get_attributes_from_product_id($supplier_product_id)
+    {
         $supplier_product = $this->get_product($supplier_product_id);
         // return $supplier_product;
         return $this->get_attributes_from_product($supplier_product);
     }
     // this is specific to WPS because the attribute names are not returned with the API call
-    public function get_attributes_from_product($supplier_product) {
+    public function get_attributes_from_product($supplier_product)
+    {
+        /*
+
+        returns an object with ID as key:
+
+         {
+            “15”: {
+                “name”: “Color”,
+                “slug”: “color”
+            },
+            “13”: {
+                “name”: “Size”,
+                “slug”: “size”
+            }
+        }
+        */
         // $this->log('get_attributes_from_product()');
         $wps_attributekeys         = get_option('wps_attributekeys', []);
         $wps_attributekeys_updated = false;
@@ -81,7 +99,7 @@ trait Supplier_WPS_Attributes {
                         }
                     }
                 } else {
-                    $this->log('wps:get_attributes_from_product() Warning ' . json_encode($res, JSON_PRETTY_PRINT));
+                    $this->log('WARNING: wps:get_attributes_from_product()', $res);
                 }
                 if (is_array($res['data'])) {
                     array_push($data, ...$res['data']);
@@ -110,7 +128,8 @@ trait Supplier_WPS_Attributes {
 
     private $__lookup_global_attribute_id = [];
 
-    public function upsert_global_attribute_id_by_name($attribute_name) {
+    public function upsert_global_attribute_id_by_name($attribute_name)
+    {
         // $this->log('upsert_global_attribute_id_by_name() ' . $attribute_name . ' esc:' . esc_html($attribute_name));
         if (array_key_exists(esc_html($attribute_name), $this->__lookup_global_attribute_id)) {
             // $this->log(json_encode($this->__lookup_global_attribute_id[esc_html($attribute_name)]));
@@ -141,7 +160,8 @@ trait Supplier_WPS_Attributes {
         return $attribute_id;
     }
 
-    public function process_product_attributes(&$product) {
+    public function process_product_attributes(&$product)
+    {
         // $this->log('process_product_attributes()');
         // extract attributes from product. If they aren't loaded, make an API to WPS call to get them
         // this returns an array where the key is the "attributekey_id" from WPS
@@ -176,11 +196,12 @@ trait Supplier_WPS_Attributes {
                 foreach ($dif as $attributekey_id) {
                     $product['items']['data'][$i]['attributevalues']['data'][] = $dummy_attributes[$attributekey_id];
                 }
-                $log_attribute_error = true;
+                // $log_attribute_error = true;
             }
         }
         if ($log_attribute_error) {
-            error_log('product ' . $product['id'] . ' has inconsistent attributes');
+            // track which products have ridiculous attributes
+            $this->log(__FUNCTION__, 'product ' . $product['id'] . ' has inconsistent attributes');
         }
 
         // This code processes a product's attribute values to identify and handle duplicate attributes
@@ -288,7 +309,7 @@ trait Supplier_WPS_Attributes {
         //         // Ensure 'attributekey_id' exists in the current attribute value
         //         if (isset($attributevalue['attributekey_id'])) {
         //             $attr_id = $attributevalue['attributekey_id'];
-        
+
         //             // Check if the attribute key exists in the lookup array
         //             if (isset($lookup_attribute_slug[$attr_id])) {
         //                 // Avoid duplicates by checking before adding
@@ -342,7 +363,8 @@ trait Supplier_WPS_Attributes {
     //     ],
     // ];
     // create/select the taxonomy and return the data
-    public function preprocess_attribute(&$attr) {
+    public function preprocess_attribute(&$attr)
+    {
         // $this->log('preprocess_attribute()');
 
         if (strtolower($attr['name']) === 'type') {
@@ -395,7 +417,8 @@ trait Supplier_WPS_Attributes {
         }
     }
 
-    public function process_varition_attributes($variation, $product_attributes_lookup) {
+    public function process_varition_attributes($variation, $product_attributes_lookup)
+    {
         // $this->log('process_varition_attributes() ' . $variation['id']);
         // $this->log(json_encode($product_attributes_lookup, JSON_PRETTY_PRINT));
         // $this->log(json_encode($variation['attributevalues']['data'], JSON_PRETTY_PRINT));
@@ -421,7 +444,8 @@ trait Supplier_WPS_Attributes {
         return $attributes;
     }
 
-    public function build_attributes_lookup($product_attributes) {
+    public function build_attributes_lookup($product_attributes)
+    {
         $lookup = [];
         foreach ($product_attributes as $i => $attr) {
             $attr['lookup_value']  = array_column($attr['values'], 'id', 'name');
@@ -430,14 +454,15 @@ trait Supplier_WPS_Attributes {
         return $lookup;
     }
 
-    public function build_woo_product_attributes($product_attributes) {
+    public function build_woo_product_attributes($product_attributes)
+    {
         // $this->log('build_woo_product_attributes()');
         $woo_attributes = [];
         foreach ($product_attributes as $i => $attribute) {
             $values = $attribute['values'];
 
             if (! array_key_exists('key', $attribute)) {
-                $this->log('build_woo_product_attributes() No Key ' . json_encode($product_attributes, JSON_PRETTY_PRINT));
+                $this->log('build_woo_product_attributes() No Key ', $product_attributes);
             }
             // if (count($values) > 1) {
             $attr = new WC_Product_Attribute();
@@ -452,7 +477,8 @@ trait Supplier_WPS_Attributes {
         return $woo_attributes;
     }
 
-    public function delete_product_attributes($post_id) {
+    public function delete_product_attributes($post_id)
+    {
         global $wpdb;
 
         $wpdb->query(

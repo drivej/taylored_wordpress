@@ -11503,15 +11503,10 @@ const useTotalRemoteProducts = (supplier_key) => {
 
 ;// CONCATENATED MODULE: ./src/utils/formatDuration.ts
 function formatDuration(seconds) {
-    var date = new Date(0);
+    const date = new Date(0);
     if (seconds)
         date.setSeconds(~~seconds); // specify value for SECONDS here
     return date.toISOString().substring(11, 19);
-    //   if (isNaN(seconds)) return '';
-    //   seconds = Math.round(seconds);
-    //   const m = Math.floor(seconds / 60);
-    //   const s = seconds % 60;
-    //   return `${m}:${('0' + s).slice(-2)}`;
 }
 function formatDate(d) {
     return d.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
@@ -11540,32 +11535,6 @@ function formatTimeAgo(seconds) {
     return '<1 min ago';
 }
 
-;// CONCATENATED MODULE: ./src/utils/datestamp.ts
-
-function datestamp() {
-    let dateObj = new Date();
-    let month = dateObj.getUTCMonth() + 1; //months from 1-12
-    let day = dateObj.getUTCDate();
-    let year = dateObj.getUTCFullYear();
-    return [year, month, day].join('-');
-}
-function parseDate(s) {
-    return new Date(Date.parse(s));
-}
-function dateAge(s) {
-    try {
-        const d = new Date(Date.parse(s));
-        const dif = Date.now() - d.getTime();
-        return dif / 1000;
-    }
-    catch (err) {
-        return 0;
-    }
-}
-function since(s) {
-    return formatDuration(dateAge(s));
-}
-
 ;// CONCATENATED MODULE: ./src/utils/timeago.ts
 const MN = 0;
 const MM = 60 * 1000;
@@ -11592,6 +11561,48 @@ const timeago = (date, epochs = defaultEpochs) => {
         return func(Math.round(abs / Math.max(1, e.min)));
     }
     return 'now';
+};
+
+;// CONCATENATED MODULE: ./src/utils/useStopWatch.tsx
+
+const useStopWatch = () => {
+    const [isRunning, setIsRunning] = (0,react.useState)(false);
+    const [elapsedSeconds, setElapsedSeconds] = (0,react.useState)(0);
+    const [startTime, setStartTime] = (0,react.useState)(Date.now());
+    (0,react.useEffect)(() => {
+        const onTick = () => {
+            setElapsedSeconds((Date.now() - startTime) / 1000);
+        };
+        onTick();
+        if (isRunning) {
+            const timer = setInterval(onTick, 1000);
+            return () => {
+                clearInterval(timer);
+            };
+        }
+    }, [startTime, isRunning]);
+    const start = (t = Date.now()) => {
+        setStartTime(t);
+        setIsRunning(true);
+    };
+    const pause = () => {
+        setIsRunning(false);
+    };
+    const resume = () => {
+        setIsRunning(true);
+    };
+    const reset = () => {
+        setStartTime(Date.now());
+    };
+    return {
+        isRunning,
+        setStartTime,
+        elapsedSeconds,
+        pause,
+        resume,
+        start,
+        reset
+    };
 };
 
 ;// CONCATENATED MODULE: ./src/components/ImporterLogs.tsx
@@ -11656,6 +11667,7 @@ var SupplierImportStatus_awaiter = (undefined && undefined.__awaiter) || functio
 
 
 
+
 const SupplierImportStatusPage = ({ supplier_key }) => {
     const suppliers = useSuppliers();
     const supplier = suppliers.isSuccess ? suppliers.data.find((s) => s.key === supplier_key) : null;
@@ -11670,8 +11682,7 @@ const SupplierImportStatusPage = ({ supplier_key }) => {
     return react.createElement(LoadingPage, null);
 };
 const SupplierImportStatus = ({ supplier }) => {
-    var _a, _b, _c, _d, _e, _f;
-    const queryClient = useQueryClient();
+    var _a, _b, _c, _d, _e;
     const totalProducts = useTotalProducts(supplier.key);
     const totalRemoteProducts = useTotalRemoteProducts(supplier.key);
     const query = {
@@ -11681,18 +11692,33 @@ const SupplierImportStatus = ({ supplier }) => {
         func: 'get_import_info',
         func_group: 'importer'
     };
+    // const query2: ISupplierActionQuery = {
+    //   action: 'ci_api_handler', //
+    //   cmd: 'supplier_action',
+    //   supplier_key: supplier.key,
+    //   func: 'get_hooks_status',
+    //   func_group: 'importer'
+    // };
     const [refetchInterval, setRefetchInterval] = (0,react.useState)(60000);
     const dataPoll = useWordpressAjax(query, { refetchInterval });
+    // const dataPoll2 = useWordpressAjax<IImportStatus>(query2, { refetchInterval });
     const [importInfo, setImportInfo] = (0,react.useState)({ status: 0 });
+    const [estimatedTime, setEstimatedTime] = (0,react.useState)(0);
+    const stopwatch = useStopWatch();
     (0,react.useEffect)(() => {
         setImportInfo(dataPoll.data);
     }, [dataPoll.data]);
     (0,react.useEffect)(() => {
         if (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) {
             setRefetchInterval(10000);
+            if (typeof (importInfo === null || importInfo === void 0 ? void 0 : importInfo.started) === 'string') {
+                const start_date = Date.parse(importInfo.started);
+                stopwatch.start(start_date);
+            }
         }
         else {
             setRefetchInterval(60000);
+            stopwatch.pause();
         }
     }, [importInfo]);
     const refresh = () => {
@@ -11722,9 +11748,9 @@ const SupplierImportStatus = ({ supplier }) => {
     const rerunImport = () => {
         supplierAction.mutate({ func: 'rerun' }, { onSettled: setImportInfo });
     };
-    const autoImportImport = () => {
-        supplierAction.mutate({ func: 'auto_import' }, { onSettled: refresh });
-    };
+    // const autoImportImport = () => {
+    //   supplierAction.mutate({ func: 'auto_import' }, { onSettled: refresh });
+    // };
     const [nextImport, setNextImport] = (0,react.useState)('');
     const getNextImportTime = () => SupplierImportStatus_awaiter(void 0, void 0, void 0, function* () {
         const res = yield fetchWordpressAjax(Object.assign(Object.assign({}, query), { func: 'get_next_import_time' }));
@@ -11735,7 +11761,7 @@ const SupplierImportStatus = ({ supplier }) => {
             setNextImport(res.data);
         }
     });
-    react.useEffect(() => {
+    (0,react.useEffect)(() => {
         getNextImportTime();
     }, []);
     const createScheduledImport = () => {
@@ -11752,34 +11778,46 @@ const SupplierImportStatus = ({ supplier }) => {
             cancelScheduledImport();
         }
     };
-    const active = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === true;
+    // const pending = importInfo?.complete===false && importInfo?.stopping===false && importInfo?.waiting===false && importInfo?.stalled===false && importInfo?.active===false;
+    const active = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === true || (importInfo === null || importInfo === void 0 ? void 0 : importInfo.waiting) === true;
     const canStart = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === false;
     const shouldStop = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.should_stop) === true;
     const canStop = (!shouldStop && (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === true) || (importInfo === null || importInfo === void 0 ? void 0 : importInfo.stalled);
     const canReset = (importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === false;
     const canContinue = canStart && (importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) > 0;
     // const isComplete = importInfo?.complete === true;
-    const max_stall_age = 60 * 10; // 10 min stall age
-    const stall_age_seconds = dateAge((_a = importInfo === null || importInfo === void 0 ? void 0 : importInfo.updated) !== null && _a !== void 0 ? _a : '');
+    // const max_stall_age = 60 * 10; // 10 min stall age
+    // const stall_age_seconds = dateAge(importInfo?.updated ?? '');
     const canKill = true; //stall_age_seconds > max_stall_age && importInfo?.active === true;
-    let progress = active && ((importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) === 0 || shouldStop) ? 100 : ((_b = importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) !== null && _b !== void 0 ? _b : 0) * 100;
+    let progress = active && ((importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) === 0 || shouldStop) ? 100 : ((_a = importInfo === null || importInfo === void 0 ? void 0 : importInfo.progress) !== null && _a !== void 0 ? _a : 0) * 100;
     const [progressBarClasses, setProgressBarClasses] = (0,react.useState)(['progress-bar']);
     const [message, setMessage] = (0,react.useState)('');
     (0,react.useEffect)(() => {
-        var _a, _b;
+        var _a, _b, _c;
         if (importInfo === null || importInfo === void 0 ? void 0 : importInfo.complete) {
             const count = (_a = importInfo === null || importInfo === void 0 ? void 0 : importInfo.processed) !== null && _a !== void 0 ? _a : 0;
-            const updated = (_b = importInfo === null || importInfo === void 0 ? void 0 : importInfo.completed) !== null && _b !== void 0 ? _b : '?';
+            // const updated = importInfo?.completed ?? '?';
             const ago = timeago(new Date(Date.parse(importInfo === null || importInfo === void 0 ? void 0 : importInfo.completed))); // since(importInfo?.completed);
             // setMessage(`Completed processing ${importInfo?.processed ?? 0} products updated after ${importInfo?.updated_at},  ${since(importInfo?.completed)} ago.`);
             setMessage(`Completed. ${count} products updated ${ago}.`);
         }
         else if ((importInfo === null || importInfo === void 0 ? void 0 : importInfo.active) === true) {
-            let started = '';
-            if (typeof (importInfo === null || importInfo === void 0 ? void 0 : importInfo.started) === 'string') {
-                started = since(importInfo === null || importInfo === void 0 ? void 0 : importInfo.started);
+            // let started = '';
+            // if (typeof importInfo?.started === 'string') {
+            //   started = since(importInfo?.started);
+            // }
+            // TODO: estimate time remaining
+            if (typeof (importInfo === null || importInfo === void 0 ? void 0 : importInfo.started) === 'string' && ((_b = importInfo === null || importInfo === void 0 ? void 0 : importInfo.processed) !== null && _b !== void 0 ? _b : 0) > 0 && ((_c = importInfo === null || importInfo === void 0 ? void 0 : importInfo.total) !== null && _c !== void 0 ? _c : 0) > 0) {
+                const started = Date.parse(importInfo.started);
+                const elapsed = (Date.now() - started) * 0.001; // ms
+                const perItem = elapsed / importInfo.processed;
+                const totalTime = perItem * importInfo.total;
+                // const left = importInfo.total - importInfo.processed;
+                // const timeLeft = perItem * left;
+                setEstimatedTime(totalTime);
+                // console.log({ left, timeLeft, timeLeftS: formatDuration(timeLeft), startedS: importInfo.started, started, elapsed, elapsedF: formatDuration(elapsed), perItem, totalTime, totalTimeF: formatDuration(totalTime) });
             }
-            setMessage(`Running update ${started}...`);
+            setMessage(`Running update...`);
         }
         else {
             setMessage('');
@@ -11825,10 +11863,17 @@ const SupplierImportStatus = ({ supplier }) => {
         return (react.createElement("div", { className: 'd-flex flex-column gap-4' },
             react.createElement("div", { className: 'border rounded shadow-sm p-4' },
                 react.createElement("div", { className: 'd-flex flex-column gap-3' },
-                    react.createElement("h5", null, "Import Status"),
+                    react.createElement("h5", null, "Import Status "),
                     react.createElement("div", { className: 'progress', role: 'progressbar' },
                         react.createElement("div", { className: progressBarClasses.join(' '), style: { width: `${progress}%` } })),
-                    react.createElement("div", null, message),
+                    react.createElement("div", null,
+                        message,
+                        ' ',
+                        active ? (react.createElement(react.Fragment, null,
+                            formatDuration(~~stopwatch.elapsedSeconds),
+                            " (Est. ",
+                            formatDuration(estimatedTime),
+                            ")")) : null),
                     react.createElement("div", { className: 'd-flex gap-2 justify-content-between' },
                         react.createElement("div", { className: 'btn-group', style: { width: 'min-content' } },
                             react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: startImport }, "Start"),
@@ -11843,15 +11888,15 @@ const SupplierImportStatus = ({ supplier }) => {
                     react.createElement("div", { className: 'd-flex justify-content-between' },
                         react.createElement("div", null,
                             "Imported: ",
-                            react.createElement("b", null, (_c = totalProducts === null || totalProducts === void 0 ? void 0 : totalProducts.data) !== null && _c !== void 0 ? _c : '-')),
+                            react.createElement("b", null, (_b = totalProducts === null || totalProducts === void 0 ? void 0 : totalProducts.data) !== null && _b !== void 0 ? _b : '-')),
                         react.createElement("div", null,
                             "Total: ",
-                            react.createElement("b", null, (_d = totalRemoteProducts === null || totalRemoteProducts === void 0 ? void 0 : totalRemoteProducts.data) !== null && _d !== void 0 ? _d : '-')),
+                            react.createElement("b", null, (_c = totalRemoteProducts === null || totalRemoteProducts === void 0 ? void 0 : totalRemoteProducts.data) !== null && _c !== void 0 ? _c : '-')),
                         react.createElement("div", null,
                             "Processed:",
                             ' ',
-                            react.createElement("b", null, (_e = importInfo === null || importInfo === void 0 ? void 0 : importInfo.processed) !== null && _e !== void 0 ? _e : '-',
-                                " / ", (_f = importInfo === null || importInfo === void 0 ? void 0 : importInfo.total) !== null && _f !== void 0 ? _f : '-'))))),
+                            react.createElement("b", null, (_d = importInfo === null || importInfo === void 0 ? void 0 : importInfo.processed) !== null && _d !== void 0 ? _d : '-',
+                                " / ", (_e = importInfo === null || importInfo === void 0 ? void 0 : importInfo.total) !== null && _e !== void 0 ? _e : '-'))))),
             react.createElement("div", { className: `border rounded shadow-sm p-4 ${nextImport === 'never' ? 'bg-warning' : ''}` },
                 react.createElement("div", { className: 'd-flex flex-column gap-3' },
                     react.createElement("div", null,

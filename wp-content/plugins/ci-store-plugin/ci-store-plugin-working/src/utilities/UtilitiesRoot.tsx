@@ -10,27 +10,24 @@ export const UtilitiesRoot = () => {
         <h3>Utilities</h3>
       </header>
       <nav className='d-flex gap-1'>
-        <NavLink to='/import' className={className}>
-          Import
-        </NavLink>
         <NavLink to='/products' className={className}>
           Products
         </NavLink>
-        <NavLink to='/monkeywrench' className={className}>
+        {/* <NavLink to='/monkeywrench' className={className}>
           Monkey Wrench
-        </NavLink>
+        </NavLink> */}
         <NavLink to='/logs' className={className}>
           Logs
         </NavLink>
         <NavLink to='/misc' className={className}>
           Misc
         </NavLink>
-        <NavLink to='/tasks' className={className}>
+        {/* <NavLink to='/tasks' className={className}>
           Tasks
-        </NavLink>
-        <NavLink to='/stock' className={className}>
+        </NavLink> */}
+        {/* <NavLink to='/stock' className={className}>
           Stock
-        </NavLink>
+        </NavLink> */}
       </nav>
       <Outlet />
     </div>

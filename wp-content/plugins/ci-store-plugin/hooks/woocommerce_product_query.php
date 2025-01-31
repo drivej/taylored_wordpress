@@ -1,5 +1,5 @@
 <?php
-
+/*
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
 
 function custom_woocommerce_product_query($query, $context)
@@ -37,7 +37,7 @@ function custom_woocommerce_product_query($query, $context)
         AND post_id IN ($product_ids_list)";
     $results = $wpdb->get_results($query, ARRAY_A);
     $suppliers = [];
-    $max_age = WooTools::get_max_age('plp');
+    $max_age = WooTools::gext_max_age('plp');
     // $max_age = 0;
 
     // filter rows that need update based on age
@@ -118,3 +118,4 @@ add_action('woocommerce_product_query', 'custom_woocommerce_product_query', 10, 
 // }
 
 // add_action('pre_get_posts', 'custom_pre_get_posts');
+*/

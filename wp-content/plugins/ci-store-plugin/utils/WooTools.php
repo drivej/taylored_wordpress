@@ -4,14 +4,31 @@ require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_insert_un
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_insert_unique_metas.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_attachment_urls_to_postids.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_insert_product_meta_lookup.php';
+require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_log_exception.php';
 
-class WooTools {
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/Suppliers.php';
+
+class WooTools
+{
     use WooTools_insert_unique_posts;
     use WooTools_insert_unique_metas;
     use WooTools_attachment_urls_to_postids;
     use WooTools_insert_product_meta_lookup;
+    use WooTools_log_exception;
 
-    public static function get_or_create_global_attribute_term($attribute_name, $attribute_value) {
+    public static function get_max_age($flag)
+    {
+        switch ($flag) {
+            case 'pdp':
+                return new DateInterval('P1D');
+            case 'plp':
+            default:
+                return new DateInterval('P7D');
+        }
+    }
+
+    public static function get_or_create_global_attribute_term($attribute_name, $attribute_value)
+    {
         // Use the attribute name as a taxonomy (e.g., 'pa_color', 'pa_size')
         $taxonomy = wc_attribute_taxonomy_name($attribute_name);
 
@@ -78,9 +95,20 @@ class WooTools {
      * @param WC_Product    $product
      * @param string    $units
      */
-    public static function get_product_age($product, $units = 'hours') {
+    public static function get_product_age($product, $units = 'hours')
+    {
         $last_updated = $product->get_meta('_last_updated', true);
-        return $last_updated ? WooTools::get_age($last_updated, $units) : 99999;
+        return $last_updated ? self::get_age($last_updated, $units) : 99999;
+    }
+    /**
+     *
+     * @param WC_Product    $product
+     * @param string    $units
+     */
+    public static function get_pdp_age($product, $units = 'hours')
+    {
+        $last_updated = $product->get_meta('_ci_update_pdp', true);
+        return $last_updated ? self::get_age($last_updated, $units) : 99999;
     }
     /**
      *
@@ -112,14 +140,16 @@ class WooTools {
      *
      * @param WC_Product    $woo_product
      */
-    public static function get_product_supplier_key($woo_product) {
+    public static function get_product_supplier_key($woo_product)
+    {
         return $woo_product->get_meta('_ci_supplier_key', true);
     }
     /**
      *
      * @param WC_Product    $woo_product
      */
-    public static function has_images($woo_product) {
+    public static function has_images($woo_product)
+    {
         $image = $woo_product->get_image_id();
         if ($image) {
             return true;
@@ -143,30 +173,33 @@ class WooTools {
     //     ];
     // }
 
-    public static function get_supplier($supplier_key) {
-        switch ($supplier_key) {
-        case 'wps':
-            include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS.php';
-            return Supplier_WPS::instance();
-            break;
+    // public static function get_supplier($supplier_key)
+    // {
+    //     switch ($supplier_key) {
+    //         case 'wps':
+    //             include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS.php';
+    //             return Supplier_WPS::instance();
+    //             break;
 
-        case 't14':
-            include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14.php';
-            return Supplier_T14::instance();
-            break;
-        }
-        return false;
-    }
+    //         case 't14':
+    //             include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14.php';
+    //             return Supplier_T14::instance();
+    //             break;
+    //     }
+    //     return false;
+    // }
     /**
      *
      * @param WC_Product    $woo_product
      */
-    public static function get_product_supplier($woo_product) {
+    public static function get_product_supplier($woo_product)
+    {
         $supplier_key = WooTools::get_product_supplier_key($woo_product);
-        return WooTools::get_supplier($supplier_key);
+        return CIStore\Suppliers\get_supplier($supplier_key);
     }
 
-    public static function array_lookup($objects, $key = 'id') {
+    public static function array_lookup($objects, $key = 'id')
+    {
         $lookup = [];
         foreach ($objects as $object) {
             $lookup[$object[$key]] = $object;
@@ -177,12 +210,14 @@ class WooTools {
      *
      * @param WC_Product    $woo_product
      */
-    public static function get_attributes_data($woo_product) {
+    public static function get_attributes_data($woo_product)
+    {
         $attributes = $woo_product->get_attributes('edit');
         return WooTools::attributes_to_data($attributes);
     }
 
-    public static function attributes_to_data($attributes) {
+    public static function attributes_to_data($attributes)
+    {
         $result = [];
         if (isset($attributes)) {
             foreach ($attributes as $slug => $attribute) {
@@ -194,7 +229,8 @@ class WooTools {
         return $result;
     }
 
-    public static function build_attribute($name, $options) {
+    public static function build_attribute($name, $options)
+    {
         $new_attribute = new WC_Product_Attribute();
         $new_attribute->set_name($name);
         $new_attribute->set_options($options);
@@ -204,52 +240,112 @@ class WooTools {
         return $new_attribute;
     }
 
-    public static function fix_variations($supplier_variations, $parent_id) {
+    public static function fix_variations($supplier_variations, $parent_id)
+    {
         foreach ($supplier_variations as $supplier_variation) {
             WooTools::fix_variation($supplier_variation, $parent_id);
         }
     }
 
-    public static function get_max_age($flag) {
-        switch ($flag) {
-        case 'pdp':
-            return new DateInterval('P1D');
-        case 'plp':
-        default:
-            return new DateInterval('P7D');
-        }
-    }
+    // public static function ge t_max_age($flag)
+    // {
+    //     switch ($flag) {
+    //         case 'pdp':
+    //             return new DateInterval('P1D');
+    //         case 'plp':
+    //         default:
+    //             return new DateInterval('P7D');
+    //     }
+    // }
     /**
      *
-     * @param WC_Product    $woo_product
+     * @param WC_Product    $product
      * @param string    $flag 'pdp' | 'plp'
      */
-    public static function should_update_product($product, $flag) {
-        if ($product instanceof WC_Product) {
-            // the existence of this meta key indicates a 3rd party supplier
-            $meta_key   = "_ci_update_{$flag}";
-            $update     = $product->get_meta($meta_key);
-            $supplier   = self::get_product_supplier($product);
-            $deprecated = $flag==='pdp' && $supplier->is_deprecated($product->get_id());
-
-            if ($deprecated) {
-                error_log('update deprecated ' . $flag);
-                return true;
-            }
-
-            if (is_string($update)) {
-                $max_age     = self::get_max_age($flag);
-                $expiry_date = (new DateTime($update))->add($max_age);
-                return $expiry_date < new DateTime();
-            }
-            return true;
-        } else {
-            error_log('!!!NOT instanceof WC_Product');
+    public static function should_update_product($product, $flag)
+    {
+        if (! $product instanceof WC_Product) {
+            error_log('The provided object is not an instance of WC_Product.');
+            return false;
         }
+        // error_log(__FUNCTION__ . ' ' . json_encode(['id' => $product->get_id()]));
+
+        //
+        // get age of PDP or PLP
+        //
+        $update = $product->get_meta("_ci_update_{$flag}", true);
+
+        // If no valid update timestamp, assume update is needed
+        if (empty($update)) {
+            error_log("No update timestamp found for product ID {$product->get_id()}.");
+            return true;
+        }
+
+        $last_update = new DateTime($update);    // Parse the update timestamp
+        $max_age     = self::get_max_age($flag); //$flag === 'plp' ? self::$MAX_AGE_PLP : self::$MAX_AGE_PDP; // Get the max age
+        $expiry_date = $last_update->add($max_age);
+
+        if ($expiry_date < new DateTime()) {
+            error_log(__FUNCTION__ . ' ' . json_encode(['id' => $product->get_id(), 'update' => $update]));
+            return true;
+        }
+        //
+        // check if product has a price
+        //
+        $price = $product->get_price();
+        if (! is_numeric($price)) {
+            error_log(__FUNCTION__ . ' ' . json_encode(['id' => $product->get_id(), 'price' => $price]));
+            return true;
+        }
+
+        $supplier = self::get_product_supplier($product);
+        //
+        // check import version
+        //
+        $import_version = $product->get_meta("_ci_import_version");
+        if ($import_version !== $supplier->import_version) {
+            error_log(__FUNCTION__ . ' ' . json_encode(['id' => $product->get_id(), 'import_version' => $import_version]));
+            return true;
+        }
+
+        return false;
+
+        // Check if the product is deprecated
+        $is_deprecated = $flag === 'pdp' && $supplier && $supplier->is_deprecated($product->get_id());
+        if ($is_deprecated) {
+            error_log("Product is deprecated for flag: $flag");
+            return true;
+        }
+
+        // Check if the update timestamp exists and is valid
+        // if (is_string($update)) {
+        //     try {
+        //         $last_update = new DateTime($update);                                     // Parse the update timestamp
+        //         $max_age     = $flag === 'plp' ? self::$MAX_AGE_PLP : self::$MAX_AGE_PDP; // Get the max age
+        //         $expiry_date = $last_update->add($max_age);
+
+        //         // Check if the expiry date has passed
+        //         if ($expiry_date < new DateTime()) {
+        //             error_log("Product requires an update (expired on {$expiry_date->format('Y-m-d H:i:s')}).");
+        //             return true;
+        //         }
+        //     } catch (Exception $e) {
+        //         error_log("Invalid update timestamp for product ID {$product->get_id()}: $update");
+        //         return true; // Assume update is needed if the date is invalid
+        //     }
+        // }
+
+        // If no valid update timestamp, assume update is needed
+        if (empty($update)) {
+            error_log("No update timestamp found for product ID {$product->get_id()}.");
+            return true;
+        }
+
         return false;
     }
 
-    public static function fix_variation($supplier_variation, $parent_id) {
+    public static function fix_variation($supplier_variation, $parent_id)
+    {
         // TODO: should we delete these rogue variations or try to recover them?
         $variation_id = wc_get_product_id_by_sku($supplier_variation['sku']);
         if ($variation_id) {
@@ -283,7 +379,8 @@ class WooTools {
         }
     }
 
-    public static function cleanup_variations($woo_product_id) {
+    public static function cleanup_variations($woo_product_id)
+    {
         // sometimes a variation get's saved/attached to a post but it has no sku - delete it and try again
         $cleaned = false;
         // these is a huge difference between these 2 functions
@@ -310,7 +407,8 @@ class WooTools {
         return $cleaned;
     }
 
-    public static function delete_variations($woo_product_id) {
+    public static function delete_variations($woo_product_id)
+    {
         $woo_product    = wc_get_product($woo_product_id);
         $woo_variations = $woo_product->get_children(); // removed get_children with false
         $count          = 0;
@@ -331,7 +429,8 @@ class WooTools {
         }
     }
 
-    public static function update_variation_props($variation, $supplier_variation, $report = new Report()) {
+    public static function update_variation_props($variation, $supplier_variation, $report = new Report())
+    {
         // we assume that the sku, parent_id are set - this is for fast updates
         $variation->set_status('publish');
         $variation->set_stock_status('instock');
@@ -344,7 +443,8 @@ class WooTools {
         $variation->set_attributes($supplier_variation['attributes']);
     }
 
-    public static function populate_variation($variation, $supplier_variation, $parent_id, $report = new Report()) {
+    public static function populate_variation($variation, $supplier_variation, $parent_id, $report = new Report())
+    {
         try {
             // this explodes if another product exists with the same sku
             $variation->set_sku($supplier_variation['sku']);
@@ -367,14 +467,16 @@ class WooTools {
         return true;
     }
 
-    public static function supplier_variation_to_object($supplier_variation, $parent_id, $report = new Report()) {
+    public static function supplier_variation_to_object($supplier_variation, $parent_id, $report = new Report())
+    {
         $variation = new WC_Product_Variation();
         $success   = WooTools::populate_variation($variation, $supplier_variation, $parent_id, $report);
         // $report->addLog('Create variation for parent ' . $parent_id . ' ' . ($success ? 'Success' : 'Failed'));
         return $success ? $variation : null;
     }
 
-    public static function sync_variations($woo_product, $supplier_variations) {
+    public static function sync_variations($woo_product, $supplier_variations)
+    {
         // $report->addLog('do_sync_variations()');
         $parent_id = $woo_product->get_id();
 
@@ -438,7 +540,8 @@ class WooTools {
      * @param Report   $report
      * }
      */
-    public static function sync_attributes($woo_product, $supplier_attributes) {
+    public static function sync_attributes($woo_product, $supplier_attributes)
+    {
         $result                        = [];
         $changed                       = false;
         $woo_attributes_raw            = $woo_product->get_attributes('edit');
@@ -493,7 +596,8 @@ class WooTools {
         $result['changed'] = $changed;
     }
 
-    public static function getAllAttachmentImagesIdByUrl($urls) {
+    public static function getAllAttachmentImagesIdByUrl($urls)
+    {
         global $wpdb;
 
         if (! count($urls)) {
@@ -525,14 +629,42 @@ class WooTools {
         return $result;
     }
 
-    public static function get_age($dateString, $units = 'hours') {
-        $date     = new DateTime($dateString);
-        $now      = new DateTime();
-        $interval = $now->diff($date);
-        return $interval;
+    public static function split_words($str)
+    {
+        return preg_split('/\s+/', $str, -1, PREG_SPLIT_NO_EMPTY);
+        // return preg_split('/\W+/', $str, -1, PREG_SPLIT_NO_EMPTY);
     }
 
-    public static function unpublish($post_ids) {
+    public static function get_age($dateString, $units = '')
+    {
+        try {
+            $date     = new DateTime($dateString);
+            $now      = new DateTime();
+            $interval = $now->diff($date);
+        } catch (Exception $e) {
+            return 0;
+        }
+
+        switch (strtolower($units)) {
+            case 'years':
+                return $interval->y;
+            case 'months':
+                return ($interval->y * 12) + $interval->m;
+            case 'days':
+                return $interval->days; // Total days
+            case 'hours':
+                return ($interval->days * 24) + $interval->h;
+            case 'minutes':
+                return (($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i);
+            case 'seconds':
+                return (($interval->days * 24 * 60 * 60) + ($interval->h * 60 * 60) + ($interval->i * 60) + $interval->s);
+            default:
+                return $interval;
+        }
+    }
+
+    public static function unpublish($post_ids)
+    {
         if (! is_array($post_ids) || count($post_ids) === 0) {
             return true;
         }
@@ -543,7 +675,8 @@ class WooTools {
         error_log('WooTools::unpublish() ' . count($post_ids));
     }
 
-    public static function get_metas($post_ids, $meta_keys) {
+    public static function get_metas($post_ids, $meta_keys)
+    {
         if (! is_array($post_ids) || count($post_ids) === 0) {
             return [];
         }
@@ -579,7 +712,8 @@ class WooTools {
         return $lookup;
     }
 
-    public static function get_meta_lookup_by_ids($ids, $meta_key) {
+    public static function get_meta_lookup_by_ids($ids, $meta_key)
+    {
         if (! is_array($ids) || count($ids) === 0) {
             return [];
         }
@@ -598,7 +732,8 @@ class WooTools {
         return $lookup;
     }
 
-    public static function get_import_timestamps_by_ids($ids) {
+    public static function get_import_timestamps_by_ids($ids)
+    {
         return WooTools::get_meta_lookup_by_ids($ids, '_ci_import_timestamp');
         // global $wpdb;
         // $placeholders = implode(',', array_fill(0, count($ids), '%d'));
@@ -613,7 +748,8 @@ class WooTools {
         // return $lookup;
     }
 
-    public static function get_import_version_by_ids($ids) {
+    public static function get_import_version_by_ids($ids)
+    {
         return WooTools::get_meta_lookup_by_ids($ids, '_ci_import_version');
         // global $wpdb;
         // $placeholders = implode(',', array_fill(0, count($ids), '%d'));
@@ -628,7 +764,8 @@ class WooTools {
         // return $lookup;
     }
 
-    public static function lookup_woo_ids_by_skus($skus) {
+    public static function lookup_woo_ids_by_skus($skus)
+    {
         if (! WooTools::is_valid_array($skus)) {
             return [];
         }
@@ -647,33 +784,67 @@ class WooTools {
         return $lookup_woo_id;
     }
 
-    public static function lookup_woo_ids_by_name($post_names) {
+    public static function lookup_woo_ids_by_name($post_names)
+    {
         if (! WooTools::is_valid_array($post_names)) {
             return [];
         }
+
         global $wpdb;
-        // $placeholders = implode(',', array_fill(0, count($post_names), '%s'));
-        $sql        = "SELECT * FROM {$wpdb->posts} WHERE ";
-        $conditions = [];
+
+        // Build a dynamic WHERE clause with placeholders
+        $placeholders = [];
+        $values       = [];
         foreach ($post_names as $name) {
-            $conditions[] = $wpdb->prepare("post_name LIKE %s", '%' . $wpdb->esc_like($name) . '%');
+            $placeholders[] = "post_name LIKE %s";
+            $values[]       = '%' . $wpdb->esc_like($name) . '%';
         }
-        $sql .= implode(' OR ', $conditions);
-        // $sql = "SELECT * FROM {$wpdb->posts} WHERE " . implode(' OR ', $conditions);
-        $results = $wpdb->get_results($sql);
 
-        // $sql = "
-        //     SELECT ID, post_name
-        //     FROM {$wpdb->posts}
-        //     WHERE post_name IN ($placeholders)
-        // ";
-        // $results = $wpdb->get_results($wpdb->prepare($sql, $post_names));
-        $lookup = array_column($results, 'ID', 'post_name');
-        // return $sql;
-        return $lookup;
+        // Combine placeholders with OR
+        $where_clause = implode(' OR ', $placeholders);
+
+        // Construct the full SQL query
+        $sql = "SELECT ID, post_name FROM {$wpdb->posts} WHERE $where_clause";
+
+        // Prepare the SQL query with the dynamic values
+        $prepared_sql = $wpdb->prepare($sql, $values);
+
+        // Execute the query
+        $results = $wpdb->get_results($prepared_sql);
+
+        // Map results into an array [post_name => ID]
+        return array_column($results, 'ID', 'post_name');
     }
+    // public static function lookup_woo_ids_by_name($post_names)
+    // {
+    //     if (! WooTools::is_valid_array($post_names)) {
+    //         return [];
+    //     }
+    //     global $wpdb;
+    //     // $placeholders = implode(',', array_fill(0, count($post_names), '%s'));
+    //     $sql        = "SELECT * FROM {$wpdb->posts} WHERE ";
+    //     $conditions = [];
+    //     foreach ($post_names as $name) {
+    //         $conditions[] = $wpdb->prepare("post_name LIKE %s", '%' . $wpdb->esc_like($name) . '%');
+    //     }
+    //     $sql .= implode(' OR ', $conditions);
+    //     return $sql;
+    //     // $sql = "SELECT * FROM {$wpdb->posts} WHERE " . implode(' OR ', $conditions);
+    //     $results = $wpdb->get_results($sql);
 
-    public static function get_product_ids_by_skus($skus) {
+    //     // $sql = "
+    //     //     SELECT ID, post_name
+    //     //     FROM {$wpdb->posts}
+    //     //     WHERE post_name IN ($placeholders)
+    //     // ";
+    //     // $results = $wpdb->get_results($wpdb->prepare($sql, $post_names));
+    //     $lookup = array_column($results, 'ID', 'post_name');
+    //     // return $sql;
+    //     return $lookup;
+    // }
+
+    public static function get_product_ids_by_skus($skus)
+    {
         global $wpdb;
         $placeholders        = implode(',', array_fill(0, count($skus), '%s'));
         $sql                 = $wpdb->prepare("SELECT meta_value AS sku, post_id AS variation_id FROM {$wpdb->prefix}postmeta WHERE meta_key = '_sku' AND meta_value IN ($placeholders)", ...$skus);
@@ -682,12 +853,14 @@ class WooTools {
         return $sku_to_variation_id;
     }
 
-    public static function delete_transients() {
+    public static function delete_transients()
+    {
         global $wpdb;
         return $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE ('%_transient_%')");
     }
 
-    public static function createRemoteAttachment($image, $supplier_key) {
+    public static function createRemoteAttachment($image, $supplier_key)
+    {
         if (! is_array($image) || ! isset($image['file']) || ! isset($image['width']) || ! isset($image['height'])) {
             return false;
         }
@@ -746,7 +919,8 @@ class WooTools {
      * @param array|object $data An iterable object or array to modify.
      * @param string       $prop The name of the property to remove.
      */
-    public static function deep_unset_prop(array | object &$data, string $prop) {
+    public static function deep_unset_prop(array | object &$data, string $prop)
+    {
         if (is_object($data)) {
             unset($data->{$prop});
         }
@@ -763,7 +937,8 @@ class WooTools {
      * @param array|object $data An iterable object or array to modify.
      * @param string       $key  The name of the array key to remove.
      */
-    public static function deep_unset_key(array | object &$data, string $key) {
+    public static function deep_unset_key(array | object &$data, string $key)
+    {
         if (is_array($data)) {
             unset($data[$key]);
         }
@@ -861,7 +1036,8 @@ class WooTools {
     //     ];
     // }
 
-    public static function delete_orphaned_attachments() {
+    public static function delete_orphaned_attachments()
+    {
         $attachments = get_posts([
             'post_type'   => 'attachment',
             'numberposts' => -1,
@@ -910,7 +1086,8 @@ class WooTools {
      */
     }
 
-    public static function delete_orphaned_meta() {
+    public static function delete_orphaned_meta()
+    {
         global $wpdb;
         $sql = "DELETE pm
             FROM {$wpdb->postmeta} pm
@@ -924,7 +1101,8 @@ class WooTools {
         }
     }
 
-    public static function delete_orphaned_meta_lookup() {
+    public static function delete_orphaned_meta_lookup()
+    {
         global $wpdb;
         $sql = "DELETE pm
             FROM {$wpdb->prefix}wc_product_meta_lookup pm
@@ -941,7 +1119,8 @@ class WooTools {
         }
     }
 
-    public static function delete_edit_locks() {
+    public static function delete_edit_locks()
+    {
         global $wpdb;
         $sql = "DELETE FROM {$wpdb->postmeta} WHERE `meta_key` = '_edit_lock'";
 
@@ -954,7 +1133,8 @@ class WooTools {
         }
     }
 
-    public static function clean_up_orphaned_term_relationships() {
+    public static function clean_up_orphaned_term_relationships()
+    {
         global $wpdb;
 
         // SQL query to delete orphaned term relationships
@@ -977,11 +1157,13 @@ class WooTools {
         }
     }
 
-    public static function is_valid_array($arr) {
+    public static function is_valid_array($arr)
+    {
         return isset($arr) && is_array($arr) && count($arr);
     }
 
-    public static function hydrate_metadata($post_id, $keyvals) {
+    public static function hydrate_metadata($post_id, $keyvals)
+    {
         $metadata = [];
         foreach ($keyvals as $key => $val) {
             $metadata[] = ['post_id' => $post_id, 'meta_key' => $key, 'meta_value' => $val];
@@ -989,7 +1171,8 @@ class WooTools {
         return $metadata;
     }
 
-    public static function get_raw_woo_data($woo_id) {
+    public static function get_raw_woo_data($woo_id)
+    {
         global $wpdb;
         // $s = "SELECT * FROM {$wpdb->posts} WHERE `ID` = '{$woo_id}'";
         $sql        = "SELECT ID,post_title,post_name,post_type,post_parent FROM {$wpdb->posts} WHERE `ID` = %d";
@@ -1019,7 +1202,8 @@ class WooTools {
         return ['post' => $post, 'variations' => $variations];
     }
 
-    public static function sync_images($woo_product, $supplier_product, $supplier) {
+    public static function sync_images($woo_product, $supplier_product, $supplier)
+    {
         $woo_product_id      = $woo_product->get_id();
         $supplier_variations = $supplier->extract_variations($supplier_product);
         $master_image_ids    = [];
@@ -1109,7 +1293,8 @@ class WooTools {
         return $result;
     }
 
-    public static function delete_products($product_ids) {
+    public static function delete_products($product_ids)
+    {
         $deleted_posts      = 0;
         $deleted_variations = 0;
         $deleted_terms      = 0;
@@ -1138,7 +1323,8 @@ class WooTools {
         return ['message' => "Deleted products:{$deleted_posts} meta:{$deleted_meta} term_rel:{$deleted_terms} variations:{$deleted_variations}"];
     }
 
-    public static function delete_product_variations($woo_product) {
+    public static function delete_product_variations($woo_product)
+    {
         $deleted = [];
         if ($woo_product) {
             $woo_variations = $woo_product->get_children();
@@ -1152,7 +1338,8 @@ class WooTools {
     /**
      * @param WC_Product_Variable $woo_product
      */
-    public static function get_variations($woo_product, $context = 'view') {
+    public static function get_variations($woo_product, $context = 'view')
+    {
         $woo_variations = $woo_product->get_children(); // removed get_children with false
         $variations     = [];
         foreach ($woo_variations as $woo_variation_id) {
@@ -1184,7 +1371,8 @@ class WooTools {
     }
 
     // this seems inefficiant
-    public static function get_variations_objects($woo_product) {
+    public static function get_variations_objects($woo_product)
+    {
         $woo_variations = $woo_product->get_children(); // removed get_children with false
         $variations     = [];
         foreach ($woo_variations as $woo_variation_id) {
@@ -1193,7 +1381,8 @@ class WooTools {
         return $variations;
     }
 
-    public static function set_product_visibility($woo_id, $visible = true) {
+    public static function set_product_visibility($woo_id, $visible = true)
+    {
         if ($visible) {
             wp_set_object_terms($woo_id, [], 'product_visibility');
         } else {
@@ -1201,7 +1390,8 @@ class WooTools {
         }
     }
 
-    public static function removeProductAttribute($product_id, $attribute_name) {
+    public static function removeProductAttribute($product_id, $attribute_name)
+    {
         // delete attribute from product and it's variations
         $saved       = false;
         $woo_product = wc_get_product($product_id);
@@ -1274,7 +1464,8 @@ class WooTools {
         // }
     }
 
-    public static function clamp_image_size($width, $height, $max_dimension = 500) {
+    public static function clamp_image_size($width, $height, $max_dimension = 500)
+    {
         // Calculate the aspect ratio
         $aspect_ratio = $width / $height;
 
@@ -1296,10 +1487,11 @@ class WooTools {
         return ['width' => round($new_width), 'height' => round($new_height)];
     }
 
-    public static function unlink_children($product_id) {
+    public static function unlink_children($product_id)
+    {
         // Woo does not unlink children reliably so you may have rogure variations attached to products
         global $wpdb;
-        $sql = $wpdb->prepare("UPDATE $wpdb->posts SET post_parent = 0 WHERE post_parent = %d", $product_id);
+        $sql = $wpdb->prepare("UPDATE $wpdb->posts SET post_parent = 0 WHERE post_parent = %d AND post_type = 'product_variation'", $product_id);
         $wpdb->query($sql);
     }
 }

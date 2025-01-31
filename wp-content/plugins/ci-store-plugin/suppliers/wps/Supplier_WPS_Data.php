@@ -1,7 +1,9 @@
 <?php
 
-trait Supplier_WPS_Data {
-    public function get_params_for_query($flag = 'basic') {
+trait Supplier_WPS_Data
+{
+    public function get_params_for_query($flag = 'basic')
+    {
         $params   = [];
         $fields   = [];
         $includes = [];
@@ -61,7 +63,8 @@ trait Supplier_WPS_Data {
         return $params;
     }
 
-    public function get_product($product_id, $flag = 'pdp') {
+    public function get_product($product_id, $flag = 'pdp')
+    {
         if (! isset($product_id)) {
             $message = "No product id passed";
             throw new InvalidArgumentException($message);
@@ -78,7 +81,8 @@ trait Supplier_WPS_Data {
         return $product;
     }
 
-    public function get_products($product_ids, $flag = 'basic') {
+    public function get_products($product_ids, $flag = 'basic')
+    {
         if (! count($product_ids)) {
             $message = "No products ids passed";
             throw new InvalidArgumentException($message);
@@ -107,7 +111,8 @@ trait Supplier_WPS_Data {
         return $products;
     }
 
-    public function get_products_page($cursor = '', $flag = 'pdp', $updated = null) {
+    public function get_products_page($cursor = '', $flag = 'pdp', $updated = null)
+    {
         // $this->log("get_products_page('$cursor', '$flag', '$updated')");
         // attempt to load the max, then step down in count until response is valid
         $page_sizes      = [1, 8, 16, 32];
@@ -125,8 +130,16 @@ trait Supplier_WPS_Data {
             $params['page'] = ['cursor' => $cursor, 'size' => $page_size];
             $items          = $this->get_api('/products', $params);
 
-            if (! isset($items['data']) || ! is_countable($items['data'])) {
-                $this->log('API throttled' . json_encode(['items' => $items]));
+            // timeout indicates that the response is probably too large
+            $timeout = isset($items['status_code']) && $items['status_code'] === 408;
+
+            if ($timeout) {
+                $this->log(__FUNCTION__, 'timeout', $items);
+            }
+
+            // validate data
+            if (! $timeout && (! isset($items['data']) || ! is_countable($items['data']))) {
+                $this->log(__FUNCTION__, 'WHAT IS THIS ERROR? API throttled' . $items);
             }
 
             if (isset($items['error']) && $page_size > 1) {
@@ -149,7 +162,8 @@ trait Supplier_WPS_Data {
         return $items;
     }
 
-    public function get_total_remote_products($updated_at = null) {
+    public function get_total_remote_products($updated_at = null)
+    {
         $updated_at = $updated_at ?? $this->default_updated_at;
         $result     = $this->get_api('products', [
             'filter[updated_at][gt]' => $updated_at,

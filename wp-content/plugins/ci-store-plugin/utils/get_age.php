@@ -1,16 +1,15 @@
 <?php
-
 namespace CIStore\Utils;
 
 function get_age($dateString, $unit = 'interval')
 {
-    if (!$dateString) {
+    if (! $dateString) {
         return null;
     }
-    $date = new \DateTime($dateString);
-    $now = new \DateTime();
+    $date          = new \DateTime($dateString);
+    $now           = new \DateTime();
     $diffInSeconds = $now->getTimestamp() - $date->getTimestamp();
-    $interval = $now->diff($date);
+    $interval      = $now->diff($date);
 
     switch ($unit) {
         case 'seconds':
@@ -19,6 +18,8 @@ function get_age($dateString, $unit = 'interval')
             return $diffInSeconds / 60;
         case 'hours':
             return $diffInSeconds / 3600;
+        case 'days':
+            return $diffInSeconds / 86400;
     }
 
     return $interval;

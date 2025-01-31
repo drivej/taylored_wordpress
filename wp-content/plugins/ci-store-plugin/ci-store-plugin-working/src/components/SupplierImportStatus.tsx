@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { IAjaxQuery } from '../models';
@@ -6,9 +6,10 @@ import { ISupplierActionQuery } from '../utilities/StockPage';
 import { ISupplier, useSuppliers } from '../utilities/useSuppliers';
 import { useTotalProducts } from '../utilities/useTotalProducts';
 import { useTotalRemoteProducts } from '../utilities/useTotalRemoteProducts';
-import { dateAge, since } from '../utils/datestamp';
 import { fetchWordpressAjax } from '../utils/fetchWordpressAjax';
+import { formatDuration } from '../utils/formatDuration';
 import { timeago } from '../utils/timeago';
+import { useStopWatch } from '../utils/useStopWatch';
 import { useWordpressAjax } from '../utils/useWordpressAjax';
 import { ErrorLogs } from './ImporterLogs';
 import { LoadingPage } from './LoadingPage';
@@ -41,6 +42,7 @@ interface IImportStatus {
   processed: number;
   total: number;
   // total_products: number;
+  waiting: boolean;
   progress: number;
   is_scheduled: boolean;
   active: boolean;
@@ -55,10 +57,8 @@ interface IImportStatus {
 }
 
 export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
-  const queryClient = useQueryClient();
   const totalProducts = useTotalProducts(supplier.key);
   const totalRemoteProducts = useTotalRemoteProducts(supplier.key);
-
   const query: ISupplierActionQuery = {
     action: 'ci_api_handler', //
     cmd: 'supplier_action',
@@ -66,10 +66,19 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
     func: 'get_import_info',
     func_group: 'importer'
   };
+  // const query2: ISupplierActionQuery = {
+  //   action: 'ci_api_handler', //
+  //   cmd: 'supplier_action',
+  //   supplier_key: supplier.key,
+  //   func: 'get_hooks_status',
+  //   func_group: 'importer'
+  // };
   const [refetchInterval, setRefetchInterval] = useState<number | false>(60000);
   const dataPoll = useWordpressAjax<IImportStatus>(query, { refetchInterval });
-
+  // const dataPoll2 = useWordpressAjax<IImportStatus>(query2, { refetchInterval });
   const [importInfo, setImportInfo] = useState<Partial<IImportStatus>>({ status: 0 });
+  const [estimatedTime, setEstimatedTime] = useState(0);
+  const stopwatch = useStopWatch();
 
   useEffect(() => {
     setImportInfo(dataPoll.data);
@@ -78,8 +87,13 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
   useEffect(() => {
     if (importInfo?.active) {
       setRefetchInterval(10000);
+      if (typeof importInfo?.started === 'string') {
+        const start_date = Date.parse(importInfo.started);
+        stopwatch.start(start_date);
+      }
     } else {
       setRefetchInterval(60000);
+      stopwatch.pause();
     }
   }, [importInfo]);
 
@@ -119,9 +133,9 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
     supplierAction.mutate({ func: 'rerun' }, { onSettled: setImportInfo });
   };
 
-  const autoImportImport = () => {
-    supplierAction.mutate({ func: 'auto_import' }, { onSettled: refresh });
-  };
+  // const autoImportImport = () => {
+  //   supplierAction.mutate({ func: 'auto_import' }, { onSettled: refresh });
+  // };
 
   const [nextImport, setNextImport] = useState('');
 
@@ -134,7 +148,7 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     getNextImportTime();
   }, []);
 
@@ -154,7 +168,8 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
     }
   };
 
-  const active = importInfo?.active === true;
+  // const pending = importInfo?.complete===false && importInfo?.stopping===false && importInfo?.waiting===false && importInfo?.stalled===false && importInfo?.active===false;
+  const active = importInfo?.active === true || importInfo?.waiting === true;
   const canStart = importInfo?.active === false;
   const shouldStop = importInfo?.should_stop === true;
   const canStop = (!shouldStop && importInfo?.active === true) || importInfo?.stalled;
@@ -162,9 +177,9 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
   const canContinue = canStart && importInfo?.progress > 0;
   // const isComplete = importInfo?.complete === true;
 
-  const max_stall_age = 60 * 10; // 10 min stall age
-  const stall_age_seconds = dateAge(importInfo?.updated ?? '');
-  const canKill = true;//stall_age_seconds > max_stall_age && importInfo?.active === true;
+  // const max_stall_age = 60 * 10; // 10 min stall age
+  // const stall_age_seconds = dateAge(importInfo?.updated ?? '');
+  const canKill = true; //stall_age_seconds > max_stall_age && importInfo?.active === true;
 
   let progress = active && (importInfo?.progress === 0 || shouldStop) ? 100 : (importInfo?.progress ?? 0) * 100;
   const [progressBarClasses, setProgressBarClasses] = useState(['progress-bar']);
@@ -173,17 +188,29 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
   useEffect(() => {
     if (importInfo?.complete) {
       const count = importInfo?.processed ?? 0;
-      const updated = importInfo?.completed ?? '?';
+      // const updated = importInfo?.completed ?? '?';
       const ago = timeago(new Date(Date.parse(importInfo?.completed))); // since(importInfo?.completed);
 
       // setMessage(`Completed processing ${importInfo?.processed ?? 0} products updated after ${importInfo?.updated_at},  ${since(importInfo?.completed)} ago.`);
       setMessage(`Completed. ${count} products updated ${ago}.`);
     } else if (importInfo?.active === true) {
-      let started = '';
-      if (typeof importInfo?.started === 'string') {
-        started = since(importInfo?.started);
+      // let started = '';
+      // if (typeof importInfo?.started === 'string') {
+      //   started = since(importInfo?.started);
+      // }
+
+      // TODO: estimate time remaining
+      if (typeof importInfo?.started === 'string' && (importInfo?.processed ?? 0) > 0 && (importInfo?.total ?? 0) > 0) {
+        const started = Date.parse(importInfo.started);
+        const elapsed = (Date.now() - started) * 0.001; // ms
+        const perItem = elapsed / importInfo.processed;
+        const totalTime = perItem * importInfo.total;
+        // const left = importInfo.total - importInfo.processed;
+        // const timeLeft = perItem * left;
+        setEstimatedTime(totalTime);
+        // console.log({ left, timeLeft, timeLeftS: formatDuration(timeLeft), startedS: importInfo.started, started, elapsed, elapsedF: formatDuration(elapsed), perItem, totalTime, totalTimeF: formatDuration(totalTime) });
       }
-      setMessage(`Running update ${started}...`);
+      setMessage(`Running update...`);
     } else {
       setMessage('');
     }
@@ -232,12 +259,33 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
       <div className='d-flex flex-column gap-4'>
         <div className='border rounded shadow-sm p-4'>
           <div className='d-flex flex-column gap-3'>
-            <h5>Import Status</h5>
+            {/* <pre>{JSON.stringify(dataPoll2.data, null, 2)}</pre> */}
+            <h5>Import Status </h5>
+
+            {/* <div className='progress' style={{ height: 30 }}>
+              <div className='progress-bar bg-success' role='progressbar' style={{ width: '15%' }}>
+                324 Imported
+              </div>
+              <div className='progress-bar bg-info' role='progressbar' style={{ width: '30%' }}>
+                700 Processed
+              </div>
+              <div className='progress-bar progress-bar-striped progress-bar-animated bg-secondary' role='progressbar' style={{ width: '100%' }}>
+                1243 Pending...
+              </div>
+            </div> */}
+
             <div className='progress' role='progressbar'>
               <div className={progressBarClasses.join(' ')} style={{ width: `${progress}%` }}></div>
             </div>
 
-            <div>{message}</div>
+            <div>
+              {message}{' '}
+              {active ? (
+                <>
+                  {formatDuration(~~stopwatch.elapsedSeconds)} (Est. {formatDuration(estimatedTime)})
+                </>
+              ) : null}
+            </div>
 
             <div className='d-flex gap-2 justify-content-between'>
               <div className='btn-group' style={{ width: 'min-content' }}>

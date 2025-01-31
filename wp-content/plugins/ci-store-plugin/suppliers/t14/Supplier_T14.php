@@ -7,33 +7,33 @@ https://turn14.com/api_settings.php
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/Supplier.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Timer.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14_Prices.php';
-include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14_Cronjob.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14_API.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14_Brands.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14_ImportManager.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14_Data.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14_Import.php';
 
 use Automattic\Jetpack\Constants;
+use function CIStore\Suppliers\get_supplier_import_version;
 
 class Supplier_T14 extends CIStore\Suppliers\Supplier
 {
     use Supplier_T14_Prices;
-    use Supplier_T14_Cronjob;
     use Supplier_T14_API;
     use Supplier_T14_Brands;
     use Supplier_T14_Data;
     use Supplier_T14_ImportManager;
+    use Supplier_T14_Import;
 
-    // public CronJob $cronjob;
-    // public Import_T14_Products $background_process;
-    public int $max_age = 0; // stale product age
-    private bool $dry_run = false;
+                                       // public CronJob $cronjob;
+                                       // public Import_T14_Products $background_process;
+    public int $max_age           = 0; // stale product age
+    private bool $dry_run         = false;
     public array $allow_brand_ids = [];
     /**
      * The single instance of the class.
      *
      * @var Supplier_T14
-     * @since 2.1
      */
     protected static $_instance = null;
     public T14ImportManager $importer;
@@ -41,10 +41,10 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
     public function __construct()
     {
         parent::__construct([
-            'key' => 't14',
-            'name' => 'Turn14',
-            'supplierClass' => 'WooDropship\\Suppliers\\Turn14',
-            'import_version' => '0.3',
+            'key'            => 't14',
+            'name'           => 'Turn14',
+            'supplierClass'  => 'WooDropship\\Suppliers\\Turn14',
+            'import_version' => get_supplier_import_version('t14'),
         ]);
         $this->importer = $this->get_importer();
         // $this->active = false;
@@ -60,8 +60,10 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
 
     public function update_pdp_product($woo_product)
     {
-        $needs_update = $this->product_needs_update($woo_product);
-        // $has_images = WooTools::has_images($woo_product);
+        error_log(__FUNCTION__);
+        return;
+        $needs_update = true; //$this->product_needs_update($woo_product);
+                              // $has_images = WooTools::has_images($woo_product);
 
         if ($needs_update) {
             $supplier_product_id = $woo_product->get_meta('_ci_product_id', true);
@@ -86,32 +88,35 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
 
     public function update_plp_product($woo_product)
     {
-        $update_plp = $woo_product->get_meta('_ci_update_plp', true);
-        $should_update = !(bool) $update_plp;
+        error_log(__FUNCTION__);
+        $age = WooTools::get_pdp_age($woo_product);
+        error_log(json_encode(['age' => $age]));
+        $update_plp    = $woo_product->get_meta('_ci_update_plp', true);
+        $should_update = ! (bool) $update_plp;
 
         if ($update_plp) {
-            $age = $update_plp ? WooTools::get_age($update_plp, 'hours') : 99999;
-            $max_age = 24 * 7;
+            $age           = $update_plp ? WooTools::get_age($update_plp, 'hours') : 99999;
+            $max_age       = 24 * 7;
             $should_update = $age > $max_age;
         }
         $sku = $woo_product->get_sku();
         error_log('sku=' . $sku . '-------------------->>>>>');
 
         if ($should_update) {
-            $product_id = $woo_product->get_meta('_ci_product_id', true);
-            $item_data = $this->get_api("/items/data/{$product_id}");
-            $image = 0;
+            $product_id   = $woo_product->get_meta('_ci_product_id', true);
+            $item_data    = $this->get_api("/items/data/{$product_id}");
+            $image        = 0;
             $backup_image = 0;
 
             if (is_array($item_data['data'])) {
                 $item_data['data'] = $item_data['data'][0];
             }
 
-            if (!isset($item_data['data']['files'])) {
+            if (! isset($item_data['data']['files'])) {
                 return;
             }
 
-            if (!WooTools::is_valid_array($item_data['data']['files'])) {
+            if (! WooTools::is_valid_array($item_data['data']['files'])) {
                 return;
             }
             /*
@@ -145,7 +150,7 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
                 }
             }
 
-            if (!$image && $backup_image) {
+            if (! $image && $backup_image) {
                 $image = $backup_image;
             }
 
@@ -177,11 +182,11 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
 
         if ($needs_update) {
             $supplier_product_id = $woo_product->get_meta('_ci_product_id', true);
-            $supplier_product = $this->get_product($supplier_product_id, 'basic');
+            $supplier_product    = $this->get_product($supplier_product_id, 'basic');
             // TODO: test this
             $is_available = $this->is_available($supplier_product);
 
-            if (!$is_available) {
+            if (! $is_available) {
                 $woo_product->delete();
                 return true;
             } else {
@@ -196,23 +201,23 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
 
     public function get_items_page($page)
     {
-        $items = $this->get_api('/items', ['page' => $page]);
-        $skus = [];
+        $items    = $this->get_api('/items', ['page' => $page]);
+        $skus     = [];
         $products = [];
         foreach ($items['data'] as $i => $product) {
-            $sku = $this->get_product_sku($product['id']);
+            $sku        = $this->get_product_sku($product['id']);
             $products[] = ['data' => $product];
-            $skus[] = $sku;
+            $skus[]     = $sku;
         }
-        $lookup_woo_id = WooTools::lookup_woo_ids_by_skus($skus);
-        $woo_ids = array_values($lookup_woo_id);
-        $lookup_updated = WooTools::get_import_timestamps_by_ids($woo_ids);
-        $lookup_version = WooTools::get_import_version_by_ids($woo_ids);
+        $lookup_woo_id           = WooTools::lookup_woo_ids_by_skus($skus);
+        $woo_ids                 = array_values($lookup_woo_id);
+        $lookup_updated          = WooTools::get_import_timestamps_by_ids($woo_ids);
+        $lookup_version          = WooTools::get_import_version_by_ids($woo_ids);
         $lookup_t14_item_updated = WooTools::get_meta_lookup_by_ids($woo_ids, '_ci_t14_item_updated');
 
         foreach ($products as $i => $supplier_product) {
-            $products[$i]['meta'] = $this->build_product_meta($supplier_product, $lookup_woo_id, $lookup_updated, $lookup_version);
-            $woo_id = $products[$i]['meta']['woo_id'];
+            $products[$i]['meta']                 = $this->build_product_meta($supplier_product, $lookup_woo_id, $lookup_updated, $lookup_version);
+            $woo_id                               = $products[$i]['meta']['woo_id'];
             $products[$i]['meta']['item_updated'] = isset($lookup_t14_item_updated[$woo_id]) ? $lookup_t14_item_updated[$woo_id] : false;
         }
         return ['data' => $products, 'meta' => $items['meta']];
@@ -222,29 +227,29 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
     {
         $items = $this->get_api('/items', ['page' => $page_index]);
         $items = $this->filter_items($items);
-        $skus = [];
+        $skus  = [];
         $names = [];
 
         foreach ($items['data'] as &$item) {
-            $item = ['data' => $item, 'meta' => []];
-            $product_id = $item['data']['id'];
-            $post_title = $this->get_name($item);
-            $product_slug = sanitize_title(implode('-', [$post_title, $product_id, $this->key, 'product']));
-            $product_slug_partial = '-' . sanitize_title(implode('-', [$product_id, $this->key, 'product']));
-            $sku = $this->get_product_sku($product_id);
-            $item['meta']['slug'] = $product_slug_partial;
+            $item                  = ['data' => $item, 'meta' => []];
+            $product_id            = $item['data']['id'];
+            $post_title            = $this->get_name($item);
+            $product_slug          = sanitize_title(implode('-', [$post_title, $product_id, $this->key, 'product']));
+            $product_slug_partial  = '-' . sanitize_title(implode('-', [$product_id, $this->key, 'product']));
+            $sku                   = $this->get_product_sku($product_id);
+            $item['meta']['slug']  = $product_slug_partial;
             $item['meta']['title'] = $post_title;
-            $skus[] = $sku;
-            $names[] = $product_slug_partial;
+            $skus[]                = $sku;
+            $names[]               = $product_slug_partial;
         }
         $lookup_woo_id = WooTools::lookup_woo_ids_by_skus($skus);
         // $woo_ids = array_values($lookup_woo_id);
         // $lookup_woo_name = WooTools::lookup_woo_ids_by_name($names);
 
         foreach ($items['data'] as $item) {
-            $sku = $item['meta']['sku'];
+            $sku    = $item['meta']['sku'];
             $woo_id = isset($lookup_woo_id[$sku]) ? $lookup_woo_id[$sku] : false;
-            if (!$woo_id) {
+            if (! $woo_id) {
                 error_log('no sku for ' . $item['data']['id']);
             }
         }
@@ -265,6 +270,52 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
 
     This is used by the background_process "products"
      */
+    public function process_page($items)
+    {
+        $this->log(__FUNCTION__);
+        // $items = $this->get_api('/items', ['page' => $page]);
+        // $items = $this->get_products_page($page, $days);
+        // if no products, abort
+
+        if (! isset($items['data']) || ! is_array($items['data']) || ! count($items['data']) || isset($items['error'])) {
+            return $items;
+        }
+        // $items['data'] = array_slice($items['data'], 0, 1);
+        //
+        //
+        // CATEGORIES
+        //
+        //
+        // if ($page_type === 'categories') {
+        $timer = new Timer();
+        // build object for save
+        // this assumes that the price list has been updated
+
+        $items = $this->filter_items($items);
+
+        if (count($items['data']) > 0) {
+            $items = $this->process_items_page($items);
+            $items = $this->process_items_thumbnails($items);
+            $items = $this->process_items_brands($items);
+            $items = $this->process_items_prices($items);
+            $items = $this->process_items_unavailable($items);
+            $items = $this->process_items_categories($items);
+        } else {
+            $items['meta']['message'] = 'No items passed filter';
+        }
+
+        if (! $this->dry_run && isset($items['meta']['metadata']) && WooTools::is_valid_array($items['meta']['metadata'])) {
+            WooTools::insert_unique_metas($items['meta']['metadata']);
+            $items['meta']['metadata'] = count($items['meta']['metadata']);
+            $items['meta']['posts']    = count($items['meta']['posts']);
+        }
+
+        $total_products = count($items['data']);
+        $this->log(__FUNCTION__, "process {$total_products} products in {$timer->lap()}");
+        $items['meta']['laptime'] = $timer->lap();
+        return $items;
+    }
+
     public function import_products_page($page = 1, $days = null)
     {
         $this->log("START import_products_page({$page})");
@@ -272,7 +323,7 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
         $items = $this->get_products_page($page, $days);
         // if no products, abort
 
-        if (!isset($items['data']) || !is_array($items['data']) || !count($items['data']) || isset($items['error'])) {
+        if (! isset($items['data']) || ! is_array($items['data']) || ! count($items['data']) || isset($items['error'])) {
             return $items;
         }
         // $items['data'] = array_slice($items['data'], 0, 1);
@@ -310,180 +361,190 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
             $items['meta']['message'] = 'No items passed filter';
         }
 
-        if (!$this->dry_run && isset($items['meta']['metadata']) && WooTools::is_valid_array($items['meta']['metadata'])) {
+        if (! $this->dry_run && isset($items['meta']['metadata']) && WooTools::is_valid_array($items['meta']['metadata'])) {
             WooTools::insert_unique_metas($items['meta']['metadata']);
             $items['meta']['metadata'] = count($items['meta']['metadata']);
-            $items['meta']['posts'] = count($items['meta']['posts']);
+            $items['meta']['posts']    = count($items['meta']['posts']);
         }
 
         $total_products = count($items['data']);
         $this->log("process {$total_products} products in {$timer->lap()}");
         $items['meta']['laptime'] = $timer->lap();
         return $items;
-
+        //
+        //
+        // ------------>>>>>
+        //
         /*
-    // return ['$meta_result' => $meta_result, 'items' => $items];
 
-    // return $this->insert_unique_posts($items['meta']['posts']);
-    // return $items;
+        // return ['$meta_result' => $meta_result, 'items' => $items];
 
-    $items = $this->process_items_prices($items);
-    $this->log("process_items_prices {$timer->lap()}");
-    $items = $this->process_items_brands($items);
-    $this->log("process_items_brands {$timer->lap()}");
-    $items = $this->process_items_prices($items);
-    $this->log("process_items_prices {$timer->lap()}");
-    $items = $this->process_items_categories($items);
-    $this->log("process_items_categories {$timer->lap()}");
-    $items = $this->process_items_tags($items);
-    $this->log("process_items_tags {$timer->lap()}");
-    $items = $this->process_items_thumbnails($items);
-    // $this->log("process_items_thumbnails {$timer->lap()}");
+        // return $this->insert_unique_posts($items['meta']['posts']);
+        // return $items;
 
-    $items['meta']['page_index'] = $page_index;
-    $items['meta']['update_thumbnail'] = 0;
+        $items = $this->process_items_prices($items);
+        $this->log("process_items_prices {$timer->lap()}");
+        $items = $this->process_items_brands($items);
+        $this->log("process_items_brands {$timer->lap()}");
+        $items = $this->process_items_prices($items);
+        $this->log("process_items_prices {$timer->lap()}");
+        $items = $this->process_items_categories($items);
+        $this->log("process_items_categories {$timer->lap()}");
+        $items = $this->process_items_tags($items);
+        $this->log("process_items_tags {$timer->lap()}");
+        $items = $this->process_items_thumbnails($items);
+        // $this->log("process_items_thumbnails {$timer->lap()}");
 
-    foreach ($items['data'] as $i => $supplier_product) {
-    if ($supplier_product['meta']['should_update']) {
-    // $this->log('save_product_terms()');
-    $this->save_product_terms($supplier_product);
-    $items['meta']['updates']++;
-    }
-    if ($supplier_product['meta']['add_thumbnail']) {
-    // $this->log('update_post_meta()');
-    update_post_meta($supplier_product['meta']['woo_id'], '_thumbnail_id', $supplier_product['meta']['_thumbnail_id']);
-    $items['meta']['updates']++;
-    $items['meta']['update_thumbnail']++;
-    }
-    }
+        $items['meta']['page_index']       = $page_index;
+        $items['meta']['update_thumbnail'] = 0;
 
-    $this->log("COMPLETE import_products_page({$page_index})");
-    $result = [];
-    foreach ($items['data'] as $item) {
-    $result[] = [
-    'woo_id' => $item['meta']['woo_id'],
-    'sku' => $item['meta']['sku'],
-    'name' => $item['data']['attributes']['product_name'],
-    ];
-    }
-    return ['meta' => $items['meta'], 'data' => $result];
+        foreach ($items['data'] as $i => $supplier_product) {
+            if ($supplier_product['meta']['should_update']) {
+                // $this->log('save_product_terms()');
+                $this->save_product_terms($supplier_product);
+                $items['meta']['updates']++;
+            }
+            if ($supplier_product['meta']['add_thumbnail']) {
+                // $this->log('update_post_meta()');
+                update_post_meta($supplier_product['meta']['woo_id'], '_thumbnail_id', $supplier_product['meta']['_thumbnail_id']);
+                $items['meta']['updates']++;
+                $items['meta']['update_thumbnail']++;
+            }
+        }
 
-    // $this->save_items_terms($items);
-    //
-    //
-    // DEFAULT
-    //
-    //
-    if (isset($test)) {
-    $this->log("import_products_page({$page_index})");
-    $start_time = microtime(true);
-    $items = $this->get_items_page($page_index);
-    $products = $items['data'];
-    $total = count($products);
-    $stats = ['insert' => 0, 'update' => 0, 'delete' => 0, 'ignore' => 0];
+        $this->log("COMPLETE import_products_page({$page_index})");
+        $result = [];
+        foreach ($items['data'] as $item) {
+            $result[] = [
+                'woo_id' => $item['meta']['woo_id'],
+                'sku'    => $item['meta']['sku'],
+                'name'   => $item['data']['attributes']['product_name'],
+            ];
+        }
+        return ['meta' => $items['meta'], 'data' => $result];
 
-    foreach ($products as $i => $supplier_product) {
-    // if ($this->background_process->should_stop) {
-    break;
-    // }
-    // $supplier_product_id = $supplier_product['data']['id'];
-    $action = isset($supplier_product['meta']['action']) ? $supplier_product['meta']['action'] : '';
-    // $woo_id = $supplier_product['meta']['woo_id'];
-    // $woo_product = null;
-    // $sku = $supplier_product['meta']['sku'];
+        // $this->save_items_terms($items);
+        //
+        //
+        // DEFAULT
+        //
+        //
+        if (isset($test) && $test===true) {
+            $this->log("import_products_page({$page_index})");
+            $start_time = microtime(true);
+            $items      = $this->get_items_page($page_index);
+            $products   = $items['data'];
+            $total      = count($products);
+            $stats      = ['insert' => 0, 'update' => 0, 'delete' => 0, 'ignore' => 0];
 
-    // if (!isset($stats[$action])) {
-    //     $stats[$action] = 0;
-    // }
+            foreach ($products as $i => $supplier_product) {
+                // if ($this->background_process->should_stop) {
+                break;
+                // }
+                // $supplier_product_id = $supplier_product['data']['id'];
+                $action = isset($supplier_product['meta']['action']) ? $supplier_product['meta']['action'] : '';
+                // $woo_id = $supplier_product['meta']['woo_id'];
+                // $woo_product = null;
+                // $sku = $supplier_product['meta']['sku'];
 
-    if ($action === 'insert') {
-    $stats['insert']++;
-    $woo_product = $this->create_base_product($supplier_product);
-    $woo_id = $woo_product->save();
-    $supplier_product['meta']['woo_id'] = $woo_id;
-    $this->update_product_terms($supplier_product);
-    $this->log("product {$woo_id} insert");
-    }
+                // if (!isset($stats[$action])) {
+                //     $stats[$action] = 0;
+                // }
 
-    if ($action === 'update') {
-    $woo_id = $supplier_product['meta']['woo_id'];
-    $deprecated = $supplier_product['meta']['deprecated'];
-    $expired = $supplier_product['meta']['expired'];
-    $should_update = $deprecated || $expired;
+                if ($action === 'insert') {
+                    $stats['insert']++;
+                    $woo_product                        = $this->creat e_base_product($supplier_product);
+                    $woo_id                             = $woo_product->save();
+                    $supplier_product['meta']['woo_id'] = $woo_id;
+                    $this->update_product_terms($supplier_product);
+                    $this->log("product {$woo_id} insert");
+                }
 
-    if (!$should_update) {
-    $item_updated = $supplier_product['meta']['item_updated'];
-    $age = $item_updated ? WooTools::get_age($item_updated, 'hours') : 99999;
-    if ($age > 24 * 7) {
-    // update if mode date expired
-    $should_update = true;
-    }
-    }
+                if ($action === 'update') {
+                    $woo_id        = $supplier_product['meta']['woo_id'];
+                    $deprecated    = $supplier_product['meta']['deprecated'];
+                    $expired       = $supplier_product['meta']['expired'];
+                    $should_update = $deprecated || $expired;
 
-    if ($should_update) {
-    $stats['update']++;
-    $this->update_product_terms($supplier_product);
-    $woo_product = wc_get_product_object($supplier_product['meta']['product_type'], $woo_id);
-    $this->update_base_product($supplier_product, $woo_product);
-    $woo_id = $woo_product->save();
-    $this->log("product {$woo_id} update");
-    } else {
-    $stats['ignore']++;
-    $this->log("product {$woo_id} ignore");
-    }
+                    if (! $should_update) {
+                        $item_updated = $supplier_product['meta']['item_updated'];
+                        $age          = $item_updated ? WooTools::get_age($item_updated, 'hours') : 99999;
+                        if ($age > 24 * 7) {
+                            // update if mode date expired
+                            $should_update = true;
+                        }
+                    }
 
-    // // is this product out of date
-    // $woo_id = $supplier_product['meta']['woo_id'];
-    // $woo_product = wc_get_product_object($supplier_product['meta']['product_type'], $woo_id);
+                    if ($should_update) {
+                        $stats['update']++;
+                        $this->update_product_terms($supplier_product);
+                        $woo_product = wc_get_product_object($supplier_product['meta']['product_type'], $woo_id);
+                        $this->update_base_product($supplier_product, $woo_product);
+                        $woo_id = $woo_product->save();
+                        $this->log("product {$woo_id} update");
+                    } else {
+                        $stats['ignore']++;
+                        $this->log("product {$woo_id} ignore");
+                    }
 
-    // $last_updated = $woo_product->get_meta('_last_updated', true);
-    // $age = $last_updated ? WooTools::get_age($last_updated, 'hours') : 99999;
+                    // // is this product out of date
+                    // $woo_id = $supplier_product['meta']['woo_id'];
+                    // $woo_product = wc_get_product_object($supplier_product['meta']['product_type'], $woo_id);
 
-    // if ($age > 24 * 7) {
-    //     $this->update_base_product($supplier_product, $woo_product);
-    //     $woo_id = $woo_product->save();
-    //     $this->log("product {$woo_id} update");
-    // } else {
-    //     $this->log("product {$woo_id} ignore");
-    // }
-    }
+                    // $last_updated = $woo_product->get_meta('_last_updated', true);
+                    // $age = $last_updated ? WooTools::get_age($last_updated, 'hours') : 99999;
 
-    if ($action === 'delete') {
-    $stats['delete']++;
-    $this->log("product {$woo_id} delete");
-    }
+                    // if ($age > 24 * 7) {
+                    //     $this->update_base_product($supplier_product, $woo_product);
+                    //     $woo_id = $woo_product->save();
+                    //     $this->log("product {$woo_id} update");
+                    // } else {
+                    //     $this->log("product {$woo_id} ignore");
+                    // }
+                }
 
-    // $this->cronjob->log("{$i}/{$total} mode:{$mode} action:{$action} sku:{$sku} supplier_product_id:{$supplier_product_id} => woo_id:{$woo_id}");
-    }
-    $stats_str = json_encode($stats);
-    $end_time = microtime(true);
-    $exetime = round($end_time - $start_time);
-    $this->log("total:{$total} {$stats_str} exe:{$exetime}s");
-    $items['meta']['total'] = $total;
-    $items['meta']['stats'] = $stats;
-    return ['meta' => $items['meta']];
-    }
-     */
+                if ($action === 'delete') {
+                    $stats['delete']++;
+                    $this->log("product {$woo_id} delete");
+                }
+
+                // $this->cronjob->log("{$i}/{$total} mode:{$mode} action:{$action} sku:{$sku} supplier_product_id:{$supplier_product_id} => woo_id:{$woo_id}");
+            }
+            $stats_str = json_encode($stats);
+            $end_time  = microtime(true);
+            $exetime   = round($end_time - $start_time);
+            $this->log("total:{$total} {$stats_str} exe:{$exetime}s");
+            $items['meta']['total'] = $total;
+            $items['meta']['stats'] = $stats;
+            return ['meta' => $items['meta']];
+        }
+        */
+        //
+        // ------------>>>>>
+        //
+        //
     }
 
     // remove items from products page that are not supported for any reason
     private function filter_items($items)
     {
-        if (!WooTools::is_valid_array($items['data'])) {
+        if (! WooTools::is_valid_array($items['data'])) {
             return $items;
         }
+        $this->log(__FUNCTION__);
         // remove unsupported brands
-        $allowed_brands = $this->get_allowed_brand_ids();
-        $items['data'] = array_filter($items['data'], fn($item) => in_array((string) $item['attributes']['brand_id'], $allowed_brands));
+        $allowed_brands                  = $this->get_allowed_brand_ids();
+        $items['data']                   = array_filter($items['data'], fn($item) => in_array((string) $item['attributes']['brand_id'], $allowed_brands));
         $items['meta']['allowed_brands'] = $allowed_brands;
         return $items;
     }
 
     public function process_items_page($items)
     {
-        if (!WooTools::is_valid_array($items['data'])) {
+        if (! WooTools::is_valid_array($items['data'])) {
             return $items;
         }
+        $this->log(__FUNCTION__);
         // TODO: remvoe TESTING!!
         // $items['data'] = array_slice($items['data'], 0, 2);
 
@@ -492,14 +553,14 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
         // mutate into predictable shape: data => [[data,meta], [data, meta]...], meta]
         // so it can be populated by the other filters
         // populate: woo_id
-        $skus = [];
-        $meta = &$items['meta'];
+        $skus                   = [];
+        $meta                   = &$items['meta'];
         $meta['import_version'] = $this->import_version;
-        $meta['created'] = 0;
-        $meta['updates'] = 0;
-        $meta['inserts'] = 0;
-        $meta['metadata'] = [];
-        $meta['posts'] = [];
+        $meta['created']        = 0;
+        $meta['updates']        = 0;
+        $meta['inserts']        = 0;
+        $meta['metadata']       = [];
+        $meta['posts']          = [];
         // $meta['attachments'] = [];
         $meta['terms'] = [];
         // $allowed_brands = $this->get_allowed_brand_ids();
@@ -507,22 +568,22 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
         // array_filter(fn($item) => $item[''])
 
         foreach ($items['data'] as $i => &$product) {
-            $sku = $this->get_product_sku($product['id']);
+            $sku        = $this->get_product_sku($product['id']);
             $post_title = $this->get_name(['data' => $product]);
             // we have to guarantee that this slug is unique or this breaks
             $product_slug = sanitize_title(implode('-', [$post_title, $product['id'], $this->key, 'product']));
 
             $product = [
                 'meta' => [
-                    'woo_id' => 0,
-                    'sku' => $sku,
-                    'slug' => $product_slug,
-                    'title' => $post_title,
-                    'product_type' => $this->get_product_type($product),
-                    'is_available' => $this->is_available(['data' => $product]),
-                    'product_tag' => [],
+                    'woo_id'          => 0,
+                    'sku'             => $sku,
+                    'slug'            => $product_slug,
+                    'title'           => $post_title,
+                    'product_type'    => $this->get_product_type($product),
+                    'is_available'    => $this->is_available(['data' => $product]),
+                    'product_tag'     => [],
                     'product_tag_ids' => [],
-                    'product_cat' => [],
+                    'product_cat'     => [],
                     'product_cat_ids' => [],
                     // 'updates' => 0,
                     // 'inserts' => 0,
@@ -535,41 +596,41 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
 
         // get existing woo products
         $lookup_woo_id = WooTools::lookup_woo_ids_by_skus($skus);
-        $woo_ids = array_values($lookup_woo_id);
+        $woo_ids       = array_values($lookup_woo_id);
         // get meta tags for products to check status
         $meta_tags_lookup = WooTools::get_metas($woo_ids, ['_ci_t14_item_updated', '_ci_import_version', '_thumbnail_id']);
 
         foreach ($items['data'] as $i => &$product) {
-            $sku = $product['meta']['sku'];
-            $woo_id = isset($lookup_woo_id[$sku]) ? $lookup_woo_id[$sku] : false;
-            $metatags = isset($meta_tags_lookup[$woo_id]) ? $meta_tags_lookup[$woo_id] : [];
+            $sku          = $product['meta']['sku'];
+            $woo_id       = isset($lookup_woo_id[$sku]) ? $lookup_woo_id[$sku] : false;
+            $metatags     = isset($meta_tags_lookup[$woo_id]) ? $meta_tags_lookup[$woo_id] : [];
             $stock_status = $product['meta']['is_available'] ? 'instock' : 'outofstock';
 
             $product['meta']['stock_status'] = $stock_status;
-            $product['meta']['woo_id'] = 0;
+            $product['meta']['woo_id']       = 0;
             // if (!$woo_id) {
             // create product
-            // $woo_product = $this->create_base_product($product);
+            // $woo_product = $this->creat e_base_product($product);
             // $woo_id = $woo_product->save();
             // $meta['created']++;
             // }
             if ($woo_id) {
                 // determine if product needs updating
-                $_ci_import_version = isset($metatags['_ci_import_version']) ? $metatags['_ci_import_version'] : false;
+                $_ci_import_version   = isset($metatags['_ci_import_version']) ? $metatags['_ci_import_version'] : false;
                 $_ci_t14_item_updated = isset($metatags['_ci_t14_item_updated']) ? $metatags['_ci_t14_item_updated'] : false;
-                $age = $_ci_t14_item_updated ? WooTools::get_age($metatags['_ci_t14_item_updated'], 'hours') : 999999;
-                $stale = $age > 24 * 7; // expire after a week
-                $deprecated = $this->import_version !== $_ci_import_version;
+                $age                  = $_ci_t14_item_updated ? WooTools::get_age($metatags['_ci_t14_item_updated'], 'hours') : 999999;
+                $stale                = $age > 24 * 7; // expire after a week
+                $deprecated           = $this->import_version !== $_ci_import_version;
 
                 // $product['meta']['woo_id'] = $woo_id;
-                $product['meta']['metatags'] = $metatags;
-                $product['meta']['age'] = $age;
-                $product['meta']['stale'] = $stale;
-                $product['meta']['deprecated'] = $deprecated;
+                $product['meta']['metatags']      = $metatags;
+                $product['meta']['age']           = $age;
+                $product['meta']['stale']         = $stale;
+                $product['meta']['deprecated']    = $deprecated;
                 $product['meta']['should_update'] = $deprecated || $stale;
 
                 // TODO: temporary to fix title
-                wp_update_post(['ID' => $woo_id, 'post_title' => $this->get_name($product)]);
+                // wp_update_post(['ID' => $woo_id, 'post_title' => $this->get_name($product)]);
                 // update product
                 // $meta['metadata'][] = [
                 //     'post_id' => $woo_id,
@@ -585,17 +646,18 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
                 // insert product
                 // $product_id = $product['data']['id'];
                 // $post_title = $product['meta']['title']; //$this->get_name($product);
-                $product_slug = $product['meta']['slug']; //sanitize_title(implode('-', [$post_title, $product_id, $this->key, 'product']));
+                $product_slug = $product['meta']['slug'];
+                // sanitize_title(implode('-', [$post_title, $product_id, $this->key, 'product']));
                 // $product['meta']['slug'] = $product_slug;
                 $guid = home_url() . "/product/$product_slug";
 
                 $meta['posts'][] = [
-                    'post_title' => $this->get_name($product), // $product['meta']['title'], // product name
+                    'post_title'   => $this->get_name($product),              // $product['meta']['title'], // product name
                     'post_excerpt' => $this->get_short_description($product), // short description
-                    'post_name' => $product_slug, // product slug
-                    'post_content' => $this->get_description($product), // long description
-                    'guid' => $guid,
-                    'post_type' => 'product',
+                    'post_name'    => $product_slug,                          // product slug
+                    'post_content' => $this->get_description($product),       // long description
+                    'guid'         => $guid,
+                    'post_type'    => 'product',
                 ];
             }
         }
@@ -608,7 +670,7 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
                 $lookup_slug[$item['meta']['slug']] = $i + 100;
             }
         } else {
-            $posts = $items['meta']['posts'];
+            $posts       = $items['meta']['posts'];
             $lookup_slug = WooTools::insert_unique_posts($posts);
         }
         // get woo ID by post_name
@@ -616,37 +678,37 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
         // return $items;
 
         foreach ($items['data'] as &$product) {
-            $slug = $product['meta']['slug'];
-            $sku = $product['meta']['sku'];
+            $slug         = $product['meta']['slug'];
+            $sku          = $product['meta']['sku'];
             $stock_status = $product['meta']['stock_status'];
-            $product_id = $product['data']['id'];
+            $product_id   = $product['data']['id'];
             // $woo_id = isset($lookup_woo_id[$sku]) ? $lookup_woo_id[$sku] : false;
 
             if (isset($lookup_slug[$slug])) {
-                $woo_id = $lookup_slug[$slug];
+                $woo_id                    = $lookup_slug[$slug];
                 $product['meta']['woo_id'] = $woo_id;
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_sku', 'meta_value' => $sku];
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => 'total_sales', 'meta_value' => 0];
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_tax_status', 'meta_value' => 'taxable'];
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_manage_stock', 'meta_value' => 'no'];
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_backorders', 'meta_value' => 'no'];
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_sold_individually', 'meta_value' => 'no'];
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_virtual', 'meta_value' => 'no'];
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_downloadable', 'meta_value' => 'no'];
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_download_limit', 'meta_value' => '-1'];
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_download_expiry', 'meta_value' => '-1'];
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_stock', 'meta_value' => null];
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_stock_status', 'meta_value' => $stock_status];
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_wc_average_rating', 'meta_value' => 0];
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_wc_review_count', 'meta_value' => 0];
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_product_version', 'meta_value' => Constants::get_constant('WC_VERSION')];
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_supplier_class', 'meta_value' => $this->supplierClass];
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_ci_supplier_key', 'meta_value' => $this->key];
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_ci_product_id', 'meta_value' => $product_id];
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_ci_import_version', 'meta_value' => $this->import_version];
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_ci_import_timestamp', 'meta_value' => gmdate("c")];
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_ci_import_details', 'meta_value' => gmdate("c")];
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_ci_import_price', 'meta_value' => gmdate("c")];
+                $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_sku', 'meta_value' => $sku];
+                $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => 'total_sales', 'meta_value' => 0];
+                $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_tax_status', 'meta_value' => 'taxable'];
+                $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_manage_stock', 'meta_value' => 'no'];
+                $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_backorders', 'meta_value' => 'no'];
+                $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_sold_individually', 'meta_value' => 'no'];
+                $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_virtual', 'meta_value' => 'no'];
+                $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_downloadable', 'meta_value' => 'no'];
+                $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_download_limit', 'meta_value' => '-1'];
+                $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_download_expiry', 'meta_value' => '-1'];
+                $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_stock', 'meta_value' => null];
+                $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_stock_status', 'meta_value' => $stock_status];
+                $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_wc_average_rating', 'meta_value' => 0];
+                $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_wc_review_count', 'meta_value' => 0];
+                $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_product_version', 'meta_value' => Constants::get_constant('WC_VERSION')];
+                $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_supplier_class', 'meta_value' => $this->supplierClass];
+                $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_ci_supplier_key', 'meta_value' => $this->key];
+                $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_ci_product_id', 'meta_value' => $product_id];
+                $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_ci_import_version', 'meta_value' => $this->import_version];
+                $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_ci_import_timestamp', 'meta_value' => gmdate("c")];
+                $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_ci_import_details', 'meta_value' => gmdate("c")];
+                                                                                                                 // $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_ci_import_price', 'meta_value' => gmdate("c")];
                 $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_ci_update_plp', 'meta_value' => 0]; // TODO: update list view
                 $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_ci_update_pdp', 'meta_value' => 0];
                 $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_ci_t14_item_updated', 'meta_value' => gmdate("c")];
@@ -672,23 +734,24 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
 
     public function process_items_unavailable($items)
     {
-        if (!WooTools::is_valid_array($items['data'])) {
+        if (! WooTools::is_valid_array($items['data'])) {
             return $items;
         }
+        $this->log(__FUNCTION__);
         $post_ids = [];
         foreach ($items['data'] as &$item) {
-            $woo_id = isset($item['meta']['woo_id']) ? $item['meta']['woo_id'] : false;
+            $woo_id                      = isset($item['meta']['woo_id']) ? $item['meta']['woo_id'] : false;
             $item['meta']['post_status'] = 'publish';
             if ($woo_id) {
                 $is_available = isset($item['meta']['is_available']) ? $item['meta']['is_available'] : true;
-                if (!$is_available) {
-                    $post_ids[] = $woo_id;
+                if (! $is_available) {
+                    $post_ids[]                  = $woo_id;
                     $item['meta']['post_status'] = 'draft';
                 }
             }
         }
         $items['meta']['unpublish'] = count($post_ids);
-        if (!$this->dry_run) {
+        if (! $this->dry_run) {
             WooTools::unpublish($post_ids);
         }
         return $items;
@@ -696,16 +759,14 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
 
     public function process_items_categories($items)
     {
-        if (!WooTools::is_valid_array($items['data'])) {
+        if (! WooTools::is_valid_array($items['data'])) {
             return $items;
         }
-        // $this->log('process_items_categories()');
-        /*
-        find product_cat related to each product
-        get the id of existing or create a new category
-         */
-        $cats_lookup = [];
-        $subcats_lookup = [];
+        $this->log(__FUNCTION__);
+        // find product_cat related to each product
+        // get the id of existing or create a new category
+        $cats_lookup                     = [];
+        $subcats_lookup                  = [];
         $items['meta']['new_categories'] = 0;
         // brands container
         $cats_lookup['brands'] = ['name' => 'Brands', 'slug' => 'brands'];
@@ -715,7 +776,7 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
             if (isset($product['data']['attributes']['category'])) {
                 $cat_name = $product['data']['attributes']['category'];
                 $cat_slug = sanitize_title($cat_name);
-                if (!array_key_exists($cat_slug, $cats_lookup)) {
+                if (! array_key_exists($cat_slug, $cats_lookup)) {
                     $cats_lookup[$cat_slug] = ['name' => $cat_name, 'slug' => $cat_slug];
                 }
             }
@@ -723,24 +784,24 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
             if (isset($product['data']['attributes']['subcategory'])) {
                 $subcat_name = $product['data']['attributes']['subcategory'];
                 $subcat_slug = sanitize_title($subcat_name);
-                if (!array_key_exists($subcat_slug, $subcats_lookup)) {
+                if (! array_key_exists($subcat_slug, $subcats_lookup)) {
                     $subcats_lookup[$subcat_slug] = ['name' => $subcat_name, 'slug' => $subcat_slug, 'parent_slug' => $cat_slug];
                 }
             }
             // brand
             if (isset($product['data']['brand']['attributes']['name'])) {
-                $brand = $product['data']['brand'];
+                $brand      = $product['data']['brand'];
                 $brand_name = $brand['attributes']['name'];
                 $brand_slug = sanitize_title($brand_name);
-                if (!array_key_exists($brand_slug, $cats_lookup)) {
+                if (! array_key_exists($brand_slug, $cats_lookup)) {
                     $cats_lookup[$brand_slug] = ['name' => $brand_name, 'slug' => $brand_slug];
                 }
             }
         }
 
-        $taxonomy = 'product_cat';
-        $slugs = array_merge(array_keys($cats_lookup), array_keys($subcats_lookup));
-        $found = get_terms(['slug' => $slugs, 'taxonomy' => $taxonomy, 'hide_empty' => false]);
+        $taxonomy    = 'product_cat';
+        $slugs       = array_merge(array_keys($cats_lookup), array_keys($subcats_lookup));
+        $found       = get_terms(['slug' => $slugs, 'taxonomy' => $taxonomy, 'hide_empty' => false]);
         $lookup_term = array_column($found, null, 'slug');
 
         foreach ($cats_lookup as $slug => $term) {
@@ -749,22 +810,26 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
             } else {
                 $items['meta']['new_categories']++;
                 $woo_tag = wp_insert_term($term['name'], $taxonomy, ['slug' => $slug]);
-                if ($woo_tag) {
-                    $cats_lookup[$slug]['id'] = $woo_tag->term_id;
+                if (is_wp_error($woo_tag)) {
+                    $this->log(__FUNCTION__, 'ERROR', $woo_tag->get_error_message());
                 } else {
-                    $this->log('cat woo_tag error');
+                    if ($woo_tag) {
+                        $cats_lookup[$slug]['id'] = $woo_tag->term_id;
+                    } else {
+                        $this->log('cat woo_tag error');
+                    }
                 }
             }
         }
 
         foreach ($subcats_lookup as $slug => $term) {
-            $parent_slug = $term['parent_slug'];
-            $parent_id = $cats_lookup[$parent_slug]['id'];
+            $parent_slug                        = $term['parent_slug'];
+            $parent_id                          = $cats_lookup[$parent_slug]['id'];
             $subcats_lookup[$slug]['parent_id'] = $parent_id;
 
             if (isset($lookup_term[$slug]) && $lookup_term[$slug]->term_id) {
                 $subcats_lookup[$slug]['exists'] = true;
-                $subcats_lookup[$slug]['id'] = $lookup_term[$slug]->term_id;
+                $subcats_lookup[$slug]['id']     = $lookup_term[$slug]->term_id;
             } else {
                 $subcats_lookup[$slug]['exists'] = false;
                 $items['meta']['new_categories']++;
@@ -778,21 +843,21 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
         }
 
         foreach ($items['data'] as &$item) {
-            $category = $product['data']['attributes']['category'];
-            $cat_slug = sanitize_title($category);
-            $cat = $cats_lookup[$cat_slug];
-            $item['meta']['product_cat'][] = $cat;
+            $category                          = $product['data']['attributes']['category'];
+            $cat_slug                          = sanitize_title($category);
+            $cat                               = $cats_lookup[$cat_slug];
+            $item['meta']['product_cat'][]     = $cat;
             $item['meta']['product_cat_ids'][] = $cat['id'];
 
-            $subcategory = $product['data']['attributes']['subcategory'];
-            $subcat_slug = sanitize_title($subcategory);
-            $subcat = $subcats_lookup[$subcat_slug];
-            $item['meta']['product_cat'][] = $subcat;
+            $subcategory                       = $product['data']['attributes']['subcategory'];
+            $subcat_slug                       = sanitize_title($subcategory);
+            $subcat                            = $subcats_lookup[$subcat_slug];
+            $item['meta']['product_cat'][]     = $subcat;
             $item['meta']['product_cat_ids'][] = $subcat['id'];
         }
 
         // save data
-        if (!$this->dry_run) {
+        if (! $this->dry_run) {
             foreach ($items['data'] as $supplier_product) {
                 $woo_id = $supplier_product['meta']['woo_id'];
                 // save categories
@@ -825,12 +890,12 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
             $parent_id = $brands_cat['term_id'];
         }
 
-        $brands = $this->get_api("/brands");
+        $brands   = $this->get_api("/brands");
         $taxonomy = 'product_cat';
-        $terms = [];
+        $terms    = [];
 
         foreach ($brands['data'] as $i => $brand) {
-            $name = $brand['attributes']['name'];
+            $name    = $brand['attributes']['name'];
             $terms[] = ['id' => 0, 'name' => $name, 'parent' => $parent_id, 'brand_id' => $brand['id']];
         }
 
@@ -840,12 +905,12 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
 
     public function process_items_brands($items)
     {
-        if (!WooTools::is_valid_array($items['data'])) {
+        if (! WooTools::is_valid_array($items['data'])) {
             return $items;
         }
-        // $this->log('process_items_brands()');
-        $taxonomy = 'product_cat';
-        $brand_tags = $this->prepare_brands();
+        $this->log(__FUNCTION__);
+        $taxonomy        = 'product_cat';
+        $brand_tags      = $this->prepare_brands();
         $lookup_brand_id = array_column($brand_tags, null, 'brand_id');
 
         foreach ($items['data'] as &$item) {
@@ -854,20 +919,20 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
             $term = $lookup_brand_id[$brand_id];
             // $items['data'][$i]['data']['brand'] = $brand;
             $item['meta'][$taxonomy . '_ids'][] = $term['id'];
-            $item['meta'][$taxonomy][] = $term;
+            $item['meta'][$taxonomy][]          = $term;
         }
 
-        $brands = $this->get_api("/brands"); // TODO: loop and get all brand pages - currently they have 450 brands - each page is 1000.
+        $brands            = $this->get_api("/brands"); // TODO: loop and get all brand pages - currently they have 450 brands - each page is 1000.
         $lookup_brand_data = array_column($brands['data'], null, 'id');
-        $taxonomy = 'product_tag';
-        $brand_lookup = [];
-        $terms = [];
+        $taxonomy          = 'product_tag';
+        $brand_lookup      = [];
+        $terms             = [];
 
         foreach ($brands['data'] as &$brand) {
-            $name = $brand['attributes']['name'];
-            $slug = sanitize_title($name);
-            $terms[] = ['id' => 0, 'name' => $name, 'slug' => $slug, 'brand_id' => $brand['id']];
-            $brand['slug'] = $slug;
+            $name                = $brand['attributes']['name'];
+            $slug                = sanitize_title($name);
+            $terms[]             = ['id' => 0, 'name' => $name, 'slug' => $slug, 'brand_id' => $brand['id']];
+            $brand['slug']       = $slug;
             $brand_lookup[$slug] = $brand;
         }
 
@@ -876,7 +941,7 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
 
         // TODO: prod remove this - this will never happen
         if (is_wp_error($found)) {
-            $this->log('major error getting brands data - wtf wp?');
+            $this->log(__FUNCTION__, 'ERROR', 'major error getting brands data - wtf wp?');
             return $items;
         }
 
@@ -907,28 +972,29 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
         $lookup_brand_term = array_column($terms, null, 'brand_id');
 
         foreach ($items['data'] as &$item) {
-            $brand_id = $item['data']['attributes']['brand_id'];
-            $brand = $lookup_brand_data[$brand_id];
-            $term = $lookup_brand_term[$brand_id];
-            $item['data']['brand'] = $brand;
+            $brand_id                          = $item['data']['attributes']['brand_id'];
+            $brand                             = $lookup_brand_data[$brand_id];
+            $term                              = $lookup_brand_term[$brand_id];
+            $item['data']['brand']             = $brand;
             $item['meta']['product_tag_ids'][] = $term['id'];
-            $item['meta']['product_tag'][] = $term;
+            $item['meta']['product_tag'][]     = $term;
         }
         return $items;
     }
 
     public function process_items_prices($items)
     {
-        if (!WooTools::is_valid_array($items['data'])) {
+        if (! WooTools::is_valid_array($items['data'])) {
             return $items;
         }
+        $this->log(__FUNCTION__);
         $item_ids = array_map(fn($item) => $item['data']['id'], $items['data']);
-        $prices = $this->get_prices_table($item_ids);
+        $prices   = $this->get_prices_table($item_ids);
 
         foreach ($items['data'] as &$item) {
-            $supplier_product_id = $item['data']['id'];
-            $woo_id = isset($item['meta']['woo_id']) ? $item['meta']['woo_id'] : false;
-            $price = array_key_exists($supplier_product_id, $prices) ? $prices[$supplier_product_id] : 0;
+            $supplier_product_id   = $item['data']['id'];
+            $woo_id                = isset($item['meta']['woo_id']) ? $item['meta']['woo_id'] : false;
+            $price                 = array_key_exists($supplier_product_id, $prices) ? $prices[$supplier_product_id] : 0;
             $item['meta']['price'] = $price;
 
             if ($woo_id && $price) {
@@ -946,7 +1012,7 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
 
     public function process_items_tags($items)
     {
-        if (!WooTools::is_valid_array($items['data'])) {
+        if (! WooTools::is_valid_array($items['data'])) {
             return $items;
         }
         // $this->log('process_items_tags()');
@@ -963,14 +1029,16 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
         return $items;
     }
 
+    // insert image attachment and create meta on item to be saved later
     public function process_items_thumbnails($items)
     {
-        if (!WooTools::is_valid_array($items['data'])) {
+        if (! WooTools::is_valid_array($items['data'])) {
             return $items;
         }
+        $this->log(__FUNCTION__);
         $thumbnails = [];
         foreach ($items['data'] as &$item) {
-            $thumbnail = isset($item['data']['attributes']['thumbnail']) ? $item['data']['attributes']['thumbnail'] : 0;
+            $thumbnail                 = isset($item['data']['attributes']['thumbnail']) ? $item['data']['attributes']['thumbnail'] : 0;
             $item['meta']['thumbnail'] = $thumbnail;
             if ($thumbnail) {
                 $thumbnails[] = $thumbnail;
@@ -980,10 +1048,10 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
         $lookup_thumbnail = WooTools::attachment_urls_to_postids($thumbnails);
 
         foreach ($items['data'] as &$item) {
-            $thumbnail = $item['meta']['thumbnail'];
+            $thumbnail    = $item['meta']['thumbnail'];
             $thumbnail_id = isset($lookup_thumbnail[$thumbnail]) ? $lookup_thumbnail[$thumbnail] : 0;
             if ($thumbnail && $thumbnail_id) {
-                $woo_id = $item['meta']['woo_id'];
+                $woo_id                      = $item['meta']['woo_id'];
                 $items['meta']['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_thumbnail_id', 'meta_value' => $thumbnail_id];
             }
         }
@@ -1013,13 +1081,13 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
         // resolve to existing ids
         // create those that don't exist
         foreach ($terms as $i => $term) {
-            if (!isset($term['slug'])) {
+            if (! isset($term['slug'])) {
                 $terms[$i]['slug'] = sanitize_title($term['name']);
             }
         }
 
-        $slugs = array_column($terms, 'slug');
-        $found = get_terms(['slug' => $slugs, 'taxonomy' => $taxonomy, 'hide_empty' => false]);
+        $slugs       = array_column($terms, 'slug');
+        $found       = get_terms(['slug' => $slugs, 'taxonomy' => $taxonomy, 'hide_empty' => false]);
         $lookup_term = array_column($found, null, 'slug');
 
         foreach ($terms as $i => $term) {
@@ -1031,9 +1099,9 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
                     wp_update_term($lookup_term[$slug]->term_id, $taxonomy, ['parent' => $term['parent']]);
                 }
             } else {
-                $parent = isset($term['parent']) ? $term['parent'] : 0;
+                $parent  = isset($term['parent']) ? $term['parent'] : 0;
                 $woo_tag = wp_insert_term($term['name'], $taxonomy, ['slug' => $slug, 'parent' => $parent]);
-                if (!is_wp_error($woo_tag) && isset($woo_tag['term_id'])) {
+                if (! is_wp_error($woo_tag) && isset($woo_tag['term_id'])) {
                     $terms[$i]['id'] = $woo_tag['term_id'];
                 }
             }
@@ -1304,33 +1372,34 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
 
     private function build_product_meta($supplier_product, $lookup_woo_id = null, $lookup_updated = null, $lookup_version = null)
     {
-        $meta = [];
-        $meta['name'] = $this->get_name($supplier_product);
+        error_log(__FUNCTION__);
+        $meta                      = [];
+        $meta['name']              = $this->get_name($supplier_product);
         $meta['short_description'] = $this->get_short_description($supplier_product);
-        $meta['is_available'] = $this->is_available($supplier_product);
-        $meta['sku'] = $this->get_product_sku($supplier_product['data']['id']);
-        $meta['is_variable'] = $this->is_variable($supplier_product);
-        $meta['product_type'] = $this->get_product_type($supplier_product);
-        $meta['terms'] = $this->extract_terms($supplier_product);
-        $meta['images'] = $this->extract_images($supplier_product, false);
-        $action = 'ignore';
-        $reason = '';
+        $meta['is_available']      = $this->is_available($supplier_product);
+        $meta['sku']               = $this->get_product_sku($supplier_product['data']['id']);
+        $meta['is_variable']       = $this->is_variable($supplier_product);
+        $meta['product_type']      = $this->get_product_type($supplier_product);
+        $meta['terms']             = $this->extract_terms($supplier_product);
+        $meta['images']            = $this->extract_images($supplier_product, false);
+        $action                    = 'ignore';
+        $reason                    = '';
 
-        if (!$lookup_woo_id) {
+        if (! $lookup_woo_id) {
             $lookup_woo_id = WooTools::lookup_woo_ids_by_skus([$meta['sku']]);
         }
 
         if (isset($lookup_woo_id[$meta['sku']])) {
             // product exists in woo
-            $woo_id = $lookup_woo_id[$meta['sku']];
-            $meta['woo_id'] = $woo_id;
-            $meta['updated'] = $lookup_updated[$woo_id];
-            $meta['age'] = WooTools::get_age($meta['updated'], 'seconds');
+            $woo_id                 = $lookup_woo_id[$meta['sku']];
+            $meta['woo_id']         = $woo_id;
+            $meta['updated']        = $lookup_updated[$woo_id];
+            $meta['age']            = WooTools::get_age($meta['updated'], 'seconds');
             $meta['import_version'] = $lookup_version[$woo_id];
-            $expired = $meta['age'] > 24 * 7; // expire after a week
-            $deprecated = $meta['import_version'] !== $this->import_version;
-            $meta['expired'] = $expired;
-            $meta['deprecated'] = $deprecated;
+            $expired                = $meta['age'] > 24 * 7; // expire after a week
+            $deprecated             = $meta['import_version'] !== $this->import_version;
+            $meta['expired']        = $expired;
+            $meta['deprecated']     = $deprecated;
 
             if ($expired || $deprecated) {
                 $action = 'update';
@@ -1341,7 +1410,7 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
         } else {
             // product does not exist
             $meta['woo_id'] = false;
-            $action = 'insert';
+            $action         = 'insert';
         }
         $meta['action'] = $action;
         $meta['reason'] = $reason;
@@ -1460,12 +1529,13 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
      */
     public function create_base_product($supplier_product)
     {
+        error_log(__FUNCTION__ . ' ' . json_encode($supplier_product));
         if ($supplier_product['meta']['product_type'] === 'simple') {
             $woo_product = new WC_Product_Simple();
         } else {
             $woo_product = new WC_Product_Variable();
         }
-        // $this->log('create_base_product() ' . $supplier_product['meta']['sku']);
+                                                                 // $this->log('c reate_base_product() ' . $supplier_product['meta']['sku']);
         $woo_product->set_sku($supplier_product['meta']['sku']); //$this->get_product_sku($supplier_product['data']['id']));
         $woo_product->update_meta_data('_ci_supplier_key', $this->key);
         $woo_product->update_meta_data('_ci_product_id', $supplier_product['data']['id']);
@@ -1487,8 +1557,8 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
     public function update_base_product($supplier_product, $woo_product = false)
     {
         // $this->log('update_base_product() ' . $supplier_product['meta']['sku']);
-        if (!$woo_product) {
-            $woo_id = $supplier_product['meta']['woo_id'];
+        if (! $woo_product) {
+            $woo_id      = $supplier_product['meta']['woo_id'];
             $woo_product = wc_get_product_object($supplier_product['meta']['product_type'], $woo_id);
         }
         $is_available = $supplier_product['meta']['is_available'] === true;
@@ -1496,6 +1566,7 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
         $woo_product->set_status($is_available ? 'publish' : 'draft');
         $woo_product->set_name($this->get_name($supplier_product));
         $woo_product->set_short_description($this->get_short_description($supplier_product));
+        $woo_product->update_meta_data('_ci_supplier_key', $this->key);
         $woo_product->update_meta_data('_ci_import_version', $this->import_version);
         $woo_product->update_meta_data('_ci_import_timestamp', gmdate("c"));
 
@@ -1511,19 +1582,19 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
         if ($supplier_product === null) {
             $supplier_product = $this->get_product($supplier_product_id);
         }
-        if (!$supplier_product) {
+        if (! $supplier_product) {
             $this->log('insert_product() API Error' . $supplier_product_id);
             return ['error' => 'insert_product() API Error' . $supplier_product_id];
         }
         $is_available = $this->is_available($supplier_product);
 
-        if (!$is_available) {
+        if (! $is_available) {
             $this->log('insert_product() Product not available:' . $supplier_product_id);
             return ['error' => 'insert_product() Product not available:' . $supplier_product_id];
         }
 
         $images = $this->extract_images($supplier_product);
-        if (!count($images)) {
+        if (! count($images)) {
             $this->log('insert_product() Product has no images:' . $supplier_product_id);
             return ['error' => 'insert_product() Product has no images:' . $supplier_product_id];
         }
@@ -1561,37 +1632,37 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
         $this->update_terms($supplier_product, $woo_id);
 
         return [
-            'woo_id' => $woo_id,
-            'stock_status' => $woo_product->get_stock_status(),
-            'sku' => $woo_product->get_sku(),
-            'name' => $woo_product->get_name(),
-            'regular_price' => $woo_product->get_regular_price(),
-            'description' => $woo_product->get_description(),
+            'woo_id'            => $woo_id,
+            'stock_status'      => $woo_product->get_stock_status(),
+            'sku'               => $woo_product->get_sku(),
+            'name'              => $woo_product->get_name(),
+            'regular_price'     => $woo_product->get_regular_price(),
+            'description'       => $woo_product->get_description(),
             'short_description' => $woo_product->get_short_description(),
-            'meta_data' => $woo_product->get_meta_data(),
+            'meta_data'         => $woo_product->get_meta_data(),
             'gallery_image_ids' => $woo_product->get_gallery_image_ids(),
-            'attachments' => $attachments,
-            'terms' => [
-                'categories' => get_the_terms($woo_id, 'product_cat'),
+            'attachments'       => $attachments,
+            'terms'             => [
+                'categories'  => get_the_terms($woo_id, 'product_cat'),
                 'product_tag' => get_the_terms($woo_id, 'product_tag'),
             ],
         ];
 
         // Define attributes
-        $attributes = array(
-            'color' => array(
-                'name' => 'Color',
-                'visible' => true,
+        $attributes = [
+            'color' => [
+                'name'      => 'Color',
+                'visible'   => true,
                 'variation' => true,
-                'options' => array('Red', 'Blue', 'Green'),
-            ),
-            'size' => array(
-                'name' => 'Size',
-                'visible' => true,
+                'options'   => ['Red', 'Blue', 'Green'],
+            ],
+            'size'  => [
+                'name'      => 'Size',
+                'visible'   => true,
                 'variation' => true,
-                'options' => array('Small', 'Medium', 'Large'),
-            ),
-        );
+                'options'   => ['Small', 'Medium', 'Large'],
+            ],
+        ];
 
         // Add attributes to the variable product
         foreach ($attributes as $key => $attribute) {
@@ -1605,24 +1676,24 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
         $woo_product->save();
 
         // Add variations
-        $variations = array(
-            array(
-                'attributes' => array(
+        $variations = [
+            [
+                'attributes'    => [
                     'color' => 'Red',
-                    'size' => 'Small',
-                ),
+                    'size'  => 'Small',
+                ],
                 'regular_price' => '19.99',
-                'sale_price' => '14.99',
-            ),
-            array(
-                'attributes' => array(
+                'sale_price'    => '14.99',
+            ],
+            [
+                'attributes'    => [
                     'color' => 'Blue',
-                    'size' => 'Medium',
-                ),
+                    'size'  => 'Medium',
+                ],
                 'regular_price' => '19.99',
-                'sale_price' => '14.99',
-            ),
-        );
+                'sale_price'    => '14.99',
+            ],
+        ];
 
         foreach ($variations as $variation_data) {
             $variation = new WC_Product_Variation();
@@ -1666,7 +1737,7 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
     {
         // types: "Market Description","Product Description - Short","Associated Comments","Product Description - Long","Product Description - Invoice","AAIA Part Type Description"
         if (isset($supplier_product['data']['item_data'][0]['descriptions'])) {
-            $htm = [];
+            $htm          = [];
             $descriptions = $supplier_product['data']['item_data'][0]['descriptions'];
             if (isset($descriptions)) {
                 foreach ($descriptions as $description) {
@@ -1698,13 +1769,13 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
     {
         // TODO: in what case does this return as an array?
         // Why does is is_array true and is_object false for an object??? WTF PHP?
-        $images = [];
-        $image_urls = [];
+        $images              = [];
+        $image_urls          = [];
         $supplier_product_id = $supplier_product['data']['id'];
 
-        if (!isset($supplier_product['data']['item_data'])) {
+        if (! isset($supplier_product['data']['item_data'])) {
             if ($force) {
-                $item_data = $this->get_api("/items/data/{$supplier_product_id}");
+                $item_data                             = $this->get_api("/items/data/{$supplier_product_id}");
                 $supplier_product['data']['item_data'] = $item_data['data'][0];
             } else {
                 return false;
@@ -1721,11 +1792,11 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
         foreach ($files as $file) {
             if ($file['type'] === 'Image') {
                 $image_urls[] = $file['links'][0]['url'];
-                $images[] = [
-                    'file' => $file['links'][0]['url'],
-                    'width' => floor($file['links'][0]['width']),
-                    'height' => floor($file['links'][0]['height']),
-                    'size' => 'Large',
+                $images[]     = [
+                    'file'                => $file['links'][0]['url'],
+                    'width'               => floor($file['links'][0]['width']),
+                    'height'              => floor($file['links'][0]['height']),
+                    'size'                => 'Large',
                     'supplier_product_id' => $supplier_product['data']['id'],
                 ];
 
@@ -1744,18 +1815,18 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
         $result = [];
         $images = $this->extract_images($supplier_product);
 
-        if (!count($images)) {
+        if (! count($images)) {
             return false;
         }
-        $image_urls = array_column($images, 'file');
+        $image_urls           = array_column($images, 'file');
         $lookup_attachment_id = \WooTools::getAllAttachmentImagesIdByUrl($image_urls);
-        $master_image_ids = [];
-        $attachments = [];
+        $master_image_ids     = [];
+        $attachments          = [];
 
         foreach ($images as $image) {
             $attachment_id = $lookup_attachment_id[$image['file']];
-            if (!$attachment_id) {
-                $attachment_id = WooTools::createRemoteAttachment($image, $this->key);
+            if (! $attachment_id) {
+                $attachment_id               = WooTools::createRemoteAttachment($image, $this->key);
                 $attachments[$attachment_id] = 'created';
             } else {
                 $attachments[$attachment_id] = 'found';
@@ -1768,24 +1839,24 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
         $save_woo = false;
 
         if (count($master_image_ids) > 0) {
-            if (!$woo_product) {
+            if (! $woo_product) {
                 $woo_id = isset($supplier_product['meta']['woo_id']) ? $supplier_product['meta']['woo_id'] : false;
 
-                if (!$woo_id) {
-                    $sku = $this->get_product_sku($supplier_product['data']['id']);
+                if (! $woo_id) {
+                    $sku    = $this->get_product_sku($supplier_product['data']['id']);
                     $woo_id = wc_get_product_id_by_sku($sku);
                 }
 
-                $save_woo = true;
+                $save_woo     = true;
                 $product_type = isset($supplier_product['meta']['product_type']) ? $supplier_product['meta']['product_type'] : $this->get_product_type($supplier_product);
 
                 $result['product_type'] = $product_type;
                 if ($woo_id) {
-                    $woo_product = wc_get_product_object($product_type, $woo_id);
+                    $woo_product           = wc_get_product_object($product_type, $woo_id);
                     $result['woo_product'] = 'found';
                 } else {
-                    $woo_product = $this->create_base_product($supplier_product);
-                    $woo_id = $woo_product->get_id();
+                    $woo_product           = $this->create_base_product($supplier_product);
+                    $woo_id                = $woo_product->get_id();
                     $result['woo_product'] = 'created';
                 }
                 $result['woo_id'] = $woo_id;
@@ -1804,7 +1875,7 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
 
         $product = wc_get_product($woo_id);
         if ($product) {
-            $result['image'] = $product->get_image_id('edit');
+            $result['image']   = $product->get_image_id('edit');
             $result['gallery'] = $product->get_gallery_image_ids('edit');
         }
 
@@ -1822,7 +1893,7 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
             $vehicle_ids = $supplier_product['data']['fitment']['attributes']['vehicle_ids'];
             if (count($vehicle_ids)) {
                 foreach ($vehicle_ids as $vehicle_id) {
-                    $name = "vehicle_id_{$vehicle_id}";
+                    $name   = "vehicle_id_{$vehicle_id}";
                     $tags[] = ['name' => $name, 'slug' => sanitize_title($name)];
                 }
             }
@@ -1831,13 +1902,13 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
         // category tags
         if (isset($supplier_product['data']['attributes'])) {
             $category = $supplier_product['data']['attributes']['category'];
-            $tags[] = ['name' => $category, 'slug' => sanitize_title($category)];
+            $tags[]   = ['name' => $category, 'slug' => sanitize_title($category)];
 
             $subcategory = $supplier_product['data']['attributes']['subcategory'];
-            $tags[] = ['name' => $subcategory, 'slug' => sanitize_title($subcategory)];
+            $tags[]      = ['name' => $subcategory, 'slug' => sanitize_title($subcategory)];
 
             if (isset($supplier_product['data']['brand']['attributes']['name'])) {
-                $brand = $supplier_product['data']['brand']['attributes']['name'];
+                $brand  = $supplier_product['data']['brand']['attributes']['name'];
                 $tags[] = ['name' => $brand, 'slug' => sanitize_title($brand)];
             }
         }
@@ -1850,7 +1921,7 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
 
     public function update_terms($supplier_product, $woo_id)
     {
-        $tags = $this->extract_terms($supplier_product);
+        $tags    = $this->extract_terms($supplier_product);
         $tag_ids = $this->get_tag_ids($tags);
         wp_set_object_terms($woo_id, $tag_ids, 'product_tag', true); // appends terms
     }
@@ -1872,13 +1943,13 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
             $this->log('update_product_action() ' . $supplier_product_id);
             $woo_product_id = $this->get_woo_id($supplier_product_id);
 
-            if (!$woo_product_id) {
+            if (! $woo_product_id) {
                 $this->log($supplier_product_id . ' no woo product found for update');
                 return;
             }
 
             $woo_product = wc_get_product_object('variable', $woo_product_id);
-            $first_item = $supplier_product['data']['items']['data'][0];
+            $first_item  = $supplier_product['data']['items']['data'][0];
             $woo_product->set_name($supplier_product['data']['name']);
             $woo_product->set_status('publish');
             $woo_product->set_regular_price($first_item['list_price']);
@@ -1893,7 +1964,7 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
             // $this->update_product_images($woo_product, $supplier_product);
 
             $woo_id = $woo_product->save();
-            if (!$woo_id) {
+            if (! $woo_id) {
                 $this->log($supplier_product_id . ' save failed for woo:' . $woo_id);
             }
             return ['updated' => true];
@@ -1905,9 +1976,9 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
     public function update_woo_product($woo_id, $supplier_product)
     {
         $supplier_product_id = $supplier_product['data']['id'];
-        $is_variable = $supplier_product['meta']['is_variable'];
+        $is_variable         = $supplier_product['meta']['is_variable'];
 
-        if (!$supplier_product_id) {
+        if (! $supplier_product_id) {
             return ['error' => "product id not set"];
         }
         if ($is_variable) {
@@ -1917,7 +1988,7 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
 
         if ($is_available) {
             $woo_id = $supplier_product['meta']['woo_id'];
-            if (!$woo_id) {
+            if (! $woo_id) {
                 return ['error' => 'woo id not set'];
             }
             $woo_product = wc_get_product_object('simple', $woo_id);
@@ -1948,9 +2019,9 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
     public function import_product($supplier_product_id)
     {
         $supplier_product = $this->get_product($supplier_product_id);
-        $woo_product = $this->update_base_product($supplier_product);
-        $woo_id = $woo_product->save();
-        $attachments = $this->attach_images($supplier_product, $woo_product);
+        $woo_product      = $this->update_base_product($supplier_product);
+        $woo_id           = $woo_product->save();
+        $attachments      = $this->attach_images($supplier_product, $woo_product);
         return ['attachments' => $attachments, 'product' => $supplier_product];
     }
 
@@ -1965,7 +2036,7 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
     {
         if (isset($supplier_product['meta']['terms']) && isset($supplier_product['meta']['woo_id'])) {
             $woo_id = $supplier_product['meta']['woo_id'];
-            $terms = $supplier_product['meta']['terms'];
+            $terms  = $supplier_product['meta']['terms'];
             if ($terms) {
                 $this->log("update_product_terms() {$woo_id}");
                 $term_ids = $this->get_tag_ids($terms);

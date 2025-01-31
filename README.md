@@ -19,7 +19,10 @@
 - Fix issue where product attributes are not consistent across variations and require a dummy N/A facet for woo to work
 - added hook to show variation name in SKU dropdown
 - added custom size sort (custom_woocommerce_dropdown_variation_attribute_options_args)
-
+#### 2025-01-24
+- PDP default images are the first image of each variation. On selecting variation, all related images are shown
+#### 2025-01-26
+- added updated date to bottom of PDP
 
 <!-- ## Quirks and Features
 

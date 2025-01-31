@@ -158,7 +158,7 @@ export const useSuppliers = () => {
   return useWordpressAjax<{ key: string; name: string }[]>({ action: 'ci_api_handler', cmd: 'get_suppliers' });
 };
 
-export const AdminForm = ({ name, label = name, cmd, allowPolling = false, children = null, RenderResult = Pre }: {label?:string; name: string; cmd: string; allowPolling?: boolean; children?: React.ReactNode; RenderResult?: React.ComponentType<{ data: unknown }> }) => {
+export const AdminForm = ({ name, label = name, cmd, allowPolling = false, children = null, confirmSubmit = false, RenderResult = Pre }: { label?: string; name: string; cmd: string; allowPolling?: boolean; children?: React.ReactNode; confirmSubmit?: boolean; RenderResult?: React.ComponentType<{ data: unknown }> }) => {
   const $form = useRef<HTMLFormElement>(null);
   const [isPolling, setIsPolling] = useState(false);
   const [nonce, setNonce] = useState(0);
@@ -181,6 +181,12 @@ export const AdminForm = ({ name, label = name, cmd, allowPolling = false, child
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
+    if (confirmSubmit) {
+      const confirmed = confirm('Are you sure you want to do this?');
+      if (!confirmed) {
+        return;
+      }
+    }
     setEnabled(true);
     setNonce((n) => n + 1);
     updateQuery();

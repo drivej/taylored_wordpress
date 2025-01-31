@@ -6,7 +6,8 @@ use CIStore\Utils\CustomErrorLog;
 include_once CI_STORE_PLUGIN . 'utils/get_age.php';
 include_once CI_STORE_PLUGIN . 'utils/CustomErrorLog.php';
 
-class ImportManager {
+class ImportManager
+{
     protected $id = 'none';
     protected $auto_import_hook;
     protected $import_start_hook;
@@ -17,97 +18,93 @@ class ImportManager {
     protected $import_processing_option;
     protected $import_kill_hook;
     protected $stall_maxage = 5; // minutes
-    protected $log_path     = '';
     protected CustomErrorLog $logger;
+    protected $hook_names = [
+        'auto_import_hook',
+        'import_start_hook',
+        'import_loop_hook',
+        'import_complete_hook',
+        'import_kill_hook',
+    ];
 
-    public function __construct($id, $logger) {
-        $this->id                       = $id;
-        $this->auto_import_hook         = __NAMESPACE__ . "\\{$id}\auto_import";
-        $this->import_start_hook        = __NAMESPACE__ . "\\{$id}\start_import";
-        $this->import_loop_hook         = __NAMESPACE__ . "\\{$id}\import_loop";
-        $this->import_complete_hook     = __NAMESPACE__ . "\\{$id}\import_complete";
-        $this->import_info_option       = __NAMESPACE__ . "\\{$id}\import_info";
-        $this->import_stop_option       = __NAMESPACE__ . "\\{$id}\import_stop";
-        $this->import_processing_option = __NAMESPACE__ . "\\{$id}\import_processing";
-        $this->import_kill_hook         = __NAMESPACE__ . "\\{$id}\import_kill";
-        $this->log_path                 = CI_STORE_PLUGIN . 'logs/' . date('Y-m-d') . '_' . strtoupper($id) . '_IMPORT_LOG.log';
-        $this->logger                   = $logger ?? new \CIStore\Utils\CustomErrorLog(strtoupper($id) . '_IMPORT');
+    public function __construct($id, $logger = null)
+    {
+        $this->id     = $id;
+        $this->logger = $logger ?? new \CIStore\Utils\CustomErrorLog('IMPORT_' . strtoupper($id));
+
+        $this->auto_import_hook         = $this->hook_name('auto_import');
+        $this->import_start_hook        = $this->hook_name('start_import');
+        $this->import_loop_hook         = $this->hook_name('import_loop');
+        $this->import_complete_hook     = $this->hook_name('import_complete');
+        $this->import_kill_hook         = $this->hook_name('import_kill');
+        $this->import_info_option       = $this->hook_name('import_info');
+        $this->import_stop_option       = $this->hook_name('import_stop');
+        $this->import_processing_option = $this->hook_name('import_processing');
 
         if (! has_action($this->auto_import_hook, [$this, 'auto_import'])) {
-            add_action($this->auto_import_hook, [$this, 'auto_import'], 10, 1);
+            add_action($this->auto_import_hook, [$this, 'auto_import']);
         } else {
             $this->log('ERROR: auto_import dupe');
         }
         if (! has_action($this->import_start_hook, [$this, 'start'])) {
-            add_action($this->import_start_hook, [$this, 'start'], 10, 1);
+            add_action($this->import_start_hook, [$this, 'start'], 10, 1); // TODO: I don;t think we need arguments? maybe?
         } else {
             $this->log('ERROR: start dupe');
         }
         if (! has_action($this->import_loop_hook, [$this, 'import_loop'])) {
-            add_action($this->import_loop_hook, [$this, 'import_loop'], 10);
+            add_action($this->import_loop_hook, [$this, 'import_loop']);
         } else {
             $this->log('ERROR: import_loop dupe');
         }
         if (! has_action($this->import_complete_hook, [$this, 'import_complete'])) {
-            add_action($this->import_complete_hook, [$this, 'import_complete'], 10);
+            add_action($this->import_complete_hook, [$this, 'import_complete']);
         } else {
             $this->log('ERROR: import_complete dupe');
         }
         if (! has_action($this->import_kill_hook, [$this, 'kill_import_events'])) {
-            add_action($this->import_kill_hook, [$this, 'kill_import_events'], 10);
+            add_action($this->import_kill_hook, [$this, 'kill_import_events']);
         } else {
             $this->log('ERROR: kill_import_events dupe');
         }
-
-        // double check
-        if (! has_action($this->auto_import_hook, [$this, 'auto_import'])) {
-            $this->log('ERROR: auto_import fail');
-        }
-        if (! has_action($this->import_start_hook, [$this, 'start'])) {
-            $this->log('ERROR: start fail');
-        }
-        if (! has_action($this->import_loop_hook, [$this, 'import_loop'])) {
-            $this->log('ERROR: import_loop fail');
-        }
-        if (! has_action($this->import_complete_hook, [$this, 'import_complete'])) {
-            $this->log('ERROR: import_complete fail');
-        }
-        if (! has_action($this->import_kill_hook, [$this, 'kill_import_events'])) {
-            $this->log('ERROR: kill_import_events fail');
-        }
-
-        // $this->log('__construct::' . $this->id);
-        // $info = $this->get_import_info();
-        // if ($info['stopping'] && $info['processing']) {
-        //     $age = \CIStore\Utils\get_age($info['updated'], 'minutes');
-        //     if ($age > $this->stall_maxage) {
-        //         $this->stop_processing();
-        //     }
-        // }
     }
 
-    public function get_hooks() {
-        return [
-            'auto_import_hook'         => $this->auto_import_hook,
-            'import_start_hook'        => $this->import_start_hook,
-            'import_loop_hook'         => $this->import_loop_hook,
-            'import_complete_hook'     => $this->import_complete_hook,
-            'import_info_option'       => $this->import_info_option,
-            'import_stop_option'       => $this->import_stop_option,
-            'import_processing_option' => $this->import_processing_option,
-            'import_kill_hook'         => $this->import_kill_hook,
-        ];
+    private $hook_name_lookup = [];
+
+    private function hook_name($func)
+    {
+        if (! isset($this->hook_name_lookup[$func])) {
+            $this->hook_name_lookup[$func] = __NAMESPACE__ . "\\{$this->id}\{$func}";
+        }
+        return $this->hook_name_lookup[$func];
     }
 
-    public function get_auto_import_args() {
+    public function get_hooks_status()
+    {
+        return array_map(function ($n) {
+            $hook           = $this->$n;
+            $next_scheduled = wp_next_scheduled($hook);
+            return [
+                'name'       => $n,
+                'hook'       => $hook,
+                'has_action' => has_action($hook),
+                'scheduled'  => $next_scheduled,
+                'next'       => $next_scheduled ? date("Y-m-d H:i:s", $next_scheduled) : null,
+            ];
+        }, $this->hook_names);
+    }
+
+    public function get_auto_import_args()
+    {
         return $this->get_default_args();
     }
 
-    public function get_rerun_args() {
+    public function get_rerun_args()
+    {
         return $this->get_default_args();
     }
 
-    public function auto_import() {
+    public function auto_import()
+    {
         if ($this->is_active()) {
             $this->log('Auto import aborted. Import currently active.');
             return;
@@ -116,7 +113,8 @@ class ImportManager {
         $this->start($args);
     }
 
-    public function get_next_import_time() {
+    public function get_next_import_time()
+    {
         $next_scheduled = wp_next_scheduled($this->auto_import_hook);
         if ($next_scheduled) {
             return ['data' => date("Y-m-d H:i:s", $next_scheduled)];
@@ -124,8 +122,9 @@ class ImportManager {
         return ['data' => false];
     }
 
-    public function create_scheduled_import() {
-        $this->log('schedule_import()');
+    public function create_scheduled_import()
+    {
+        $this->log(__FUNCTION__);
         $next_scheduled = wp_next_scheduled($this->auto_import_hook);
         if (! $next_scheduled) {
             $timestamp = strtotime('today midnight') - get_option('gmt_offset') * HOUR_IN_SECONDS;
@@ -137,52 +136,68 @@ class ImportManager {
         return false;
     }
 
-    public function cancel_scheduled_import() {
-        error_log('cancel_scheduled_import()');
+    public function cancel_scheduled_import()
+    {
+        $this->log(__FUNCTION__);
         $next_scheduled = wp_next_scheduled($this->auto_import_hook);
         if ($next_scheduled) {
             $cancelled = wp_unschedule_event($next_scheduled, $this->auto_import_hook);
             if (! is_wp_error($cancelled)) {
                 return true;
-                // error_log('wp_unschedule_event failed ' . json_encode($cancelled));
             }
-            // } else {
-            //     error_log('not scheduled');
         }
         return false;
     }
 
-    public function log($message = null) {
-        return $this->logger->log('ImportManager::' . $message);
+    public function log(...$args)
+    {
+        return $this->logger->log(...$args);
     }
 
-    public function logs() {
+    public function logs()
+    {
         return $this->logger->logs();
     }
 
-    public function clear() {
+    public function clear()
+    {
         return $this->logger->clear();
     }
 
-    protected function get_default_args() {
+    protected function get_default_args()
+    {
         return [];
     }
 
-    public function start($args = []) {
-        $this->log("start()" . json_encode($args));
+    public function getBaseInfo($args = [])
+    {
+        return [
+            'started'   => gmdate("c"),
+            'processed' => 0,
+            'total'     => 0,
+            'progress'  => 0,
+            'complete'  => false,
+            'completed' => false,
+            'args'      => [ ...$this->get_default_args(), ...$args],
+        ];
+    }
+
+    public function start($args = [])
+    {
+        $this->log(__FUNCTION__, $args);
         $is_active = $this->is_active();
         if ($is_active) {
-            $this->log('start() killed: is_active');
+            $this->log(__FUNCTION__, 'killed: is_active');
             return $this->get_info();
         }
         $this->clear_stop();
         $this->unschedule($this->import_kill_hook); // just in case
         if (! is_countable($args)) {
-            $this->log('start() Bad args: ' . json_encode($args));
+            $this->log(__FUNCTION__, 'Error', 'Bad args');
             $args = [];
         }
+        // TODO: use getBaseInfo
         $args = [ ...$this->get_default_args(), ...$args];
-        // $this->log("start(" . json_encode($args) . ")");
 
         $info = $this->update_info([
             'started'   => gmdate("c"),
@@ -197,29 +212,33 @@ class ImportManager {
         $info      = $this->update_info($this->before_start($info));
         $scheduled = $this->schedule($this->import_loop_hook);
         if (! $scheduled) {
-            $this->log('start() !!IMPORT NOT SCHEDULED');
+            $this->log(__FUNCTION__, 'Error', 'Not Scheduled');
         }
-        $this->log('start() scheduled');
         return array_merge($info, $this->get_report());
     }
 
-    protected function before_start($info) {
+    protected function before_start($info)
+    {
         $total = 0;
         return ['total' => $total];
     }
 
-    protected function do_process($info) {
+    protected function do_process($info)
+    {
         return ['complete' => true];
     }
 
-    public function import_loop() {
-        $logPrefix = $this->id . '::import_loop() ';
-        $this->log($logPrefix);
+    public function import_loop()
+    {
+        // $this->log(__FUNCTION__);
+        // $logPrefix = __FUNCTION__."::".__METHOD__;//$this->id . '::import_loop() ';
+        // $this->log(['__FUNCTION__' => __FUNCTION__, '__METHOD__' => __METHOD__, '__CLASS__'=>__CLASS__, 'ClassName::class' => ImportManager::class]);
+        // $this->log('f::'.$logPrefix);
         $info = $this->get_info();
 
         // check for stop
         if ($this->should_stop()) {
-            $this->log($logPrefix . 'should_stop (A)');
+            // $this->log($logPrefix . 'should_stop (A)');
             return;
         }
 
@@ -231,23 +250,24 @@ class ImportManager {
 
         // check for complete
         if ($info['complete'] === true) {
-            $this->log($logPrefix . 'complete');
+            // $this->log($logPrefix . 'complete');
             $this->schedule($this->import_complete_hook);
             return;
         }
 
         // check for stop
         if ($this->should_stop()) {
-            $this->log($logPrefix . 'should_stop (B)');
+            // $this->log($logPrefix . 'should_stop (B)');
             return;
         }
 
         // schedule next import_loop
-        $this->log($logPrefix . 'scheduling next import_loop_hook');
+        // $this->log($logPrefix . 'scheduling next import_loop_hook');
         $this->schedule($this->import_loop_hook);
     }
 
-    public function import_complete() {
+    public function import_complete()
+    {
         $info = $this->update_info([
             'complete'  => true,
             'completed' => gmdate("c"),
@@ -256,12 +276,14 @@ class ImportManager {
         $this->on_complete($info);
     }
 
-    public function on_complete($info) {
+    public function on_complete($info)
+    {
         // customize...
     }
 
-    public function stop() {
-        $this->log('stop()');
+    public function stop()
+    {
+        $this->log(__FUNCTION__);
         $this->request_stop();
         $this->schedule($this->import_kill_hook);
         $this->unschedule($this->import_start_hook);
@@ -283,7 +305,8 @@ class ImportManager {
         return array_merge($info, $this->get_report());
     }
 
-    public function kill() {
+    public function kill()
+    {
         $this->log('kill()');
         $this->unschedule($this->import_start_hook);
         $this->unschedule($this->import_loop_hook);
@@ -298,13 +321,15 @@ class ImportManager {
         return $this->get_import_info();
     }
 
-    public function kill_import_events() {
+    public function kill_import_events()
+    {
         $this->unschedule($this->import_start_hook);
         $this->unschedule($this->import_loop_hook);
         $this->unschedule($this->import_complete_hook);
     }
 
-    public function unschedule($hook) {
+    public function unschedule($hook)
+    {
         // $this->log('unschedule(' . $hook . ')');
         $scheduled = wp_next_scheduled($hook);
         if ($scheduled) {
@@ -317,33 +342,40 @@ class ImportManager {
         }
     }
 
-    public function schedule($hook) {
-        $logPrefix = $this->id . '::schedule() ' . $hook . ' ';
-        $this->log($logPrefix);
-        if (! has_action($hook)) {
-            $this->log($logPrefix . 'no hook!!!');
-            return false;
-        }
-        if (! has_action($this->import_loop_hook)) {
-            $this->log($logPrefix . 'no import_loop_hook!!!');
-        }
+    public function schedule($hook)
+    {
+        // $log_args = [__FUNCTION__, $hook];
+        // $this->log(__FUNCTION__);
+        // if (! has_action($hook)) {
+        // $this->log(__FUNCTION__, 'no hook!!!');
+        //     return false;
+        // }
+        // if (! has_action($this->import_loop_hook)) {
+        // $this->log(...[ ...$log_args, 'no import_loop_hook!!!']);
+        // }
         $scheduled = wp_next_scheduled($hook);
 
         if (! $scheduled) {
-            $success = wp_schedule_single_event(time() + 30, $hook);
-            if (is_wp_error($success)) {
-                $this->log($logPrefix . 'fail');
+            if (has_action($hook)) {
+                $success = wp_schedule_single_event(time() + 1, $hook, [], true);
+                if (is_wp_error($success)) {
+                    $this->log(__FUNCTION__, 'Error', $success->get_error_message());
+                    return false;
+                }
+                return true;
+            } else {
+                $this->log(__FUNCTION__, 'Error', 'Hook "' . $hook . '" not found');
                 return false;
             }
-            $this->log($logPrefix . 'success');
-            return true;
         }
 
-        $this->log($logPrefix . 'skipped');
+        // $this->log(...[ ...$log_args, 'skipped']);
         return false;
     }
 
-    public function reset() {
+    public function reset()
+    {
+        $this->log(__FUNCTION__);
         $is_active = $this->is_active();
         if ($is_active) {
             $info = $this->get_info();
@@ -363,7 +395,9 @@ class ImportManager {
         return array_merge($info, $this->get_report());
     }
 
-    public function resume() {
+    public function resume()
+    {
+        $this->log(__FUNCTION__);
         $is_active = $this->is_active();
         if ($is_active) {
             return $this->get_info();
@@ -375,17 +409,20 @@ class ImportManager {
         return array_merge($info, $this->get_report());
     }
 
-    public function rerun() {
+    public function rerun()
+    {
         return $this->start($this->get_rerun_args());
     }
 
-    public function get_import_info() {
+    public function get_import_info()
+    {
         $info                   = $this->get_info();
         $info['processing_age'] = \CIStore\Utils\get_age($info['updated'], 'minutes');
         return array_merge($info, $this->get_report());
     }
 
-    protected function get_report() {
+    protected function get_report()
+    {
         return [
             'stopping'             => $this->is_stopping(),
             'processing'           => $this->is_processing(),
@@ -399,17 +436,19 @@ class ImportManager {
         ];
     }
 
-    protected function get_info() {
+    protected function get_info()
+    {
         return get_site_transient($this->import_info_option) ?: ['updated' => '2020-01-01T00:00:00+00:00'];
     }
 
-    protected function set_info($delta) {
+    protected function set_info($delta)
+    {
         set_site_transient($this->import_info_option, $delta);
         return $delta;
     }
 
-    protected function update_info($delta) {
-        // $this->log(json_encode(['delta' => $delta]));
+    protected function update_info($delta)
+    {
         $info = $this->get_info();
         try {
             return $this->set_info(array_merge($info, $delta, ['updated' => gmdate("c")]));
@@ -418,7 +457,8 @@ class ImportManager {
         }
     }
 
-    protected function is_stalled() {
+    protected function is_stalled()
+    {
         if ($this->is_processing()) {
             $info = $this->get_info();
             $age  = \CIStore\Utils\get_age($info['updated'], 'minutes');
@@ -430,39 +470,48 @@ class ImportManager {
         return false;
     }
 
-    protected function is_processing() {
+    protected function is_processing()
+    {
         return (bool) get_site_transient($this->import_processing_option);
     }
 
-    protected function is_waiting() {
+    protected function is_waiting()
+    {
         return wp_next_scheduled($this->import_start_hook) || wp_next_scheduled($this->import_loop_hook) || wp_next_scheduled($this->import_complete_hook);
     }
 
-    protected function is_active() {
+    protected function is_active()
+    {
         return $this->is_processing() || $this->is_waiting();
     }
 
-    protected function is_stopping() {
+    protected function is_stopping()
+    {
         return $this->should_stop() && $this->is_active();
     }
 
-    protected function start_processing() {
+    protected function start_processing()
+    {
         return set_site_transient($this->import_processing_option, true);
     }
 
-    protected function stop_processing() {
+    protected function stop_processing()
+    {
         return delete_site_transient($this->import_processing_option);
     }
 
-    protected function should_stop() {
+    protected function should_stop()
+    {
         return (bool) get_site_transient($this->import_stop_option);
     }
 
-    protected function request_stop() {
+    protected function request_stop()
+    {
         return set_site_transient($this->import_stop_option, true);
     }
 
-    protected function clear_stop() {
+    protected function clear_stop()
+    {
         return delete_site_transient($this->import_stop_option);
     }
 }

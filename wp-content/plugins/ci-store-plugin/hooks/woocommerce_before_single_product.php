@@ -1,21 +1,24 @@
 <?php
-
 namespace CIStore\Hooks;
 
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
 
 function custom_before_single_product()
 {
-    $is_product = is_product();
+    global $product;
 
-    if ($is_product) {
-        global $product;
-        if (\WooTools::should_update_product($product, 'pdp')) {
-            $supplier = \WooTools::get_product_supplier($product);
-            $supplier->update_pdp_product($product);
+    if ($product instanceof \WC_Product) {
+        $supplier = \WooTools::get_product_supplier($product);
+        if ($supplier) {
+            $updated = $supplier->update_pdp_product($product);
+            $id      = $product->get_id();
+            // $supplier->log(__FUNCTION__, ['id' => $id, 'updated' => $updated]);
+            if ($updated) {
+                wc_delete_product_transients($id);
+                clean_post_cache($id);
+            }
+        } else {
+            error_log(__FUNCTION__ . ' $supplier unknown ' . $supplier);
         }
     }
 }
-
-// add_action('woocommerce_before_single_product', 'custom_before_single_product', 20);
-

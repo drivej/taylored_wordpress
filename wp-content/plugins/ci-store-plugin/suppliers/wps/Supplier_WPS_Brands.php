@@ -6,16 +6,16 @@ trait Supplier_WPS_Brands
     {
         $params = ['page' => ['size' => 1000, 'cursor' => '']];
         $brands = [];
-        $res = $this->get_api('/brands', $params);
+        $res    = $this->get_api('/brands', $params);
         $brands = array_merge($brands, $res['data'] ?? []);
         $cursor = $res['meta']['cursor']['next'] ?? 0;
         if ($cursor) {
             $params['page']['cursor'] = $cursor;
-            $res = $this->get_api('/brands', $params);
-            $brands = array_merge($brands, $res['data'] ?? []);
+            $res                      = $this->get_api('/brands', $params);
+            $brands                   = array_merge($brands, $res['data'] ?? []);
         }
         $allowed = $this->get_allowed_brand_ids();
-        $output = [];
+        $output  = [];
         foreach ($brands as &$brand) {
             $output[] = ['id' => (string) $brand['id'], 'name' => $brand['name'], 'allowed' => (bool) $allowed[$brand['id']]];
         }
@@ -38,10 +38,5 @@ trait Supplier_WPS_Brands
             wp_cache_flush();
         }
         return $this->get_brands();
-    }
-
-    public function apply_allowed_brands()
-    {
-
     }
 }

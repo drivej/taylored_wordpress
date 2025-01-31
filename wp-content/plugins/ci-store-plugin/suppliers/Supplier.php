@@ -9,19 +9,22 @@ use DateTime;
 use WC_Product_Variable;
 use WooTools;
 
-class SupplierProductMeta {
+class SupplierProductMeta
+{
     public string $woo_id;
     public string $product_type;
     public array $images;
     public bool $is_available;
 }
 
-class SupplierProduct {
+class SupplierProduct
+{
     public array $data;
     public SupplierProductMeta $meta;
 }
 
-class Supplier {
+class Supplier
+{
     protected bool $active = true;
     public string $key;
     public string $name;
@@ -31,8 +34,20 @@ class Supplier {
     public string $access_token_expires_flag = '';
     public int $max_age                      = 24 * 7; // stale product age
     protected CustomErrorLog $logger;
+    public $error_codes = [
+        401 => 'expired token',
+        400 => 'bad request',
+        403 => 'premission denied',
+        404 => 'not found',
+        408 => 'timeout',
+        429 => 'rate limited',
+        500 => 'server error',
+        503 => 'service unavailable',
+        520 => 'unknown',
+    ];
 
-    public function __construct($config) {
+    public function __construct($config)
+    {
         $this->key            = $config['key'];
         $this->logger         = new \CIStore\Utils\CustomErrorLog('SUPPLIER_' . strtoupper($this->key));
         $this->name           = $config['name'];
@@ -64,46 +79,68 @@ class Supplier {
     }
 
     // placeholder
-    public function start_import_products() {
+    public function get_importer()
+    {
+        return new ImportManager($this->key, $this->logger);
+    }
+
+    public function get_importer_hook_status()
+    {
+        $im = $this->get_importer();
+        return $im->get_hooks_status();
+    }
+
+    // placeholder
+    public function start_import_products()
+    {
         return ['error' => 'start_import_products() undefined'];
     }
 
     // placeholder
-    public function import_products_page() {
+    public function import_products_page()
+    {
         return ['error' => 'import_products_page() undefined'];
     }
 
-    public function repair_products_page(int $page_index = 1) {
+    public function repair_products_page(int $page_index = 1)
+    {
         return ['error' => 'repair_products_page() undefined'];
     }
 
     // placeholder
-    public function import_images_page() {
+    public function import_images_page()
+    {
         return ['error' => 'import_images_page() undefined'];
     }
 
     // placeholder
-    public function get_products_page($cursor = '', $size = 10, $updated = '2020-01-01') {
+    public function get_products_page($cursor = '', $size = 10, $updated = '2020-01-01')
+    {
         return ['error' => 'get_products_page() undefined'];
     }
 
-    public function log($message = null, $context = 'unknown') {
-        if ($message === 2) {
-            $this->logger->log('context=' . $context . ' message=' . $message . ' key=' . $this->key);
-        }
-        $this->logger->log('Supplier::' . $this->key . '::' . json_encode($message));
+    public function log(...$args) //$message = null, $context = 'unknown')
+    {
+        $this->logger->log(...$args);
+        // if ($message === 2) {
+        //     $this->logger->log('context=' . $context . ' message=' . $message . ' key=' . $this->key);
+        // }
+        // $this->logger->log('Supplier::' . $this->key . '::' . json_encode($message));
         return false;
     }
 
-    public function logs() {
+    public function logs()
+    {
         return $this->logger->logs();
     }
 
-    public function clear() {
+    public function clear()
+    {
         return $this->logger->clear();
     }
 
-    public function create_product($supplier_product_id) {
+    public function create_product($supplier_product_id)
+    {
         $product = new WC_Product_Variable();
         $sku     = $this->get_product_sku($supplier_product_id);
         $product->set_sku($sku);
@@ -120,29 +157,35 @@ class Supplier {
     }
 
     // placeholder
-    public function resize_image($src, $width = 200) {
+    public function resize_image($src, $width = 200)
+    {
         return $src;
     }
 
     // placeholder
-    public function insert_product($supplier_product_id, $supplier_product = null) {
+    public function insert_product($supplier_product_id, $supplier_product = null)
+    {
     }
 
     // placeholder
-    public function update_product($supplier_product_id, $supplier_product = null) {
+    public function update_product($supplier_product_id, $supplier_product = null)
+    {
     }
 
     // placeholder
-    public function get_api($path, $params = []) {
+    public function get_api($path, $params = [])
+    {
         return null;
     }
 
     // placeholder
-    public function get_product($product_id, $flag = 'pdp') {
+    public function get_product($product_id, $flag = 'pdp')
+    {
         return [];
     }
 
-    public function get_products($product_ids, $flag = 'basic') {
+    public function get_products($product_ids, $flag = 'basic')
+    {
         $data = [];
         foreach ($product_ids as $product_id) {
             $data[] = $this->get_product($product_id);
@@ -151,21 +194,25 @@ class Supplier {
     }
 
     // placeholder
-    public function get_description($supplier_product) {
+    public function get_description($supplier_product)
+    {
         return '';
     }
 
     // placeholder
-    public function extract_variations($supplier_product) {
+    public function extract_variations($supplier_product)
+    {
         return [];
     }
 
     // placeholder
-    public function import_next_products_page() {
+    public function import_next_products_page()
+    {
         return [];
     }
 
-    public function get_tag_ids($terms) {
+    public function get_tag_ids($terms)
+    {
         $slugs       = array_column($terms, 'slug');
         $found       = get_terms(['slug' => $slugs, 'taxonomy' => 'product_tag', 'hide_empty' => false]);
         $lookup_term = array_column($found, null, 'slug');
@@ -183,7 +230,8 @@ class Supplier {
     }
 
     // TODO: Incomplete
-    public function get_term_ids($terms, $taxonomy = 'product_tag') {
+    public function get_term_ids($terms, $taxonomy = 'product_tag')
+    {
         $slugs       = array_column($terms, 'slug');
         $found       = get_terms(['slug' => $slugs, 'taxonomy' => $taxonomy, 'hide_empty' => false]);
         $lookup_term = array_column($found, null, 'slug');
@@ -201,41 +249,48 @@ class Supplier {
     }
 
     // placeholder
-    public function extract_product_tags($supplier_product) {
+    public function extract_product_tags($supplier_product)
+    {
         return [];
     }
 
     // placeholder
-    public function is_available($supplier_product) {
+    public function is_available($supplier_product)
+    {
         return true;
     }
 
     // placeholder
-    public function check_is_available($supplier_product_id) {
+    public function check_is_available($supplier_product_id)
+    {
         $supplier_product = $this->get_product($supplier_product_id);
         return $this->is_available($supplier_product);
     }
 
     // placeholder
-    public function extract_product_updated($supplier_product) {
+    public function extract_product_updated($supplier_product)
+    {
         return new DateTime();
     }
 
     // placeholder
-    public function get_stock_status($supplier_product_id) {
+    public function get_stock_status($supplier_product_id)
+    {
         // notfound, instock, outofstock
         return 'instock';
     }
 
     // placeholder
-    public function update_prices_table($page_index = 1) {}
+    public function update_prices_table($page_index = 1)
+    {}
 
     /**
      *
      * @param SupplierProduct    $supplier_product
      * @param WC_Product    $woo_product
      */
-    public function attach_images($supplier_product, $woo_product = null) {
+    public function attach_images($supplier_product, $woo_product = null)
+    {
         $result = [];
         return $result;
     }
@@ -245,7 +300,9 @@ class Supplier {
      *
      * @param WC_Product    $woo_product
      */
-    public function update_pdp_product($woo_product) {
+    public function update_pdp_product($woo_product)
+    {
+        return false;
         // fires woocommerce_before_single_product
         if (\WooTools::should_update_product($woo_product, '_ci_update_pdp')) {
             // custom code
@@ -256,7 +313,9 @@ class Supplier {
      *
      * @param WC_Product    $woo_product
      */
-    public function update_plp_product($woo_product) {
+    public function update_plp_product($woo_product)
+    {
+        return false;
         // fires woocommerce_before_shop_loop_item
         if (WooTools::should_update_product($woo_product, '_ci_update_plp')) {
             // custom code
@@ -267,7 +326,8 @@ class Supplier {
      *
      * @param WC_Product    $product
      */
-    public function product_needs_update($product) {
+    public function product_needs_update($product)
+    {
         $last_updated = $product->get_meta('_last_updated', true);
         $age          = $last_updated ? WooTools::get_age($last_updated, 'hours') : 99999;
         $max_age      = 24 * 7;
@@ -288,11 +348,13 @@ class Supplier {
      *
      * @param WC_Product    $product
      */
-    public function product($product) {
+    public function product($product)
+    {
         return false;
     }
 
-    public function extract_product_id($supplier_product) {
+    public function extract_product_id($supplier_product)
+    {
         if (isset($supplier_product['data']['id'])) {
             return $supplier_product['data']['id'];
         }
@@ -302,7 +364,8 @@ class Supplier {
         return null;
     }
 
-    public function is_stale($supplier_product, $woo_product = null) {
+    public function is_stale($supplier_product, $woo_product = null)
+    {
         $supplier_updated    = $this->extract_product_updated($supplier_product);
         $supplier_product_id = $this->extract_product_id($supplier_product);
         if (! $woo_product) {
@@ -318,12 +381,14 @@ class Supplier {
         return true;
     }
 
-    public function is_deprecated($woo_product_id) {
+    public function is_deprecated($woo_product_id)
+    {
         $product_import_version = get_post_meta($woo_product_id, '_ci_import_version', true);
         return $product_import_version !== $this->import_version;
     }
 
-    public function import_product($supplier_product_id) {
+    public function import_product($supplier_product_id)
+    {
         $product = $this->get_product($supplier_product_id, 'stock');
 
         if ($product['error']) {
@@ -334,29 +399,31 @@ class Supplier {
         //     $this->log('import_product() ' . $this->key . ':' . $supplier_product_id . ' ' . $action);
         // }
         switch ($action) {
-        case 'insert':
-            $result = $this->insert_product($supplier_product_id);
-            break;
-        case 'update':
-            $result = $this->update_product($supplier_product_id);
-            break;
-        case 'delete':
-            $result = $this->delete_product($supplier_product_id);
-            break;
-        case 'ignore':
-            $result = '';
-            break;
+            case 'insert':
+                $result = $this->insert_product($supplier_product_id);
+                break;
+            case 'update':
+                $result = $this->update_product($supplier_product_id);
+                break;
+            case 'delete':
+                $result = $this->delete_product($supplier_product_id);
+                break;
+            case 'ignore':
+                $result = '';
+                break;
         }
         return ['action' => $action, 'result' => $result];
     }
 
-    public function delete_product($supplier_product_id, $force = true) {
+    public function delete_product($supplier_product_id, $force = true)
+    {
         $sku            = $this->get_product_sku($supplier_product_id);
         $woo_product_id = wc_get_product_id_by_sku($sku);
         return wp_delete_post($woo_product_id, $force);
     }
 
-    public function get_base_metadata() {
+    public function get_base_metadata()
+    {
         $base_metadata = [
             'total_sales'          => 0,
             '_tax_status'          => 'taxable',
@@ -386,7 +453,8 @@ class Supplier {
         return $base_metadata;
     }
 
-    public function invalidate_all($flag = 'pdp') {
+    public function invalidate_all($flag = 'pdp')
+    {
         global $wpdb;
         $meta_key_to_delete = '_ci_update_pdp';
 
@@ -416,7 +484,8 @@ class Supplier {
         }
     }
 
-    public function delete_all() {
+    public function delete_all()
+    {
         $this->log("delete_all()");
         global $wpdb;
 
@@ -447,7 +516,8 @@ class Supplier {
         ];
     }
 
-    public function get_update_action($supplier_product) {
+    public function get_update_action($supplier_product)
+    {
         // WPS returns a differnt object depending on list or single product
         if (isset($supplier_product['error']) && $supplier_product['status_code'] === 404) {
             // supplier product no longer exists
@@ -494,21 +564,53 @@ class Supplier {
      *
      * @param string    $product_id
      */
-    public function get_product_sku($product_id) {
+    public function get_product_sku($product_id)
+    {
         return implode('_', ['MASTER', strtoupper($this->key), $product_id]);
     }
 
-    public function get_variation_sku($product_id, $variation_id) {
+    public function get_variation_sku($product_id, $variation_id)
+    {
         return implode('_', ['MASTER', strtoupper($this->key), $product_id, 'VARIATION', $variation_id]);
     }
 
-    public function get_woo_id($supplier_product_id) {
+    public function get_woo_id($supplier_product_id)
+    {
         $sku            = $this->get_product_sku($supplier_product_id);
         $woo_product_id = wc_get_product_id_by_sku($sku);
         return $woo_product_id;
     }
 
-    public function get_woo_product($supplier_product_id) {
+    public function get_woo_id_by_supplier_id($supplier_product_id)
+    {
+        $args = [
+            'post_type'      => ['product', 'product_variation'],
+            'posts_per_page' => 1,
+            'post_status'    => 'any',
+            'fields'         => 'ids',
+            'meta_query'     => [
+                [
+                    'key'     => '_ci_supplier_key',
+                    'value'   => $this->key,
+                    'compare' => '=',
+                ],
+                [
+                    'key'     => '_ci_product_id',
+                    'value'   => $supplier_product_id,
+                    'compare' => '=',
+                ],
+            ],
+        ];
+
+        $query = new \WP_Query($args);
+        // return $query->request;
+        $post_id = $query->post_count > 0 ? $query->posts[0] : false;
+        wp_reset_postdata();
+        return $post_id;
+    }
+
+    public function get_woo_product($supplier_product_id)
+    {
         $woo_product_id = $this->get_woo_id($supplier_product_id);
         if ($woo_product_id) {
             $woo_product = wc_get_product($woo_product_id);
@@ -517,7 +619,8 @@ class Supplier {
         return null;
     }
 
-    public function get_product_status($supplier_product_id) {
+    public function get_product_status($supplier_product_id)
+    {
         $supplier_product = $this->get_product($supplier_product_id);
         $woo_id           = $this->get_woo_id($supplier_product_id);
         $is_available     = $this->check_is_available($supplier_product_id);
@@ -530,24 +633,28 @@ class Supplier {
         ];
     }
 
-    public function schedule_import_product($supplier_product_id) {
+    public function schedule_import_product($supplier_product_id)
+    {
         if ($this->is_import_product_scheduled($supplier_product_id)) {
             return wp_schedule_single_event(time() + 1, 'ci_import_product', [$this->key, $supplier_product_id]);
         }
         return null;
     }
 
-    public function is_import_product_scheduled($supplier_product_id) {
+    public function is_import_product_scheduled($supplier_product_id)
+    {
         return (bool) wp_next_scheduled('ci_import_product', [$this->key, $supplier_product_id]);
     }
 
-    public function is_import_product_running($supplier_product_id) {
+    public function is_import_product_running($supplier_product_id)
+    {
         wp_cache_flush();
         $option_name = 'ci_import_' . $this->key . '_product' . $supplier_product_id . '_running';
         return (bool) get_option($option_name, false);
     }
 
-    public function allow_logging($allow = null) {
+    public function allow_logging($allow = null)
+    {
         $option_name = 'ci_supplier_' . $this->key . '_allow_logging';
         if (isset($allow)) {
             $updated = update_option($option_name, (bool) $allow);
@@ -560,7 +667,8 @@ class Supplier {
     }
 
     // get total imported products for this supplier
-    public function get_total_products() {
+    public function get_total_products()
+    {
         $query = new \WP_Query([
             'post_status' => 'publish',
             'post_type'   => 'product',
@@ -573,7 +681,8 @@ class Supplier {
     }
 
     // placeholder
-    public function get_total_remote_products() {
+    public function get_total_remote_products()
+    {
         return 0;
     }
 }

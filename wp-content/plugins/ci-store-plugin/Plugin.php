@@ -1,5 +1,4 @@
 <?php
-
 namespace CIStore;
 
 class Plugin
@@ -29,6 +28,7 @@ class Plugin
         include_once CI_STORE_PLUGIN . 'Admin.php';
         include_once CI_STORE_PLUGIN . 'suppliers/Suppliers.php';
         include_once CI_STORE_PLUGIN . 'suppliers/wps/Supplier_WPS_ImportManager.php';
+        include_once CI_STORE_PLUGIN . 'suppliers/t14/Supplier_T14_ImportManager.php';
 
         add_filter('image_downsize', 'CIStore\Hooks\custom_image_downsize', 10, 3);
         add_action('woocommerce_before_shop_loop_item', 'CIStore\Hooks\custom_before_shop_loop_item');
@@ -36,24 +36,14 @@ class Plugin
         add_action('woocommerce_cart_item_thumbnail', 'CIStore\Hooks\custom_modify_cart_item_thumbnail', 10, 3);
         add_filter('woocommerce_variation_option_name', 'CIStore\Hooks\custom_woocommerce_variation_option_name', 10, 4);
         add_filter('woocommerce_dropdown_variation_attribute_options_args', 'CIStore\Hooks\custom_woocommerce_dropdown_variation_attribute_options_args', 10, 1);
+        add_filter('woocommerce_after_single_product', 'CIStore\Hooks\custom_woocommerce_after_single_product', 10, 1);
 
         // add_action('pre_get_posts', 'CIStore\Hooks\custom_pre_get_posts', 10, 1);
         wp_enqueue_style('custom-store-styles', plugins_url('css/ci-styles.css', CI_STORE_PLUGIN_FILE), null, CI_VERSION);
 
-        add_action('test_event', 'CIStore\Hooks\custom_before_shop_loop_item');
-
         // import managers need to be initialized so their hooks are added
-        // otherwise the scheduled tasks will not fire
-        $importer = new \WPSImportManager();
-
-        // \CIStore\Suppliers\get_supplier('wps');
-
-        // $supplier_wps = new \Supplier_WPS(); // TODO: Do I need to instantiate these to get auto import running? Prob not
-        // $importer_wps = $supplier_wps->get_importer();
-        // new \WPSImportManager();
-        // \CIStore\Suppliers\WPS\$importer->init();
-        // $this->test();
-        // do_action('wps_init');
+        \WPSImportManager::instance();
+        \T14ImportManager::instance();
     }
 
     function init_admin()
@@ -112,11 +102,11 @@ class Plugin
     public function test()
     {
         error_log('test()');
-        if (!has_action('test_action', [$this, 'test2'])) {
+        if (! has_action('test_action', [$this, 'test2'])) {
             add_action('test_action', [$this, 'test2']);
         }
         $next = (bool) wp_next_scheduled('test_action');
-        if (!$next) {
+        if (! $next) {
             $success = wp_schedule_single_event(time(), 'test_action');
             error_log(json_encode(['success' => $success]));
         }

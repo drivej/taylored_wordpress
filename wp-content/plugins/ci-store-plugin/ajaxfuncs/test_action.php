@@ -1,7 +1,7 @@
 <?php
 namespace CIStore\Ajax;
 
-use WooTools;
+use CIStore\Suppliers;
 
 include_once CI_STORE_PLUGIN . 'utils/WooTools.php';
 include_once CI_STORE_PLUGIN . 'suppliers/Suppliers.php';
@@ -9,7 +9,7 @@ include_once CI_STORE_PLUGIN . 'suppliers/Suppliers.php';
 // function load_next_brand_page(&$query)
 // {
 //     /** @var \Supplier_T14 $supplier */
-//     $supplier = WooTools::get_supplier('t14');
+//     $supplier = WooTools:: get_supplier('t14');
 
 //     $query['count'] = 0;
 //     $query['has_more'] = false;
@@ -42,7 +42,7 @@ include_once CI_STORE_PLUGIN . 'suppliers/Suppliers.php';
 // function getAllPages($path)
 // {
 //     /** @var \Supplier_T14 $supplier */
-//     $supplier = WooTools::get_supplier('t14');
+//     $supplier = WooTools:: get_supplier('t14');
 //     $page = 1;
 //     $total_pages = 1;
 //     $data = [];
@@ -56,14 +56,6 @@ include_once CI_STORE_PLUGIN . 'suppliers/Suppliers.php';
 //     }
 //     sort($data);
 //     return ['meta' => $items['meta'], 'data' => $data];
-// }
-
-// function hookReport($supplier) {
-//     $hooks = $supplier->importer->get_hooks();
-//     foreach ($hooks as $key => $hook) {
-//         $result[$key] = ['hook' => $hook, 'has' => has_action($hook), 'next' => wp_next_scheduled($hook)];
-//     }
-//     return $result;
 // }
 
 //
@@ -86,14 +78,210 @@ include_once CI_STORE_PLUGIN . 'suppliers/Suppliers.php';
 //
 //
 //
+/*
 
-function test_action() {
+[2025-01-25 19:03:17] import_products_page {"is_valid":true,"cursor":"7A5MLdbBM8q2","updated_at":"2023-01-01","count":32,"all":3853,"api":1748,"process":2105,"item":120}
+[2025-01-25 19:03:27] import_products_page {"is_valid":true,"cursor":"5pO0ymkP0bqW","updated_at":"2023-01-01","count":32,"all":4994,"api":2158,"process":2836,"item":156}
+[2025-01-25 19:03:38] error_string: Invalid taxonomy.
+[2025-01-25 19:03:38] error_string: Invalid taxonomy.
+[2025-01-25 19:03:38] error_string: Invalid taxonomy.
+[2025-01-25 19:03:38] error_string: Invalid taxonomy.
+[2025-01-25 19:03:38] error_string: Invalid taxonomy.
+[2025-01-25 19:03:38] error_string: Invalid taxonomy.
+[2025-01-25 19:03:38] 2 Undefined array key "Green" /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/wps/Supplier_WPS_Attributes.php 422
+[2025-01-25 19:03:38] 2 Undefined array key "Silver" /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/wps/Supplier_WPS_Attributes.php 422
+[2025-01-25 19:03:38] 2 Undefined array key "Silver" /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/wps/Supplier_WPS_Attributes.php 422
+[2025-01-25 19:03:38] 2 Undefined array key "Green" /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/wps/Supplier_WPS_Attributes.php 422
+[2025-01-25 19:03:38] 2 Undefined array key "Silver" /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/wps/Supplier_WPS_Attributes.php 422
+[2025-01-25 19:03:38] 2 Undefined array key "Silver" /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/wps/Supplier_WPS_Attributes.php 422
+[2025-01-25 19:03:38] 2 Undefined array key "Orange" /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/wps/Supplier_WPS_Attributes.php 422
+[2025-01-25 19:03:38] 2 Undefined array key "Black" /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/wps/Supplier_WPS_Attributes.php 422
+[2025-01-25 19:03:38] 2 Undefined array key "Black" /Users/jasoncontento/Local Sites/tayloredlocal/app/public/wp-content/plugins/ci-store-plugin/suppliers/wps/Supplier_WPS_Attributes.php 422
+
+*/
+
+function get_products_by_terms()
+{
+    // Ensure the response is JSON
+    header('Content-Type: application/json');
+
+    $data = []; // Initialize the output array
+
+    // Get all product taxonomies
+    $product_taxonomies = wc_get_attribute_taxonomies();
+
+    if (! empty($product_taxonomies)) {
+        foreach ($product_taxonomies as $taxonomy) {
+            $taxonomy_name = 'pa_' . $taxonomy->attribute_name;
+
+            // Get all terms for this taxonomy
+            $terms = get_terms([
+                'taxonomy'   => $taxonomy_name,
+                'hide_empty' => false,
+            ]);
+
+            $taxonomy_data = []; // Store terms and products for this taxonomy
+
+            if (! empty($terms) && ! is_wp_error($terms)) {
+                foreach ($terms as $term) {
+                    // Query products for this term
+                    $products = wc_get_products([
+                        'limit'     => -1,
+                        'status'    => 'publish',
+                        'tax_query' => [
+                            [
+                                'taxonomy' => $taxonomy_name,
+                                'field'    => 'term_id',
+                                'terms'    => $term->term_id,
+                            ],
+                        ],
+                    ]);
+
+                    // Extract product names
+                    $product_names = [];
+                    if (! empty($products)) {
+                        foreach ($products as $product) {
+                            $product_names[] = $product->get_name();
+                        }
+                    }
+
+                    // Add term data
+                    $taxonomy_data[] = [
+                        'term'     => $term,
+                        // 'term_name' => $term->name,
+                        // 'term_id' => $term->term_id,
+                        // 'term_slug' => $term->slug,
+                        'products' => $product_names,
+                    ];
+                }
+            }
+
+            // Add taxonomy data
+            $data[$taxonomy_name] = $taxonomy_data;
+        }
+    }
+
+    // Send the data as JSON
+    return $data;
+}
+
+// Hook the function to a custom AJAX endpoint (for testing or live use)
+// add_action('wp_ajax_get_products_by_terms', 'get_products_by_terms');
+// add_action('wp_ajax_nopriv_get_products_by_terms', 'get_products_by_terms');
+
+function test_action()
+{
+    /** @var Supplier_T14 $supplier */
+    $supplier = Suppliers\get_supplier('t14');
+
+    // $p = 18.199999999999999;
+    // return number_format($p, 2, '.', '');
+    // $brands = $supplier->get_api('/brands');
+
+    $brand_id = 461; //464;
+                     // $pricegroup_id = 1068;
+
+    return $supplier->import_brand($brand_id, 60, 24);
+    return $supplier->get_all_pages("/items/brand/{$brand_id}");
+    return $supplier->get_api("/items/brand/{$brand_id}/pricegroup");
+
+    // return $supplier->get_all_pages("/items/data/brand/{$brand_id}/pricegroup/{$pricegroup_id}");
+    // return $supplier->get_brands(true);
+    // return $supplier->get_brand_info($brand_id);
+    // $items = $supplier->get_all_pages("/items/brand/{$brand_id}");
+    // // return $items;
+
+    // $groups = [];
+    // foreach ($items['data'] as $item) {
+    //     $price_group = $item['attributes']['price_group_id'];
+    //     if (! isset($groups[$price_group])) {
+    //         $groups[$price_group] = ['price_group' => $item['attributes']['price_group'], 'variations' => []];
+    //     }
+    //     $groups[$price_group]['variations'][] = ['name' => $item['attributes']['part_description'], 'product_name' => $item['attributes']['product_name']];
+    // }
+    // return $groups;
+
+    // $all = $supplier->get_brand_items($brand_id);
+    // return $all;
+
+    // $result = \WooTools::attachment_urls_to_postids(['https://d32vzsop7y1h3k.cloudfront.net/9657ae56388e7d86cf2320547d4a3fe6.png']);
+    // return $result;
+
+    // return $supplier->get_all_brand_data(461);
+
+    // return ['all' => count($all['data']), 'report' => $report];
+    // return $supplier->get_brands_info();
+
+    return $supplier->get_brands_info();
+
+    $item_id = 597652;
+    $data    = $supplier->get_api("/pricing/{$item_id}");
+    $price   = $supplier->get_price($item_id);
+    return ['price' => $price, 'data' => $data];
+    // return $supplier->get_allowed_brand_ids();
+
+    // $brand_id = 461;
+    // return $supplier->get_api("/items/brand/{$brand_id}", ["page" => 3]);
+
+    // return $supplier->get_total_items('/items');
+    // return $supplier->get_total_remote_products();
+    // return $supplier->prepare_brands();
+    // return $supplier->get_brands_info();
+    // return $supplier->get_total_items('/items/brand/461');
+    // 1798
+    $b1         = $supplier->get_api('/items/brand/461', ['page' => 1]);
+    $b1['data'] = array_values(array_slice($b1['data'], 0, 10));
+    return $supplier->process_page($b1);
+
+    $b2 = $supplier->get_api('/items/brand/461', ['page' => 2]);
+    return ['test' => count(array_unique(array_map(fn($e) => $e['id'], [ ...$b1['data'], ...$b2['data']]))), 'auto' => $supplier->get_total_items('/items/brand/461')];
+    return count($b1['data']);
+
+    $im   = $supplier->get_importer();
+    $args = $im->getBaseInfo();
+    // return $args;
+    return $im->do_process($args);
+
+    // $im->log(['val'=>'test']);
+    return $im->before_start(['args' => ['days' => 1]]);
+
+    // return get_products_by_terms();
 
     /** @var Supplier_WPS $supplier */
-    $supplier              = WooTools::get_supplier('wps');
-    $product               = $supplier->get_product(321436);
-    $attr = $supplier->process_product_attributes($product['data']);
-    return ['attr' => $attr, 'product' => $product];
+    $supplier = \CIStore\Suppliers\get_supplier('wps');
+
+    // $importer = $supplier->get_importer();
+    // return ['info' => $importer->get_import_info(), 'hooks' => $supplier->get_importer_hook_status()];
+
+    $cursor     = '5pO0ymkP0bqW';
+    $updated_at = '2023-01-01';
+    $items      = $supplier->import_products_page($cursor, $updated_at);
+    return $items;
+
+    $query = [];
+    $supplier->load_next_brand_page($query);
+    return $query;
+    $total        = $supplier->get_total_remote_products();
+    $brands       = $supplier->get_allowed_brand_ids();
+    $brands_count = [];
+    $brands_total = 0;
+    foreach ($brands as $brand_id) {
+        $brands_1                = $supplier->get_products_page_ext(['brand_id' => $brand_id, 'page' => 1]);
+        $page                    = $brands_1['meta']['total_pages'];
+        $brands_n                = $supplier->get_products_page_ext(['brand_id' => $brand_id, 'page' => $page]);
+        $total                   = ($page - 1) * count($brands_1['data']) + count($brands_n['data']);
+        $brands_count[$brand_id] = $total;
+        $brands_total += $total;
+    }
+    return ['brands' => $brands_count, 'total' => $brands_total];
+
+    // $attr = $supplier->process_product_attributes($product['data']);
+    return [
+        'brands'   => $brands,
+        'total'    => $total,
+        'product'  => ['count' => count($product['data']), 'meta' => $product['meta']],
+        'product2' => ['count' => count($product2['data']), 'meta' => $product2['meta']],
+    ];
 
 //     $result = [];
 //     global $wp_filter;
@@ -143,7 +331,7 @@ function test_action() {
 //     // $items = $supplier->get_products_page('GbW0vw89YB1k', 'pdp', '2023-01-01');
 
 //     /** @var Supplier_T14 $supplier */
-//     $supplier = WooTools::get_supplier('t14');
+//     $supplier = WooTools:: get_supplier('t14');
 
 //     $brand_id = 461;
 
@@ -151,7 +339,7 @@ function test_action() {
 //     // return $result['meta'];
 //     return array_map(fn($item) => $item['id'], $result['data']);
 
-//     return $supplier->getAllBrandData($brand_id);
+//     return $supplier->get_all_brand_data($brand_id);
 //     // $page = 1;
 //     // $args = ['page' => $page];
 
@@ -206,7 +394,7 @@ function test_action() {
 
 //     // return $supplier->get_total_remote_products(1);
 
-//     $supplier = WooTools::get_supplier('wps');
+//     $supplier = WooTools:: get_supplier('wps');
 
 //                                      // $supplier_product_id = '663';
 //                                      // $supplier_product_id = '381514';

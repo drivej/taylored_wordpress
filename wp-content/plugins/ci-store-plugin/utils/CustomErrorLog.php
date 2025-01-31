@@ -1,5 +1,4 @@
 <?php
-
 namespace CIStore\Utils;
 
 // error_reporting(E_ALL);
@@ -16,25 +15,24 @@ class CustomErrorLog
 
     protected function ensureLogFileExists()
     {
-        if (!file_exists($this->log_path)) {
+        if (! file_exists($this->log_path)) {
             // Attempt to create the file if it doesn't exist
-            if (!touch($this->log_path)) {
+            if (! touch($this->log_path)) {
                 error_log('Failed to create log file: ' . $this->log_path);
             }
         }
     }
 
-    public function log($message = null)
+    public function log(...$args) //$message = null)
     {
-        if (!is_writable($this->log_path)) {
+        if (! is_writable($this->log_path)) {
             error_log('Log file is not writable: ' . $this->log_path);
             return;
         }
-        $formatted_message = '[' . date('Y-m-d H:i:s') . '] ' . $message . PHP_EOL;
-        // error_log($formatted_message, 3, $this->log_path);
-        if (file_put_contents($this->log_path, $formatted_message, FILE_APPEND) === false) {
-            error_log('Failed to write to log file: ' . $this->log_path);
-        }
+
+        $timestamp = '[' . date('Y-m-d H:i:s') . '] ';
+        $log       = implode(' ', array_map(fn($e) => is_string($e) ? $e : json_encode($e), $args)); // JSON_PRETTY_PRINT
+        error_log($timestamp . $log . PHP_EOL, 3, $this->log_path);
     }
 
     public function logs()
