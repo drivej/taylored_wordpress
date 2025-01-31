@@ -20,3 +20,5 @@ Updates:
 - caption/title data added to images in case we need to show which product is related
 2025-01-29
 - For variable products with 1 item, they save as simple products - so add the attribute values to short description because size/color is missing from description
+2025-01-30
+- Added wp_get_attachment_url hook so admin can see the images

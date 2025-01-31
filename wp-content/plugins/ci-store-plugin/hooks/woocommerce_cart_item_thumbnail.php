@@ -8,8 +8,6 @@ function custom_modify_cart_item_thumbnail($product_image, $cart_item, $cart_ite
 {
     debug_hook('woocommerce_cart_item_thumbnail');
 
-    // return '<div>HELLO</div>';
-
     $woo_product_id = $cart_item['product_id'];
 
     // is this a CI enhanced product?

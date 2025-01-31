@@ -61,6 +61,7 @@ class Plugin
         add_action('edit_user_profile', 'CIStore\Hooks\add_custom_access_checkbox');
         add_action('personal_options_update', 'CIStore\Hooks\save_custom_access_checkbox');
         add_action('edit_user_profile_update', 'CIStore\Hooks\save_custom_access_checkbox');
+        add_filter('wp_get_attachment_url', 'CIStore\Hooks\custom_wp_get_attachment_url', 10, 2);
 
         $allow = \CIStore\Utils\user_has_access();
 
