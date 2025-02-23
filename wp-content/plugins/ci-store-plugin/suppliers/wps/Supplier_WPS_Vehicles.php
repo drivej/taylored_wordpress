@@ -1,0 +1,544 @@
+<?php
+
+include_once CI_STORE_PLUGIN . 'utils/WooTools/WooTools_upsert_terms.php';
+include_once CI_STORE_PLUGIN . 'utils/WooTools/WooTools_get_mem.php';
+
+trait Supplier_WPS_Vehicles
+{
+    public function get_vehicles_category_id()
+    {
+        $transient_name = __FUNCTION__ . '1';
+        $response       = get_transient($transient_name);
+        if (! $response) {
+            $parent   = WooTools\upsert_term(['name' => 'Vehicles'], 'product_vehicle');
+            $response = $parent['term_id'];
+            set_transient($transient_name, $response, WEEK_IN_SECONDS);
+        }
+        return $response;
+    }
+
+    public function get_vehicle_year_id($year)
+    {
+        $years  = $this->get_vehicle_years();
+        $lookup = array_column($years, 'id', 'name');
+        if (isset($lookup[$year])) {
+            return $lookup[$year];
+        }
+        return false;
+    }
+
+    public function get_vehicle_models_in_year($year = '')
+    {
+        $transient_name = $this->key . __FUNCTION__ . $year;
+        $response       = get_transient($transient_name);
+
+        if (! $response) {
+            $year_id = $this->get_vehicle_year_id($year);
+            if (! $year_id) {
+                return [];
+            }
+            $cursor   = '';
+            $response = [];
+
+            while (is_string($cursor)) {
+                $page = $this->get_api("/vehicleyears/{$year_id}/vehiclemodels", ['page' => ['size' => 500, 'cursor' => $cursor]]);
+                if (! empty($page['data']) && isset($page['data']['id'])) {
+                    $page['data'] = [$page['data']];
+                }
+                if (! empty($page['data'])) {
+                    foreach ($page['data'] as $model) {
+                        $response[] = $model;
+                    }
+                }
+                $cursor = $page['meta']['cursor']['next'] ?? false;
+            }
+
+            set_transient($transient_name, $response, WEEK_IN_SECONDS);
+        }
+        return $response;
+    }
+
+    public function get_vehicle_makes_in_year($year = '')
+    {
+        $transient_name = $this->key . __FUNCTION__ . $year . '1';
+        $response       = get_transient($transient_name);
+
+        if (! $response) {
+            $year_id = $this->get_vehicle_year_id($year);
+            if (! $year_id) {
+                return [];
+            }
+            $cursor   = '';
+            $make_ids = [];
+
+            while (is_string($cursor)) {
+                $page = $this->get_api("/vehicleyears/{$year_id}/vehiclemodels", ['page' => ['size' => 500, 'cursor' => $cursor]]);
+                if (! empty($page['data']) && isset($page['data']['id'])) {
+                    $page['data'] = [$page['data']];
+                }
+                if (! empty($page['data'])) {
+                    foreach ($page['data'] as $model) {
+                        $make_ids[] = $model['vehiclemake_id'];
+                    }
+                }
+                $cursor = $page['meta']['cursor']['next'] ?? false;
+            }
+
+            $cursor   = '';
+            $response = [];
+            $make_ids = array_values(array_unique($make_ids));
+
+            while (is_string($cursor)) {
+                $page = $this->get_api('/vehiclemakes/' . implode(',', $make_ids), ['page' => ['size' => 500, 'cursor' => $cursor]]);
+                if (! empty($page['data']) && isset($page['data']['id'])) {
+                    $page['data'] = [$page['data']];
+                }
+                if (! empty($page['data'])) {
+                    foreach ($page['data'] as $make) {
+                        $response[] = ['id' => $make['id'], 'name' => $make['name']];
+                    }
+                }
+                $cursor = $page['meta']['cursor']['next'] ?? false;
+            }
+            set_transient($transient_name, $response, WEEK_IN_SECONDS);
+        }
+        return $response;
+    }
+
+    public function get_vehicle_models_by_make_in_year($make_id, $year)
+    {
+        $transient_name = $this->key . __FUNCTION__ . $make_id . '_' . $year;
+        $response       = get_transient($transient_name);
+
+        if (! $response) {
+            $year_id = $this->get_vehicle_year_id($year);
+            if (! $year_id) {
+                return [];
+            }
+            $cursor   = '';
+            $response = [];
+
+            if ($year_id) {
+                while (is_string($cursor)) {
+                    $page = $this->get_api("/vehicleyears/{$year_id}/vehiclemodels", ['page' => ['size' => 500, 'cursor' => $cursor]]);
+                    if (! empty($page['data']) && isset($page['data']['id'])) {
+                        $page['data'] = [$page['data']];
+                    }
+                    if (! empty($page['data'])) {
+                        foreach ($page['data'] as $model) {
+                            if ($model['vehiclemake_id'] == $make_id) {
+                                $response[] = ['id' => $model['id'], 'name' => $model['name']];
+                            }
+                        }
+                    }
+                    $cursor = $page['meta']['cursor']['next'] ?? false;
+                }
+            }
+            set_transient($transient_name, $response, WEEK_IN_SECONDS);
+        }
+        return $response;
+    }
+
+    public function get_vehicle_makes()
+    {
+        $transient_name = $this->key . __FUNCTION__;
+        $response       = get_transient($transient_name);
+
+        if (! $response) {
+            $cursor   = '';
+            $response = [];
+
+            while (is_string($cursor)) {
+                $page = $this->get_api("/vehiclemakes", ['page' => ['size' => 500, 'cursor' => $cursor]]);
+                if (! empty($page['data']) && isset($page['data']['id'])) {
+                    $page['data'] = [$page['data']];
+                }
+                if (! empty($page['data'])) {
+                    foreach ($page['data'] as $make) {
+                        $response[$make['id']] = $make['name'];
+                    }
+                }
+                $cursor = $page['meta']['cursor']['next'] ?? false;
+            }
+            set_transient($transient_name, $response, WEEK_IN_SECONDS);
+        }
+        return $response;
+    }
+
+    public function get_vehicle_years()
+    {
+        $transient_name = $this->key . __FUNCTION__ . '1';
+        $response       = get_transient($transient_name);
+
+        if (! $response) {
+            $cursor   = '';
+            $response = [];
+
+            while (is_string($cursor)) {
+                $page = $this->get_api("/vehicleyears", ['page' => ['size' => 500, 'cursor' => $cursor]]);
+                if (! empty($page['data']) && isset($page['data']['id'])) {
+                    $page['data'] = [$page['data']];
+                }
+                if (! empty($page['data'])) {
+                    foreach ($page['data'] as $make) {
+                        $response[] = ['id' => $make['id'], 'name' => $make['name']];
+                    }
+                }
+                $cursor = $page['meta']['cursor']['next'] ?? false;
+            }
+            set_transient($transient_name, $response, WEEK_IN_SECONDS);
+        }
+        return $response;
+    }
+
+    public function get_vehicles_by_id($vehicle_ids, $chunk_size = 50) // Adjust chunk size as needed
+    {
+        $vehicles = [];
+
+        // Break vehicle IDs into manageable chunks
+        $vehicle_id_chunks = array_chunk($vehicle_ids, $chunk_size);
+
+        foreach ($vehicle_id_chunks as $chunk) {
+            $cursor = '';
+
+            while (is_string($cursor)) {
+                $page = $this->get_api('/vehicles/' . implode(',', $chunk), [
+                    'page'    => [
+                        'size'   => 500,
+                        'cursor' => $cursor,
+                    ],
+                    'include' => 'vehiclemodel.vehiclemake,vehicleyear',
+                    'fields'  => 'vehiclemodel.name',
+                ]);
+
+                if (! empty($page['data'])) {
+                    if (isset($page['data']['id'])) {
+                        $page['data'] = [$page['data']];
+                    }
+                    foreach ($page['data'] as $item) {
+                        $vehicles[] = $this->normalize_wps_vehicle($item);
+                    }
+                }
+                $cursor = $page['meta']['cursor']['next'] ?? false;
+            }
+        }
+
+        return $vehicles;
+    }
+
+    public function get_vehicle_id_by_year_model($year, $model_id)
+    {
+        $year_id = $this->get_vehicle_year_id($year);
+        $res     = $this->get_api("/vehicles", ['filter' => ['vehicleyear' => ['eq' => $year_id], 'vehiclemodel' => ['eq' => $model_id]]]);
+        if (isset($res['data'][0]['id'])) {
+            return $res['data'][0]['id'];
+        }
+        return 0;
+    }
+
+    public function get_vehicle_by_year_model($year, $model_id)
+    {
+        $year_id = $this->get_vehicle_year_id($year);
+        $res     = $this->get_api("/vehicles", [
+            'include' => 'vehiclemodel.vehiclemake,vehicleyear',
+            'filter'  => [
+                'vehicleyear'  => ['eq' => $year_id],
+                'vehiclemodel' => ['eq' => $model_id],
+            ],
+        ]);
+
+        $this->normalize_wps_api_response($res);
+
+        if (isset($res['data'][0]['id'])) {
+            $year  = $res['data'][0]['vehicleyear']['data']['name'];
+            $make  = $res['data'][0]['vehiclemodel']['data']['vehiclemake']['data']['name'];
+            $model = $res['data'][0]['vehiclemodel']['data']['name'];
+
+            return [
+                'id'    => $res['data'][0]['id'],
+                'year'  => $year,
+                'make'  => $res['data'][0]['vehiclemodel']['data']['vehiclemake']['data']['id'],
+                'model' => $res['data'][0]['vehiclemodel']['data']['id'],
+                'name'  => "{$year} {$make} {$model}",
+            ];
+        }
+        return 0;
+    }
+
+    public function upsert_vehicles($vehicle_ids)
+    {
+        $parent            = WooTools\upsert_term(['name' => 'Vehicles']);
+        $parent_id         = $parent['term_id'];
+        $chunk_size        = 25;
+        $vehicle_id_chunks = array_chunk($vehicle_ids, $chunk_size);
+        $response          = [];
+
+        foreach ($vehicle_id_chunks as $chunk) {
+            $vehicles  = $this->get_vehicles_by_id($chunk);
+            $new_terms = [];
+
+            foreach ($vehicles as $vehicle) {
+                $new_terms[] = [
+                    'name'   => esc_html($vehicle['name']),
+                    'slug'   => wc_attribute_taxonomy_slug('vehicle_' . $vehicle['id']),
+                    'parent' => $parent_id,
+                ];
+            }
+
+            // ✅ Process & merge results efficiently (avoiding `array_merge`)
+            if (! empty($new_terms)) {
+                $res = WooTools\upsert_terms($new_terms, 'product_cat');
+                foreach ($res as $r) {
+                    $response[] = $r; // More memory-efficient than `array_merge()`
+                }
+            }
+
+            // ✅ Free memory after each chunk
+            unset($vehicles, $new_terms);
+            gc_collect_cycles();
+        }
+
+        unset($vehicle_id_chunks, $chunk, $parent);
+        return $response;
+    }
+
+    public function normalize_wps_vehicle($item)
+    {
+        $year  = $item['vehicleyear']['data']['name'];
+        $make  = $item['vehiclemodel']['data']['vehiclemake']['data']['name'];
+        $model = $item['vehiclemodel']['data']['name'];
+        $name  = "{$year} {$make} {$model}";
+        return [
+            'id'   => $item['id'],
+            'name' => $name,
+        ];
+    }
+
+    public function termify_wps_vehicle($item, $parent_id)
+    {
+        $vehicle = $this->normalize_wps_vehicle($item);
+        return [
+            'name'   => esc_html($vehicle['name']),
+            'slug'   => wc_attribute_taxonomy_slug('vehicle_' . $vehicle['id']),
+            'parent' => $parent_id,
+        ];
+    }
+
+    public function import_vehicles_page($cursor)
+    {
+        $page = $this->get_api('vehicles', [
+            'page'    => ['cursor' => $cursor, 'size' => 10],
+            'include' => 'vehiclemodel.vehiclemake,vehicleyear',
+            'fields'  => 'vehiclemodel.name',
+        ]);
+
+        $response = [];
+
+        if (! empty($page['data'])) {
+            $parent_id = $this->get_vehicles_category_id();
+
+            foreach ($page['data'] as $item) {
+                $new_terms[] = $this->termify_wps_vehicle($item, $parent_id);
+                $response[]  = $item['id'];
+            }
+            if (! empty($new_terms)) {
+                WooTools\upsert_terms($new_terms, 'product_vehicle');
+            }
+        }
+        unset($new_terms);
+        return ['meta' => $page['meta'], 'data' => $response];
+    }
+
+    public function convert_vehicle_ids_to_term_ids($vehicles)
+    {
+        global $wpdb;
+        $taxonomy     = 'product_vehicle';
+        $slugs        = array_map(fn($v) => "vehicle_{$v}", $vehicles);
+        $placeholders = implode(',', array_fill(0, count($slugs), '%s'));
+        $query        = $wpdb->prepare("SELECT t.term_id FROM {$wpdb->terms} t INNER JOIN {$wpdb->term_taxonomy} tt ON t.term_id = tt.term_id WHERE tt.taxonomy = %s AND t.slug IN ($placeholders)", array_merge([$taxonomy], $slugs));
+        return $wpdb->get_col($query);
+    }
+
+    // this assume a vehicle import has already been run
+    public function import_item_vehicles($page)
+    {
+        /** @var Supplier_WPS $this */
+        global $wpdb;
+        $item_keys    = [];
+        $all_vehicles = [];
+
+        foreach ($page['data'] as &$item) {
+            $item_key    = $this->key . '_' . $item['id'] . '_' . $item['sku'];
+            $item_keys[] = $item_key;
+            $item['key'] = $item_key;
+            $vehicles    = [];
+
+            if (isset($item['vehicles']['data']) && ! empty($item['vehicles']['data'])) {
+                $vehicles         = array_map(fn($v) => $v['id'], $item['vehicles']['data']);
+                $item['vehicles'] = $this->convert_vehicle_ids_to_term_ids($vehicles);
+                $all_vehicles     = array_merge($all_vehicles, $vehicles);
+            }
+        }
+
+        $page['meta']['total_vehicles'] = count(array_unique($all_vehicles));
+
+        $placeholders   = implode(',', array_fill(0, count($item_keys), '%s'));
+        $query          = $wpdb->prepare("SELECT post_id, meta_value AS 'sku' FROM {$wpdb->postmeta} WHERE meta_key='_ci_variation_id' AND meta_value IN ($placeholders)", ...$item_keys);
+        $results        = $wpdb->get_results($query, ARRAY_A);
+        $lookup_post_id = array_column($results, 'post_id', 'sku');
+
+        unset($results, $query, $placeholders);
+
+        foreach ($page['data'] as $item) {
+            if (! empty($item['vehicles'])) {
+                $variation_woo_id = $lookup_post_id[$item['key']] ?? 0;
+                if ($variation_woo_id) {
+                    $taxonomy = 'product_vehicle';
+                    wp_set_post_terms($variation_woo_id, $item['vehicles'], $taxonomy, false);
+                    $woo_id = wp_get_post_parent_id($variation_woo_id);
+
+                    if ($woo_id) {
+                        wp_set_post_terms($woo_id, $item['vehicles'], $taxonomy, true);
+                    }
+                }
+            }
+        }
+
+        unset($lookup_post_id);
+        $page['meta']['total'] = count($page['data']);
+        $page['data']          = [];
+        // $page['data'] = array_map(fn($v) => $v['id'], $page['data']);
+        return $page;
+    }
+
+    // TODO: this is pretty good
+    public function import_product_vehicles($supplier_product_id)
+    {
+        /** @var Supplier_WPS $this */
+        error_log(__FUNCTION__ . ' ' . $supplier_product_id);
+        $timer  = new Timer();
+        $sku    = $this->get_product_sku($supplier_product_id);
+        $woo_id = wc_get_product_id_by_sku($sku);
+        error_log('sku=' . $sku . ' woo_id=' . $woo_id);
+        if (! $woo_id) {
+            return false;
+        }
+
+        $updated         = 0;
+        $page_size       = 100;
+        $taxonomy        = 'product_vehicle';
+        $items           = $this->get_api("/products/{$supplier_product_id}/items", ['fields' => ['items' => 'id']]);
+        $master_term_ids = [];
+
+        if (isset($items['data']) && ! empty($items['data'])) {
+            foreach ($items['data'] as $item) {
+                $item_id = $item['id'];
+                $cursor  = '';
+
+                while (is_string($cursor)) {
+                    $vehicles = $this->get_api("/items/{$item_id}/vehicles", ['page' => ['cursor' => $cursor, 'size' => $page_size], 'fields' => ['vehicles' => 'id']]);
+
+                    if (isset($vehicles['data']) && ! empty($vehicles['data'])) {
+                        $vehicle_ids = array_map(fn($v) => $v['id'], $vehicles['data']);
+                        $term_ids    = $this->convert_vehicle_ids_to_term_ids($vehicle_ids);
+
+                        if (! empty($term_ids)) {
+                            $variation_sku    = $this->get_variation_sku($supplier_product_id, $item_id);
+                            $variation_woo_id = wc_get_product_id_by_sku($variation_sku);
+                            error_log('--> variation_sku=' . $variation_sku . ' variation_woo_id=' . $variation_woo_id);
+
+                            if ($variation_woo_id) {
+                                error_log('--> --> ' . implode(',', $vehicle_ids));
+                                wp_set_post_terms($variation_woo_id, $term_ids, $taxonomy, false);
+                            }
+                            // $this->log(['variation' => $item_id, 'count' => count($term_ids), '$term_ids' => $term_ids]);
+                            $master_term_ids = array_merge($master_term_ids, $term_ids);
+                            // wp_set_post_terms($woo_id, $term_ids, $taxonomy, true);
+                            $updated += count($term_ids);
+                        }
+                    }
+
+                    $this->importer->ping();
+
+                    $cursor = $vehicles['meta']['cursor']['next'] ?? false;
+                }
+            }
+            $master_term_ids = array_values(array_unique($master_term_ids));
+            // $this->log(['master' => $supplier_product_id, 'count' => count($master_term_ids), '$master_term_ids' => $master_term_ids]);
+            wp_set_post_terms($woo_id, $master_term_ids, $taxonomy, true);
+        }
+
+        $report = ['time' => $timer->lap(), 'items' => count($items['data']), 'page_size' => $page_size, 'updated' => $updated];
+        unset($items, $vehicles, $term_ids, $vehicle_ids);
+        return $report;
+    }
+
+    public function import_product_vehicles_page($cursor)
+    {
+        /** @var Supplier_WPS $this */
+
+        // count vehicles for each item to stay below our threshold
+        // we need to make the call again to get the next cursor
+        // $page_size = $this->limit_vehicle_load($cursor);
+        // $params    = $this->get_vehicle_params($cursor, $page_size);
+        // $page = $this->get_api('/products', $params);
+
+        $page = $this->get_products_page($cursor, 'id', '', [1, 5, 10]);
+
+        if (isset($page['data']) && ! empty($page['data'])) {
+            foreach ($page['data'] as $product) {
+                $this->import_product_vehicles($product['id']);
+            }
+        }
+        return $page;
+    }
+
+    public function get_vehicle_params($cursor = '', $page_size = 10)
+    {
+        return [
+            'page'    => [
+                'cursor' => $cursor,
+                'size'   => $page_size,
+            ],
+            'include' => 'items',
+            'fields'  => [
+                'products' => 'id,items',
+                'items'    => 'id',
+            ],
+        ];
+    }
+
+    public function limit_vehicle_load($cursor = '', $page_size = 10, $max_vehicles = 2000)
+    {
+        $page       = $this->get_api('/products', $this->get_vehicle_params($cursor, $page_size));
+        $supertotal = 0;
+        // $max_vehicles = 1820;
+        // $max_count    = -1;
+
+        foreach ($page['data'] as $i => &$product) {
+            $total = 0;
+            foreach ($product['items']['data'] as &$item) {
+                $vehicles = $this->get_api("/items/{$item['id']}/vehicles", ['countOnly' => 'true']);
+                $subtotal = $vehicles['data']['count'] ?? 0;
+                // $item['total_vehicles'] = $subtotal;
+                $total = $total + $subtotal;
+            }
+            // $product['total_vehicles'] = $total;
+            $supertotal += $total;
+            // $product['supertotal'] = $supertotal;
+
+            if ($supertotal > $max_vehicles) { // && $max_count == -1) {
+                $page_size = $i + 1;
+                break;
+                // $product['max'] = $max_count;
+            }
+        }
+
+        // $page['meta']['max_count']  = $max_count;
+        // $page['meta']['supertotal'] = $supertotal;
+        // return ['meta' => $page['meta'], 'data' => $page['data']];
+
+        // $page_size = $max_count + 1;
+        return $page_size;
+    }
+}

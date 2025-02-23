@@ -17,7 +17,6 @@ function check_for_woocommerce()
 
 function woocommerce_not_installed_notice()
 {
-    error_log('woocommerce_not_installed_notice()');
     ?>
     <div class="error">
         <p><?php _e('Your Plugin requires WooCommerce to be installed and active.', 'your-plugin-textdomain');?></p>
@@ -27,6 +26,5 @@ function woocommerce_not_installed_notice()
 
 function your_plugin_init_function()
 {
-    error_log('your_plugin_init_function()');
     // Your plugin's initialization code here
 }

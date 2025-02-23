@@ -4,6 +4,7 @@ import { useWordpressAjax } from '../utils/useWordpressAjax';
 export interface ISupplier {
   key: string;
   name: string;
+  import_options: string[];
 }
 
 export const useSuppliers = () => {

@@ -33,3 +33,21 @@
   box-sizing: border-box; /* Include padding and border in the item's width */
   border-radius: 4px;
 }
+/*
+
+
+*/
+.term-tree-container * {
+  list-style: circle;
+  font-size: 12px;
+}
+.term-tree-container li {
+  margin: 0;
+}
+.term-tree-container li > div:hover {
+  background-color: rgba(128, 128, 128, 0.3);
+}
+.term-tree-container label[data-depth='0'] {
+  font-size: 14px;
+  font-weight: bold;
+}

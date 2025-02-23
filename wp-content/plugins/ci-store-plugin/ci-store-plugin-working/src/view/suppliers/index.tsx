@@ -1,4 +1,5 @@
 import '../../assets/plugin.scss';
+// import '../../assets/styles.scss';
 import '../../assets/suppliers.scss';
 import '../../assets/switch.scss';
 
@@ -14,6 +15,7 @@ import { SupplierLinks } from '../../components/SupplierLinks';
 import { useSuppliers } from '../../utilities/useSuppliers';
 import { SupplierT14Overview } from './t14/SupplierT14Overview';
 import { SupplierWPSOverview } from './wps/SupplierWPSOverview';
+import { WPSTermsPage } from './wps/WPSTermsPage';
 
 const Suppliers = {
   t14: {
@@ -27,7 +29,8 @@ const Suppliers = {
     tabs: [
       { label: 'Overview', to: '' },
       { label: 'Import', to: 'import' },
-      { label: 'Brands', to: 'brands' }
+      { label: 'Brands', to: 'brands' },
+      { label: 'Terms', to: 'terms' }
     ]
   }
 };
@@ -76,6 +79,7 @@ export const render = (id: string) => {
               <Route index={true} element={<SupplierWPSOverview />} />
               <Route path='import' element={<SupplierImportStatusPage supplier_key='wps' />} />
               <Route path='brands' element={<SupplierBrandsPage supplier_key='wps' />} />
+              <Route path='terms' element={<WPSTermsPage />} />
             </Route>
           </Route>
         </Routes>

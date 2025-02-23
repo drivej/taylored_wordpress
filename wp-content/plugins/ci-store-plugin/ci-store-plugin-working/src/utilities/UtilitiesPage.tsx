@@ -224,6 +224,7 @@ export const AdminForm = ({ name, label = name, cmd, allowPolling = false, child
         ) : null}
       </form>
       <div className='position-relative' style={{ flex: '1 1 auto', maxWidth: '100%', overflow: 'auto' }}>
+        {data.data?.rows ? <CSVTable data={{rows:data.data.rows as unknown as string[][]}} /> : null}
         <RenderResult data={data.data} />
         <div className='spinner-border spinner-border-sm' role='status' style={{ pointerEvents: 'none', position: 'absolute', top: 16, right: 16, opacity: data.isFetching ? 1 : 0, transition: 'opacity 0.2s' }} />
       </div>

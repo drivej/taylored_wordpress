@@ -39,10 +39,13 @@ define('DB_CHARSET', 'utf8');
 define('DB_COLLATE', '');
 
 // NOTE: change this for the live server - should already be set by kinsta
-// define('WP_MEMORY_LIMIT', '256M');
-// define('WP_DEBUG', true);
-// define('WP_DEBUG_LOG', true);
-// define('WP_DEBUG_DISPLAY', true);
+
+define('WP_MEMORY_LIMIT', '512M');
+define('WP_MAX_MEMORY_LIMIT', '1024M'); // For admin tasks
+
+define('WP_DEBUG', true);
+define('WP_DEBUG_LOG', true);
+define('WP_DEBUG_DISPLAY', true);
 
 /**#@+
  * Authentication unique keys and salts.
@@ -80,10 +83,6 @@ $table_prefix = 'wp_';
  *
  * @link https://wordpress.org/support/article/debugging-in-wordpress/
  */
-if (!defined('WP_DEBUG')) {
-    define('WP_DEBUG', true);
-    define('WP_DEBUG_LOG', true);
-}
 
 define('AUTH_KEY', 'VS3C7oNB20SVL9tw1PTkJHgWssae/uuM/2yJhEkVaX+aiRerbnvcLmB4d85Eihog1/biS1s7WKEUqOoGm89KRg==');
 define('SECURE_AUTH_KEY', 'VSlzeu4ivxQXufXRoOurQfyzKgaFl3UJ9X0vjrZDIFhiL4zedOvQ21edWKfItLCBiWpzXf91QnHIKaGo6tNnoA==');

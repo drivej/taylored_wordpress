@@ -103,7 +103,6 @@
                         $metadata[]          = ['post_id' => $post_id, 'meta_key' => '_wp_attached_file', 'meta_value' => $url];
                         $image['image_meta'] = array_merge($DEFAULT_ATTACHMENT_METADATA['image_meta'], $image['image_meta']);
                         $metavalue           = array_merge($DEFAULT_ATTACHMENT_METADATA, $image);
-                        // error_log(json_encode($metavalue, JSON_PRETTY_PRINT));
                         $metadata[] = ['post_id' => $post_id, 'meta_key' => '_wp_attachment_metadata', 'meta_value' => serialize($metavalue)];
                     }
                 }

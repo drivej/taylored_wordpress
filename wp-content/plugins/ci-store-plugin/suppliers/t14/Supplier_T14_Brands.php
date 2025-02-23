@@ -62,7 +62,7 @@ trait Supplier_T14_Brands
             $brand_ids = $this->validate_brand_ids($brand_ids);
             update_option('t14_allow_brand_ids', $brand_ids);
         } else {
-            error_log('FAIL $brand_ids ' . $brand_ids . ' ' . gettype($brand_ids));
+            // $this->log('FAIL $brand_ids ' . $brand_ids . ' ' . gettype($brand_ids));
         }
         wp_cache_flush();
         return $this->get_brands();

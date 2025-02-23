@@ -13,6 +13,11 @@ class CustomErrorLog
         $this->ensureLogFileExists();
     }
 
+    public function get_path()
+    {
+        return $this->log_path;
+    }
+
     protected function ensureLogFileExists()
     {
         if (! file_exists($this->log_path)) {
@@ -40,7 +45,7 @@ class CustomErrorLog
         if (file_exists($this->log_path)) {
             return file_get_contents($this->log_path);
         }
-        return 'empty';
+        return '';
     }
 
     public function clear()

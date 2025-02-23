@@ -1,0 +1,60 @@
+<div id="vehicle_fitment_container" data-fitment="" data-mode="">
+  <div id="vehicle_alert_container">
+    <div>Shop your vehicle!</div>
+    <div><button type="button" id="vehicle_start_button" class="btn btn-primary">Start Here</button></div>
+  </div>
+
+  <div id="vehicle_name_container">
+    <div class="d-flex flex-wrap gap-1 flex-center">
+      <p>Your Vehicle:</p>
+      <label id="vehicle_label"></label>
+      <div class="d-flex flex-center gap-1">
+        <select id="vehicle_select" class="form-control"></select>
+        <button type="button" id="vehicle_remove_button" class="btn" title="Remove Vehicle">&times;</button>
+      </div>
+      <div class="d-flex flex-center gap-1">
+        <button type="button" id="vehicle_change_button" class="btn">Add Vehicle</button>
+        <a href="javascript:void(0)" id="vehicle_shop_link" class="btn btn-primary">Shop Vehicle</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="vehicle_input_container">
+    <form id="vehicle_input_form" class="d-flex flex-wrap gap-1" method="POST">
+      <!-- <input type="hidden" name="vehicle_name" id="vehicle_name" value="" /> -->
+      <input type="hidden" name="vehicle_id" id="vehicle_id" value="" />
+
+      <div>Select your vehicle</div>
+
+      <div class="select-fetch">
+        <select name="vehicle_year" id="vehicle_year" class="form-control" required data-label="Year">
+          <option value="">Select...</option>
+        </select>
+      </div>
+
+      <div class="select-fetch">
+        <select name="vehicle_make" id="vehicle_make" class="form-control" required data-label="Make">
+          <option value="">Select...</option>
+        </select>
+      </div>
+
+      <div class="select-fetch">
+        <select name="vehicle_model" id="vehicle_model" class="form-control" required data-label="Model">
+          <option value="">Select...</option>
+        </select>
+      </div>
+
+      <div class="d-flex gap-1 justify-content-center">
+        <button type="submit" id="vehicle_save_button" class="btn btn-primary">Save</button>
+        <button type="button" id="vehicle_clear_button" name="clear" value="clear" class="btn">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="vehicle_loader_container" class="d-flex flex-center">
+    <div>&nbsp;</div>
+    <div><div class="loader"></div></div>
+    <div>&nbsp;</div>
+  </div>
+</div>
+<p id="vehicle_fitment_message" data-fitment=""></p>

@@ -11,15 +11,17 @@ export const ErrorLogs = ({ baseQuery }: { baseQuery: Partial<IAjaxQuery> }) => 
 
   const query = {
     action: 'ci_api_handler',
-    cmd: 'supplier_action',
-    supplier_key: '',
-    ...baseQuery
+    cmd: 'get_log', // 'supplier_action',
+    args: [baseQuery.supplier_key]
+    // log_key: baseQuery.supplier_key
+    // supplier_key: '',
+    // ...baseQuery
   };
 
   const logs = useWordpressAjax<string>(
     {
-      ...query,
-      func: 'logs'
+      ...query
+      // func: 'logs'
     },
     {
       refetchInterval
@@ -33,11 +35,11 @@ export const ErrorLogs = ({ baseQuery }: { baseQuery: Partial<IAjaxQuery> }) => 
   }, [logs.data]);
 
   const action = useMutation<unknown, unknown, Partial<ISupplierActionQuery>>({
-    mutationFn: ({ func, args = [] }) => fetchWordpressAjax<string, IAjaxQuery>({ ...query, func, args })
+    mutationFn: (delta) => fetchWordpressAjax<string, IAjaxQuery>({ ...query, ...delta })
   });
 
   const clear = () => {
-    action.mutate({ func: 'clear' }, { onSettled: setLogContent });
+    action.mutate({ cmd: 'clear_log' }, { onSettled: setLogContent });
   };
 
   const refresh = () => {
@@ -46,7 +48,7 @@ export const ErrorLogs = ({ baseQuery }: { baseQuery: Partial<IAjaxQuery> }) => 
 
   return (
     <div className='border rounded shadow-sm p-4'>
-      <div>
+      <div className='mb-2'>
         <div className='input-group input-group-sm'>
           <button disabled={action.isPending} className='btn btn-secondary' onClick={clear}>
             Clear
@@ -65,11 +67,14 @@ export const ErrorLogs = ({ baseQuery }: { baseQuery: Partial<IAjaxQuery> }) => 
         </div>
       </div>
       <div style={{ maxHeight: 600, overflow: 'auto', fontSize: 11 }}>
-        {logContent?.split('\n')?.map((ln, i) => (
-          <div key={`ln${i}`} style={{ whiteSpace: 'nowrap' }}>
-            {ln}
-          </div>
-        ))}
+        <pre>{logContent}</pre>
+        {/* {typeof logContent === 'string'
+          ? logContent?.split('\n')?.map((ln, i) => (
+              <div key={`ln${i}`} style={{ whiteSpace: 'nowrap' }}>
+                {ln}
+              </div>
+            ))
+          : 'Error'} */}
       </div>
     </div>
   );

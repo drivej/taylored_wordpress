@@ -8,13 +8,19 @@ export const ProductsPage = () => {
       <AdminForm name='Get Product' cmd='supplier_action'>
         <SelectSupplier />
         <TextInput name='func' defaultValue='get_product' hidden={true} />
-        <TextInput name='args[0]' defaultValue='' placeholder='Supplier ID...' />
+        <TextInput name='args[0]' defaultValue='' placeholder='Supplier Product ID...' />
       </AdminForm>
 
       <AdminForm name='Import Product' cmd='supplier_action'>
         <SelectSupplier />
         <TextInput name='func' defaultValue='import_product' hidden={true} />
-        <TextInput name='args[0]' defaultValue='' placeholder='Supplier ID...' />
+        <TextInput name='args[0]' defaultValue='' placeholder='Supplier Product ID...' />
+      </AdminForm>
+
+      <AdminForm name='Import Product Vehicles' cmd='supplier_action'>
+        <SelectSupplier />
+        <TextInput name='func' defaultValue='import_product_vehicles' hidden={true} />
+        <TextInput name='args[0]' defaultValue='' placeholder='Supplier Product ID...' />
       </AdminForm>
 
       {/* <AdminForm name='Get Product Attributes' cmd='supplier_action'>

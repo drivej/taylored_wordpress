@@ -15,6 +15,7 @@ include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/t14/Supplier_T14_Import
 
 use Automattic\Jetpack\Constants;
 use function CIStore\Suppliers\get_supplier_import_version;
+use function CIStore\Utils\get_age;
 
 class Supplier_T14 extends CIStore\Suppliers\Supplier
 {
@@ -88,115 +89,116 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
 
     public function update_plp_product($woo_product)
     {
-        error_log(__FUNCTION__);
-        $age = WooTools::get_pdp_age($woo_product);
-        error_log(json_encode(['age' => $age]));
-        $update_plp    = $woo_product->get_meta('_ci_update_plp', true);
-        $should_update = ! (bool) $update_plp;
+        return false; // we should probably never do this
+        // error_log(__FUNCTION__);
+        // $age = WooTools::get_pdp_age($woo_product);
+        // error_log(json_encode(['age' => $age]));
+        // $update_plp    = $woo_product->get_meta('_ci_update_plp', true);
+        // $should_update = ! (bool) $update_plp;
 
-        if ($update_plp) {
-            $age           = $update_plp ? WooTools::get_age($update_plp, 'hours') : 99999;
-            $max_age       = 24 * 7;
-            $should_update = $age > $max_age;
-        }
-        $sku = $woo_product->get_sku();
-        error_log('sku=' . $sku . '-------------------->>>>>');
-
-        if ($should_update) {
-            $product_id   = $woo_product->get_meta('_ci_product_id', true);
-            $item_data    = $this->get_api("/items/data/{$product_id}");
-            $image        = 0;
-            $backup_image = 0;
-
-            if (is_array($item_data['data'])) {
-                $item_data['data'] = $item_data['data'][0];
-            }
-
-            if (! isset($item_data['data']['files'])) {
-                return;
-            }
-
-            if (! WooTools::is_valid_array($item_data['data']['files'])) {
-                return;
-            }
-            /*
-            "files": [
-            {
-            "id": "31210971",
-            "type": "Image",
-            "file_extension": "TIF",
-            "media_content": "User 3",
-            "generic": true,
-            "links": [
-            {
-            "url": "https://d32vzsop7y1h3k.cloudfront.net/7eb28d0f8b0f612af278bf76df4cd8ef.png",
-            "height": "800.00",
-            "width": "641.00",
-            "size": "L"
-            }
-            ]
-            }
-            ],
-             */
-            // get better thumbnail
-            foreach ($item_data['data']['files'] as $file) {
-                // We should be using $file['type'] === 'Image', but the "type" is sometimes set to "Other" when it clearly says "Photo - Primary" - WTF?!?!
-                if ($file['media_content'] === 'Photo - Primary') {
-                    $image = $file['links'][0]['url'];
-                    break;
-                }
-                if ($file['type'] === 'Image' && $file['generic']) {
-                    $backup_image = $image = $file['links'][0]['url'];
-                }
-            }
-
-            if (! $image && $backup_image) {
-                $image = $backup_image;
-            }
-
-            if ($image) {
-                $lookup_image = WooTools::attachment_urls_to_postids([$image]);
-                if (isset($lookup_image[$image])) {
-                    // $sku = $woo_product->get_sku();
-                    $woo_id = $woo_product->get_id();
-                    // $woo_product->set_image_id($lookup_image[$image]);
-                    update_post_meta($woo_id, '_thumbnail_id', $lookup_image[$image]);
-                    update_post_meta($woo_id, '_ci_update_plp', gmdate("c"));
-                    // error_log('update PLP '. $sku);
-                    // These do not clear the cache such that the loaded page shows the updated data
-                    // wc_delete_product_transients($woo_id);
-                    // wp_cache_flush();
-                }
-            }
-        }
-        return;
-        // $age = $update_plp ? WooTools::get_age($update_plp, 'hours') : 9999999;
-        // $max_age = 24 * 7;
-
-        // if ($age > $max_age) { // max age is a week
-        //     return true;
+        // if ($update_plp) {
+        //     $age           = $update_plp ? get_age($update_plp, 'hours') : 99999;
+        //     $max_age       = 24 * 7;
+        //     $should_update = $age > $max_age;
         // }
-        // $id = $product->get_id();
+        // $sku = $woo_product->get_sku();
+        // error_log('sku=' . $sku . '-------------------->>>>>');
 
-        $needs_update = $this->product_needs_update($woo_product);
+        // if ($should_update) {
+        //     $product_id   = $woo_product->get_meta('_ci_product_id', true);
+        //     $item_data    = $this->get_api("/items/data/{$product_id}");
+        //     $image        = 0;
+        //     $backup_image = 0;
 
-        if ($needs_update) {
-            $supplier_product_id = $woo_product->get_meta('_ci_product_id', true);
-            $supplier_product    = $this->get_product($supplier_product_id, 'basic');
-            // TODO: test this
-            $is_available = $this->is_available($supplier_product);
+        //     if (is_array($item_data['data'])) {
+        //         $item_data['data'] = $item_data['data'][0];
+        //     }
 
-            if (! $is_available) {
-                $woo_product->delete();
-                return true;
-            } else {
-                $this->attach_images(['data' => ['id' => $supplier_product_id]]);
-                $product_id = $woo_product->get_id();
-                update_post_meta($product_id, '_last_updated', gmdate("c"));
-                // clean_post_cache($product_id);
-            }
-        }
-        return false;
+        //     if (! isset($item_data['data']['files'])) {
+        //         return;
+        //     }
+
+        //     if (! WooTools::is_valid_array($item_data['data']['files'])) {
+        //         return;
+        //     }
+        //     /*
+        //     "files": [
+        //     {
+        //     "id": "31210971",
+        //     "type": "Image",
+        //     "file_extension": "TIF",
+        //     "media_content": "User 3",
+        //     "generic": true,
+        //     "links": [
+        //     {
+        //     "url": "https://d32vzsop7y1h3k.cloudfront.net/7eb28d0f8b0f612af278bf76df4cd8ef.png",
+        //     "height": "800.00",
+        //     "width": "641.00",
+        //     "size": "L"
+        //     }
+        //     ]
+        //     }
+        //     ],
+        //      */
+        //     // get better thumbnail
+        //     foreach ($item_data['data']['files'] as $file) {
+        //         // We should be using $file['type'] === 'Image', but the "type" is sometimes set to "Other" when it clearly says "Photo - Primary" - WTF?!?!
+        //         if ($file['media_content'] === 'Photo - Primary') {
+        //             $image = $file['links'][0]['url'];
+        //             break;
+        //         }
+        //         if ($file['type'] === 'Image' && $file['generic']) {
+        //             $backup_image = $image = $file['links'][0]['url'];
+        //         }
+        //     }
+
+        //     if (! $image && $backup_image) {
+        //         $image = $backup_image;
+        //     }
+
+        //     if ($image) {
+        //         $lookup_image = WooTools::attachment_urls_to_postids([$image]);
+        //         if (isset($lookup_image[$image])) {
+        //             // $sku = $woo_product->get_sku();
+        //             $woo_id = $woo_product->get_id();
+        //             // $woo_product->set_image_id($lookup_image[$image]);
+        //             update_post_meta($woo_id, '_thumbnail_id', $lookup_image[$image]);
+        //             update_post_meta($woo_id, '_ci_update_plp', gmdate("c"));
+        //             // error_log('update PLP '. $sku);
+        //             // These do not clear the cache such that the loaded page shows the updated data
+        //             // wc_delete_product_transients($woo_id);
+        //             // wp_cache_flush();
+        //         }
+        //     }
+        // }
+        // return;
+        // // $age = $update_plp ? get_age($update_plp, 'hours') : 9999999;
+        // // $max_age = 24 * 7;
+
+        // // if ($age > $max_age) { // max age is a week
+        // //     return true;
+        // // }
+        // // $id = $product->get_id();
+
+        // $needs_update = $this->product_needs_update($woo_product);
+
+        // if ($needs_update) {
+        //     $supplier_product_id = $woo_product->get_meta('_ci_product_id', true);
+        //     $supplier_product    = $this->get_product($supplier_product_id, 'basic');
+        //     // TODO: test this
+        //     $is_available = $this->is_available($supplier_product);
+
+        //     if (! $is_available) {
+        //         $woo_product->delete();
+        //         return true;
+        //     } else {
+        //         $this->attach_images(['data' => ['id' => $supplier_product_id]]);
+        //         $product_id = $woo_product->get_id();
+        //         update_post_meta($product_id, '_last_updated', gmdate("c"));
+        //         // clean_post_cache($product_id);
+        //     }
+        // }
+        // return false;
     }
 
     public function get_items_page($page)
@@ -468,7 +470,7 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
 
                     if (! $should_update) {
                         $item_updated = $supplier_product['meta']['item_updated'];
-                        $age          = $item_updated ? WooTools::get_age($item_updated, 'hours') : 99999;
+                        $age          = $item_updated ? get_age($item_updated, 'hours') : 99999;
                         if ($age > 24 * 7) {
                             // update if mode date expired
                             $should_update = true;
@@ -492,7 +494,7 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
                     // $woo_product = wc_get_product_object($supplier_product['meta']['product_type'], $woo_id);
 
                     // $last_updated = $woo_product->get_meta('_last_updated', true);
-                    // $age = $last_updated ? WooTools::get_age($last_updated, 'hours') : 99999;
+                    // $age = $last_updated ? get_age($last_updated, 'hours') : 99999;
 
                     // if ($age > 24 * 7) {
                     //     $this->update_base_product($supplier_product, $woo_product);
@@ -618,7 +620,7 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
                 // determine if product needs updating
                 $_ci_import_version   = isset($metatags['_ci_import_version']) ? $metatags['_ci_import_version'] : false;
                 $_ci_t14_item_updated = isset($metatags['_ci_t14_item_updated']) ? $metatags['_ci_t14_item_updated'] : false;
-                $age                  = $_ci_t14_item_updated ? WooTools::get_age($metatags['_ci_t14_item_updated'], 'hours') : 999999;
+                $age                  = $_ci_t14_item_updated ? get_age($metatags['_ci_t14_item_updated'], 'hours') : 999999;
                 $stale                = $age > 24 * 7; // expire after a week
                 $deprecated           = $this->import_version !== $_ci_import_version;
 
@@ -709,7 +711,7 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
                 $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_ci_import_timestamp', 'meta_value' => gmdate("c")];
                 $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_ci_import_details', 'meta_value' => gmdate("c")];
                                                                                                                  // $meta['metadata'][]        = ['post_id' => $woo_id, 'meta_key' => '_ci_import_price', 'meta_value' => gmdate("c")];
-                $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_ci_update_plp', 'meta_value' => 0]; // TODO: update list view
+                // $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_ci_update_plp', 'meta_value' => 0]; // TODO: update list view
                 $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_ci_update_pdp', 'meta_value' => 0];
                 $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_ci_t14_item_updated', 'meta_value' => gmdate("c")];
                 // $meta['metadata'][] = ['post_id' => $woo_id, 'meta_key' => '_thumbnail_id', 'meta_value' => ''];
@@ -1394,7 +1396,7 @@ class Supplier_T14 extends CIStore\Suppliers\Supplier
             $woo_id                 = $lookup_woo_id[$meta['sku']];
             $meta['woo_id']         = $woo_id;
             $meta['updated']        = $lookup_updated[$woo_id];
-            $meta['age']            = WooTools::get_age($meta['updated'], 'seconds');
+            $meta['age']            = get_age($meta['updated'], 'seconds');
             $meta['import_version'] = $lookup_version[$woo_id];
             $expired                = $meta['age'] > 24 * 7; // expire after a week
             $deprecated             = $meta['import_version'] !== $this->import_version;

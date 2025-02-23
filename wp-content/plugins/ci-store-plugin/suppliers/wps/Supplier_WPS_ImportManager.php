@@ -2,7 +2,10 @@
 
 include_once CI_STORE_PLUGIN . 'suppliers/ImportManager.php';
 include_once CI_STORE_PLUGIN . 'suppliers/wps/Supplier_WPS.php';
+include_once CI_STORE_PLUGIN . 'suppliers/wps/Supplier_WPS_Log.php';
 include_once CI_STORE_PLUGIN . 'utils/Timer.php';
+
+use function CIStore\Suppliers\WPS\wps_log;
 
 class WPSImportManager extends CIStore\Suppliers\ImportManager
 {
@@ -16,6 +19,11 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager
     public function __construct($logger = null)
     {
         parent::__construct('wps', $logger);
+    }
+
+    public function log(...$args)
+    {
+        wps_log(...$args);
     }
 
     public static function instance()
@@ -40,15 +48,37 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager
         return [
             'updated_at'  => '2023-01-01',
             'cursor'      => '',
-            'import_type' => 'import',
+            'import_type' => 'product',
         ];
     }
 
     public function before_start($info)
     {
-        $supplier   = \Supplier_WPS::instance();
-        $updated_at = $info['args']['updated_at'] ?? $this->get_default_args()['updated_at'];
-        $total      = $supplier->get_total_remote_products($updated_at);
+        $supplier    = \Supplier_WPS::instance();
+        $import_type = $info['args']['import_type'] ?? 'default';
+
+        switch ($import_type) {
+            case 'vehicles':
+                $result = $supplier->get_api('vehicles', ['countOnly' => 'true']);
+                $total  = $result['data']['count'] ?? -1;
+                break;
+
+            case 'item_vehicles':
+                $result = $supplier->get_api('items', ['countOnly' => 'true']);
+                $total  = $result['data']['count'] ?? -1;
+                break;
+
+            case 'patch':
+            case 'product_vehicles':
+            case 'products':
+                $updated_at = $info['args']['updated_at'] ?? $this->get_default_args()['updated_at'];
+                $total      = $supplier->get_total_remote_products($updated_at);
+                break;
+
+            default:
+                $total = 0;
+
+        }
         return ['total' => $total];
     }
 
@@ -56,64 +86,93 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager
     {
         // $this->log(__FUNCTION__, 'start');
         // $this->log('WPSImportManager::do_process() ' . json_encode($info['args']));
-        $cursor      = $info['args']['cursor'];
+        $cursor      = $info['args']['cursor'] ?? '';
         $import_type = $info['args']['import_type'] ?? 'default';
 
-        if (is_string($cursor)) {
-            try {
-                $timer      = new Timer();
-                $updated_at = $info['args']['updated_at'] ?? $this->get_default_args()['updated_at'];
-                $supplier   = \Supplier_WPS::instance();
+        if (! is_string($cursor)) {
+            $this->log(__FUNCTION__, 'Process complete.');
+            return ['complete' => true];
+        }
 
-                // $items = $supplier->get_products_page($cursor, 'basic', $updated_at);
-                switch ($import_type) {
-                    case 'patch':
-                        $items = $supplier->patch_products_page($cursor, $updated_at);
-                        break;
+        try {
+            $timer      = new Timer();
+            $updated_at = isset($info['args']['updated_at']) ? $info['args']['updated_at'] : $this->get_default_args()['updated_at'];
+            $supplier   = \Supplier_WPS::instance();
+            $items      = [];
+            $ids        = [];
 
-                    case 'import':
-                    default:
-                        $items = $supplier->import_products_page($cursor, $updated_at);
-                }
+            switch ($import_type) {
+                case 'products':
+                    $items = $supplier->import_products_page($cursor, $updated_at);
+                    $ids   = $items['data'];
+                    break;
 
-                $ids = array_map(fn($item) => $item['id'], $items['data'] ?? []);
-                // $this->log(json_encode(['cursor' => $items['meta']['cursor']], JSON_PRETTY_PRINT));
-                $next_cursor = $items['meta']['cursor']['next'] ?? false;
-                // $this->log(__FUNCTION__, json_encode(['type' => $import_type, 'cursor' => $cursor, 'next_cursor' => $next_cursor, 'date' => $updated_at, 'ids' => $ids]));
-                $processed_delta = is_countable($items['data']) ? count($items['data']) : 0;
-                $processed       = $info['processed'] + $processed_delta;
-                $progress        = $info['total'] > 0 ? ($processed / $info['total']) : 0;
+                case 'patch':
+                    $items = $supplier->patch_products_page($cursor, $updated_at);
+                    $ids   = array_map(fn($item) => $item['id'], $items['data'] ?? []);
+                    break;
 
-                $time = $timer->lap();
-                $this->log(__FUNCTION__, json_encode(['time' => $time, 'total' => count($ids), 'type' => $import_type, 'cursor' => $cursor, 'next_cursor' => $next_cursor, 'date' => $updated_at, 'ids' => $ids]));
+                case 'vehicles':
+                    $items = $supplier->import_vehicles_page($cursor);
+                    $ids   = $items['data'];
+                    break;
 
-                // $this->log(__FUNCTION__, 'end');
-                return [
-                    'cursor'    => $next_cursor,
-                    'processed' => $processed,
-                    'progress'  => $progress,
-                    'args'      => [
-                         ...$info['args'],
-                        'cursor' => $next_cursor,
-                    ],
-                ];
-            } catch (Exception $e) {
-                $this->log(__FUNCTION__, 'ERROR');
-                $this->log('Exception: ' . $e->getMessage());
-                $this->log('Code: ' . $e->getCode());
-                $this->log('File: ' . $e->getFile());
-                $this->log('Line: ' . $e->getLine());
-                $this->log('Stack trace: ' . $e->getTraceAsString());
+                case 'product_vehicles':
+                    $items = $supplier->import_product_vehicles_page($cursor);
+                    break;
 
-                return [
-                    'complete' => false,
-                    'error'    => $e->getMessage(),
-                ];
+                case 'item_vehicles':
+                    $page  = $supplier->get_items_page($cursor, $updated_at);
+                    $items = $supplier->import_item_vehicles($page);
+                    break;
+
+                case 'product_plp':
+                    $items = $supplier->import_products_page($cursor, $updated_at);
+                    $ids   = array_map(fn($item) => $item['id'], $items['data'] ?? []);
+                    break;
+
+                case 'taxonomy':
+                    $items = $supplier->import_taxonomy_page($cursor, $updated_at);
+                    $ids   = $items['data'];
+                    break;
             }
-        } else {
-            $this->log(__FUNCTION__, 'complete');
+
+            $next_cursor     = $items['meta']['cursor']['next'] ?? false;
+            $processed_delta = isset($items['meta']['total']) ? $items['meta']['total'] : count($items['data'] ?? []);
+            $processed       = $info['processed'] + $processed_delta;
+            $progress        = $info['total'] > 0 ? ($processed / $info['total']) : 0;
+            $time            = $timer->lap();
+
+            $this->log(__FUNCTION__, json_encode([
+                'rate'        => $processed_delta > 0 ? number_format($time / $processed_delta, 2) : 0,
+                'time'        => number_format($time, 2),
+                'total'       => $processed_delta,
+                'type'        => $import_type,
+                'cursor'      => $cursor,
+                'next_cursor' => $next_cursor,
+                'date'        => $updated_at,
+                'ids'         => $ids,
+            ]));
+
+            unset($items, $ids);
+            gc_collect_cycles();
+
             return [
-                'complete' => true,
+                'cursor'    => $next_cursor,
+                'processed' => $processed,
+                'progress'  => $progress,
+                'args'      => [ ...$info['args'], 'cursor' => $next_cursor],
+            ];
+        } catch (Exception $e) {
+            $this->log(__FUNCTION__, 'ERROR');
+            $this->log('Message: ' . $e->getMessage());
+            $this->log('Code: ' . $e->getCode());
+            $this->log('File: ' . $e->getFile() . ' Line: ' . $e->getLine());
+            $this->log('Stack trace: ' . $e->getTraceAsString());
+
+            return [
+                'complete' => false,
+                'error'    => $e->getMessage(),
             ];
         }
     }
@@ -128,7 +187,7 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager
             return [
                 'updated_at'  => $updated_at,
                 'cursor'      => '',
-                'import_type' => 'import',
+                'import_type' => 'products',
             ];
         }
         return [];

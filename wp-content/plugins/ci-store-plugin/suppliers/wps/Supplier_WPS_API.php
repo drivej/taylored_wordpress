@@ -19,7 +19,6 @@ trait Supplier_WPS_API
         $response       = $use_cache ? get_transient($transient_name) : false;
 
         if (false === $response) {
-            // $this->log(__FUNCTION__, 'fresh:' . $pathKey);
             $should_cache = true;
             $remote_url   = untrailingslashit($this->api_url) . '/' . ltrim($path, '/') . '?' . $query_string;
             $data         = [];
@@ -29,7 +28,7 @@ trait Supplier_WPS_API
                     'Authorization' => "Bearer {$this->bearer_token}",
                     'Content-Type'  => 'application/json',
                 ],
-                'timeout' => 10,
+                'timeout' => 30,
             ]);
 
             // request failed
@@ -47,7 +46,6 @@ trait Supplier_WPS_API
                 $data['error']          = $error_message;
                 $data['url']            = $remote_url;
 
-                // $this->log(__FUNCTION__, $data);
                 return $data;
             }
 
@@ -55,11 +53,8 @@ trait Supplier_WPS_API
 
             // bad status
             $status_code = wp_remote_retrieve_response_code($response);
-            // $this->log($status_code);
-            // $this->log(__FUNCTION__, ['$status_code' => $status_code]);
 
             if ($status_code !== 200) {
-                // $this->log('ERROR status_code', $status_code, $response_body);
                 $data['error']         = 'HTTP error occurred';
                 $data['url']           = $remote_url;
                 $data['response_body'] = $response_body;
@@ -71,7 +66,6 @@ trait Supplier_WPS_API
 
             // json parse failed
             if (json_last_error() !== JSON_ERROR_NONE) {
-                // $this->log(__FUNCTION__, 'ERROR json_decode: response_body=' . substr($response_body, 0, 250));
                 $data['error']         = 'Failed to parse JSON response: ' . json_last_error_msg();
                 $data['url']           = $remote_url;
                 $data['response_body'] = $response_body;
@@ -94,8 +88,6 @@ trait Supplier_WPS_API
             if ($should_cache) {
                 set_transient($transient_name, $response, WEEK_IN_SECONDS);
             }
-        } else {
-            // $this->log(__FUNCTION__, 'cache:' . $pathKey);
         }
         return $response;
     }

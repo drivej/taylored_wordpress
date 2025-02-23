@@ -351,7 +351,7 @@ trait Supplier_T14_Import
                     $woo_product->update_meta_data('_ci_supplier_key', $this->key);
                     $woo_product->update_meta_data('_ci_import_version', $this->import_version);
                     $woo_product->update_meta_data('_ci_import_timestamp', gmdate("c"));
-                    $woo_product->update_meta_data('_ci_update_plp', gmdate("c"));
+                    // $woo_product->update_meta_data('_ci_update_plp', gmdate("c"));
                     $woo_product->update_meta_data('_ci_update_pdp', gmdate("c"));
                     $woo_product->set_stock_status('instock');
                     $woo_product->set_name($variation['name']);
@@ -450,6 +450,8 @@ trait Supplier_T14_Import
                         unset($parent_id);
                     }
 
+                    // TODO: variaation categories must also be added to master product
+
                     // master product
                     $woo_product       = new WC_Product_Variable($product['woo_id']);
                     $product['woo_id'] = $woo_product->save();
@@ -462,7 +464,7 @@ trait Supplier_T14_Import
 
                     $woo_product->update_meta_data('_ci_import_version', $this->import_version);
                     $woo_product->update_meta_data('_ci_import_timestamp', gmdate("c"));
-                    $woo_product->update_meta_data('_ci_update_plp', gmdate("c"));
+                    // $woo_product->update_meta_data('_ci_update_plp', gmdate("c"));
                     $woo_product->update_meta_data('_ci_update_pdp', gmdate("c"));
                     $woo_product->set_stock_status('instock');
                     $woo_product->set_name($product['name']);

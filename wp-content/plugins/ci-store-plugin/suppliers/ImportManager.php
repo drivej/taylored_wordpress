@@ -2,13 +2,18 @@
 namespace CIStore\Suppliers;
 
 use CIStore\Utils\CustomErrorLog;
+use Exception;
+use function \CIStore\Utils\get_age;
+use WooTools;
 
-include_once CI_STORE_PLUGIN . 'utils/get_age.php';
 include_once CI_STORE_PLUGIN . 'utils/CustomErrorLog.php';
+include_once CI_STORE_PLUGIN . 'utils/get_age.php';
+include_once CI_STORE_PLUGIN . 'utils/WooTools/WooTools_get_mem.php';
 
 class ImportManager
 {
-    protected $id = 'none';
+    protected $debug = false;
+    protected $id    = 'none';
     protected $auto_import_hook;
     protected $import_start_hook;
     protected $import_loop_hook;
@@ -151,7 +156,9 @@ class ImportManager
 
     public function log(...$args)
     {
-        return $this->logger->log(...$args);
+        if ($this->debug) {
+            return $this->logger->log(...$args);
+        }
     }
 
     public function logs()
@@ -184,7 +191,6 @@ class ImportManager
 
     public function start($args = [])
     {
-        $this->log(__FUNCTION__, $args);
         $is_active = $this->is_active();
         if ($is_active) {
             $this->log(__FUNCTION__, 'killed: is_active');
@@ -230,22 +236,31 @@ class ImportManager
 
     public function import_loop()
     {
-        // $this->log(__FUNCTION__);
-        // $logPrefix = __FUNCTION__."::".__METHOD__;//$this->id . '::import_loop() ';
-        // $this->log(['__FUNCTION__' => __FUNCTION__, '__METHOD__' => __METHOD__, '__CLASS__'=>__CLASS__, 'ClassName::class' => ImportManager::class]);
-        // $this->log('f::'.$logPrefix);
+        // mem check
+        // $this->log(__FUNCTION__ . ' ' . WooTools\check_mem());
+        $capacity = WooTools\memory_capacity();
+        if ($capacity > 0.5) {
+            error_log(__FUNCTION__ . ': memory low: delay process');
+            $this->schedule($this->import_loop_hook, 60);
+        }
+
         $info = $this->get_info();
 
         // check for stop
         if ($this->should_stop()) {
-            // $this->log($logPrefix . 'should_stop (A)');
             return;
         }
 
         // process import
         $this->start_processing();
-        $delta = $this->do_process($info);
-        $info  = $this->update_info($delta);
+        try {
+            $delta = $this->do_process($info);
+            $info  = $this->update_info($delta);
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            $this->stop();
+        }
+        gc_collect_cycles();
         $this->stop_processing();
 
         // check for complete
@@ -342,22 +357,13 @@ class ImportManager
         }
     }
 
-    public function schedule($hook)
+    public function schedule($hook, $delay = 1)
     {
-        // $log_args = [__FUNCTION__, $hook];
-        // $this->log(__FUNCTION__);
-        // if (! has_action($hook)) {
-        // $this->log(__FUNCTION__, 'no hook!!!');
-        //     return false;
-        // }
-        // if (! has_action($this->import_loop_hook)) {
-        // $this->log(...[ ...$log_args, 'no import_loop_hook!!!']);
-        // }
         $scheduled = wp_next_scheduled($hook);
 
         if (! $scheduled) {
             if (has_action($hook)) {
-                $success = wp_schedule_single_event(time() + 1, $hook, [], true);
+                $success = wp_schedule_single_event(time() + $delay, $hook, [], true);
                 if (is_wp_error($success)) {
                     $this->log(__FUNCTION__, 'Error', $success->get_error_message());
                     return false;
@@ -368,8 +374,6 @@ class ImportManager
                 return false;
             }
         }
-
-        // $this->log(...[ ...$log_args, 'skipped']);
         return false;
     }
 
@@ -395,18 +399,22 @@ class ImportManager
         return array_merge($info, $this->get_report());
     }
 
-    public function resume()
+    public function resume($force = false)
     {
-        $this->log(__FUNCTION__);
-        $is_active = $this->is_active();
-        if ($is_active) {
-            return $this->get_info();
+        try {
+            $this->log(__FUNCTION__);
+            $is_active = $this->is_active();
+            if (! $force && $is_active) {
+                return $this->get_info();
+            }
+            $this->unschedule($this->import_kill_hook); // just in case
+            $this->clear_stop();
+            $info = $this->get_info();
+            $this->schedule($this->import_loop_hook);
+            return array_merge($info, $this->get_report());
+        } catch (Exception $e) {
+            return false;
         }
-        $this->unschedule($this->import_kill_hook); // just in case
-        $this->clear_stop();
-        $info = $this->get_info();
-        $this->schedule($this->import_loop_hook);
-        return array_merge($info, $this->get_report());
     }
 
     public function rerun()
@@ -414,11 +422,23 @@ class ImportManager
         return $this->start($this->get_rerun_args());
     }
 
+    public function ping()
+    {
+        return $this->update_info();
+    }
+
     public function get_import_info()
     {
-        $info                   = $this->get_info();
-        $info['processing_age'] = \CIStore\Utils\get_age($info['updated'], 'minutes');
-        return array_merge($info, $this->get_report());
+        $info = $this->get_info();
+        if (empty($info)) {
+            $info = $this->getBaseInfo();
+        }
+        $info['processing_age'] = isset($info['updated']) ? get_age($info['updated'], 'minutes') : 0;
+        $report                 = $this->get_report();
+        if (empty($report)) {
+            $report = [];
+        }
+        return array_merge($info, $report);
     }
 
     protected function get_report()
@@ -433,12 +453,13 @@ class ImportManager
             'import_start_hook'    => wp_next_scheduled($this->import_start_hook),
             'import_loop_hook'     => wp_next_scheduled($this->import_loop_hook),
             'import_complete_hook' => wp_next_scheduled($this->import_complete_hook),
+            'memory'               => WooTools\memory_capacity(),
         ];
     }
 
     protected function get_info()
     {
-        return get_site_transient($this->import_info_option) ?: ['updated' => '2020-01-01T00:00:00+00:00'];
+        return get_site_transient($this->import_info_option) ?? ['updated' => '2020-01-01T00:00:00+00:00'];
     }
 
     protected function set_info($delta)
@@ -447,7 +468,7 @@ class ImportManager
         return $delta;
     }
 
-    protected function update_info($delta)
+    protected function update_info($delta = [])
     {
         $info = $this->get_info();
         try {
@@ -461,9 +482,17 @@ class ImportManager
     {
         if ($this->is_processing()) {
             $info = $this->get_info();
-            $age  = \CIStore\Utils\get_age($info['updated'], 'minutes');
-            if ($age >= $this->stall_maxage) {
-                return true;
+            if (isset($info['updated'])) {
+                $age = get_age($info['updated'], 'minutes');
+                if ($age) {
+                    if ($age >= $this->stall_maxage) {
+                        // TODO: should we unstall here?
+                        // $this->resume(true);
+                        // $this->kill();
+                        $this->log(__FUNCTION__ . ' force resume from stall');
+                        return true;
+                    }
+                }
             }
 
         }
@@ -472,12 +501,17 @@ class ImportManager
 
     protected function is_processing()
     {
-        return (bool) get_site_transient($this->import_processing_option);
+        return (bool) (get_site_transient($this->import_processing_option) ?? false);
     }
 
     protected function is_waiting()
     {
-        return wp_next_scheduled($this->import_start_hook) || wp_next_scheduled($this->import_loop_hook) || wp_next_scheduled($this->import_complete_hook);
+        $scheduled = [
+            'start'    => wp_next_scheduled($this->import_start_hook),
+            'loop'     => wp_next_scheduled($this->import_loop_hook),
+            'complete' => wp_next_scheduled($this->import_complete_hook),
+        ];
+        return $scheduled['start'] || $scheduled['loop'] || $scheduled['complete'];
     }
 
     protected function is_active()
@@ -502,7 +536,7 @@ class ImportManager
 
     protected function should_stop()
     {
-        return (bool) get_site_transient($this->import_stop_option);
+        return (bool) (get_site_transient($this->import_stop_option) ?? false);
     }
 
     protected function request_stop()

@@ -1,0 +1,333 @@
+.d-flex {
+  display: flex;
+}
+.flex-wrap {
+  flex-wrap: wrap;
+}
+.flex-center {
+  align-items: center;
+  justify-content: center;
+}
+.gap-1 {
+  gap: 10px;
+}
+.gap-2 {
+  gap: 20px;
+}
+.align-items-center {
+  align-items: center;
+}
+.justify-content-center {
+  justify-content: center;
+}
+.btn {
+  height: 34px;
+  background: rgba(128, 128, 128, 0.3);
+  border: none;
+  outline: none;
+  border-radius: 6px;
+  color: #fff;
+  padding: 0 16px;
+  line-height: 1;
+  font-weight: normal;
+  font-size: 0.8em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+.btn:hover {
+  background: rgba(128, 128, 128, 0.7);
+  color: inherit;
+}
+.btn-primary {
+  background: orange;
+  color: #000;
+  height: 34px;
+  /* padding: 10px 40px; */
+  line-height: 1;
+  font-size: 0.85em;
+}
+.form-control {
+  height: 34px;
+  border-radius: 6px;
+  background: rgba(128, 128, 128, 0.2);
+  outline: none;
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  color: #fff;
+  min-width: 20ch;
+}
+
+/*
+
+fitment message
+
+*/
+#vehicle_fitment_message,
+#vehicle_fitment_message > * {
+  display: none;
+  font-weight: bold;
+  font-size: 1.1em;
+  /* border-radius: 6px; */
+  /* border: 3px solid white; */
+  padding: 8px;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+#vehicle_fitment_message[data-fitment='success'] {
+  display: block;
+  color: white;
+  background-color: green;
+}
+#vehicle_fitment_message[data-fitment='warning'] {
+  display: block;
+  color: white;
+  background-color: #d19329;
+}
+#vehicle_fitment_message[data-fitment='warning']:hover {
+  background-color: #90651b;
+}
+#vehicle_fitment_message[data-fitment='info'] {
+  display: block;
+  color: white;
+  background-color: #2da28e;
+  cursor: pointer;
+}
+#vehicle_fitment_message[data-fitment='loading'] {
+  display: block;
+  color: #fff;
+  background-color: #999;
+  cursor: none;
+}
+#vehicle_fitment_message[data-fitment='info']:hover {
+  background-color: #1a7364;
+}
+/*
+
+Form mode
+
+*/
+#vehicle_name_container {
+  display: none;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+#vehicle_input_container {
+  display: none;
+  align-items: center;
+  gap: 10px;
+}
+#vehicle_alert_container {
+  display: none;
+  align-items: center;
+  gap: 10px;
+}
+#vehicle_loader_container {
+  visibility: hidden;
+  opacity: 0;
+  /* display: none; */
+  position: absolute;
+  inset: 0;
+  /* align-items: center; */
+  /* justify-content: center; */
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  transition: all 0.3s 0.3s;
+}
+#vehicle_fitment_container[data-isloading='1'] #vehicle_loader_container {
+  /* display: flex; */
+  visibility: visible;
+  opacity: 1;
+}
+#vehicle_fitment_container[data-mode='change'] #vehicle_input_container {
+  display: flex;
+}
+#vehicle_fitment_container[data-mode='set'] #vehicle_name_container {
+  display: flex;
+}
+#vehicle_fitment_container[data-mode='invite'] #vehicle_alert_container {
+  display: flex;
+}
+/*
+
+form
+
+*/
+@media only screen and (max-width: 600px) {
+  #vehicle_input_form {
+    flex-direction: column;
+    width: 100%;
+  }
+  #vehicle_input_form select,
+  #vehicle_input_form select#vehicle_model {
+    width: 100%;
+    max-width: 100%;
+  }
+  #vehicle_input_container {
+    flex-direction: column;
+    width: 100%;
+  }
+  #vehicle_save_button {
+    align-self: center;
+    justify-self: center;
+    width: 50vw;
+  }
+}
+
+#vehicle_fitment_container {
+  position: relative;
+  /* margin-bottom: 40px; */
+}
+#vehicle_fitment_container form {
+  margin: 0;
+}
+#vehicle_name_container * {
+  margin: 0;
+}
+#vehicle_label {
+  background: none;
+  outline: none;
+  border: none;
+  color: orange;
+  padding: 0;
+}
+select#vehicle_select {
+  padding: 5px 10px;
+  border-radius: 5px;
+  background: rgba(128, 128, 128, 0.1);
+  border: 1px solid #666;
+  color: orange;
+}
+#vehicle_fitment_container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  background: #222;
+  color: #fff;
+  width: 100%;
+  padding: 20px;
+}
+.input-group {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+}
+.input-group label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  height: 2em;
+  padding: 0 10px 0 20px;
+}
+/*
+
+buttons
+
+*/
+#vehicle_remove_button {
+  font-size: 1.4em;
+  background: none;
+  color: #eee;
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  padding: 0 8px;
+  aspect-ratio: 1/1;
+}
+/*
+
+select
+
+*/
+#vehicle_input_form select {
+  position: relative;
+  /* height: 2em; */
+  /* padding: 0 20px 0 10px; */
+  /* border-radius: 1px; */
+  /* background: rgba(128, 128, 128, 0.2);
+  outline: none;
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  color: #fff;
+  min-width: 20ch; */
+}
+#vehicle_input_form .select-fetch {
+  position: relative;
+}
+#vehicle_input_form .select-fetch[data-isloading='1']::before {
+  content: 'Loading...';
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  inset: 0;
+  border: 2px solid rgba(128, 128, 128, 0.5);
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(2px);
+  z-index: 1;
+  font-size: 0.9em;
+  padding-left: 0.6em;
+}
+#vehicle_input_form select[name='vehicle_year'] {
+  min-width: 6ch;
+}
+#vehicle_input_form select[name='vehicle_model'] {
+  max-width: 24ch;
+}
+/*
+
+loader
+
+*/
+.loader {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #fff;
+  box-shadow: 32px 0 #fff, -32px 0 #fff;
+  position: relative;
+  animation: flash 0.5s ease-out infinite alternate;
+}
+
+@keyframes flash {
+  0% {
+    background-color: #fff2;
+    box-shadow: 16px 0 #fff2, -16px 0 #fff;
+  }
+  50% {
+    background-color: #fff;
+    box-shadow: 16px 0 #fff2, -16px 0 #fff2;
+  }
+  100% {
+    background-color: #fff2;
+    box-shadow: 16px 0 #fff, -16px 0 #fff2;
+  }
+}
+/*
+
+garage modal
+
+*/
+#user_vehicles_modal_container {
+  position: fixed;
+  overflow: scroll;
+  inset: 0;
+  z-index: 99999;
+  backdrop-filter: blur(3px);
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#user_vehicles_modal {
+  padding: 20px;
+  max-width: 90vw;
+  background-color: #222;
+  border: 1px solid #444;
+  border-radius: 8px;
+}
+#user_vehicles_list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}

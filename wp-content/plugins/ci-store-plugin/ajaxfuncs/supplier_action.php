@@ -1,10 +1,7 @@
 <?php
-
 namespace CIStore\Ajax;
 
 use Exception;
-
-use function PHPSTORM_META\type;
 
 include_once CI_STORE_PLUGIN . 'utils/WooTools.php';
 include_once CI_STORE_PLUGIN . 'suppliers/Suppliers.php';
@@ -12,24 +9,23 @@ include_once CI_STORE_PLUGIN . 'suppliers/Suppliers.php';
 function supplier_action()
 {
     $supplier_key = $_GET['supplier_key'];
-    if (!$supplier_key) {
+    if (! $supplier_key) {
         return ['error' => 'missing supplier key'];
     }
 
     $supplier = \CIStore\Suppliers\get_supplier($supplier_key);
-    if (!$supplier) {
+    if (! $supplier) {
         return ['error' => 'supplier not found', 'supplier_key' => $supplier_key];
     }
 
     $func_group = $_GET['func_group'] ?? '';
 
     $func = $_GET['func'];
-    if (!$func) {
+    if (! $func) {
         return ['error' => 'missing func', 'func' => $func];
     }
 
     $args = $_GET['args'] ?? [];
-
 
     foreach ($args as &$arg) {
         $parsed = json_decode(stripslashes($arg));
@@ -47,7 +43,7 @@ function supplier_action()
             $importer = $supplier->importer;
 
             // return ['args' => $args];
-            
+
             if ($importer) {
                 if (method_exists($importer, $func)) {
                     return call_user_func([$importer, $func], ...$args);
@@ -56,7 +52,7 @@ function supplier_action()
             break;
     }
 
-    if (!method_exists($supplier, $func)) {
+    if (! method_exists($supplier, $func)) {
         return ['error' => 'func not found', 'func' => $func];
     }
 

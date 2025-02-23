@@ -5,7 +5,6 @@ import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { RouterProvider, createHashRouter } from 'react-router-dom';
-import { LogsPage } from './LogsPage';
 import { MiscPage } from './MiscPage';
 import { ProductsPage } from './ProductsPage';
 import { UtilitiesRoot } from './UtilitiesRoot';
@@ -28,10 +27,10 @@ const router = createHashRouter([
         path: 'misc',
         element: <MiscPage />
       },
-      {
-        path: 'logs',
-        element: <LogsPage />
-      },
+      // {
+      //   path: 'logs',
+      //   element: <LogsPage />
+      // },
       // {
       //   path: 'tasks',
       //   element: <TaskPage />

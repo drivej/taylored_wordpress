@@ -126,7 +126,7 @@ trait WooTools_insert_unique_posts
             $lookup = array_column($results, 'ID', 'post_name');
             $lookup_woo_id = array_merge($lookup_woo_id, $lookup);
         }
-        // error_log('WooTools::insert_unique_posts() ' . count($all_posts));
+
         return $lookup_woo_id;
     }
 }

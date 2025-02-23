@@ -1,11 +1,9 @@
 <?php
-
 namespace CIStore\Activation;
 
 function create_t14_table()
 {
     // need to store the 1000s of prices for lookup. The Turn14 API does not allow lookup of price by product id
-    error_log('create_t14_table()');
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
     global $wpdb;
     $charset_collate = $wpdb->get_charset_collate();
@@ -22,8 +20,7 @@ function create_t14_table()
     ) $charset_collate;";
 
         dbDelta($sql);
-        error_log("$table_name created");
     } else {
-        error_log("$table_name already exists");
+        // already exists
     }
 }

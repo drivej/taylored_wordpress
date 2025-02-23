@@ -197,7 +197,7 @@ class T14ImportManager extends CIStore\Suppliers\ImportManager
             return [
                 'updated_at'  => $updated_at,
                 'cursor'      => '',
-                'import_type' => 'import',
+                'import_type' => '',
             ];
         }
         return [];

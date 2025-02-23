@@ -7,7 +7,6 @@ trait WooTools_insert_unique_metas
     public static function insert_unique_metas($all_metas)
     {
         if (!WooTools::is_valid_array($all_metas)) {
-            // error_log('WooTools_insert_unique_metas $all_metas is empty');
             return ['error' => 'metas empty'];
         }
         global $wpdb;
@@ -41,11 +40,9 @@ trait WooTools_insert_unique_metas
             // bulk insert
             $placeholders = implode(',', $placeholders);
             $insert_sql = "INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value) VALUES $placeholders";
-            
             $insert_query = $wpdb->prepare($insert_sql, $values);
-
-            $insert_query = str_replace("'NULL'", "NULL", $insert_query);
             // error_log($insert_query);
+            $insert_query = str_replace("'NULL'", "NULL", $insert_query);
             $wpdb->query($insert_query);
         }
 

@@ -6,6 +6,8 @@ require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_attachmen
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_insert_product_meta_lookup.php';
 require_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_log_exception.php';
 
+use function CIStore\Utils\get_age;
+
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/Suppliers.php';
 
 class WooTools
@@ -25,6 +27,90 @@ class WooTools
             default:
                 return new DateInterval('P7D');
         }
+    }
+
+    public static function create_term($attribute_name, $attribute_value)
+    {
+        $taxonomy = wc_attribute_taxonomy_name($attribute_name); // Converts 'brand' → 'pa_brand'
+
+        if (! term_exists($attribute_value, $taxonomy)) {
+            $slug = sanitize_title($attribute_value);
+            $term = wp_insert_term($attribute_value, $taxonomy, ['slug' => $slug]);
+            if (! is_wp_error($term)) {
+                return $term['term_id']; // Return the new term ID
+            }
+        } else {
+            $term = get_term_by('name', $attribute_value, $taxonomy);
+            return $term ? $term->term_id : false;
+        }
+        return false;
+    }
+
+    public static function create_brands_category()
+    {
+        $transient_key = 'global_brands_category_id';
+
+        // Check if the category ID is cached in a transient
+        $category_id = get_transient($transient_key);
+        if ($category_id !== false) {
+            return (int) $category_id; // Return cached category ID
+        }
+
+        $category_name = 'Brands';
+        $term          = term_exists($category_name, 'product_cat');
+
+        if ($term === 0 || $term === null) {
+            $new_term = wp_insert_term($category_name, 'product_cat');
+            if (! is_wp_error($new_term)) {
+                $category_id = (int) $new_term['term_id'];
+            }
+        } else {
+            $category_id = (int) $term['term_id'];
+        }
+
+        // Store category ID in transient for 24 hours
+        set_transient($transient_key, $category_id, DAY_IN_SECONDS);
+
+        return $category_id;
+    }
+
+    public static function create_brand_subcategory($brand_name)
+    {
+        $parent_id     = self::create_brands_category(); // Get "Brands" category ID
+        $transient_key = 'brand_category_id_' . sanitize_title($brand_name);
+
+        // Check transient for this brand category
+        $brand_category_id = get_transient($transient_key);
+        if ($brand_category_id !== false) {
+            return (int) $brand_category_id;
+        }
+
+        $term = term_exists($brand_name, 'product_cat');
+
+        if ($term === 0 || $term === null) {
+            $new_term = wp_insert_term($brand_name, 'product_cat', ['parent' => $parent_id]);
+
+            if (! is_wp_error($new_term)) {
+                $brand_category_id = (int) $new_term['term_id'];
+            }
+        } else {
+            $brand_category_id = (int) $term['term_id'];
+        }
+
+        // Cache brand category ID for 24 hours
+        set_transient($transient_key, $brand_category_id, DAY_IN_SECONDS);
+
+        return $brand_category_id;
+    }
+
+    public static function assign_product_to_brand_category($product_id, $brand_name)
+    {
+        $brand_category_id = self::create_brand_subcategory($brand_name); // Ensure the category exists
+        if ($brand_category_id) {
+            wp_set_post_terms($product_id, [$brand_category_id], 'product_cat', true);
+            return true;
+        }
+        return false;
     }
 
     public static function get_or_create_global_attribute_term($attribute_name, $attribute_value)
@@ -51,7 +137,6 @@ class WooTools
             }
 
             // Register the new attribute
-            // $taxonomy = 'pa_' . $attribute_name;
             register_taxonomy($taxonomy, 'product', [
                 'label'        => ucfirst($attribute_name),
                 'public'       => false,
@@ -74,20 +159,6 @@ class WooTools
         }
 
         return $term['term_id'];
-
-        // // Check if the term exists in the taxonomy
-        // $term = get_term_by('name', $attribute_value, $taxonomy);
-        // if (!$term) {
-        //     // If it doesn't exist, create it
-        //     $term = wp_insert_term($attribute_value, $taxonomy);
-        //     if (!is_wp_error($term)) {
-        //         return $term['term_id'];
-        //     } else {
-        //         // Handle error in creating term
-        //         return [$term, $taxonomy];
-        //     }
-        // }
-        // return $term->term_id;
     }
 
     /**
@@ -98,7 +169,7 @@ class WooTools
     public static function get_product_age($product, $units = 'hours')
     {
         $last_updated = $product->get_meta('_last_updated', true);
-        return $last_updated ? self::get_age($last_updated, $units) : 99999;
+        return $last_updated ? get_age($last_updated, $units) : 99999;
     }
     /**
      *
@@ -108,7 +179,7 @@ class WooTools
     public static function get_pdp_age($product, $units = 'hours')
     {
         $last_updated = $product->get_meta('_ci_update_pdp', true);
-        return $last_updated ? self::get_age($last_updated, $units) : 99999;
+        return $last_updated ? get_age($last_updated, $units) : 99999;
     }
     /**
      *
@@ -635,34 +706,6 @@ class WooTools
         // return preg_split('/\W+/', $str, -1, PREG_SPLIT_NO_EMPTY);
     }
 
-    public static function get_age($dateString, $units = '')
-    {
-        try {
-            $date     = new DateTime($dateString);
-            $now      = new DateTime();
-            $interval = $now->diff($date);
-        } catch (Exception $e) {
-            return 0;
-        }
-
-        switch (strtolower($units)) {
-            case 'years':
-                return $interval->y;
-            case 'months':
-                return ($interval->y * 12) + $interval->m;
-            case 'days':
-                return $interval->days; // Total days
-            case 'hours':
-                return ($interval->days * 24) + $interval->h;
-            case 'minutes':
-                return (($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i);
-            case 'seconds':
-                return (($interval->days * 24 * 60 * 60) + ($interval->h * 60 * 60) + ($interval->i * 60) + $interval->s);
-            default:
-                return $interval;
-        }
-    }
-
     public static function unpublish($post_ids)
     {
         if (! is_array($post_ids) || count($post_ids) === 0) {
@@ -1099,6 +1142,7 @@ class WooTools
         if ($result === false) {
             error_log("Error deleting orphaned attachments: " . $wpdb->last_error);
         }
+        return $result;
     }
 
     public static function delete_orphaned_meta_lookup()
@@ -1175,7 +1219,7 @@ class WooTools
     {
         global $wpdb;
         // $s = "SELECT * FROM {$wpdb->posts} WHERE `ID` = '{$woo_id}'";
-        $sql        = "SELECT ID,post_title,post_name,post_type,post_parent FROM {$wpdb->posts} WHERE `ID` = %d";
+        $sql        = "SELECT ID,post_title,post_name,post_type,post_parent,post_status,post_author FROM {$wpdb->posts} WHERE `ID` = %d";
         $sql_query  = $wpdb->prepare($sql, $woo_id);
         $sql_result = $wpdb->get_results($sql_query, ARRAY_A);
 
@@ -1189,7 +1233,7 @@ class WooTools
         foreach ($metadata_raw as $m) {
             $post['metadata'][$m->meta_key] = is_serialized($m->meta_value) ? unserialize($m->meta_value) : $m->meta_value;
         }
-        $variations = $wpdb->get_results($wpdb->prepare("SELECT ID,post_title,post_name,post_type FROM {$wpdb->posts} WHERE `post_parent` = %d", $woo_id), ARRAY_A);
+        $variations = $wpdb->get_results($wpdb->prepare("SELECT ID,post_title,post_name,post_type,post_parent,post_status,post_author FROM {$wpdb->posts} WHERE `post_parent` = %d", $woo_id), ARRAY_A);
 
         foreach ($variations as &$variation) {
             $metadata_raw          = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->postmeta} WHERE `post_id` = %d", $variation['ID']));

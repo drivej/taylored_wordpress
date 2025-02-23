@@ -22,6 +22,7 @@ https://www.wps-inc.com/data-depot/v4/api/introduction
  */
 
 use function CIStore\Suppliers\get_supplier_import_version;
+use function CIStore\Suppliers\WPS\wps_log;
 
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/Supplier.php';
@@ -32,6 +33,11 @@ include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Taxono
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_ImportManager.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Attributes.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Update.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Terms.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Normalize.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Vehicles.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Log.php';
+
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Timer.php';
 
 class Supplier_WPS extends CIStore\Suppliers\Supplier
@@ -43,6 +49,9 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
     use Supplier_WPS_ImportManager;
     use Supplier_WPS_Attributes;
     use Supplier_WPS_Update;
+    use Supplier_WPS_Terms;
+    use Supplier_WPS_Normalize;
+    use Supplier_WPS_Vehicles;
     /**
      * The single instance of the class.
      *
@@ -59,7 +68,12 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
             'supplierClass'  => 'WooDropship\\Suppliers\\Western',
             'import_version' => get_supplier_import_version('wps'),
         ]);
-        $this->importer = $this->get_importer();
+        $this->importer = $this->get_importer($this->logger);
+    }
+
+    public function log(...$args)
+    {
+        wps_log(...$args);
     }
 
     public static function instance()
@@ -82,7 +96,13 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
     public function isValidItem($item)
     {
         $status_ids = ['DIR', 'NEW', 'STK'];
-        return in_array($item['status_id'], $status_ids);
+        return isset($item['status_id']) && in_array($item['status_id'], $status_ids);
+    }
+
+    public function getItemStockStatus($item)
+    {
+        $status_ids = ['DIR', 'NEW', 'STK'];
+        return in_array($item['status_id'], $status_ids) ? 'instock' : 'outofstock';
     }
 
     public function should_update_product()
@@ -105,17 +125,47 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
     public function import_product($supplier_product_id)
     {
         // $this->log(__FUNCTION__, $supplier_product_id);
-        $supplier_product = $this->get_product($supplier_product_id);
-        if (array_key_exists('error', $supplier_product)) {
-            return $supplier_product;
-        }
-        $items = ['data' => [$supplier_product['data']]];
-        $items = $this->process_items_native($items);
-        // $this->log(__FUNCTION__, 'END', $supplier_product_id);
-        return $items;
+        return $this->normalize_products($this->get_product($supplier_product_id));
     }
 
     public function import_products_page($cursor = '', $updated_at = null)
+    {
+        // $timer      = new Timer();
+        $updated_at = $updated_at ?? $this->default_updated_at;
+        $items      = $this->get_products_page($cursor, 'pdp', $updated_at, [1, 10, 30]);
+
+        if (isset($items['data']) && ! empty($items['data'])) {
+            $is_valid = is_countable($items['data']) && count($items['data']);
+            $count    = $is_valid ? count($items['data']) : 0;
+
+            if ($is_valid) {
+                $items = $this->normalize_products($items);
+            }
+            // $timer_api = $timer->lap();
+
+            $this->log(__FUNCTION__, json_encode([
+                'is_valid'   => $is_valid,
+                'cursor'     => $cursor,
+                'updated_at' => $updated_at,
+                'count'      => $count,
+                // 'time'       => number_format($timer_api, 2),
+                // 'tpp'        => number_format($timer_api / $count, 2),
+                // 'all'        => $timer_all,
+                // 'api'        => $timer_api,
+                // 'process'    => $timer_process,
+                // 'item'       => $count ? floor($timer_all / $count) : -1,
+            ]));
+
+            if (is_array($items['data'])) {
+                $items['data'] = array_map(fn($p) => $p['id'], $items['data']);
+            }
+        } else {
+            $this->log('Error: ' . __FUNCTION__ . ' data empty ' . json_encode(['items' => $items]));
+        }
+        return $items;
+    }
+
+    public function import_taxonomy_page($cursor = '', $updated_at = null)
     {
         $timer      = new Timer();
         $updated_at = $updated_at ?? $this->default_updated_at;
@@ -125,7 +175,8 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
         $timer_api  = $timer->lap();
 
         if ($is_valid) {
-            $items         = $this->process_items_native($items);
+            $items = $this->normalize_products($items);
+            // $items         = $this->process_items_native($items);
             $timer_process = $timer->lap();
         }
 
@@ -135,10 +186,10 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
             'cursor'     => $cursor,
             'updated_at' => $updated_at,
             'count'      => $count,
-            'all'        => $timer_all,
-            'api'        => $timer_api,
-            'process'    => $timer_process,
-            'item'       => $count ? floor($timer_all / $count) : -1,
+            // 'all'        => $timer_all,
+            // 'api'        => $timer_api,
+            // 'process'    => $timer_process,
+            // 'item'       => $count ? floor($timer_all / $count) : -1,
         ]));
         return $items;
     }
@@ -146,8 +197,43 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
     public function patch_products_page($cursor = '', $updated_at = null, $patch = '')
     {
         $updated_at = $updated_at ?? $this->default_updated_at;
-        $items      = $this->get_products_page($cursor, 'price', $updated_at);
-        $items      = $this->patch_products_sku($items);
+        $items      = $this->get_products_page($cursor, 'id', $updated_at, [1, 20, 50], 1000);
+        foreach ($items['data'] as $product) {
+            $sku    = $this->get_product_sku($product['id']);
+            $woo_id = wc_get_product_id_by_sku($sku);
+            if ($woo_id) {
+                // error_log($woo_id. ' _ci_product_id '. $product['id']);
+                update_post_meta($woo_id, '_ci_product_id', $product['id']);
+            }
+        }
+        // $items      = $this->patch_products_metadata($items);
+        // $items      = $this->patch_products_sku($items);
+        return $items;
+    }
+
+    public function patch_products_metadata($items)
+    {
+        $metadata = [];
+
+        foreach ($items['data'] as $product) {
+            $is_variable = count($product['items']['data']) > 1;
+
+            foreach ($product['items']['data'] as &$variation) {
+                if ($is_variable) {
+                    $sku    = $this->get_variation_sku($product['id'], $variation['id']);
+                    $woo_id = wc_get_product_id_by_sku($sku);
+                } else {
+                    $sku    = $this->get_product_sku($product['id']);
+                    $woo_id = wc_get_product_id_by_sku($sku);
+                }
+                if ($woo_id) {
+                    $metadata[] = ['post_id' => $woo_id, 'meta_key' => '_ci_variation_id', 'meta_value' => $this->key . '_' . $variation['id'] . '_' . $variation['sku']];
+                }
+            }
+        }
+
+        WooTools::insert_unique_metas($metadata);
+
         return $items;
     }
 
@@ -285,6 +371,63 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
         // ------------------------------------------------------------>
         // START: Bulk Terms
         // ------------------------------------------------------------>
+
+        // $lookup_terms = $this->process_items_terms($items);
+        $lookup_terms = $this->get_wps_term_slugs();
+
+        // turn product_type into a category
+        $product_types = [];
+
+        foreach ($items['data'] as &$product) {
+            foreach ($product['items']['data'] as &$variation) {
+                $product_type = $this->sanitize_term($variation['product_type']);
+                if (! in_array($product_type, $product_types)) {
+                    $product_types[] = $product_type;
+                }
+            }
+        }
+
+        $product_type_tags   = get_tags(['name' => $product_types, 'taxonomy' => 'product_cat', 'hide_empty' => false]);
+        $lookup_tag_by_name  = array_column($product_type_tags, null, 'name');
+        $lookup_product_type = []; // this is our primary export from this chunk
+
+        foreach ($product_types as $product_type) {
+            if (isset($lookup_tag_by_name[$product_type])) {
+                $lookup_product_type[$product_type] = $lookup_tag_by_name[$product_type]->term_id;
+            } else {
+                $term = wp_insert_term($product_type, 'product_cat');
+                if (! is_wp_error($term)) {
+                    $lookup_product_type[$product_type] = $term['term_id'];
+                }
+            }
+        }
+        unset($product_type_tags);
+        unset($lookup_tag_by_name);
+        unset($product_types);
+
+        // $lookup_product_type = [];
+        // $product_types = [];
+        // foreach ($items['data'] as &$product) {
+        //     foreach ($product['items']['data'] as &$variation) {
+        //         $product_type = $this->sanitize_term($variation['product_type']);
+        //         $term         = wp_insert_term($product_type, 'product_cat');
+
+        //         if (is_wp_error($term)) {
+        //             // the error conveniently returns the id if duplicate
+        //             if (isset($term->error_data->term_exists)) {
+        //                 $lookup_product_type[$product_type] = $term->error_data->term_exists;
+        //             }
+        //         } else {
+        //             $lookup_product_type[$product_type] = $term->term_id;
+        //         }
+        //     }
+        // }
+
+        // $tags                    = get_tags(['name' => $tag_names, 'taxonomy' => 'product_cat', 'hide_empty' => false]);
+
+        // return ['lookup_product_type' => $lookup_product_type];
+
+        /*
         $term_names = [];
 
         // find terms
@@ -323,6 +466,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                 $lookup_terms[$decoded_term_name] = $term_id;
             }
         }
+        */
         // ------------------------------------------------------------>
         // END: Bulk Terms
         // ------------------------------------------------------------>
@@ -346,6 +490,17 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                 continue;
             }
 
+            // top level categories
+            $master_category_ids = [];
+
+            if (isset($product['taxonomyterms']['data'])) {
+                foreach ($product['taxonomyterms']['data'] as $term) {
+                    if (isset($lookup_terms[$term['id']])) {
+                        $master_category_ids[] = $lookup_terms[$term['id']];
+                    }
+                }
+            }
+
             if (count($product['items']['data']) === 1) {
                 //
                 //
@@ -361,6 +516,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                     $woo_id         = 0;
                 }
                 $woo_product = new WC_Product_Simple($woo_id);
+
                 if (! $woo_id) {
                     try {
                         $woo_product->set_sku($sku);
@@ -374,7 +530,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                 }
                 $woo_product->update_meta_data('_ci_import_version', $this->import_version);
                 $woo_product->update_meta_data('_ci_import_timestamp', gmdate("c"));
-                $woo_product->update_meta_data('_ci_update_plp', gmdate("c"));
+                // $woo_product->update_meta_data('_ci_update_plp', gmdate("c"));
                 $woo_product->update_meta_data('_ci_update_pdp', gmdate("c"));
                 $woo_product->set_stock_status('instock');
                 $woo_product->set_name($product['name']);
@@ -399,15 +555,31 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                 $woo_product->set_height($variation['height']);
                 $woo_product->update_meta_data('_ci_product_sku', $variation['sku']);
 
-                $category_ids   = [];
-                $term_name      = $variation['product_type'] ?? '';
+                // $term_name    = $variation['product_type'] ?? '';
+
+                // add WPS categories
+                foreach ($variation['taxonomyterms']['data'] as &$term) {
+                    if (isset($lookup_terms[$term['id']])) {
+                        $master_category_ids[] = $lookup_terms[$term['id']];
+                    }
+                }
+
+                // add WPS product_type as a category
+                if ($variation['product_type'] && isset($lookup_product_type[$variation['product_type']])) {
+                    $master_category_ids[] = $lookup_product_type[$variation['product_type']];
+                }
+
+                /*
                 $category_ids[] = $lookup_terms[$term_name] ?? 0;
                 foreach ($variation['taxonomyterms']['data'] as $taxonomy_term) {
                     $term_name      = $taxonomy_term['name'] ?? '';
                     $category_ids[] = $lookup_terms[$term_name] ?? 0;
                 }
-                $product['category_ids'] = $category_ids;
-                $woo_product->set_category_ids($category_ids);
+                */
+                $product['category_ids'] = $master_category_ids;
+                // merge old category id
+                $master_category_ids = array_merge($master_category_ids, $woo_product->get_category_ids());
+                $woo_product->set_category_ids($master_category_ids);
 
                 $product['woo_id'] = $woo_product->save();
             } else {
@@ -435,7 +607,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
 
                 $woo_product->update_meta_data('_ci_import_version', $this->import_version);
                 $woo_product->update_meta_data('_ci_import_timestamp', gmdate("c"));
-                $woo_product->update_meta_data('_ci_update_plp', gmdate("c"));
+                // $woo_product->update_meta_data('_ci_update_plp', gmdate("c"));
                 $woo_product->update_meta_data('_ci_update_pdp', gmdate("c"));
                 $woo_product->set_stock_status('instock');
                 $woo_product->set_name($product['name']);
@@ -501,19 +673,38 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                     $woo_variation->set_description($variation['name']); //  this is what shows when variation is selected
                     $woo_variation->set_price($variation['list_price']);
 
-                    // taxonomy
-                    $category_ids   = [];
-                    $term_name      = $variation['product_type'];
-                    $category_ids[] = $lookup_terms[$term_name] ?? 0;
-                    foreach ($variation['taxonomyterms']['data'] as $taxonomy_term) {
-                        $term_name = $taxonomy_term['name'];
-                        $term_id   = $lookup_terms[$term_name] ?? 0;
-                        if ($term_id) {
-                            $category_ids[] = $term_id;
+                    // taxonomy - keep previous categories
+                    $category_ids = $woo_variation->get_category_ids();
+
+                    // add WPS categories
+                    foreach ($variation['taxonomyterms']['data'] as &$term) {
+                        if (isset($lookup_terms[$term['id']])) {
+                            $category_ids[] = $lookup_terms[$term['id']];
                         }
                     }
+
+                    // add WPS product_type as a category
+                    if ($variation['product_type'] && isset($lookup_product_type[$variation['product_type']])) {
+                        $cat_id                = $lookup_product_type[$variation['product_type']];
+                        $category_ids[]        = $cat_id;
+                        $master_category_ids[] = $cat_id;
+                    }
+                    // }
+
+                    // $term_name      = $variation['product_type'];
+                    // $category_ids[] = $lookup_terms[$term_name] ?? 0;
+                    // foreach ($variation['taxonomyterms']['data'] as $taxonomy_term) {
+                    //     $term_name = $taxonomy_term['name'];
+                    //     $term_id   = $lookup_terms[$term_name] ?? 0;
+                    //     if ($term_id) {
+                    //         $category_ids[] = $term_id;
+                    //     }
+                    // }
                     $variation['category_ids'] = $category_ids;
                     $woo_variation->set_category_ids($category_ids);
+
+                    // $tag_ids   = [];
+                    // $woo_variation->set_tag_ids($tag_ids);
 
                     // images
                     $gallery_attachments = array_slice($variation['attachments'], 1);
@@ -546,7 +737,9 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
                     $children[]           = $variation_woo_id;
 
                 }
-
+                // allow previous categories to pass along as they may have been manually set
+                $master_category_ids = array_merge($master_category_ids, $woo_product->get_category_ids());
+                $woo_product->set_category_ids(array_unique($master_category_ids));
                 $woo_product->set_gallery_image_ids($master_gallery_ids);
                 $woo_product->set_attributes($woo_attributes);
                 $woo_product->set_children($children);
@@ -590,7 +783,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
         if (isset($supplier_product['data']['items']['data']) && count($supplier_product['data']['items']['data']) === 1) {
             // TODO: single product: add attributes to description
             $attrs  = $this->get_attributes_from_product($supplier_product['data']);
-            $vals   = $supplier_product['data']['items']['data'][0]['attributevalues']['data'];
+            $vals   = isset($supplier_product['data']['items']['data'][0]['attributevalues']['data']) ? $supplier_product['data']['items']['data'][0]['attributevalues']['data'] : [];
             $result = [];
             if ($desc) {
                 $result[] = "<p>{$desc}</p>";

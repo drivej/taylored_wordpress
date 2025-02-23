@@ -84,7 +84,6 @@ trait Supplier_T14_API
         $response       = $use_cache ? get_transient($transient_name) : false;
 
         if (false === $response) {
-            error_log('api: ' . $remote_url);
             $data         = ['meta' => ['url' => $remote_url]];
             $should_cache = true;
 

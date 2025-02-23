@@ -4,8 +4,26 @@ namespace CIStore\Suppliers;
 function get_suppliers()
 {
     return [
-        ['key' => 'wps', 'name' => 'Western Power Sports'],
-        ['key' => 't14', 'name' => 'Turn14'],
+        [
+            'key'            => 'wps',
+            'name'           => 'Western Power Sports',
+            'import_options' => [
+                'products',
+                'vehicles',
+                'product_plp',
+                'product_vehicles',
+                'item_vehicles',
+                'taxonomy',
+                'patch',
+            ],
+        ],
+        [
+            'key'            => 't14',
+            'name'           => 'Turn14',
+            'import_options' => [
+                'import',
+            ],
+        ],
     ];
 }
 
@@ -25,16 +43,18 @@ function get_supplier($supplier_key)
     return false;
 }
 
+// TODO: clean this up - we're using a global import version now
 function get_supplier_import_version($supplier_key)
 {
-    switch ($supplier_key) {
-        case 'wps':
-            return '0.6';
-            break;
+    return CI_IMPORT_VERSION;
+    // switch ($supplier_key) {
+    //     case 'wps':
+    //         return '0.6';
+    //         break;
 
-        case 't14':
-            return '0.3';
-            break;
-    }
-    return '0.0';
+    //     case 't14':
+    //         return '0.3';
+    //         break;
+    // }
+    // return '0.0';
 }

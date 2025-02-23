@@ -7,7 +7,6 @@ trait WooTools_insert_product_meta_lookup
     public static function insert_product_meta_lookup($products_meta)
     {
         if (!WooTools::is_valid_array($products_meta)) {
-            // error_log('WooTools_insert_unique_metas $all_metas is empty');
             return ['error' => 'data empty'];
         }
         global $wpdb;

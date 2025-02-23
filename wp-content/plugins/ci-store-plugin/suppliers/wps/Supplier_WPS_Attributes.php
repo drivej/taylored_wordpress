@@ -53,11 +53,13 @@ trait Supplier_WPS_Attributes
 
         if (isset($supplier_product['items']['data'])) {
             foreach ($supplier_product['items']['data'] as $item) {
-                foreach ($item['attributevalues']['data'] as $attr) {
-                    if (! array_key_exists($attr['attributekey_id'], $attribute_ids)) {
-                        $attribute_ids[$attr['attributekey_id']] = 0;
+                if (isset($item['attributevalues']['data'])) {
+                    foreach ($item['attributevalues']['data'] as $attr) {
+                        if (! array_key_exists($attr['attributekey_id'], $attribute_ids)) {
+                            $attribute_ids[$attr['attributekey_id']] = 0;
+                        }
+                        $attribute_ids[$attr['attributekey_id']]++;
                     }
-                    $attribute_ids[$attr['attributekey_id']]++;
                 }
             }
         }
@@ -144,14 +146,11 @@ trait Supplier_WPS_Attributes
         $exists       = taxonomy_exists($attribute_key);
         $attribute_id = false;
 
-        // $this->log('upsert_global_attribute_id_by_name() '.json_encode(['exists' => $exists, '$attribute_key' => $attribute_key]));
         if ($exists) {
             $attribute_id = wc_attribute_taxonomy_id_by_name($attribute_name);
         } else {
             $attribute_id = wc_create_attribute(['name' => $attribute_name]);
-            // $this->log(json_encode(['attribute_id' => $attribute_id]));
             if (is_wp_error($attribute_id)) {
-                error_log("Failed to create attribute: {$attribute_name}");
                 throw new Exception("Failed to create attribute: {$attribute_name}");
             }
         }
@@ -191,7 +190,6 @@ trait Supplier_WPS_Attributes
         $log_attribute_error = false;
         foreach ($product['items']['data'] as $i => $item) {
             if (count($item['attributevalues']['data']) < count($attributekey_ids)) {
-                // error_log('found missing attr');
                 $dif = array_diff($attributekey_ids, $item_attributekey_ids[$item['id']]);
                 foreach ($dif as $attributekey_id) {
                     $product['items']['data'][$i]['attributevalues']['data'][] = $dummy_attributes[$attributekey_id];

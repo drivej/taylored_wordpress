@@ -6,6 +6,7 @@ include_once CI_STORE_PLUGIN . 'utils/CustomErrorLog.php';
 use Automattic\Jetpack\Constants;
 use CIStore\Utils\CustomErrorLog;
 use DateTime;
+use function CIStore\Utils\get_age;
 use WC_Product_Variable;
 use WooTools;
 
@@ -316,10 +317,10 @@ class Supplier
     public function update_plp_product($woo_product)
     {
         return false;
-        // fires woocommerce_before_shop_loop_item
-        if (WooTools::should_update_product($woo_product, '_ci_update_plp')) {
-            // custom code
-        }
+        // // fires woocommerce_before_shop_loop_item
+        // if (WooTools::should_update_product($woo_product, '_ci_update_plp')) {
+        //     // custom code
+        // }
     }
 
     /**
@@ -329,7 +330,7 @@ class Supplier
     public function product_needs_update($product)
     {
         $last_updated = $product->get_meta('_last_updated', true);
-        $age          = $last_updated ? WooTools::get_age($last_updated, 'hours') : 99999;
+        $age          = $last_updated ? get_age($last_updated, 'hours') : 99999;
         $max_age      = 24 * 7;
 
         if ($age > $max_age) { // max age is a week
@@ -445,7 +446,7 @@ class Supplier
             '_ci_import_timestamp' => gmdate("c"),
                                          // '_ci_import_details' => gmdate("c"),
                                          // '_ci_import_price' => gmdate("c"),
-            '_ci_update_plp'       => 0, // TODO: update list view
+            // '_ci_update_plp'       => 0, // TODO: update list view
             '_ci_update_pdp'       => 0,
             '_last_updated'        => gmdate("c"),
         ];
@@ -469,6 +470,7 @@ class Supplier
             )
         ", $meta_key_to_delete, $this->key);
 
+        // TODO: not activated
         return $sql;
 
         $rows_affected = $wpdb->query($sql);
@@ -685,4 +687,19 @@ class Supplier
     {
         return 0;
     }
+
+    // public function create_global_brand($brand_name)
+    // {
+    //     $term = term_exists($brand_name, 'product_brand'); // Check if the brand exists
+
+    //     if ($term === 0 || $term === null) {
+    //         $new_term = wp_insert_term($brand_name, 'product_brand');
+    //         if (! is_wp_error($new_term)) {
+    //             return $new_term['term_id']; // Return newly created brand term ID
+    //         }
+    //         return false; // Return false if an error occurred
+    //     }
+
+    //     return (int) $term['term_id']; // Return existing brand term ID
+    // }
 }

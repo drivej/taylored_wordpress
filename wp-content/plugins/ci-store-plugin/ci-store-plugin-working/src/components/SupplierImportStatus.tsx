@@ -5,7 +5,6 @@ import { IAjaxQuery } from '../models';
 import { ISupplierActionQuery } from '../utilities/StockPage';
 import { ISupplier, useSuppliers } from '../utilities/useSuppliers';
 import { useTotalProducts } from '../utilities/useTotalProducts';
-import { useTotalRemoteProducts } from '../utilities/useTotalRemoteProducts';
 import { fetchWordpressAjax } from '../utils/fetchWordpressAjax';
 import { formatDuration } from '../utils/formatDuration';
 import { timeago } from '../utils/timeago';
@@ -52,13 +51,18 @@ interface IImportStatus {
   completed: string;
   stalled: boolean;
   updated: string; // date since last processing ping
+  memory: number;
   //
-  args: Record<string, string | boolean>;
+  args: {
+    updated_at: string;
+    cursor: string;
+    import_type: string;
+  }; //Record<string, string | boolean>;
 }
 
 export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
   const totalProducts = useTotalProducts(supplier.key);
-  const totalRemoteProducts = useTotalRemoteProducts(supplier.key);
+  // const totalRemoteProducts = useTotalRemoteProducts(supplier.key);
   const query: ISupplierActionQuery = {
     action: 'ci_api_handler', //
     cmd: 'supplier_action',
@@ -66,16 +70,8 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
     func: 'get_import_info',
     func_group: 'importer'
   };
-  // const query2: ISupplierActionQuery = {
-  //   action: 'ci_api_handler', //
-  //   cmd: 'supplier_action',
-  //   supplier_key: supplier.key,
-  //   func: 'get_hooks_status',
-  //   func_group: 'importer'
-  // };
   const [refetchInterval, setRefetchInterval] = useState<number | false>(60000);
   const dataPoll = useWordpressAjax<IImportStatus>(query, { refetchInterval });
-  // const dataPoll2 = useWordpressAjax<IImportStatus>(query2, { refetchInterval });
   const [importInfo, setImportInfo] = useState<Partial<IImportStatus>>({ status: 0 });
   const [estimatedTime, setEstimatedTime] = useState(0);
   const stopwatch = useStopWatch();
@@ -97,16 +93,16 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
     }
   }, [importInfo]);
 
-  const refresh = () => {
-    supplierAction.mutate({ func: 'get_import_info', args: [] }, { onSettled: setImportInfo });
-  };
-
   const supplierAction = useMutation<IImportStatus, unknown, Partial<ISupplierActionQuery>>({
     mutationFn: ({ func, args = [] }) => fetchWordpressAjax<IImportStatus, IAjaxQuery & ISupplierActionQuery>({ ...query, func, args })
   });
 
+  const refresh = () => {
+    supplierAction.mutate({ func: 'get_import_info', args: [] }, { onSettled: setImportInfo });
+  };
+
   const startImport = () => {
-    supplierAction.mutate({ func: 'start', args: [] }, { onSettled: setImportInfo });
+    supplierAction.mutate({ func: 'custom_start', args: ['', '', importType] }, { onSettled: setImportInfo });
   };
 
   const stopImport = () => {
@@ -132,10 +128,6 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
   const rerunImport = () => {
     supplierAction.mutate({ func: 'rerun' }, { onSettled: setImportInfo });
   };
-
-  // const autoImportImport = () => {
-  //   supplierAction.mutate({ func: 'auto_import' }, { onSettled: refresh });
-  // };
 
   const [nextImport, setNextImport] = useState('');
 
@@ -210,6 +202,7 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
         setEstimatedTime(totalTime);
         // console.log({ left, timeLeft, timeLeftS: formatDuration(timeLeft), startedS: importInfo.started, started, elapsed, elapsedF: formatDuration(elapsed), perItem, totalTime, totalTimeF: formatDuration(totalTime) });
       }
+      setImportType(importInfo?.args?.import_type ?? 'import');
       setMessage(`Running update...`);
     } else {
       setMessage('');
@@ -239,9 +232,9 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
 
   const $cursorInput = useRef<HTMLInputElement>();
   const [cursor, setCursor] = useState('g9akM2pNYlKO');
+  const [importType, setImportType] = useState(supplier.import_options[0]);
   const $updatedAtInput = useRef<HTMLInputElement>();
   const [updatedAt, setUpdatedAt] = useState('2023-01-01');
-  const [importType, setImportType] = useState('');
   const $importTypeInput = useRef<HTMLSelectElement>();
 
   const customCursor = () => {
@@ -288,28 +281,38 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
             </div>
 
             <div className='d-flex gap-2 justify-content-between'>
-              <div className='btn-group' style={{ width: 'min-content' }}>
-                <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={startImport}>
-                  Start
-                </button>
-                <button disabled={!canStop} className='btn btn-sm btn-secondary' onClick={stopImport}>
-                  Stop
-                </button>
-                <button disabled={!canReset} className='btn btn-sm btn-secondary' onClick={resetImport}>
-                  Reset
-                </button>
-                <button disabled={!canContinue} className='btn btn-sm btn-secondary' onClick={resumeImport}>
-                  Resume
-                </button>
-                <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={rerunImport}>
-                  Rerun
-                </button>
-                <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={updateImport}>
-                  Update
-                </button>
-                {/* <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={autoImportImport}>
+              <div className='d-flex gap-2 align-items-center'>
+                <label className='form-label m-0'>Type</label>
+                <select disabled={!canStart} className='form-select' value={importType} onChange={(e) => setImportType(e.currentTarget.value)} ref={$importTypeInput}>
+                  {supplier.import_options.map((o) => (
+                    <option value={o}>{o}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <div className='btn-group' style={{ width: 'min-content' }}>
+                  <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={startImport}>
+                    Start
+                  </button>
+                  <button disabled={!canStop} className='btn btn-sm btn-secondary' onClick={stopImport}>
+                    Stop
+                  </button>
+                  <button disabled={!canReset} className='btn btn-sm btn-secondary' onClick={resetImport}>
+                    Reset
+                  </button>
+                  <button disabled={!canContinue} className='btn btn-sm btn-secondary' onClick={resumeImport}>
+                    Resume
+                  </button>
+                  <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={rerunImport}>
+                    Rerun
+                  </button>
+                  <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={updateImport}>
+                    Update
+                  </button>
+                  {/* <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={autoImportImport}>
                   Auto&nbsp;Import
                 </button> */}
+                </div>
               </div>
 
               <div className='btn-group' style={{ width: 'min-content' }}>
@@ -329,10 +332,14 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
 
             <div className='d-flex justify-content-between'>
               <div>
-                Imported: <b>{totalProducts?.data ?? '-'}</b>
+                {totalProducts?.data ? (
+                  <>
+                    Imported: <b>{totalProducts?.data ?? '-'}</b>
+                  </>
+                ) : null}
               </div>
               <div>
-                Total: <b>{totalRemoteProducts?.data ?? '-'}</b>
+                {(importInfo?.memory ?? 0) > 0 ? <>Memory Used: {~~(importInfo.memory * 100)}%</> : null} {/* Total: <b>{totalRemoteProducts?.data ?? '-'}</b> */}
               </div>
               <div>
                 Processed:{' '}
@@ -375,10 +382,13 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
               </div>
               <div>
                 <label className='form-label'>Type</label>
-                <select className='form-select' value={importType} onChange={(e) => setImportType(e.currentTarget.value)} ref={$importTypeInput}>
-                  <option value='import'>import</option>
-                  <option value='patch'>patch</option>
+
+                <select className='form-select' disabled={!canStart} value={importType} onChange={(e) => setImportType(e.currentTarget.value)} ref={$importTypeInput}>
+                  {supplier.import_options.map((o) => (
+                    <option value={o}>{o}</option>
+                  ))}
                 </select>
+
               </div>
               <div>
                 <label className='form-label d-block'>&nbsp;</label>

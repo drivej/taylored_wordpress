@@ -11131,24 +11131,24 @@ const CSVTable = ({ data }) => {
     var _a;
     if ((data === null || data === void 0 ? void 0 : data.rows) && Array.isArray(data.rows)) {
         const rows = (_a = data === null || data === void 0 ? void 0 : data.rows) !== null && _a !== void 0 ? _a : [];
-        return (React.createElement(React.Fragment, null,
-            React.createElement("table", { className: 'table table-sm border', style: { fontSize: 11 } },
-                React.createElement("thead", null,
-                    React.createElement("tr", null, rows[0].map((r) => (React.createElement("td", null, r))))),
-                React.createElement("tbody", null, rows.slice(1).map((r) => (React.createElement("tr", null, r.map((c) => (React.createElement("td", null, c)))))))),
-            React.createElement(Pre, { data: Object.assign(Object.assign({}, data), { rows: undefined }) })));
+        return (react.createElement(react.Fragment, null,
+            react.createElement("table", { className: 'table table-sm border', style: { fontSize: 11 } },
+                react.createElement("thead", null,
+                    react.createElement("tr", null, rows[0].map((r) => (react.createElement("td", null, r))))),
+                react.createElement("tbody", null, rows.slice(1).map((r) => (react.createElement("tr", null, r.map((c) => (react.createElement("td", null, c)))))))),
+            react.createElement(Pre_Pre, { data: Object.assign(Object.assign({}, data), { rows: undefined }) })));
     }
-    return React.createElement(Pre, { data: data });
+    return react.createElement(Pre_Pre, { data: data });
 };
 const ErrorLogs = ({ data }) => {
-    const $pre = (0,react.useRef)();
-    (0,react.useEffect)(() => {
+    const $pre = useRef();
+    useEffect(() => {
         if ($pre.current) {
             $pre.current.scrollTop = 0;
         }
     }, [data, $pre.current]);
     if (data === null || data === void 0 ? void 0 : data.length) {
-        return (react.createElement("pre", { ref: $pre, style: { fontSize: 10, overflow: 'auto', maxHeight: 400, maxWidth: '100%' } }, data
+        return (React.createElement("pre", { ref: $pre, style: { fontSize: 10, overflow: 'auto', maxHeight: 400, maxWidth: '100%' } }, data
             .map((r, i) => `${i} ${r}`)
             .reverse()
             .join('\n')));
@@ -11221,6 +11221,7 @@ const useSuppliers = () => {
     return useWordpressAjax({ action: 'ci_api_handler', cmd: 'get_suppliers' });
 };
 const AdminForm = ({ name, label = name, cmd, allowPolling = false, children = null, confirmSubmit = false, RenderResult = Pre_Pre }) => {
+    var _a;
     const $form = (0,react.useRef)(null);
     const [isPolling, setIsPolling] = (0,react.useState)(false);
     const [nonce, setNonce] = (0,react.useState)(0);
@@ -11271,19 +11272,9 @@ const AdminForm = ({ name, label = name, cmd, allowPolling = false, children = n
                 react.createElement("input", { type: 'checkbox', checked: isPolling, onChange: togglePolling }),
                 "Poll")) : null),
         react.createElement("div", { className: 'position-relative', style: { flex: '1 1 auto', maxWidth: '100%', overflow: 'auto' } },
+            ((_a = data.data) === null || _a === void 0 ? void 0 : _a.rows) ? react.createElement(CSVTable, { data: { rows: data.data.rows } }) : null,
             react.createElement(RenderResult, { data: data.data }),
             react.createElement("div", { className: 'spinner-border spinner-border-sm', role: 'status', style: { pointerEvents: 'none', position: 'absolute', top: 16, right: 16, opacity: data.isFetching ? 1 : 0, transition: 'opacity 0.2s' } }))));
-};
-
-;// CONCATENATED MODULE: ./src/utilities/LogsPage.tsx
-
-
-const LogsPage = () => {
-    return (react.createElement(react.Fragment, null,
-        react.createElement(AdminForm, { name: 'Get Log', cmd: 'get_log', allowPolling: true, RenderResult: ErrorLogs },
-            react.createElement(SelectSupplier, null)),
-        react.createElement(AdminForm, { name: 'Clear Log', cmd: 'clear_log' },
-            react.createElement(SelectSupplier, null))));
 };
 
 ;// CONCATENATED MODULE: ./src/utilities/MiscPage.tsx
@@ -11345,11 +11336,15 @@ const ProductsPage = () => {
         react.createElement(AdminForm, { name: 'Get Product', cmd: 'supplier_action' },
             react.createElement(SelectSupplier, null),
             react.createElement(TextInput, { name: 'func', defaultValue: 'get_product', hidden: true }),
-            react.createElement(TextInput, { name: 'args[0]', defaultValue: '', placeholder: 'Supplier ID...' })),
+            react.createElement(TextInput, { name: 'args[0]', defaultValue: '', placeholder: 'Supplier Product ID...' })),
         react.createElement(AdminForm, { name: 'Import Product', cmd: 'supplier_action' },
             react.createElement(SelectSupplier, null),
             react.createElement(TextInput, { name: 'func', defaultValue: 'import_product', hidden: true }),
-            react.createElement(TextInput, { name: 'args[0]', defaultValue: '', placeholder: 'Supplier ID...' })),
+            react.createElement(TextInput, { name: 'args[0]', defaultValue: '', placeholder: 'Supplier Product ID...' })),
+        react.createElement(AdminForm, { name: 'Import Product Vehicles', cmd: 'supplier_action' },
+            react.createElement(SelectSupplier, null),
+            react.createElement(TextInput, { name: 'func', defaultValue: 'import_product_vehicles', hidden: true }),
+            react.createElement(TextInput, { name: 'args[0]', defaultValue: '', placeholder: 'Supplier Product ID...' })),
         react.createElement(AdminForm, { name: 'Supplier API', cmd: 'supplier_api' },
             react.createElement(SelectSupplier, null),
             react.createElement(TextInput, { name: 'url', defaultValue: '/' }))));
@@ -11395,13 +11390,11 @@ const UtilitiesRoot = () => {
             react.createElement("h3", null, "Utilities")),
         react.createElement("nav", { className: 'd-flex gap-1' },
             react.createElement(NavLink, { to: '/products', className: className }, "Products"),
-            react.createElement(NavLink, { to: '/logs', className: className }, "Logs"),
             react.createElement(NavLink, { to: '/misc', className: className }, "Misc")),
         react.createElement(Outlet, null)));
 };
 
 ;// CONCATENATED MODULE: ./src/utilities/index.tsx
-
 
 
 
@@ -11428,10 +11421,10 @@ const router = createHashRouter([
                 path: 'misc',
                 element: react.createElement(MiscPage, null)
             },
-            {
-                path: 'logs',
-                element: react.createElement(LogsPage, null)
-            },
+            // {
+            //   path: 'logs',
+            //   element: <LogsPage />
+            // },
             // {
             //   path: 'tasks',
             //   element: <TaskPage />
