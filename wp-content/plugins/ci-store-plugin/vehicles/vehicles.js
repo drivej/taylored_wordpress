@@ -363,10 +363,11 @@ class Vehicles {
       if (keys.length > 0) {
         await this.setVehicle(keys[0]);
         await this.refreshFitment();
-        this.updateFitmentMessage();
       } else {
-        this.setVehicle(null);
+        await this.setVehicle(null);
       }
+      this.updateFitmentMessage();
+      this.save();
     }
   };
 
@@ -486,6 +487,7 @@ class Vehicles {
   };
 
   updateFitmentMessage = (instant) => {
+    if (this.debug) console.log('updateFitmentMessage()');
     // debounce
     // if (instant !== true) {
     //   if (this.fitmentTimeout) {
@@ -494,7 +496,10 @@ class Vehicles {
     //   this.fitmentTimeout = setTimeout(() => this.updateFitmentMessage(true), 250);
     //   return;
     // }
-    if (this.debug) console.log('updateFitmentMessage()');
+    if (Object.keys(this.vehicles).length === 0) {
+      this.setMessage('');
+      return;
+    }
     // product has no vehicles OR is not a PDP
     if (!vehicles_ajax.is_product || vehicles_ajax.has_vehicles != '1') {
       this.setMessage('');

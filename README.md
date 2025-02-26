@@ -56,6 +56,9 @@
 - categories added with wc function because bulk system was erasing vehicle data
 - clean up get_age function
 - product improt time about 5 hours
+#### 2025-02-26
+- fixed vehicle variation merge of ids vs overwrite error so all vehicles are linked to variations
+- made search for "oil" return only 3 items because search blows memory up due to variations
 
 <!-- ## Quirks and Features
 

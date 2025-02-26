@@ -1,0 +1,24 @@
+[26-Feb-2025 15:07:47 UTC] CIStore\Hooks\custom_pre_get_posts{
+    "is_admin": false,
+    "is_main_query": true,
+    "is_search": false,
+    "product_vehicle": null
+}
+[26-Feb-2025 15:07:47 UTC] CIStore\Hooks\custom_pre_get_posts{
+    "is_admin": false,
+    "is_main_query": false,
+    "is_search": false,
+    "product_vehicle": null
+}
+[26-Feb-2025 15:07:47 UTC] CIStore\Hooks\custom_pre_get_posts{
+    "is_admin": false,
+    "is_main_query": false,
+    "is_search": false,
+    "product_vehicle": null
+}
+[26-Feb-2025 15:07:48 UTC] CIStore\Hooks\custom_pre_get_posts{
+    "is_admin": false,
+    "is_main_query": true,
+    "is_search": false,
+    "product_vehicle": null
+}

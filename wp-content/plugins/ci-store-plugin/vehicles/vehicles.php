@@ -8,7 +8,7 @@ add_action('wp_ajax_nopriv_vehicles_handler', 'CIStore\Vehicles\vehicles_handler
 add_action('wp_ajax_vehicles_handler', 'CIStore\Vehicles\vehicles_handler');
 add_shortcode('vehicle_filter', 'CIStore\Vehicles\vehicle_selection_form');
 add_shortcode('vehicle_search', 'CIStore\Vehicles\vehicle_search_form');
-// add_action('woocommerce_single_product_summary', 'CIStore\Vehicles\woocommerce_single_product_summary', 20);
+add_action('woocommerce_single_product_summary', 'CIStore\Vehicles\woocommerce_single_product_summary', 20);
 
 function vehicle_enqueue_scripts()
 {
@@ -239,4 +239,12 @@ function vehicle_search_form()
         </form>
         EOT;
     echo $form;
+}
+
+function woocommerce_single_product_summary()
+{
+    echo '
+    <div id="vehicle_attributes_container">
+        <select id="vehicle_variation_select"></select>
+    </div>';
 }
