@@ -107,7 +107,7 @@ class WooTools
     {
         $brand_category_id = self::create_brand_subcategory($brand_name); // Ensure the category exists
         if ($brand_category_id) {
-            wp_set_post_terms($product_id, [$brand_category_id], 'product_cat', true);
+            wp_set_post_terms($product_id, [$brand_category_id], 'product_brand', true);
             return true;
         }
         return false;

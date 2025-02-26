@@ -5,6 +5,28 @@ include_once CI_STORE_PLUGIN . 'utils/WooTools/WooTools_get_mem.php';
 
 trait Supplier_WPS_Vehicles
 {
+    public function get_vehicle($vehicle_id)
+    {
+        $res = $this->get_api("/vehicles/{$vehicle_id}", [
+            'include' => 'vehiclemodel.vehiclemake,vehicleyear',
+        ]);
+
+        if (isset($res['data']['id'])) {
+            $year  = $res['data']['vehicleyear']['data']['name'];
+            $make  = $res['data']['vehiclemodel']['data']['vehiclemake']['data']['name'];
+            $model = $res['data']['vehiclemodel']['data']['name'];
+
+            return [
+                'id'    => $res['data']['id'],
+                'year'  => $year,
+                'make'  => $res['data']['vehiclemodel']['data']['vehiclemake']['data']['id'],
+                'model' => $res['data']['vehiclemodel']['data']['id'],
+                'name'  => "{$year} {$make} {$model}",
+            ];
+        }
+        return 0;
+    }
+
     public function get_vehicles_category_id()
     {
         $transient_name = __FUNCTION__ . '1';
@@ -415,11 +437,11 @@ trait Supplier_WPS_Vehicles
     public function import_product_vehicles($supplier_product_id)
     {
         /** @var Supplier_WPS $this */
-        error_log(__FUNCTION__ . ' ' . $supplier_product_id);
+        // error_log(__FUNCTION__ . ' ' . $supplier_product_id);
         $timer  = new Timer();
         $sku    = $this->get_product_sku($supplier_product_id);
         $woo_id = wc_get_product_id_by_sku($sku);
-        error_log('sku=' . $sku . ' woo_id=' . $woo_id);
+        // error_log('sku=' . $sku . ' woo_id=' . $woo_id);
         if (! $woo_id) {
             return false;
         }
@@ -429,27 +451,31 @@ trait Supplier_WPS_Vehicles
         $taxonomy        = 'product_vehicle';
         $items           = $this->get_api("/products/{$supplier_product_id}/items", ['fields' => ['items' => 'id']]);
         $master_term_ids = [];
+        $all_vehicle_ids = [];
 
         if (isset($items['data']) && ! empty($items['data'])) {
             foreach ($items['data'] as $item) {
-                $item_id = $item['id'];
-                $cursor  = '';
+                $item_id                   = $item['id'];
+                $all_vehicle_ids[$item_id] = [];
+                $cursor                    = '';
+                $variation_sku             = $this->get_variation_sku($supplier_product_id, $item_id);
+                $variation_woo_id          = wc_get_product_id_by_sku($variation_sku);
+                wp_set_post_terms($variation_woo_id, [], $taxonomy, false);
 
                 while (is_string($cursor)) {
                     $vehicles = $this->get_api("/items/{$item_id}/vehicles", ['page' => ['cursor' => $cursor, 'size' => $page_size], 'fields' => ['vehicles' => 'id']]);
 
                     if (isset($vehicles['data']) && ! empty($vehicles['data'])) {
-                        $vehicle_ids = array_map(fn($v) => $v['id'], $vehicles['data']);
-                        $term_ids    = $this->convert_vehicle_ids_to_term_ids($vehicle_ids);
+                        $vehicle_ids               = array_map(fn($v) => $v['id'], $vehicles['data']);
+                        $all_vehicle_ids[$item_id] = array_merge($all_vehicle_ids[$item_id], $vehicle_ids);
+                        $term_ids                  = $this->convert_vehicle_ids_to_term_ids($vehicle_ids);
 
                         if (! empty($term_ids)) {
-                            $variation_sku    = $this->get_variation_sku($supplier_product_id, $item_id);
-                            $variation_woo_id = wc_get_product_id_by_sku($variation_sku);
-                            error_log('--> variation_sku=' . $variation_sku . ' variation_woo_id=' . $variation_woo_id);
+                            // error_log('--> variation_sku=' . $variation_sku . ' variation_woo_id=' . $variation_woo_id);
 
                             if ($variation_woo_id) {
-                                error_log('--> --> ' . implode(',', $vehicle_ids));
-                                wp_set_post_terms($variation_woo_id, $term_ids, $taxonomy, false);
+                                // error_log('--> --> ' . implode(',', $vehicle_ids));
+                                wp_set_post_terms($variation_woo_id, $term_ids, $taxonomy, true);
                             }
                             // $this->log(['variation' => $item_id, 'count' => count($term_ids), '$term_ids' => $term_ids]);
                             $master_term_ids = array_merge($master_term_ids, $term_ids);
@@ -468,7 +494,13 @@ trait Supplier_WPS_Vehicles
             wp_set_post_terms($woo_id, $master_term_ids, $taxonomy, true);
         }
 
-        $report = ['time' => $timer->lap(), 'items' => count($items['data']), 'page_size' => $page_size, 'updated' => $updated];
+        $report = [
+            'time'        => $timer->lap(),
+            'items'       => count($items['data']),
+            'page_size'   => $page_size,
+            'updated'     => $updated,
+            'vehicle_ids' => $all_vehicle_ids,
+        ];
         unset($items, $vehicles, $term_ids, $vehicle_ids);
         return $report;
     }
@@ -540,5 +572,99 @@ trait Supplier_WPS_Vehicles
 
         // $page_size = $max_count + 1;
         return $page_size;
+    }
+
+    public function match_product_vehicle($supplier_product_id, $vehicle_id)
+    {
+        /** @var Supplier_WPS $this */
+
+        $transient_key = __FUNCTION__ . $supplier_product_id . '_' . $vehicle_id;
+                           // delete_transient($transient_key);
+        $response = false; //get_transient($transient_key);
+
+        if (false === $response) {
+
+            $vehicle = $this->get_vehicle($vehicle_id);
+            $sku     = $this->get_product_sku($supplier_product_id);
+            $woo_id  = wc_get_product_id_by_sku($sku);
+            $term    = "vehicle_{$vehicle_id}";
+
+            if ($woo_id) {
+                $has_term = has_term($term, 'product_vehicle', $woo_id);
+            }
+            $response = [
+                'term'    => $term,
+                'vehicle' => $vehicle,
+                'master'  => [
+                    'woo_id'   => $woo_id,
+                    'has_term' => $has_term,
+                ],
+                'items'   => [],
+            ];
+
+            $sku                                = $this->get_product_sku($supplier_product_id);
+            $woo_id                             = wc_get_product_id_by_sku($sku);
+            $woo_product                        = wc_get_product($woo_id);
+            $product_type                       = $woo_product->get_type();
+            $response['master']['product_type'] = $product_type;
+
+            if (! $woo_id) {
+                return false;
+            }
+
+            // $page_size      = 100;
+            $items          = $this->get_api("/products/{$supplier_product_id}/items", ['fields' => ['items' => 'id']]);
+            $total_vehicles = 0;
+            $items_report   = [];
+
+            foreach ($items['data'] as $item) {
+                $item_id          = $item['id'];
+                $variation_sku    = $this->get_variation_sku($supplier_product_id, $item_id);
+                $variation_woo_id = wc_get_product_id_by_sku($variation_sku);
+                $vehicles         = $this->get_api("/items/{$item_id}/vehicles", ['countOnly' => 'true']);
+                $item_vehicles    = $vehicles['data']['count'] ?? 0;
+                $total_vehicles += $item_vehicles;
+                $item_has_vehicle       = $this->get_api("/items/{$item_id}/vehicles", ['filter[id]' => $vehicle_id]);
+                $item_match             = ($item_has_vehicle['data'][0]['id'] ?? 0) == $vehicle_id;
+                $item_has_term          = $variation_woo_id ? has_term($term, 'product_vehicle', $variation_woo_id) : false;
+                $items_report[$item_id] = [
+                    'match'    => $item_match,
+                    'vehicles' => $item_vehicles,
+                    'woo_id'   => $variation_woo_id,
+                    'has_term' => $item_has_term,
+                ];
+            }
+            $response['master']['vehicles'] = $total_vehicles;
+            $response['items']              = $items_report;
+
+            // if (isset($items['data']) && ! empty($items['data'])) {
+            //     foreach ($items['data'] as $item) {
+            //         $item_id = $item['id'];
+            //         $cursor  = '';
+
+            //         while (is_string($cursor)) {
+            //             $vehicles = $this->get_api("/items/{$item_id}/vehicles", ['page' => ['cursor' => $cursor, 'size' => $page_size], 'fields' => ['vehicles' => 'id']]);
+
+            //             if (isset($vehicles['data']) && ! empty($vehicles['data'])) {
+            //                 foreach ($vehicles['data'] as $vehicle) {
+            //                     if ($vehicle['id'] == $vehicle_id) {
+            //                         $variation_sku                = $this->get_variation_sku($supplier_product_id, $item_id);
+            //                         $variation_woo_id             = wc_get_product_id_by_sku($variation_sku);
+            //                         $response['match']            = true;
+            //                         $response['item_id']          = $item_id;
+            //                         $response['variation_sku']    = $variation_sku;
+            //                         $response['variation_woo_id'] = $variation_woo_id;
+            //                         set_transient($transient_key, $response, WEEK_IN_SECONDS);
+            //                         return $response;
+            //                     }
+            //                 }
+            //             }
+            //             $cursor = $vehicles['meta']['cursor']['next'] ?? false;
+            //         }
+            //     }
+            // }
+            set_transient($transient_key, $response, WEEK_IN_SECONDS);
+        }
+        return $response;
     }
 }

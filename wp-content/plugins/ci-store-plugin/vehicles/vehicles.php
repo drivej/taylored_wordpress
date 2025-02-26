@@ -7,12 +7,27 @@ add_action('wp_enqueue_scripts', 'CIStore\Vehicles\vehicle_enqueue_scripts');
 add_action('wp_ajax_nopriv_vehicles_handler', 'CIStore\Vehicles\vehicles_handler');
 add_action('wp_ajax_vehicles_handler', 'CIStore\Vehicles\vehicles_handler');
 add_shortcode('vehicle_filter', 'CIStore\Vehicles\vehicle_selection_form');
+add_shortcode('vehicle_search', 'CIStore\Vehicles\vehicle_search_form');
 // add_action('woocommerce_single_product_summary', 'CIStore\Vehicles\woocommerce_single_product_summary', 20);
 
 function vehicle_enqueue_scripts()
 {
-    wp_enqueue_style('vehicle-styles', plugins_url('vehicles/vehicles.css', CI_STORE_PLUGIN_FILE), null, CI_VERSION);
-    wp_enqueue_script('vehicle_script', plugins_url('vehicles/vehicles.js', CI_STORE_PLUGIN_FILE), CI_VERSION, true);
+    wp_enqueue_style(
+        'vehicle-styles',
+        plugins_url('vehicles/vehicles.css', CI_STORE_PLUGIN_FILE),
+        [],
+        CI_VERSION,
+        false
+    );
+
+    wp_enqueue_script(
+        'vehicle_script',
+        plugins_url('vehicles/vehicles.js', CI_STORE_PLUGIN_FILE),
+        [],
+        CI_VERSION,
+        true,
+    );
+
     wp_localize_script('vehicle_script', 'vehicles_ajax', [
         'url'          => admin_url('admin-ajax.php'),
         'action'       => 'vehicles_handler',
@@ -107,17 +122,6 @@ function vehicles_handler()
         $meta = [];
 
         switch ($type) {
-            // case 'info':
-            //     if (! session_id()) {
-            //         session_start();
-            //     }
-            //     $data = $_SESSION['selected_vehicle'];
-            //     break;
-
-            // case 'clear':
-            //     session_unset();
-            //     break;
-
             case 'get_years':
                 $data = get_vehicle_years();
                 break;
@@ -133,20 +137,6 @@ function vehicles_handler()
                     $data = get_vehicle_models($_POST['year'], $_POST['make']);
                 }
                 break;
-
-            // case 'make':
-            //     if (isset($_POST['make'])) {
-            //         $make = isset($_POST['make']) ? $_POST['make'] : null;
-            //         $year = isset($_POST['year']) ? $_POST['year'] : null;
-            //         $data = get_vehicle_models($year, $make);
-            //     }
-            //     break;
-
-            // case 'model':
-            //     if (isset($_POST['model'])) {
-            //         $data = get_vehicle_id($_POST['year'], $_POST['model']);
-            //     }
-            //     break;
 
             case 'get_vehicle':
                 if (isset($_POST['year']) && isset($_POST['model'])) {
@@ -178,32 +168,38 @@ function vehicles_handler()
                     $data['fitment']   = true;
                 }
 
+                $woo_product          = wc_get_product($product_id);
+                $product_type         = $woo_product->get_type();
+                $data['product_type'] = $product_type;
+
                 if ($product_id) {
                     $data['has_vehicles'] = has_term('', $taxonomy, $product_id);
                     $data['product']      = has_term($term_slug, $taxonomy, $product_id);
                     $data['fitment']      = true;
                 }
 
-                $variations = get_children([
-                    'post_parent' => $product_id,
-                    'post_type'   => 'product_variation',
-                    'numberposts' => -1,
-                ]);
+                if ($product_type === 'variable') {
+                    $variations = get_children([
+                        'post_parent' => $product_id,
+                        'post_type'   => 'product_variation',
+                        'numberposts' => -1,
+                    ]);
 
-                if (count($variations)) {
-                    $variation_skus = [];
-                    $variation_ids  = [];
+                    if (count($variations)) {
+                        $variation_skus = [];
+                        $variation_ids  = [];
 
-                    if (! empty($variations)) {
-                        foreach ($variations as $variation) {
-                            if (has_term($term_slug, $taxonomy, $variation->ID)) {
-                                $variation_ids[]  = $variation->ID;
-                                $variation_skus[] = get_post_meta($variation->ID, 'attribute_sku', true);
+                        if (! empty($variations)) {
+                            foreach ($variations as $variation) {
+                                if (has_term($term_slug, $taxonomy, $variation->ID)) {
+                                    $variation_ids[]  = $variation->ID;
+                                    $variation_skus[] = get_post_meta($variation->ID, 'attribute_sku', true);
+                                }
                             }
                         }
+                        $data['variation_skus'] = $variation_skus;
+                        $data['variation_ids']  = $variation_ids;
                     }
-                    $data['variation_skus'] = $variation_skus;
-                    $data['variation_ids']  = $variation_ids;
                 }
                 break;
         }
@@ -216,12 +212,31 @@ function vehicle_selection_form()
     return file_get_contents(CI_STORE_PLUGIN . 'vehicles/vehicles.html');
 }
 
-// function woocommerce_single_product_summary()
-// {
-    // global $product;
-    // if ($product) {
-    //     $has_vehicles = has_term('', 'product_vehicle', $product->get_id());
-    //     echo '<script>PRODUCT_HAS_VEHICLES=' . ($has_vehicles ? 'true' : 'false') . '</script>';
-    // }
-    // echo '<p id="vehicle_fitment_message" data-fitment=""></p>';
-// }
+function vehicle_search_form()
+{
+    $action       = esc_url(home_url('/'));
+    $label        = _x('Search for:', 'label');
+    $placeholder  = esc_attr_x('Search', 'placeholder');
+    $value        = get_search_query();
+    $submit_value = esc_attr_x('Search', 'submit button');
+
+    $form = <<<EOT
+        <form role="search" method="get" class="search-form" action="{$action}">
+            <small>Search for your vehicle parts:</small>
+            <label style="display:flex;">
+                <span class="screen-reader-text">{$label}</span>
+                <input
+                    type="search"
+                    class="search-field"
+                    style="flex: 1 1 auto;"
+                    placeholder="{$placeholder}"
+                    value="{$value}"
+                    name="s"
+                />
+                <input type="submit" class="search-submit" value="{$submit_value}" />
+            </label>
+            <input type="hidden" name="product_vehicle" value="" id="product_vehicle_filter" />
+        </form>
+        EOT;
+    echo $form;
+}

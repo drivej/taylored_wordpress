@@ -1,5 +1,5 @@
 <?php
-
+// TODO: unused
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/debug_hook.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
 

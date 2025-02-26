@@ -23,7 +23,7 @@ trait Supplier_WPS_Update
         $supplier_product_id = $woo_product->get_meta('_ci_product_id', true);
 
         if (! $supplier_product_id) {
-            error_log(__FUNCTION__ . ' NO ID!! ' . $supplier_product_id);
+            $this->log(__FUNCTION__ . ' NO ID!! ' . $supplier_product_id);
             return false;
         }
 

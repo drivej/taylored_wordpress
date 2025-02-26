@@ -29,6 +29,8 @@ function assign_multiple_global_attributes_to_product($product_id, $attributes_d
         unset($attributes_data['type']);
     }
 
+    $product_attributes = [];
+
     foreach ($attributes_data as $attribute_name => $term_names) {
         if (strcasecmp('sku', $attribute_name) === 0) {
             $product_attributes[$attribute_name] = [

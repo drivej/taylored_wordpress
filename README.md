@@ -7,6 +7,14 @@
     - Check if product needs an update
     - WooTools::should_update_product() => Supplier::update_pdp_product()
 
+### Shortcode
+- vehicle_filter
+    - place in header
+    - <?php echo do_shortcode('[vehicle_filter]')?>
+- vehicle_search
+    - place in sidebar
+    - <?php echo do_shortcode('[vehicle_search]')?>
+
 ## Updates:
 
 #### 2025-01-22

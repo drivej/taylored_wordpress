@@ -595,7 +595,7 @@ var ___CSS_LOADER_URL_IMPORT_2___ = new URL(/* asset import */ __webpack_require
 var ___CSS_LOADER_URL_IMPORT_3___ = new URL(/* asset import */ __webpack_require__(204), __webpack_require__.b);
 var ___CSS_LOADER_URL_IMPORT_4___ = new URL(/* asset import */ __webpack_require__(931), __webpack_require__.b);
 var ___CSS_LOADER_URL_IMPORT_5___ = new URL(/* asset import */ __webpack_require__(486), __webpack_require__.b);
-var ___CSS_LOADER_URL_IMPORT_6___ = new URL(/* asset import */ __webpack_require__(609), __webpack_require__.b);
+var ___CSS_LOADER_URL_IMPORT_6___ = new URL(/* asset import */ __webpack_require__(588), __webpack_require__.b);
 var ___CSS_LOADER_URL_IMPORT_7___ = new URL(/* asset import */ __webpack_require__(469), __webpack_require__.b);
 var ___CSS_LOADER_URL_IMPORT_8___ = new URL(/* asset import */ __webpack_require__(991), __webpack_require__.b);
 var ___CSS_LOADER_URL_IMPORT_9___ = new URL(/* asset import */ __webpack_require__(122), __webpack_require__.b);
@@ -1389,7 +1389,7 @@ module.exports = insertBySelector;
 
 /***/ }),
 
-/***/ 216:
+/***/ 609:
 /***/ ((module) => {
 
 "use strict";
@@ -1520,7 +1520,7 @@ module.exports = "data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%
 
 /***/ }),
 
-/***/ 609:
+/***/ 588:
 /***/ ((module) => {
 
 "use strict";
@@ -1821,7 +1821,7 @@ var insertBySelector_default = /*#__PURE__*/__webpack_require__.n(insertBySelect
 var setAttributesWithoutAttributes = __webpack_require__(565);
 var setAttributesWithoutAttributes_default = /*#__PURE__*/__webpack_require__.n(setAttributesWithoutAttributes);
 // EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/insertStyleElement.js
-var insertStyleElement = __webpack_require__(216);
+var insertStyleElement = __webpack_require__(609);
 var insertStyleElement_default = /*#__PURE__*/__webpack_require__.n(insertStyleElement);
 // EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/styleTagTransform.js
 var styleTagTransform = __webpack_require__(589);
@@ -11345,6 +11345,11 @@ const ProductsPage = () => {
             react.createElement(SelectSupplier, null),
             react.createElement(TextInput, { name: 'func', defaultValue: 'import_product_vehicles', hidden: true }),
             react.createElement(TextInput, { name: 'args[0]', defaultValue: '', placeholder: 'Supplier Product ID...' })),
+        react.createElement(AdminForm, { name: 'Verify Product Vehicle', cmd: 'supplier_action' },
+            react.createElement(SelectSupplier, null),
+            react.createElement(TextInput, { name: 'func', defaultValue: 'match_product_vehicle', hidden: true }),
+            react.createElement(TextInput, { name: 'args[0]', defaultValue: '', placeholder: 'Supplier Product ID...' }),
+            react.createElement(TextInput, { name: 'args[1]', defaultValue: '', placeholder: 'Supplier Vehicle ID...' })),
         react.createElement(AdminForm, { name: 'Supplier API', cmd: 'supplier_api' },
             react.createElement(SelectSupplier, null),
             react.createElement(TextInput, { name: 'url', defaultValue: '/' }))));

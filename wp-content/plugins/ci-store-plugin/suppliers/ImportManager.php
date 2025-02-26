@@ -459,7 +459,8 @@ class ImportManager
 
     protected function get_info()
     {
-        return get_site_transient($this->import_info_option) ?? ['updated' => '2020-01-01T00:00:00+00:00'];
+        $info = get_site_transient($this->import_info_option);
+        return is_array($info) ? $info : ['updated' => '2020-01-01T00:00:00+00:00'];
     }
 
     protected function set_info($delta)
@@ -472,7 +473,11 @@ class ImportManager
     {
         $info = $this->get_info();
         try {
-            return $this->set_info(array_merge($info, $delta, ['updated' => gmdate("c")]));
+            if (is_array($delta)) {
+                return $this->set_info(array_merge($info, $delta, ['updated' => gmdate("c")]));
+            } else {
+                return $this->set_info(array_merge($info, ['updated' => gmdate("c")]));
+            }
         } catch (\Exception $e) {
             throw new \Exception("update_info(): " . json_encode(['delta' => $delta]));
         }

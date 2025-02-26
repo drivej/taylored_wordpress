@@ -75,8 +75,8 @@ trait Supplier_WPS_Data
                 // 'items.vehicles',
                 // 'items:filter(status_id|STK)',
             ];
-            $fields['products']        = 'name,description';
-            $fields['items']           = 'brand_id,sku,name,list_price,length,width,height,weight,status_id,product_type';
+            $fields['products']        = 'name,description,updated_at';
+            $fields['items']           = 'updated_at,brand_id,sku,name,list_price,length,width,height,weight,status_id,product_type';
             $fields['attributevalues'] = 'attributekey_id,name';
             $fields['taxonomyterms']   = 'name,slug';
             $fields['images']          = 'domain,path,filename,mime,width,height,size';

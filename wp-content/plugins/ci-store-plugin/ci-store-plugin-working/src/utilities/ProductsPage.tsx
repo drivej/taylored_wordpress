@@ -23,6 +23,13 @@ export const ProductsPage = () => {
         <TextInput name='args[0]' defaultValue='' placeholder='Supplier Product ID...' />
       </AdminForm>
 
+      <AdminForm name='Verify Product Vehicle' cmd='supplier_action'>
+        <SelectSupplier />
+        <TextInput name='func' defaultValue='match_product_vehicle' hidden={true} />
+        <TextInput name='args[0]' defaultValue='' placeholder='Supplier Product ID...' />
+        <TextInput name='args[1]' defaultValue='' placeholder='Supplier Vehicle ID...' />
+      </AdminForm>
+
       {/* <AdminForm name='Get Product Attributes' cmd='supplier_action'>
         <SelectSupplier />
         <TextInput name='func' defaultValue='get_attributes_from_product_id' hidden={true} />

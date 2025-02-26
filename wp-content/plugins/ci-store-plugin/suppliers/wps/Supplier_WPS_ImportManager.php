@@ -71,6 +71,7 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager
             case 'patch':
             case 'product_vehicles':
             case 'products':
+            case 'taxonomy':
                 $updated_at = $info['args']['updated_at'] ?? $this->get_default_args()['updated_at'];
                 $total      = $supplier->get_total_remote_products($updated_at);
                 break;
@@ -95,7 +96,7 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager
         }
 
         try {
-            $timer      = new Timer();
+            // $timer      = new Timer();
             $updated_at = isset($info['args']['updated_at']) ? $info['args']['updated_at'] : $this->get_default_args()['updated_at'];
             $supplier   = \Supplier_WPS::instance();
             $items      = [];
@@ -141,18 +142,18 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager
             $processed_delta = isset($items['meta']['total']) ? $items['meta']['total'] : count($items['data'] ?? []);
             $processed       = $info['processed'] + $processed_delta;
             $progress        = $info['total'] > 0 ? ($processed / $info['total']) : 0;
-            $time            = $timer->lap();
+            // $time            = $timer->lap();
 
-            $this->log(__FUNCTION__, json_encode([
-                'rate'        => $processed_delta > 0 ? number_format($time / $processed_delta, 2) : 0,
-                'time'        => number_format($time, 2),
-                'total'       => $processed_delta,
-                'type'        => $import_type,
-                'cursor'      => $cursor,
-                'next_cursor' => $next_cursor,
-                'date'        => $updated_at,
-                'ids'         => $ids,
-            ]));
+            // $this->log(__FUNCTION__, json_encode([
+            //     'rate'        => $processed_delta > 0 ? number_format($time / $processed_delta, 2) : 0,
+            //     'time'        => number_format($time, 2),
+            //     'total'       => $processed_delta,
+            //     'type'        => $import_type,
+            //     'cursor'      => $cursor,
+            //     'next_cursor' => $next_cursor,
+            //     'date'        => $updated_at,
+            //     'ids'         => $ids,
+            // ]));
 
             unset($items, $ids);
             gc_collect_cycles();

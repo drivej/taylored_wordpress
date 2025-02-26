@@ -1,5 +1,9 @@
 <?php
 
+// use function CIStore\Suppliers\WPS\Utils\normalize_wps_date;
+
+use function WooTools\upsert_brand;
+
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_upsert_categories.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_upsert_attributes.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_assign_product_categories.php';
@@ -7,8 +11,10 @@ include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_clean_var
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_get_product_info_by_skus.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_assign_multiple_global_attributes_to_product.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_get_mem.php';
+include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools/WooTools_upsert_brand.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/WooTools.php';
 include_once WP_PLUGIN_DIR . '/ci-store-plugin/utils/Timer.php';
+// include_once WP_PLUGIN_DIR . '/ci-store-plugin/suppliers/wps/Supplier_WPS_Utils.php';
 
 trait Supplier_WPS_Normalize
 {
@@ -84,7 +90,7 @@ trait Supplier_WPS_Normalize
     {
         $lap = $timer->lap();
         if ($lap > 0) {
-            error_log($process . ' ' . $lap . ' ' . WooTools\get_mem());
+            $this->log($process . ' ' . $lap . ' ' . WooTools\get_mem());
             $this->check_memory();
         }
     }
@@ -124,7 +130,7 @@ trait Supplier_WPS_Normalize
     {
         /** @var Supplier_WPS $this */
         if (isset($page['error'])) {
-            error_log(__FUNCTION__ . ' no data to import');
+            $this->log(__FUNCTION__ . ' no data to import');
             return false;
         }
         $this->normalize_wps_api_response($page);
@@ -134,16 +140,44 @@ trait Supplier_WPS_Normalize
         $meta['total']  = count($page['data']);
         $meta['errors'] = [];
         $meta['save']   = $save;
+        $debug          = false;
+
+        if ($debug) {
+            $this->log('normalize_product');
+        }
 
         foreach ($products as &$product) {
             $product = $this->normalize_product($product);
         }
+        if ($debug) {
+            $this->log('process_normalize_products');
+        }
 
         $products = $this->process_normalize_products($products);
+        if ($debug) {
+            $this->log('custom_normalize_products');
+        }
+
         $products = $this->custom_normalize_products($products, $meta);
+        if ($debug) {
+            $this->log('delete_normalize_products');
+        }
+
         $products = $this->delete_normalize_products($products, $meta);
-        $products = $this->assign_normalize_products($products, $meta);
+        if ($debug) {
+            $this->log('assign_normalize_products');
+        }
+
+        $products = $this->assign_normalize_products($products, $meta, $save);
+        if ($debug) {
+            $this->log('assign_product_images');
+        }
+
         $products = $this->assign_product_images($products, $meta);
+        if ($debug) {
+            $this->log('categorize_normalize_products');
+        }
+
         $products = $this->categorize_normalize_products($products, $meta);
 
         if ($save) {
@@ -171,11 +205,12 @@ trait Supplier_WPS_Normalize
         $output['description']            = $this->get_description(['data' => $product]);
         $output['meta']                   = [];
         $output['meta']['_ci_product_id'] = $product['id'];
-        $output['attributes']             = [];
-        $output['categories']             = [];
-        $output['attachments']            = [];
-        $output['variations']             = [];
-        $master_category_keys             = [];
+        // $output['meta']['_ci_supplier_updated'] = normalize_wps_date($product['updated_at']); // TODO: hmm...
+        $output['attributes']  = [];
+        $output['categories']  = [];
+        $output['attachments'] = [];
+        $output['variations']  = [];
+        $master_category_keys  = [];
 
         if (isset($product['taxonomyterms']['data'])) {
             foreach ($product['taxonomyterms']['data'] as $term) {
@@ -363,7 +398,7 @@ trait Supplier_WPS_Normalize
             $unique_variation_ids = array_unique($variation_ids);
             if (count($variation_ids) > count($unique_variation_ids)) {
                 $dif = array_diff($unique_variation_ids, $variation_ids);
-                error_log('Error: ' . __FUNCTION__ . ' Why would this happen?? ' . json_encode(['dif' => $dif]));
+                $this->log('Error: ' . __FUNCTION__ . ' Why would this happen?? ' . json_encode(['dif' => $dif]));
             }
         }
         $attributes_keys = [];
@@ -411,7 +446,7 @@ trait Supplier_WPS_Normalize
                     $master_attributes[$slug] = $output['attributes'][$attr_id];
                 } else {
                     if (is_numeric($attr_id)) {
-                        error_log(json_encode(['product' => $output['id'], '$supplier_attributes' => $supplier_attributes, '$attr_id' => $attr_id, '$attr' => $attr], JSON_PRETTY_PRINT));
+                        $this->log(json_encode(['product' => $output['id'], '$supplier_attributes' => $supplier_attributes, '$attr_id' => $attr_id, '$attr' => $attr], JSON_PRETTY_PRINT));
                     }
                     $master_attributes[$attr_id]          = $attr;
                     $master_attributes[$attr_id]['ALERT'] = 'not found';
@@ -438,7 +473,7 @@ trait Supplier_WPS_Normalize
                 }
                 $variation['attributes'] = $variation_attr;
 
-                // should be array of ids - need terms
+                // should be array of ids - need brand names
                 if ($variation['brand'] && is_numeric($variation['brand']) && isset($lookup_brands[$variation['brand']])) {
                     $variation['brand'] = $lookup_brands[$variation['brand']];
                 }
@@ -485,7 +520,7 @@ trait Supplier_WPS_Normalize
         return $products;
     }
 
-    public function assign_normalize_products(&$products, &$meta)
+    public function assign_normalize_products(&$products, &$meta, $save = true)
     {
         //
         // START bulk assignment of ids ------------------------>
@@ -537,7 +572,7 @@ trait Supplier_WPS_Normalize
         //
 
         foreach ($products as &$product) {
-            $master_created     = '';
+            // $master_created     = '';
             $variations_created = [];
             if (! $product['needs_assignment']) {
 
@@ -552,11 +587,13 @@ trait Supplier_WPS_Normalize
             }
 
             if (! $woo_id) {
-                $master_created = $product['sku'];
+                // $master_created = $product['sku'];
                 $woo_product->set_name($product['name']);
                 $woo_product->update_meta_data('_ci_supplier_key', $this->key);
                 $woo_product->set_sku($product['sku']);
-                $woo_id = $woo_product->save();
+                if ($save) {
+                    $woo_id = $woo_product->save();
+                }
             }
 
             $product['woo_id'] = $woo_id;
@@ -573,12 +610,16 @@ trait Supplier_WPS_Normalize
                         $woo_variation->update_meta_data('_ci_supplier_key', $this->key);
                         $woo_variation->set_sku($variation['sku']);
                         $woo_variation->set_parent_id($woo_id);
-                        $variation_woo_id = $woo_variation->save();
+                        if ($save) {
+                            $variation_woo_id = $woo_variation->save();
+                        }
                     } else {
                         // assign to parent
                         $parent_id = $woo_variation->get_parent_id();
                         if ($parent_id !== $woo_id) {
-                            $woo_variation->save();
+                            if ($save) {
+                                $woo_variation->save();
+                            }
                         }
                     }
                     $children[]          = $variation_woo_id;
@@ -590,7 +631,9 @@ trait Supplier_WPS_Normalize
 
             if ($product['type'] === 'variable') {
                 $woo_product->set_children($children);
-                $woo_product->save();
+                if ($save) {
+                    $woo_product->save();
+                }
             }
         }
         return $products;
@@ -645,7 +688,7 @@ trait Supplier_WPS_Normalize
         }
         unset($supplier_categories);
         $categories = [];
-        $brands     = [];
+        // $brands     = [];
 
         // each prodouct/variation category is either the taxonomy id from the supplier or a name - both need to be resolved
         foreach ($products as &$product) {
@@ -662,7 +705,7 @@ trait Supplier_WPS_Normalize
                             $category                     = $new_cat;
                             $categories[$new_cat['slug']] = $new_cat;
                         } else {
-                            error_log('WPS cat not found - error');
+                            $this->log('WPS cat not found - error');
                         }
                     }
                 } else if (isset($category['name'])) {
@@ -683,24 +726,24 @@ trait Supplier_WPS_Normalize
                                 $category                     = $new_cat;
                                 $categories[$new_cat['slug']] = $new_cat;
                             } else {
-                                error_log('WPS cat not found - error');
+                                $this->log('WPS cat not found - error');
                             }
                         }
                     } else if (isset($category['name'])) {
                         $categories[$category['name']] = $category;
                     }
 
-                    if (! empty($variation['brand'])) {
-                        $brands[] = $variation['brand'];
-                    }
+                    // if (! empty($variation['brand'])) {
+                    //     $brands[] = $variation['brand'];
+                    // }
                 }
             }
         }
 
-        $brands              = array_values(array_unique($brands));
-        $brand_terms         = \WooTools\upsert_brands($brands);
-        $lookup_brand        = array_column($brand_terms, 'term_id', 'name');
-        $meta['brand_terms'] = $brand_terms;
+        // $brands              = array_values(array_unique($brands));
+        // $brand_terms         = \WooTools\upsert_brands($brands);
+        // $lookup_brand        = array_column($brand_terms, 'term_id', 'name');
+        // $meta['brand_terms'] = $brand_terms;
 
         // gather new categories
         $new_categories       = array_values(array_filter($categories, fn($c) => ! isset($c['woo_id']) || ! $c['woo_id']));
@@ -715,12 +758,14 @@ trait Supplier_WPS_Normalize
         // assign wp category id to products and build master list of product/category mapping for bulk import
         foreach ($products as &$product) {
             $product['category_ids'] = [];
+            // $product['brands']       = [];
+
             foreach ($product['categories'] as &$category) {
                 if (! isset($category['woo_id'])) {
                     if (isset($category['name']) && isset($lookup_category[$category['name']])) {
                         $category['woo_id'] = $lookup_category[$category['name']];
                     } else {
-                        error_log('Error: Category not found. ' . json_encode($category));
+                        $this->log('Error: Category not found. ' . json_encode($category));
                     }
                 }
                 // if (! isset($category['woo_id']) && isset($category['name']) && isset($lookup_category[$category['name']])) {
@@ -734,12 +779,13 @@ trait Supplier_WPS_Normalize
 
             foreach ($product['variations'] as &$variation) {
                 $variation['category_ids'] = [];
+
                 foreach ($variation['categories'] as &$category) {
                     if (! isset($category['woo_id'])) {
                         if (isset($category['name']) && isset($lookup_category[$category['name']])) {
                             $category['woo_id'] = $lookup_category[$category['name']];
                         } else {
-                            error_log('Error: Category not found. ' . json_encode($category));
+                            $this->log('Error: Category not found. ' . json_encode($category));
                         }
                     }
                     // if (! isset($category['woo_id']) && isset($lookup_category[$category['name']])) {
@@ -750,9 +796,13 @@ trait Supplier_WPS_Normalize
                     }
                 }
 
-                if (! empty($variation['brand']) && isset($lookup_brand[$variation['brand']])) {
-                    $variation['category_ids'][] = $lookup_brand[$variation['brand']];
-                }
+                // if (! empty($variation['brand'])) {
+                //     $product['brands'][] = $variation['brand'];
+                // }
+                // if (! empty($variation['brand']) && isset($lookup_brand[$variation['brand']])) {
+                // $variation['category_ids'][] = $lookup_brand[$variation['brand']];
+                // $variation['brand_ids'][] = $lookup_brand[$variation['brand']];
+                // }
 
                 // $product_categories[$variation['woo_id']] = $variation['category_ids'];
             }
@@ -822,7 +872,9 @@ trait Supplier_WPS_Normalize
         $variation_ids        = [];
         $product_categories   = [];
 
-        foreach ($products as $output) {
+        foreach ($products as &$output) {
+            $output['brand_ids'] = [];
+
             if ($output['type'] === 'variable') {
                 foreach ($output['attributes'] as $key => &$attribute) {
                     if (isset($attributes[$key])) {
@@ -838,14 +890,25 @@ trait Supplier_WPS_Normalize
             if (isset($output['attributes']['sku'])) {
                 foreach ($output['variations'] as $variation) {
                     $variation_ids[] = $variation['woo_id'];
+
+                    if (isset($variation['brand']) && ! empty($variation['brand'])) {
+                        $output['brand_ids'][] = upsert_brand($variation['brand']);
+                    }
                 }
+                $output['brand_ids'] = array_values(array_unique($output['brand_ids']));
             }
         }
+
 
         // save categories
         foreach ($products as $product) {
             $product_categories[$product['woo_id']] = $product['category_ids'];
-            wp_set_post_terms($product['woo_id'], $product['category_ids'], 'product_cat', false);
+            wp_set_post_terms($product['woo_id'], $product['category_ids'], 'product_cat');
+            $saved = wp_set_post_terms($product['woo_id'], $product['brand_ids'], 'product_brand');
+            if (is_wp_error($saved)) {
+                $this->log(__FUNCTION__ . ' Error: ' . json_encode(['woo_id' => $product['woo_id'], 'brand_ids' => $product['brand_ids']]));
+            }
+            // $this->log(json_encode(['$saved' => $saved]));
             // foreach ($output['variations'] as $variation) {
             //     $product_categories[$variation['woo_id']] = $variation['category_ids'];
             // }
@@ -874,7 +937,7 @@ trait Supplier_WPS_Normalize
 
         // identify woo ids
         foreach ($products as &$output) {
-            $output['meta']['_product_attributes']  = [];
+            // $output['meta']['_product_attributes']  = [];
             $output['meta']['_supplier_class']      = $this->supplierClass;
             $output['meta']['_ci_supplier_key']     = $this->key;
             $output['meta']['_ci_import_version']   = CI_IMPORT_VERSION;
@@ -890,12 +953,12 @@ trait Supplier_WPS_Normalize
                 WooTools\assign_multiple_global_attributes_to_product($output['woo_id'], $output['attr']);
             }
 
-            unset($output['meta']['_product_attributes']);
+            // unset($output['meta']['_product_attributes']);
 
             if ($output['type'] === 'variable') {
                 foreach ($output['variations'] as &$variation) {
                     if (! isset($variation['woo_id'])) {
-                        error_log('variation failed ' . json_encode($output, JSON_PRETTY_PRINT));
+                        $this->log('variation failed ' . json_encode($output, JSON_PRETTY_PRINT));
                     }
                     // attributes
                     foreach ($variation['attributes'] as $attr_key => $attr_value) {
@@ -1027,7 +1090,7 @@ trait Supplier_WPS_Normalize
 
             if ($output['type'] === 'variable') {
                 $woo_product = new WC_Product_Variable($woo_id);
-                $images = [];
+                $images      = [];
                 // WooTools::unlink_children($woo_id);
 
                 foreach ($output['variations'] as &$variation) {

@@ -6,6 +6,7 @@ include_once CI_STORE_PLUGIN . 'suppliers/Suppliers.php';
 include_once CI_STORE_PLUGIN . 'utils/WooTools/WooTools_get_product_info_by_skus.php';
 include_once CI_STORE_PLUGIN . 'utils/WooTools/WooTools_upsert_terms.php';
 include_once CI_STORE_PLUGIN . 'utils/WooTools/WooTools_get_mem.php';
+include_once CI_STORE_PLUGIN . 'utils/WooTools/WooTools_upsert_brand.php';
 // include_once CI_STORE_PLUGIN . 'utils/WooTools/WooTools_empty_taxonomy.php';
 
 function get_products_by_terms()
@@ -96,85 +97,127 @@ function test_action()
     /** @var Supplier_WPS $supplier */
     $supplier = \CIStore\Suppliers\get_supplier('wps');
 
+    $product_id = 31533;
+    $vehicle_id = 6255;
+
+    // return $supplier->get_api("/items/501664/vehicles", ['countOnly' => 'true']);
+
+    return $supplier->match_product_vehicle($product_id, $vehicle_id);
+   
+
+    $product = $supplier->get_product(242142, 'pdp');
+    return $supplier->normalize_products($product, true);
+    // $items = $supplier->get_products_page('PNmYPgBl0J1W', 'pdp');
+    // $items = $supplier->normalize_products($items, false);
+
+    // foreach ($items['data'] as &$product) {
+    //     if ($product['woo_id']) {
+    //         $woo_product = wc_get_product($product['woo_id']);
+    //         if ($woo_product) {
+    //             $product['delete'] = $woo_product->delete(true);
+    //         }
+    //     }
+    // }
+
+    // return $supplier->import_products_page('PNmYPgBl0J1W', '');
+
+    // return $items;
+
+    // return $supplier->normalize_products($items, false);
+
+    // return $supplier->import_products_page('PNmYPgBl0J1W', '');
+    // return get_terms([
+    //     'taxonomy'   => 'product_brand',
+    //     'hide_empty' => false,
+    // ]);
+    // return get_taxonomy('product_brand');
+
+    // return upsert_brand('honda');
+
+    // $date          = \DateTime::createFromFormat("Y-m-d H:i:s", '2025-02-18 17:50:10', new \DateTimeZone('UTC'));
+    // $formattedDate = $date->format("Y-m-d\TH:i:sP");
+    // return ['f' => $formattedDate, 'c' => gmdate("c")];
+
+    // return $supplier->get_api('/products/466587');
     // return $supplier->get_api('/items/387/vehicles', ['countOnly' => 'true']);
 
     // return $supplier->limit_vehicle_load();
-    $cursor    = '';
+    // $cursor = '';
 
-    $page_size = $supplier->limit_vehicle_load($cursor);
-    $params = $supplier->get_vehicle_params($cursor, $page_size);
-    $page = $supplier->get_api('/products', $params);
+    // $page_size = $supplier->limit_vehicle_load($cursor);
+    // $params    = $supplier->get_vehicle_params($cursor, $page_size);
+    // $page      = $supplier->get_api('/products', $params);
 
-    return $page;
-    
-    $page_size = 10;
+    // return $page;
 
-    $page = $supplier->get_api('/products', [
-        'page'    => [
-            'cursor' => $cursor,
-            'size'   => $page_size,
-        ],
-        'include' => 'items',
-        'fields'  => [
-            'products' => 'id,items',
-            'items'    => 'id',
-        ],
-    ]);
+    // $page_size = 10;
 
-    $supertotal   = 0;
-    $max_vehicles = 2000;
-    $max_count    = -1;
+    // $page = $supplier->get_api('/products', [
+    //     'page'    => [
+    //         'cursor' => $cursor,
+    //         'size'   => $page_size,
+    //     ],
+    //     'include' => 'items',
+    //     'fields'  => [
+    //         'products' => 'id,items',
+    //         'items'    => 'id',
+    //     ],
+    // ]);
 
-    foreach ($page['data'] as $i => &$product) {
-        $total        = 0;
-        $product['i'] = $i;
-        foreach ($product['items']['data'] as &$item) {
-            $vehicles               = $supplier->get_api("/items/{$item['id']}/vehicles", ['countOnly' => 'true']);
-            $subtotal               = $vehicles['data']['count'] ?? 0;
-            $item['total_vehicles'] = $subtotal;
-            $total                  = $total + $subtotal;
-        }
-        $product['total_vehicles'] = $total;
-        $supertotal += $total;
-        $product['supertotal'] = $supertotal;
+    // $supertotal   = 0;
+    // $max_vehicles = 2000;
+    // $max_count    = -1;
 
-        if ($supertotal > $max_vehicles && $max_count == -1) {
-            $max_count      = $i;
-            $product['max'] = $max_count;
-        }
-    }
+    // foreach ($page['data'] as $i => &$product) {
+    //     $total        = 0;
+    //     $product['i'] = $i;
+    //     foreach ($product['items']['data'] as &$item) {
+    //         $vehicles               = $supplier->get_api("/items/{$item['id']}/vehicles", ['countOnly' => 'true']);
+    //         $subtotal               = $vehicles['data']['count'] ?? 0;
+    //         $item['total_vehicles'] = $subtotal;
+    //         $total                  = $total + $subtotal;
+    //     }
+    //     $product['total_vehicles'] = $total;
+    //     $supertotal += $total;
+    //     $product['supertotal'] = $supertotal;
 
-    $page['meta']['max_count']  = $max_count;
-    $page['meta']['supertotal'] = $supertotal;
-    return ['meta' => $page['meta'], 'data' => $page['data']];
+    //     if ($supertotal > $max_vehicles && $max_count == -1) {
+    //         $max_count      = $i;
+    //         $product['max'] = $max_count;
+    //     }
+    // }
 
-    $page_size = $max_count + 1;
+    // $page['meta']['max_count']  = $max_count;
+    // $page['meta']['supertotal'] = $supertotal;
+    // return ['meta' => $page['meta'], 'data' => $page['data']];
 
-    unset($vehicles);
+    // $page_size = $max_count + 1;
 
-    $page = $supplier->get_api('/products', [
-        'page'    => [
-            'cursor' => $cursor,
-            'size'   => $page_size,
-        ],
-        'include' => 'items',
-        'fields'  => [
-            'products' => 'id,items',
-            'items'    => 'id',
-        ],
-    ]);
+    // unset($vehicles);
 
-    $page['meta']['max_count']  = $max_count;
-    $page['meta']['supertotal'] = $supertotal;
+    // $page = $supplier->get_api('/products', [
+    //     'page'    => [
+    //         'cursor' => $cursor,
+    //         'size'   => $page_size,
+    //     ],
+    //     'include' => 'items',
+    //     'fields'  => [
+    //         'products' => 'id,items',
+    //         'items'    => 'id',
+    //     ],
+    // ]);
 
-    return $page;
+    // $page['meta']['max_count']  = $max_count;
+    // $page['meta']['supertotal'] = $supertotal;
 
-    $terms = get_the_terms(407863, 'product_vehicle');
-    $info  = array_column($terms, 'term_id', 'slug');
-    return ['meta' => ['count' => count($info), 'data' => $info]];
+    // return $page;
 
-    return update_post_meta(379043, '_ci_product_id', 9235);
-    return update_post_meta(489470, '_ci_product_id', 472526);
+    // $terms = get_the_terms(407863, 'product_vehicle');
+    // $info  = array_column($terms, 'term_id', 'slug');
+    // return ['meta' => ['count' => count($info), 'data' => $info]];
+
+    // return update_post_meta(379043, '_ci_product_id', 9235);
+    // return update_post_meta(489470, '_ci_product_id', 472526);
 
     // 489471
 
@@ -237,8 +280,6 @@ function test_action()
     // $items = $supplier->get_products_page('', 'custom');
     // // return $items;
     // return  $supplier->patch_products_metadata($items);
-
-    // return $supplier->import_products_page('qZkejWqaMoLK', '');
 
     // return $supplier->normalize_products($supplier->get_product(56224));
 

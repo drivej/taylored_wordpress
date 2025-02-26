@@ -39,6 +39,11 @@ function custom_before_single_product()
             }
         }
 
+        // test #2 check supplier updated data
+        if (! $needs_update) {
+            // TODO: should we check supplier update and compare to product?
+        }
+
         // error_log('$needs_update=' . $needs_update);
 
         if ($needs_update) {

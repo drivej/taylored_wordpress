@@ -15,7 +15,8 @@ const default_fitment = {
   product: false, //
   variation: false,
   variation_ids: [],
-  variation_skus: []
+  variation_skus: [],
+  product_type: ''
 };
 
 class Vehicles {
@@ -44,7 +45,11 @@ class Vehicles {
   init = async () => {
     this.$container = document.querySelector('#vehicle_fitment_container');
 
-    // elements of the fitment container
+    if (!this.$container) {
+      console.log('failed to load vehicles');
+      return;
+    }
+
     this.$form = this.$container.querySelector('#vehicle_input_form');
     // this.$clear_form = this.$container.querySelector('#vehicle_clear_form');
     this.$clear_button = this.$container.querySelector('#vehicle_clear_button'); // TODO: rename to cancel
@@ -441,8 +446,12 @@ class Vehicles {
     this.vehicle = { ...this.vehicles[vehicle_id] };
     this.$label.innerHTML = this.vehicle.name;
     this.$vehicle.value = vehicle_id;
-    this.$search_vehicle.value = `vehicle_${vehicle_id}`;
-    this.$shop_link.href = `/vehicles/vehicle_${vehicle_id}`;
+    if (this.$search_vehicle) {
+      this.$search_vehicle.value = `vehicle_${vehicle_id}`;
+    }
+    if (this.$shop_link) {
+      this.$shop_link.href = `/vehicles/vehicle_${vehicle_id}`;
+    }
     this.save();
   };
 
@@ -489,6 +498,15 @@ class Vehicles {
     // product has no vehicles OR is not a PDP
     if (!vehicles_ajax.is_product || vehicles_ajax.has_vehicles != '1') {
       this.setMessage('');
+      return;
+    }
+
+    if (this.fitment.product_type === 'simple') {
+      if (this.fitment.product === true) {
+        this.setMessage('success');
+      } else {
+        this.setMessage('warning');
+      }
       return;
     }
 

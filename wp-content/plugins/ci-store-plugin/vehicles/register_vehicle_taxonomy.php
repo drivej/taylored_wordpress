@@ -24,7 +24,7 @@ function register_vehicle_taxonomy()
         'show_in_menu'       => true,
         'show_in_quick_edit' => false,
         'hierarchical'       => true, // ✅ Allows Make > Model structure
-        'show_ui'            => false,
+        'show_ui'            => true,
         'show_admin_column'  => false,
         'show_in_rest'       => true, // ✅ Enables Gutenberg & API Support
         'public'             => true, // ✅ Allows frontend access
