@@ -43,7 +43,7 @@ class Vehicles {
   last_variation_id = 0;
 
   init = async () => {
-    this.$container = document.querySelector('#vehicle_fitment_container');
+    this.$container = document.querySelector('#vehicle_fitment');
 
     if (!this.$container) {
       console.log('failed to load vehicles');
@@ -51,7 +51,6 @@ class Vehicles {
     }
 
     this.$form = this.$container.querySelector('#vehicle_input_form');
-    // this.$clear_form = this.$container.querySelector('#vehicle_clear_form');
     this.$clear_button = this.$container.querySelector('#vehicle_clear_button'); // TODO: rename to cancel
     this.$year = this.$container.querySelector('#vehicle_year');
     this.$make = this.$container.querySelector('#vehicle_make');
@@ -60,12 +59,17 @@ class Vehicles {
     this.$start_button = this.$container.querySelector('#vehicle_start_button');
     this.$change_button = this.$container.querySelector('#vehicle_change_button');
     this.$label = this.$container.querySelector('#vehicle_label');
-    this.$shop_link = this.$container.querySelector('#vehicle_shop_link');
+    this.$shop_links = document.querySelectorAll('a.shop_vehicle_link');
     this.$variation_input = document.querySelector('input[name="variation_id"]');
     // search form filter
     this.$search_vehicle = document.getElementById('product_vehicle_filter');
+    this.$vehicle_id_inputs = document.querySelectorAll('input[name="product_vehicle"]');
+    const $search_form = document.querySelector('#vehicle_search_form form');
+    if ($search_form) {
+      $search_form.addEventListener('submit', this.onSubmitVehicleSearch);
+    }
     // injected in product details
-    this.$message = document.getElementById('vehicle_fitment_message');
+    this.$message = document.getElementById('fitment_message');
     this.$modal_container = document.getElementById('user_vehicles_modal_container');
     this.$vehicle = document.getElementById('vehicle_select');
     this.$remove_button = document.getElementById('vehicle_remove_button');
@@ -74,7 +78,6 @@ class Vehicles {
     this.$make.addEventListener('change', this.handleChangeMake);
     this.$model.addEventListener('change', this.handleChangeModel);
     this.$form.addEventListener('submit', this.handleSubmit);
-    // this.$clear_form.addEventListener('submit', this.handleSubmitClear);
     this.$clear_button.addEventListener('click', this.handleClickClear);
     this.$start_button.addEventListener('click', this.onClickStart);
     this.$change_button.addEventListener('click', this.onClickChange);
@@ -172,7 +175,6 @@ class Vehicles {
     this.populateSelect(this.$year, years_res.data);
 
     if (this.vehicle?.id) {
-      // if (this.vehicle.year) {
       await this.setYear(this.vehicle.year);
       await this.setMake(this.vehicle.make);
       await this.setModel(this.vehicle.model);
@@ -180,7 +182,6 @@ class Vehicles {
       this.$year.value = this.vehicle.year;
       this.$make.value = this.vehicle.make;
       this.$model.value = this.vehicle.model;
-      // }
     }
     this.isLoading(false);
   };
@@ -195,7 +196,6 @@ class Vehicles {
     this.setMessage('loading');
     await this.setVehicle(e.currentTarget.value);
     await this.refreshFitment();
-    // console.log({ var: this.$variation_input?.value });
     if (this.$variation_input?.value == '') {
       this.selectAvailableVariation();
     }
@@ -205,9 +205,7 @@ class Vehicles {
   selectAvailableVariation = () => {
     if (this.debug) console.log('selectAvailableVariation()');
     if (this.fitment?.variation_ids?.length > 0) {
-      // if (!this.selectAvailableSku()) {
       selectVariation(this.fitment.variation_ids[0]);
-      // }
     }
   };
 
@@ -220,14 +218,11 @@ class Vehicles {
         const skus = this.fitment.variation_skus.map((s) => String(s).toLowerCase());
         let i = $sku_select.options.length;
         let found = '';
-        // if (this.debug) console.log({ skus });
 
         while (i--) {
-          // if (this.debug) console.log({ val: $sku_select.options[i].value });
           const val = $sku_select.options[i].value.toLowerCase();
           if (skus.includes(val)) {
             found = val;
-            // if (this.debug) console.log({ found });
             break;
           }
         }
@@ -240,7 +235,6 @@ class Vehicles {
         }
         return true;
       }
-      // alert('We could not find an exact match for your vehicle.');
     }
     return false;
   };
@@ -306,38 +300,11 @@ class Vehicles {
     } else {
       this.setMode('invite');
     }
-    // this.dispose();
-    // this.emptySelect(this.$make);
-    // this.emptySelect(this.$model);
-    // this.$year.value = '';
-    // this.$make.value = '';
-    // this.$model.value = '';
-    // this.setMode('invite');
-    // this.$search_vehicle.value = '';
-    // this.setMessage('');
-    // this.fitment = {};
   };
 
   onClickRemove = () => {
     if (confirm('Are you sure you want to remove this vehicle from your garage?')) {
-      // const id = String(this.vehicle.id);
       this.removeVehicle(this.vehicle.id);
-
-      //   if (this.vehicles.hasOwnProperty(id)) {
-      //     delete this.vehicles[id];
-      //   }
-
-      //   if (!this.vehicles.hasOwnProperty(id)) {
-      //     const keys = Object.keys(this.vehicles);
-      //     if (keys.length > 0) {
-      //       this.setVehicle(keys[0]);
-      //       // this.vehicle = { ...this.vehicles[keys[0]] };
-      //     } else {
-      //       this.setVehicle(null);
-      //     }
-      //   }
-      //   this.updateVehicleUI();
-      //   this.save();
     }
   };
 
@@ -379,21 +346,8 @@ class Vehicles {
       .map((k) => ({ name: this.vehicles[k].name, id: k }));
 
     this.populateSelect(this.$vehicle, opts, false);
+    console.log({ select: this.$vehicle, vid: this.vehicle.id });
     this.$vehicle.value = this.vehicle.id;
-
-    // update vehicle label
-    // this.$label.innerHTML = this.vehicle.name;
-
-    if (Object.keys(this.vehicles).length > 1) {
-      this.$vehicle.style.display = 'block';
-      this.$label.style.display = 'none';
-    } else {
-      this.$vehicle.style.display = 'none';
-      this.$label.style.display = 'block';
-    }
-
-    // this.$search_vehicle.value = `vehicle_${this.vehicle.id}`;
-    // this.$shop_link.href = `/vehicles/vehicle_${this.vehicle.id}`;
   };
 
   isLoadingSelect = ($select, isLoading) => {
@@ -445,14 +399,20 @@ class Vehicles {
       return;
     }
     this.vehicle = { ...this.vehicles[vehicle_id] };
-    this.$label.innerHTML = this.vehicle.name;
     this.$vehicle.value = vehicle_id;
-    if (this.$search_vehicle) {
-      this.$search_vehicle.value = `vehicle_${vehicle_id}`;
+
+    if (this.$vehicle_id_inputs) {
+      this.$vehicle_id_inputs.forEach((el) => {
+        el.value = `vehicle_${vehicle_id}`;
+      });
     }
-    if (this.$shop_link) {
-      this.$shop_link.href = `/vehicles/vehicle_${vehicle_id}`;
+
+    if (this.$shop_links) {
+      this.$shop_links.forEach((el) => {
+        el.href = `/vehicles/vehicle_${vehicle_id}`;
+      });
     }
+
     this.save();
   };
 
@@ -539,8 +499,8 @@ class Vehicles {
   };
 
   setMessage = (mode, instant) => {
-    if (!this.$message) return;
-    // tryig to stop the blip because the variation_id is set to "" before being set to a ID
+    // if (!this.$message) return;
+    // trying to stop the blip because the variation_id is set to "" before being set to a ID
     if (instant !== true) {
       if (this.messageTimeout) {
         clearTimeout(this.messageTimeout);
@@ -549,31 +509,33 @@ class Vehicles {
       return;
     }
 
-    switch (mode) {
-      case 'success':
-        this.$message.dataset.fitment = 'success';
-        this.$message.innerHTML = '✅ Exact match for your vehicle';
-        break;
+    document.body.dataset.fitmentmode = mode;
 
-      case 'warning':
-        this.$message.dataset.fitment = 'warning';
-        this.$message.innerHTML = 'This may **NOT** fit your vehicle';
-        break;
+  //   switch (mode) {
+  //     case 'success':
+  //       this.$message.dataset.fitment = 'success';
+  //       this.$message.innerHTML = '✅ Exact match for your vehicle';
+  //       break;
 
-      case 'info':
-        this.$message.dataset.fitment = 'info';
-        this.$message.innerHTML = 'Find exact match for your vehicle';
-        break;
+  //     case 'warning':
+  //       this.$message.dataset.fitment = 'warning';
+  //       this.$message.innerHTML = 'This may **NOT** fit your vehicle';
+  //       break;
 
-      case 'loading':
-        this.$message.dataset.fitment = 'loading';
-        this.$message.innerHTML = 'Updating...';
-        break;
+  //     case 'info':
+  //       this.$message.dataset.fitment = 'info';
+  //       this.$message.innerHTML = 'Find exact match for your vehicle';
+  //       break;
 
-      default:
-        this.$message.dataset.fitment = '';
-        this.$message.innerHTML = '';
-    }
+  //     case 'loading':
+  //       this.$message.dataset.fitment = 'loading';
+  //       this.$message.innerHTML = 'Updating...';
+  //       break;
+
+  //     default:
+  //       this.$message.dataset.fitment = '';
+  //       this.$message.innerHTML = '';
+  //   }
   };
 
   // fires when user selects variation or variation is automatically selected
@@ -608,6 +570,17 @@ class Vehicles {
       $select.appendChild(new Option(label, ''));
     }
     $select.disabled = true;
+  };
+
+  onSubmitVehicleSearch = (e) => {
+    if (this.vehicle.id) {
+      const f = new FormData(e.currentTarget);
+      const s = f.get('s');
+      if (s.trim() === '') {
+        e.preventDefault();
+        window.location.href = `/vehicles/vehicle_${this.vehicle.id}`;
+      }
+    }
   };
 
   load = async (query) => {

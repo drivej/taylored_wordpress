@@ -1,62 +1,83 @@
-<div class="mb-2">
-  <div id="vehicle_fitment_container" data-fitment="" data-mode="">
-    <div id="vehicle_alert_container">
-      <div class="text-center">Shop your vehicle!</div>
-      <div><button type="button" id="vehicle_start_button" class="btn btn-primary">Start Here</button></div>
-    </div>
+<div class="mb-3">
+  <div id="vehicle_fitment" class="bg-road position-relative">
+    <div class="col-full">
+      <div id="vehicle_fitment_container" class="d-flex flex-center flex-wrap gap-2 position-relative text-white py-2">
+        <div class="flex-grow flex-lg-auto mw-100" data-fitment="" data-mode="">
+          <div id="vehicle_name_container">
+            <div class="text-small mb-1">Your vehicles</div>
+            <div class="d-flex flex-center gap-1">
+              <select id="vehicle_select" class="form-control"></select>
+              <button type="button" id="vehicle_remove_button" class="btn" title="Remove Vehicle">&times;</button>
+              <button type="button" id="vehicle_change_button" class="btn">Add&nbsp;vehicle</button>
+            </div>
+          </div>
 
-    <div id="vehicle_name_container">
-      <div class="d-flex flex-wrap gap-1 flex-center">
-        <p>Your Vehicle:</p>
-        <label id="vehicle_label"></label>
-        <div class="d-flex flex-center gap-1">
-          <select id="vehicle_select" class="form-control"></select>
-          <button type="button" id="vehicle_remove_button" class="btn" title="Remove Vehicle">&times;</button>
+          <div id="vehicle_input_container">
+            <div class="text-small mb-1">Select your vehicle</div>
+            <form id="vehicle_input_form" class="d-flex flex-wrap gap-1" method="POST">
+              <input type="hidden" name="vehicle_id" id="vehicle_id" value="" />
+
+              <div class="select-fetch">
+                <select name="vehicle_year" id="vehicle_year" class="form-control" required data-label="Year">
+                  <option value="">Select...</option>
+                </select>
+              </div>
+
+              <div class="select-fetch">
+                <select name="vehicle_make" id="vehicle_make" class="form-control" required data-label="Make">
+                  <option value="">Select...</option>
+                </select>
+              </div>
+
+              <div class="select-fetch">
+                <select name="vehicle_model" id="vehicle_model" class="form-control" required data-label="Model">
+                  <option value="">Select...</option>
+                </select>
+              </div>
+
+              <div class="d-flex gap-1 justify-content-center">
+                <button type="submit" id="vehicle_save_button" class="btn btn-primary">Save</button>
+                <button type="button" id="vehicle_clear_button" name="clear" value="clear" class="btn">Cancel</button>
+              </div>
+            </form>
+          </div>
         </div>
-        <div class="d-flex flex-center gap-1">
-          <button type="button" id="vehicle_change_button" class="btn">Add Vehicle</button>
-          <a href="javascript:void(0)" id="vehicle_shop_link" class="btn btn-primary">Shop Vehicle</a>
+
+        <div class="d-none d-lg-block">
+          <div id="vehicle_alert_container">
+            <div class="d-flex flex-center flex-wrap gap-2">
+              <div class="text-center">Shop your vehicle!</div>
+              <button type="button" id="vehicle_start_button" class="btn btn-primary">Start Here</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="vehicle_search_form" class="flex-grow flex-lg-auto">
+          <form class="d-block" role="search" method="get" action="{{action}}">
+            <a href="javascript:void(0)" class="shop_vehicle_link d-block text-white text-small mb-1">Shop your vehicle</a>
+            <div class="d-flex w-100 gap-1 align-items-center">
+              <div class="search-input-icon w-100">
+                <input type="search" class="form-control search-input-icon" style="min-width: 250px" placeholder="Search..." value="{{value}}" name="s" />
+              </div>
+              <button type="submit" class="btn btn-primary">Go</button>
+              <input type="hidden" name="product_vehicle" value="{{vehicle_id}}" id="product_vehicle_filter" />
+            </div>
+          </form>
         </div>
       </div>
+
+      <div id="vehicle_loader_container" class="d-flex flex-center">
+        <div>&nbsp;</div>
+        <div><div class="loader"></div></div>
+        <div>&nbsp;</div>
+      </div>
     </div>
-
-    <div id="vehicle_input_container">
-      <form id="vehicle_input_form" class="d-flex flex-wrap gap-1" method="POST">
-        <!-- <input type="hidden" name="vehicle_name" id="vehicle_name" value="" /> -->
-        <input type="hidden" name="vehicle_id" id="vehicle_id" value="" />
-
-        <div>Select your vehicle</div>
-
-        <div class="select-fetch">
-          <select name="vehicle_year" id="vehicle_year" class="form-control" required data-label="Year">
-            <option value="">Select...</option>
-          </select>
-        </div>
-
-        <div class="select-fetch">
-          <select name="vehicle_make" id="vehicle_make" class="form-control" required data-label="Make">
-            <option value="">Select...</option>
-          </select>
-        </div>
-
-        <div class="select-fetch">
-          <select name="vehicle_model" id="vehicle_model" class="form-control" required data-label="Model">
-            <option value="">Select...</option>
-          </select>
-        </div>
-
-        <div class="d-flex gap-1 justify-content-center">
-          <button type="submit" id="vehicle_save_button" class="btn btn-primary">Save</button>
-          <button type="button" id="vehicle_clear_button" name="clear" value="clear" class="btn">Cancel</button>
-        </div>
-      </form>
-    </div>
-
-    <div id="vehicle_loader_container" class="d-flex flex-center">
-      <div>&nbsp;</div>
-      <div><div class="loader"></div></div>
-      <div>&nbsp;</div>
-    </div>
+    <!-- <p id="vehicle_fitment_message" data-fitment=""></p> -->
   </div>
-  <p id="vehicle_fitment_message" data-fitment=""></p>
+  <div id="fitment_message">
+    <p data-fitmentmode="warning" class="alert alert-warning">This may **NOT** fit your vehicle</p>
+    <p data-fitmentmode="info" class="alert alert-info">Find exact match for your vehicle</p>
+    <p data-fitmentmode="success" class="alert alert-success">✅ Exact match for your vehicle</p>
+    <p data-fitmentmode="loading" class="alert alert-secondary">Updating...</p>
+  </div>
 </div>

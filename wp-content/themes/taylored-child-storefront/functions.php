@@ -13,8 +13,9 @@ function my_theme_enqueue_styles() {
     );
 }
 
+/*
 function custom_content_below_title() {
-    if (is_product_category() || is_product_tag()) {
+       if (is_product_category() || is_product_tag() || (isset($queried_object->taxonomy) && $queried_object->taxonomy === 'vehicles')) {
         echo '<div class="faceted-pagination">';
 		echo do_shortcode('[facetwp facet="sort_"]');
 		echo 'Products:';
@@ -24,6 +25,8 @@ function custom_content_below_title() {
     }
 }
 add_action('woocommerce_archive_description', 'custom_content_below_title', 15);
+
+*/
 
 
 

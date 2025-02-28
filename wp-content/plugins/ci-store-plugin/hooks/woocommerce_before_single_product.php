@@ -51,8 +51,8 @@ function custom_before_single_product()
             $id       = $product->get_id();
 
             if ($supplier) {
-                $pid = get_post_meta($id, '_ci_product_id', true);
-                error_log('PDP update ' . $id . ' $supplier=' . $supplier->key . ' $pid=' . $pid . ' reason=' . $needs_update);
+                // $pid = get_post_meta($id, '_ci_product_id', true);
+                // error_log('PDP update ' . $id . ' $supplier=' . $supplier->key . ' $pid=' . $pid . ' reason=' . $needs_update);
                 $updated = $supplier->update_pdp_product($product);
 
                 if ($updated) {

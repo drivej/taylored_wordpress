@@ -59,7 +59,9 @@
 #### 2025-02-26
 - fixed vehicle variation merge of ids vs overwrite error so all vehicles are linked to variations
 - made search for "oil" return only 3 items because search blows memory up due to variations
-
+#### 2025-02-27
+- Added Search plugin Relevanssi
+- Removed parent "vehicles" category
 <!-- ## Quirks and Features
 
 ### Where are the Hooks?

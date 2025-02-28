@@ -27,17 +27,17 @@ trait Supplier_WPS_Vehicles
         return 0;
     }
 
-    public function get_vehicles_category_id()
-    {
-        $transient_name = __FUNCTION__ . '1';
-        $response       = get_transient($transient_name);
-        if (! $response) {
-            $parent   = WooTools\upsert_term(['name' => 'Vehicles'], 'product_vehicle');
-            $response = $parent['term_id'];
-            set_transient($transient_name, $response, WEEK_IN_SECONDS);
-        }
-        return $response;
-    }
+    // public function get_vehicles_category_id()
+    // {
+    //     $transient_name = __FUNCTION__ . '1';
+    //     $response       = get_transient($transient_name);
+    //     if (! $response) {
+    //         $parent   = WooTools\upsert_term(['name' => 'Vehicles'], 'product_vehicle');
+    //         $response = $parent['term_id'];
+    //         set_transient($transient_name, $response, WEEK_IN_SECONDS);
+    //     }
+    //     return $response;
+    // }
 
     public function get_vehicle_year_id($year)
     {
@@ -357,7 +357,7 @@ trait Supplier_WPS_Vehicles
         $response = [];
 
         if (! empty($page['data'])) {
-            $parent_id = $this->get_vehicles_category_id();
+            $parent_id = 0; //$this->get_vehicles_category_id();
 
             foreach ($page['data'] as $item) {
                 $new_terms[] = $this->termify_wps_vehicle($item, $parent_id);
@@ -496,7 +496,7 @@ trait Supplier_WPS_Vehicles
 
         $report = [
             'time'        => $timer->lap(),
-            'items'       => count($items['data']),
+            'items'       => (is_array($items['data']) && ! empty($items['data'])) ? count($items['data']) : 0,
             'page_size'   => $page_size,
             'updated'     => $updated,
             'vehicle_ids' => $all_vehicle_ids,
