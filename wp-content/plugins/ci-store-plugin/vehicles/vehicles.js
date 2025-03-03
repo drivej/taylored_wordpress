@@ -103,6 +103,12 @@ class Vehicles {
     this.emptySelect(this.$make);
     this.emptySelect(this.$model);
     this.restore();
+
+    const $names_list = document.getElementById('related_vehicles_names');
+    if ($names_list) {
+      $names_list.style.maxHeight = '300px';
+      $names_list.style.overflow = 'auto';
+    }
   };
 
   isLoading = (val) => {
@@ -511,31 +517,31 @@ class Vehicles {
 
     document.body.dataset.fitmentmode = mode;
 
-  //   switch (mode) {
-  //     case 'success':
-  //       this.$message.dataset.fitment = 'success';
-  //       this.$message.innerHTML = '✅ Exact match for your vehicle';
-  //       break;
+    //   switch (mode) {
+    //     case 'success':
+    //       this.$message.dataset.fitment = 'success';
+    //       this.$message.innerHTML = '✅ Exact match for your vehicle';
+    //       break;
 
-  //     case 'warning':
-  //       this.$message.dataset.fitment = 'warning';
-  //       this.$message.innerHTML = 'This may **NOT** fit your vehicle';
-  //       break;
+    //     case 'warning':
+    //       this.$message.dataset.fitment = 'warning';
+    //       this.$message.innerHTML = 'This may **NOT** fit your vehicle';
+    //       break;
 
-  //     case 'info':
-  //       this.$message.dataset.fitment = 'info';
-  //       this.$message.innerHTML = 'Find exact match for your vehicle';
-  //       break;
+    //     case 'info':
+    //       this.$message.dataset.fitment = 'info';
+    //       this.$message.innerHTML = 'Find exact match for your vehicle';
+    //       break;
 
-  //     case 'loading':
-  //       this.$message.dataset.fitment = 'loading';
-  //       this.$message.innerHTML = 'Updating...';
-  //       break;
+    //     case 'loading':
+    //       this.$message.dataset.fitment = 'loading';
+    //       this.$message.innerHTML = 'Updating...';
+    //       break;
 
-  //     default:
-  //       this.$message.dataset.fitment = '';
-  //       this.$message.innerHTML = '';
-  //   }
+    //     default:
+    //       this.$message.dataset.fitment = '';
+    //       this.$message.innerHTML = '';
+    //   }
   };
 
   // fires when user selects variation or variation is automatically selected

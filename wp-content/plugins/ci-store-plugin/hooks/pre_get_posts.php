@@ -3,34 +3,36 @@ namespace CIStore\Hooks;
 
 function custom_pre_get_posts($query)
 {
+    return;
+
     // if (! is_admin() && $query->is_main_query() && $query->is_search()) {
     //     $search_term = strtolower(trim($query->get('s', '')));
 
-    //     error_log('Search Term: ' . $search_term);
+        // error_log('Search Term: ' . $search_term);
 
-    //     if (! empty($_GET['product_vehicle'])) {
-    //         error_log('vehicle search');
-    //         $vehicle_slug = sanitize_text_field($_GET['product_vehicle']);
-    //         $query->set('post_type', 'product');
-    //         $tax_query = [
-    //             'relation' => 'AND',
-    //             [
-    //                 'taxonomy' => 'product_vehicle',
-    //                 'field'    => 'slug',
-    //                 'terms'    => $vehicle_slug,
-    //             ],
-    //         ];
-    //         $query->set('tax_query', $tax_query);
-    //     }
+        // if (! empty($_GET['product_vehicle'])) {
+        //     error_log('vehicle search');
+        //     $vehicle_slug = sanitize_text_field($_GET['product_vehicle']);
+        //     $query->set('post_type', 'product');
+        //     $tax_query = [
+        //         'relation' => 'AND',
+        //         [
+        //             'taxonomy' => 'product_vehicle',
+        //             'field'    => 'slug',
+        //             'terms'    => $vehicle_slug,
+        //         ],
+        //     ];
+        //     $query->set('tax_query', $tax_query);
+        // }
 
-    //     // Optimize "oil" searches to prevent memory issues
-    //     if (str_contains(strtolower($search_term), 'oil')) {
-    //         $query->set('posts_per_page', 3);
-    //     } else {
-    //         $query->set('posts_per_page', 12);
-    //     }
+        // Optimize "oil" searches to prevent memory issues
+        // if (str_contains(strtolower($search_term), 'oil')) {
+        //     $query->set('posts_per_page', 12);
+        // } else {
+        //     $query->set('posts_per_page', 12);
+        // }
 
-    //     error_log(print_r($query, true));
+        // error_log(print_r($query, true));
     // }
 }
 

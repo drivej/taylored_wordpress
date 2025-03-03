@@ -43,6 +43,7 @@ interface IImportStatus {
   // total_products: number;
   waiting: boolean;
   progress: number;
+  processing: boolean;
   is_scheduled: boolean;
   active: boolean;
   age: string;
@@ -88,8 +89,10 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
         stopwatch.start(start_date);
       }
     } else {
-      setRefetchInterval(60000);
-      stopwatch.pause();
+      if (!importInfo?.processing) {
+        setRefetchInterval(60000);
+        stopwatch.pause();
+      }
     }
   }, [importInfo]);
 
@@ -388,7 +391,6 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
                     <option value={o}>{o}</option>
                   ))}
                 </select>
-
               </div>
               <div>
                 <label className='form-label d-block'>&nbsp;</label>

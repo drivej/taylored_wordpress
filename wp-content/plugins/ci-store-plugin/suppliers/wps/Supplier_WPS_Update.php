@@ -28,6 +28,16 @@ trait Supplier_WPS_Update
         }
 
         $this->import_product($supplier_product_id);
+        // this is a big deal
         $this->import_product_vehicles($supplier_product_id);
+
+        // __CLASS__
+        // __NAMESPACE__
+        // TODO: allow indexing on refresh?
+        // if (function_exists('relevanssi_index_doc')) {
+        // $woo_id              = $woo_product->get_id();
+        //     error_log('relevanssi_index_doc ' . $woo_id);
+        //     relevanssi_index_doc($woo_id, true);
+        // }
     }
 }

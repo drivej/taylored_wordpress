@@ -63,10 +63,10 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager
                 $total  = $result['data']['count'] ?? -1;
                 break;
 
-            case 'item_vehicles':
-                $result = $supplier->get_api('items', ['countOnly' => 'true']);
-                $total  = $result['data']['count'] ?? -1;
-                break;
+            // case 'item_vehicles':
+            //     $result = $supplier->get_api('items', ['countOnly' => 'true']);
+            //     $total  = $result['data']['count'] ?? -1;
+            //     break;
 
             case 'patch':
             case 'product_vehicles':
@@ -122,10 +122,10 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager
                     $items = $supplier->import_product_vehicles_page($cursor);
                     break;
 
-                case 'item_vehicles':
-                    $page  = $supplier->get_items_page($cursor, $updated_at);
-                    $items = $supplier->import_item_vehicles($page);
-                    break;
+                // case 'item_vehicles':
+                //     $page  = $supplier->get_items_page($cursor, $updated_at);
+                //     $items = $supplier->import_item_vehicles($page);
+                //     break;
 
                 case 'product_plp':
                     $items = $supplier->import_products_page($cursor, $updated_at);

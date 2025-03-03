@@ -12,7 +12,7 @@ function get_suppliers()
                 'vehicles',
                 'product_plp',
                 'product_vehicles',
-                'item_vehicles',
+                // 'item_vehicles',
                 'taxonomy',
                 'patch',
             ],

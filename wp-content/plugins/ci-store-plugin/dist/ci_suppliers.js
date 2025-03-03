@@ -11706,8 +11706,10 @@ const SupplierImportStatus = ({ supplier }) => {
             }
         }
         else {
-            setRefetchInterval(60000);
-            stopwatch.pause();
+            if (!(importInfo === null || importInfo === void 0 ? void 0 : importInfo.processing)) {
+                setRefetchInterval(60000);
+                stopwatch.pause();
+            }
         }
     }, [importInfo]);
     const supplierAction = useMutation({

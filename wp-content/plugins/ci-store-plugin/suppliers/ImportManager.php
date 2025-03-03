@@ -494,7 +494,7 @@ class ImportManager
                         // TODO: should we unstall here?
                         // $this->resume(true);
                         // $this->kill();
-                        $this->log(__FUNCTION__ . ' force resume from stall');
+                        $this->log(__FUNCTION__ . ' age=' . $age . ' min');
                         return true;
                     }
                 }

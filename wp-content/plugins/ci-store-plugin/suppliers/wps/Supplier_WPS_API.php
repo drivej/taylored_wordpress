@@ -6,7 +6,7 @@ trait Supplier_WPS_API
     private $api_url      = "https://api.wps-inc.com";
     // private $api_url      = "https://apitest.wps-inc.com"; // doesn't work?
 
-    public function get_api($path, $params = [], $use_cache = true)
+    public function get_api($path, $params = [], $use_cache = true, $timeout = 30)
     {
         if (! isset($path)) {
             return ['error' => 'path not set'];
@@ -28,7 +28,7 @@ trait Supplier_WPS_API
                     'Authorization' => "Bearer {$this->bearer_token}",
                     'Content-Type'  => 'application/json',
                 ],
-                'timeout' => 30,
+                'timeout' => $timeout,
             ]);
 
             // request failed
