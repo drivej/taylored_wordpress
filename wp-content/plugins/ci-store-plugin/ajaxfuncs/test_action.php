@@ -1,12 +1,16 @@
 <?php
 namespace CIStore\Ajax;
 
+use Timer;
+
 include_once CI_STORE_PLUGIN . 'utils/WooTools.php';
 include_once CI_STORE_PLUGIN . 'suppliers/Suppliers.php';
 include_once CI_STORE_PLUGIN . 'utils/WooTools/WooTools_get_product_info_by_skus.php';
 include_once CI_STORE_PLUGIN . 'utils/WooTools/WooTools_upsert_terms.php';
 include_once CI_STORE_PLUGIN . 'utils/WooTools/WooTools_get_mem.php';
+
 include_once CI_STORE_PLUGIN . 'utils/WooTools/WooTools_upsert_brand.php';
+include_once CI_STORE_PLUGIN . 'utils/Timer.php';
 // include_once CI_STORE_PLUGIN . 'utils/WooTools/WooTools_empty_taxonomy.php';
 
 function get_products_by_terms()
@@ -92,10 +96,50 @@ function remove_duplicate_wps_items($items)
     return $unique_products;
 }
 
+// function get_vehicle_term_count_for_product($product_id)
+// {
+//     global $wpdb;
+
+//     $query = $wpdb->prepare("
+//         SELECT COUNT(tr.term_taxonomy_id) AS term_count
+//         FROM {$wpdb->term_relationships} tr
+//         INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+//         WHERE tt.taxonomy = 'product_vehicle'
+//         AND tr.object_id = %d
+//     ", $product_id);
+
+//     return $wpdb->get_var($query);
+// }
+
 function test_action()
 {
     /** @var Supplier_WPS $supplier */
     $supplier = \CIStore\Suppliers\get_supplier('wps');
+
+    // 409207
+
+    $woo_product = wc_get_product(409207);
+
+    $result = [];
+
+    return $supplier->import_vehicles_page('');
+
+                         // $product_id = 152363;
+    $product_id = 22772; // crazy number of vehicles
+
+    $result['get_total_vehicles_for_product'] = $supplier->get_total_vehicles_for_product($product_id, true);
+    // $result['removed']                        = $supplier->remove_product_vehicles($supplier->get_woo_id($product_id));
+    // $result['get_total_vehicle_terms_for_product_before'] = $supplier->get_total_vehicle_terms_for_product($product_id);
+
+    // $result['import_product_vehicles']      = $supplier->import_product_vehicles($product_id, false);
+    // $result['import_product_vehicles']['vehicle_ids'] = [];
+    // $result['import_product_vehicles_time'] = $timer->lap();
+
+    // $result['get_total_vehicle_terms_for_product_after'] = $supplier->get_total_vehicle_terms_for_product($product_id);
+
+    return $result;
+
+    // return ['count' => count($vehicles), 'vehicles' => $vehicles, 'attach_product_vehicles' => $termed1, 'import_product_vehicles' => $termed2];
 
     $product_id = 31533;
     $vehicle_id = 6255;
@@ -103,7 +147,6 @@ function test_action()
     // return $supplier->get_api("/items/501664/vehicles", ['countOnly' => 'true']);
 
     return $supplier->match_product_vehicle($product_id, $vehicle_id);
-   
 
     $product = $supplier->get_product(242142, 'pdp');
     return $supplier->normalize_products($product, true);

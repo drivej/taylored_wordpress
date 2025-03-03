@@ -443,8 +443,15 @@ garage modal
 attributes select
 
 */
-#vehicle_attributes_container {
+#vehicle_variation_select_container {
   display: none;
+}
+
+[data-fitmentmode='success'] #vehicle_variation_select_container {
+  display: block;
+}
+[data-fitmentmode='info'] #vehicle_variation_select_container {
+  background-color: #2da28e;
 }
 
 /* #vehicle-search-form {

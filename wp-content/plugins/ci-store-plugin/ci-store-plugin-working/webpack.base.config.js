@@ -4,6 +4,20 @@ const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
   // entry: './src/stock_check/index.tsx',
+  // externals: {
+  //   react: {
+  //     commonjs: 'react',
+  //     commonjs2: 'react',
+  //     amd: 'React',
+  //     root: 'React', // indicates global variable
+  //   },
+  //   'react-dom': {
+  //     commonjs: 'react-dom',
+  //     commonjs2: 'react-dom',
+  //     amd: 'ReactDOM',
+  //     root: 'ReactDOM',
+  //   },
+  // },
   performance: {
     hints: false,
     maxEntrypointSize: 512000,

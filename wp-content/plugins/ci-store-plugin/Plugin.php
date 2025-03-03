@@ -9,7 +9,6 @@ class Plugin
     function __construct()
     {
         add_action('plugins_loaded', [$this, 'plugins_check'], 10);
-        add_action('wp_enqueue_scripts', 'CIStore\hooks\enqueue_disable_variations_script');
     }
 
     function plugins_check()

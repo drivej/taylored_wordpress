@@ -8,12 +8,10 @@ const default_vehicle = {
 
 const default_fitment = {
   vehicle_id: 0,
-  // variation_id: 0,
   product_id: 0,
   fitment: false,
   has_vehicles: false,
-  product: false, //
-  // variation: false,
+  product: false,
   variation_ids: [],
   variation_skus: [],
   product_type: ''
@@ -24,7 +22,7 @@ function sleep(ms) {
 }
 
 class Vehicles {
-  debug = true;
+  debug = false;
   storage_key = 'user_vehicle_data';
   year = '';
   make = '';
@@ -70,7 +68,9 @@ class Vehicles {
     this.$variation_input = document.querySelector('input[name="variation_id"]');
     this.$vehicle_variation_select_container = document.getElementById('vehicle_variation_select_container');
     this.$vehicle_variation_select = document.getElementById('vehicle_variation_select');
-    this.$vehicle_variation_select.addEventListener('change', this.onChangeQuickSelect);
+    if (this.$vehicle_variation_select) {
+      this.$vehicle_variation_select.addEventListener('change', this.onChangeQuickSelect);
+    }
 
     // search form filter
     this.$search_vehicle = document.getElementById('product_vehicle_filter');
@@ -224,7 +224,6 @@ class Vehicles {
     if (this.debug) console.log('selectAvailableVariation()');
     if (this.fitment?.variation_ids?.length > 0) {
       this.selectVariationId(this.fitment.variation_ids[0]);
-      // this.selectVariation(this.fitment.variation_ids[0]);
     }
   };
 
@@ -366,7 +365,6 @@ class Vehicles {
       .map((k) => ({ name: this.vehicles[k].name, id: k }));
 
     this.populateSelect(this.$vehicle, opts, false);
-    // console.log({ select: this.$vehicle, vid: this.vehicle.id });
     this.$vehicle.value = this.vehicle.id;
   };
 
@@ -443,19 +441,15 @@ class Vehicles {
       return;
     }
     const product_id = vehicles_ajax?.product_id ?? 0;
-    // const variation_id = this.$variation_input?.value ?? 0;
     const vehicle_id = this.vehicle.id;
-    // const cacheKey = `${vehicle_id}_${product_id}_${variation_id}`;
     const cacheKey = `${vehicle_id}_${product_id}`;
 
     if (!this.fitment_cache.hasOwnProperty(cacheKey)) {
       if (product_id) {
-        // || variation_id) {
         const res = await this.load({
           type: 'fitment',
           vehicle_id,
           product_id
-          // variation_id
         });
 
         if (res?.data) {
@@ -471,14 +465,7 @@ class Vehicles {
 
   updateFitmentMessage = (instant) => {
     if (this.debug) console.log('updateFitmentMessage()');
-    // debounce
-    // if (instant !== true) {
-    //   if (this.fitmentTimeout) {
-    //     clearTimeout(this.fitmentTimeout);
-    //   }
-    //   this.fitmentTimeout = setTimeout(() => this.updateFitmentMessage(true), 250);
-    //   return;
-    // }
+
     if (Object.keys(this.vehicles).length === 0) {
       this.setMessage('');
       return;
@@ -505,10 +492,8 @@ class Vehicles {
 
     const variation_id = this.$variation_input.value;
     const found = this.fitment.variation_ids.indexOf(parseInt(variation_id));
-    // if (this.debug) console.log('updateFitmentMessage()', { variation_ids: this.fitment.variation_ids.join(), variation_id, found });
 
     if (found > -1) {
-      // selectVariation(this.fitment.variation_ids[0]);
       this.setMessage('success');
       return;
     }
@@ -546,7 +531,6 @@ class Vehicles {
   };
 
   setMessage = (mode, instant) => {
-    // if (!this.$message) return;
     // trying to stop the blip because the variation_id is set to "" before being set to a ID
     if (instant !== true) {
       if (this.messageTimeout) {
@@ -559,11 +543,7 @@ class Vehicles {
     if (this.debug) console.log('setMessage()');
     document.body.dataset.fitmentmode = mode;
 
-    // if (this.$vehicle_variation_select.value !== this.last_variation_id) {
-    //   this.$vehicle_variation_select.value = '';
-    // }
-
-    if (this.$vehicle_variation_select_container && !this.userChangedVariationSelect) {
+    if (this.$vehicle_variation_select_container) {
       if (this.fitment.variation_ids.includes(parseInt(this.last_variation_id))) {
         if (this.$vehicle_variation_select.value != this.last_variation_id) {
           this.$vehicle_variation_select.value = this.last_variation_id;
@@ -572,58 +552,15 @@ class Vehicles {
         this.$vehicle_variation_select.value = '';
       }
     }
-
-    // if (this.$vehicle_variation_select_container) {
-    //   if (this.fitment.variation_ids.includes(parseInt(this.last_variation_id))) {
-    //     if (this.$vehicle_variation_select.value != this.last_variation_id) {
-    //       this.$vehicle_variation_select.value = this.last_variation_id;
-    //     }
-    //   } else {
-    //     this.$vehicle_variation_select.value = '';
-    //   }
-    // }
-    //   switch (mode) {
-    //     case 'success':
-    //       this.$message.dataset.fitment = 'success';
-    //       this.$message.innerHTML = '✅ Exact match for your vehicle';
-    //       break;
-
-    //     case 'warning':
-    //       this.$message.dataset.fitment = 'warning';
-    //       this.$message.innerHTML = 'This may **NOT** fit your vehicle';
-    //       break;
-
-    //     case 'info':
-    //       this.$message.dataset.fitment = 'info';
-    //       this.$message.innerHTML = 'Find exact match for your vehicle';
-    //       break;
-
-    //     case 'loading':
-    //       this.$message.dataset.fitment = 'loading';
-    //       this.$message.innerHTML = 'Updating...';
-    //       break;
-
-    //     default:
-    //       this.$message.dataset.fitment = '';
-    //       this.$message.innerHTML = '';
-    //   }
   };
 
-  userChangedVariationSelect = false;
-
-  // onChangeQuickSelect = (e) => {
-  //   if (this.debug) console.log('onChangeQuickSelect()', e.currentTarget.value);
-  //   if (e.currentTarget.value !== '') {
-  //     this.userChangedVariationSelect = true;
-  //     this.selectVariation(e.currentTarget.value);
-  //   }
-  // };
-
-  onChangeQuickSelectTimeout = null;
-
   selectVariationId = async (variation_id) => {
-    const variation = woo_product_details.variations.find((v) => v.variation_id == variation_id);
     const sleepTime = 10;
+
+    this.clickClear();
+    await sleep(sleepTime);
+
+    const variation = woo_product_details.variations.find((v) => v.variation_id == variation_id);
 
     if (variation) {
       for (const attr in variation.attributes) {
@@ -633,13 +570,16 @@ class Vehicles {
           $select.dispatchEvent(new Event('change', { bubbles: true }));
           await sleep(sleepTime);
         } else {
-          console.log('FAIL', `select[name="${attr}"]`);
+          if (debug) console.log('FAIL', `select[name="${attr}"]`);
         }
       }
+    } else {
+      if (debug) console.log('variation not found', variation_id);
     }
 
     this.$variation_input.value = variation_id;
-    // this.$variation_input.dispatchEvent(new Event('change', { bubbles: true }));
+    this.$variation_input.dispatchEvent(new Event('change', { bubbles: true }));
+    await sleep(sleepTime);
 
     const $variationForm = document.querySelector('.variations_form');
 
@@ -654,32 +594,10 @@ class Vehicles {
 
   onChangeQuickSelect = async (e) => {
     if (this.debug) console.log('onChangeQuickSelect()', e?.currentTarget?.value ?? false);
-    // window.quick_selecting = true;
 
     if (e.currentTarget.value) {
       this.selectVariationId(parseInt(e.currentTarget.value));
     }
-
-    // return;
-
-    // this.selectVariation(e.currentTarget.value);
-
-    // setTimeout(() => {
-    //   window.quick_selecting = false;
-    // }, 500);
-    // this.userChangedVariationSelect = true;
-    // this.doChangeQuickSelect(e);
-
-    // if (this.debug) console.log('onChangeQuickSelect()', e.currentTarget.value);
-    // if (e.currentTarget.value !== '') {
-    //   // Debounce to prevent race conditions with other updates
-    //   clearTimeout(this.onChangeQuickSelectTimeout);
-
-    //   this.onChangeQuickSelectTimeout = setTimeout(() => {
-    //     this.last_variation_id = this.$vehicle_variation_select.value; // Sync last_variation_id
-    //     this.selectVariation(this.$vehicle_variation_select.value);
-    //   }, 50);
-    // }
   };
 
   doChangeQuickSelect = (e) => {
@@ -691,17 +609,7 @@ class Vehicles {
   };
 
   // fires when user selects variation or variation is automatically selected
-  // onChangeVariationId_Timeout = null;
-
-  onChangeVariationId = async (instant) => {
-    // if (instant !== true) {
-    //   if (this.onChangeVariationId_Timeout) {
-    //     clearTimeout(this.onChangeVariationId_Timeout);
-    //   }
-    //   this.onChangeVariationId_Timeout = setTimeout(() => this.onChangeVariationId(true), 250);
-    //   return;
-    // }
-
+  onChangeVariationId = async () => {
     const variation_id = this.$variation_input.value;
     if (this.last_variation_id === variation_id) {
       return;
@@ -812,7 +720,7 @@ class Vehicles {
   };
 
   selectVariation = (variation_id) => {
-    console.log('selectVariation(', variation_id, ')');
+    if (this.debug) console.log('selectVariation(', variation_id, ')');
     // Locate the variations form
     const variationForm = document.querySelector('.variations_form');
     if (!variationForm) {
@@ -870,18 +778,12 @@ class Vehicles {
   };
 
   disableInvalidOptions = () => {
-    console.log('disableInvalidOptions()'); //, { quick_selecting: window.quick_selecting });
+    if (this.debug) console.log('disableInvalidOptions()');
 
     if ((woo_product_details?.variations?.length ?? 0) == 0) {
       return;
     }
 
-    // if (window.quick_selecting === true) return;
-    // if (instant !== true) {
-    //   clearTimeout(debounce_disableInvalidOptions);
-    //   debounce_disableInvalidOptions = setTimeout(() => disableInvalidOptions(true), 1000);
-    //   return;
-    // }
     let selectedAttributes = {};
 
     // Capture currently selected attributes
@@ -890,8 +792,6 @@ class Vehicles {
         selectedAttributes[select.name] = select.value;
       }
     });
-
-    console.log({ selectedAttributes });
 
     this.attributeSelects.forEach((select) => {
       const attributeName = select.name;
@@ -925,7 +825,7 @@ class Vehicles {
 
         // Disable or show/hide the option
         option.disabled = !isValid;
-        option.style.display = isValid ? 'block' : 'none';
+        // option.style.display = isValid ? 'block' : 'none';
       });
 
       // ✅ FIX: Prevent infinite loop by only changing value if necessary
@@ -965,6 +865,10 @@ class Vehicles {
         this.resetAttributes();
       });
     }
+  };
+
+  clickClear = () => {
+    this.clearButton.dispatchEvent(new Event('click', { bubbles: true }));
   };
 }
 

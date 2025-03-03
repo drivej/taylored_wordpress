@@ -62,6 +62,10 @@
 #### 2025-02-27
 - Added Search plugin Relevanssi
 - Removed parent "vehicles" category
+#### 2025-03-01
+- Attempt to optimize vehicle import
+- Added vehicles list to PDP for SEO
+- raised vehicle import page to 1000 items. import time < 3s
 <!-- ## Quirks and Features
 
 ### Where are the Hooks?

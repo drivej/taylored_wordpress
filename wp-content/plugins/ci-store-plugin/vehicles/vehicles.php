@@ -7,7 +7,6 @@ add_action('wp_enqueue_scripts', 'CIStore\Vehicles\vehicle_enqueue_scripts');
 add_action('wp_ajax_nopriv_vehicles_handler', 'CIStore\Vehicles\vehicles_handler');
 add_action('wp_ajax_vehicles_handler', 'CIStore\Vehicles\vehicles_handler');
 add_shortcode('vehicle_filter', 'CIStore\Vehicles\vehicle_selection_form');
-// add_shortcode('vehicle_search', 'CIStore\Vehicles\vehicle_search_form');
 add_action('woocommerce_single_product_summary', 'CIStore\Vehicles\woocommerce_single_product_summary', 20);
 
 function vehicle_enqueue_scripts()
@@ -211,8 +210,8 @@ function vehicle_selection_form()
 {
     $content = file_get_contents(CI_STORE_PLUGIN . 'vehicles/vehicles.html');
 
-    // $value      = get_search_query();
-    // $value      = get_query_var('s');
+                                                                            // $value      = get_search_query();
+                                                                            // $value      = get_query_var('s');
     $value      = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : ''; // the other methods didn't work
     $vehicle_id = get_query_var('product_vehicle');
     $action     = esc_url(home_url('/'));
@@ -224,72 +223,13 @@ function vehicle_selection_form()
     return $content;
 }
 
-// function vehicle_search_form()
-// {
-//     error_log(__FUNCTION__);
-//     $action       = esc_url(home_url('/'));
-//     $label        = _x('Search for:', 'label');
-//     $placeholder  = esc_attr_x('Shop your vehicle...', 'placeholder');
-//     $value        = get_search_query();
-//     $submit_value = esc_attr_x('Search', 'submit button');
-
-//     $form = <<<EOT
-//         <form id="Xvehicle-search-form" role="search" method="get" class="Xsearch-form Xrounded" action="{$action}">
-//             <div class="d-flex gap-1 Xflex-wrap">
-
-//                     <span class="screen-reader-text">{$label}</span>
-//                     <input
-//                         type="search"
-//                         class="form-control Xsearch-field"
-//                         style="flex: 1 1 auto;"
-//                         placeholder="{$placeholder}"
-//                         value="{$value}"
-//                         name="s"
-//                     />
-//                     <button type="submit" class="btn btn-primary" value="{$submit_value}">Go</button>
-
-//                 <input type="hidden" name="product_vehicle" value="" id="product_vehicle_filter" />
-//             </div>
-//         </form>
-//         EOT;
-//     echo $form;
-// }
-
 function woocommerce_single_product_summary()
 {
+    echo '<div id="vehicle-fitment-react"></div>';
     echo '
-    <div id="vehicle_attributes_container">
-        <select id="vehicle_variation_select"></select>
+    <div id="vehicle_variation_select_container" class="alert-success p-2 rounded">
+        <h3 class="mb-1 text-white">Quick Select</h3>
+        <p class="mb-1">Choose one of the multiple options that fit your vehicle.</p>
+        <select class="form-control" id="vehicle_variation_select" placeholder="Select..."></select>
     </div>';
 }
-
-// function Xvehicle_search_form()
-// {
-//     $action       = esc_url(home_url('/'));
-//     $label        = _x('Search for:', 'label');
-//     $placeholder  = esc_attr_x('Search vehicle...', 'placeholder');
-//     $value        = get_search_query();
-//     $submit_value = esc_attr_x('Search', 'submit button');
-
-//     $form = <<<EOT
-//         <form id="vehicle-search-form" role="search" method="get" class="search-form rounded" action="{$action}">
-//             <p class="text-white mb-1">Search for your vehicle parts:</p>
-//             <div class="d-flex gap-1 flex-wrap">
-
-//                     <span class="screen-reader-text">{$label}</span>
-//                     <input
-//                         type="search"
-//                         class="form-control Xsearch-field"
-//                         style="flex: 1 1 auto;"
-//                         placeholder="{$placeholder}"
-//                         value="{$value}"
-//                         name="s"
-//                     />
-//                     <button type="submit" class="Xsearch-submit btn btn-primary" value="{$submit_value}">Go</button>
-
-//                 <input type="hidden" name="product_vehicle" value="" id="product_vehicle_filter" />
-//             </div>
-//         </form>
-//         EOT;
-//     echo $form;
-// }
