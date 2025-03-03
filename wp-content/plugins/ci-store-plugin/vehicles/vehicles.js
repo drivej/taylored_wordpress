@@ -8,16 +8,20 @@ const default_vehicle = {
 
 const default_fitment = {
   vehicle_id: 0,
-  variation_id: 0,
+  // variation_id: 0,
   product_id: 0,
   fitment: false,
   has_vehicles: false,
   product: false, //
-  variation: false,
+  // variation: false,
   variation_ids: [],
   variation_skus: [],
   product_type: ''
 };
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 class Vehicles {
   debug = true;
@@ -50,6 +54,9 @@ class Vehicles {
       return;
     }
 
+    this.attributeSelects = document.querySelectorAll("select[name^='attribute_']");
+    this.clearButton = document.querySelector('.variations_form .reset_variations');
+
     this.$form = this.$container.querySelector('#vehicle_input_form');
     this.$clear_button = this.$container.querySelector('#vehicle_clear_button'); // TODO: rename to cancel
     this.$year = this.$container.querySelector('#vehicle_year');
@@ -61,6 +68,10 @@ class Vehicles {
     this.$label = this.$container.querySelector('#vehicle_label');
     this.$shop_links = document.querySelectorAll('a.shop_vehicle_link');
     this.$variation_input = document.querySelector('input[name="variation_id"]');
+    this.$vehicle_variation_select_container = document.getElementById('vehicle_variation_select_container');
+    this.$vehicle_variation_select = document.getElementById('vehicle_variation_select');
+    this.$vehicle_variation_select.addEventListener('change', this.onChangeQuickSelect);
+
     // search form filter
     this.$search_vehicle = document.getElementById('product_vehicle_filter');
     this.$vehicle_id_inputs = document.querySelectorAll('input[name="product_vehicle"]');
@@ -103,6 +114,7 @@ class Vehicles {
     this.emptySelect(this.$make);
     this.emptySelect(this.$model);
     this.restore();
+    this.initAutoOptions();
 
     const $names_list = document.getElementById('related_vehicles_names');
     if ($names_list) {
@@ -211,7 +223,8 @@ class Vehicles {
   selectAvailableVariation = () => {
     if (this.debug) console.log('selectAvailableVariation()');
     if (this.fitment?.variation_ids?.length > 0) {
-      selectVariation(this.fitment.variation_ids[0]);
+      this.selectVariationId(this.fitment.variation_ids[0]);
+      // this.selectVariation(this.fitment.variation_ids[0]);
     }
   };
 
@@ -299,6 +312,7 @@ class Vehicles {
   };
 
   handleClickClear = (e) => {
+    if (this.debug) console.log('handleClickClear()');
     e.preventDefault();
 
     if (Object.keys(this.vehicles).length > 0) {
@@ -352,7 +366,7 @@ class Vehicles {
       .map((k) => ({ name: this.vehicles[k].name, id: k }));
 
     this.populateSelect(this.$vehicle, opts, false);
-    console.log({ select: this.$vehicle, vid: this.vehicle.id });
+    // console.log({ select: this.$vehicle, vid: this.vehicle.id });
     this.$vehicle.value = this.vehicle.id;
   };
 
@@ -423,23 +437,25 @@ class Vehicles {
   };
 
   refreshFitment = async () => {
-    if (this.debug) console.log('refreshFitment()');
+    if (this.debug) console.log('refreshFitment()', this.$variation_input?.value);
     if (!vehicles_ajax.is_product || vehicles_ajax.has_vehicles != '1') {
       this.fitment = { ...default_fitment };
       return;
     }
     const product_id = vehicles_ajax?.product_id ?? 0;
-    const variation_id = this.$variation_input?.value ?? 0;
+    // const variation_id = this.$variation_input?.value ?? 0;
     const vehicle_id = this.vehicle.id;
-    const cacheKey = `${vehicle_id}_${product_id}_${variation_id}`;
+    // const cacheKey = `${vehicle_id}_${product_id}_${variation_id}`;
+    const cacheKey = `${vehicle_id}_${product_id}`;
 
     if (!this.fitment_cache.hasOwnProperty(cacheKey)) {
-      if (product_id || variation_id) {
+      if (product_id) {
+        // || variation_id) {
         const res = await this.load({
           type: 'fitment',
           vehicle_id,
-          product_id,
-          variation_id
+          product_id
+          // variation_id
         });
 
         if (res?.data) {
@@ -449,6 +465,7 @@ class Vehicles {
       }
     }
     this.fitment = { ...this.fitment_cache[cacheKey] };
+    this.refreshVariationSelect();
     return this.fitment;
   };
 
@@ -504,6 +521,30 @@ class Vehicles {
     this.setMessage('warning');
   };
 
+  refreshVariationSelect = () => {
+    if (this.debug) console.log('refreshVariationSelect()');
+    if (this.$vehicle_variation_select_container) {
+      if (this.fitment.variation_ids.length > 1) {
+        const variations = window?.woo_product_details?.variations ?? [];
+        const $div = document.createElement('div');
+
+        const matching_variations = variations.filter((v) => this.fitment.variation_ids.includes(v.variation_id));
+
+        const options = matching_variations.map((v) => {
+          $div.innerHTML = v.variation_description;
+          const sku = v?._ci_product_sku ? v._ci_product_sku : null;
+          const name = `${$div.innerText} ${sku ? `(${v._ci_product_sku}) ${v.variation_id}` : ''}`;
+          return { name, id: v.variation_id };
+        });
+
+        this.populateSelect(this.$vehicle_variation_select, options, true);
+        this.$vehicle_variation_select_container.style.display = 'block';
+      } else {
+        this.$vehicle_variation_select_container.style.display = 'none';
+      }
+    }
+  };
+
   setMessage = (mode, instant) => {
     // if (!this.$message) return;
     // trying to stop the blip because the variation_id is set to "" before being set to a ID
@@ -515,8 +556,32 @@ class Vehicles {
       return;
     }
 
+    if (this.debug) console.log('setMessage()');
     document.body.dataset.fitmentmode = mode;
 
+    // if (this.$vehicle_variation_select.value !== this.last_variation_id) {
+    //   this.$vehicle_variation_select.value = '';
+    // }
+
+    if (this.$vehicle_variation_select_container && !this.userChangedVariationSelect) {
+      if (this.fitment.variation_ids.includes(parseInt(this.last_variation_id))) {
+        if (this.$vehicle_variation_select.value != this.last_variation_id) {
+          this.$vehicle_variation_select.value = this.last_variation_id;
+        }
+      } else {
+        this.$vehicle_variation_select.value = '';
+      }
+    }
+
+    // if (this.$vehicle_variation_select_container) {
+    //   if (this.fitment.variation_ids.includes(parseInt(this.last_variation_id))) {
+    //     if (this.$vehicle_variation_select.value != this.last_variation_id) {
+    //       this.$vehicle_variation_select.value = this.last_variation_id;
+    //     }
+    //   } else {
+    //     this.$vehicle_variation_select.value = '';
+    //   }
+    // }
     //   switch (mode) {
     //     case 'success':
     //       this.$message.dataset.fitment = 'success';
@@ -544,8 +609,99 @@ class Vehicles {
     //   }
   };
 
+  userChangedVariationSelect = false;
+
+  // onChangeQuickSelect = (e) => {
+  //   if (this.debug) console.log('onChangeQuickSelect()', e.currentTarget.value);
+  //   if (e.currentTarget.value !== '') {
+  //     this.userChangedVariationSelect = true;
+  //     this.selectVariation(e.currentTarget.value);
+  //   }
+  // };
+
+  onChangeQuickSelectTimeout = null;
+
+  selectVariationId = async (variation_id) => {
+    const variation = woo_product_details.variations.find((v) => v.variation_id == variation_id);
+    const sleepTime = 10;
+
+    if (variation) {
+      for (const attr in variation.attributes) {
+        const $select = document.querySelector(`select[name="${attr}"]`);
+        if ($select) {
+          $select.value = variation.attributes[attr];
+          $select.dispatchEvent(new Event('change', { bubbles: true }));
+          await sleep(sleepTime);
+        } else {
+          console.log('FAIL', `select[name="${attr}"]`);
+        }
+      }
+    }
+
+    this.$variation_input.value = variation_id;
+    // this.$variation_input.dispatchEvent(new Event('change', { bubbles: true }));
+
+    const $variationForm = document.querySelector('.variations_form');
+
+    $variationForm.dispatchEvent(new Event('change', { bubbles: true }));
+    await sleep(sleepTime);
+    $variationForm.dispatchEvent(new Event('woocommerce_variation_select_change', { bubbles: true }));
+    await sleep(sleepTime);
+    $variationForm.dispatchEvent(new Event('check_variations', { bubbles: true }));
+    await sleep(sleepTime);
+    $variationForm.dispatchEvent(new Event('woocommerce_variation_has_changed', { bubbles: true }));
+  };
+
+  onChangeQuickSelect = async (e) => {
+    if (this.debug) console.log('onChangeQuickSelect()', e?.currentTarget?.value ?? false);
+    // window.quick_selecting = true;
+
+    if (e.currentTarget.value) {
+      this.selectVariationId(parseInt(e.currentTarget.value));
+    }
+
+    // return;
+
+    // this.selectVariation(e.currentTarget.value);
+
+    // setTimeout(() => {
+    //   window.quick_selecting = false;
+    // }, 500);
+    // this.userChangedVariationSelect = true;
+    // this.doChangeQuickSelect(e);
+
+    // if (this.debug) console.log('onChangeQuickSelect()', e.currentTarget.value);
+    // if (e.currentTarget.value !== '') {
+    //   // Debounce to prevent race conditions with other updates
+    //   clearTimeout(this.onChangeQuickSelectTimeout);
+
+    //   this.onChangeQuickSelectTimeout = setTimeout(() => {
+    //     this.last_variation_id = this.$vehicle_variation_select.value; // Sync last_variation_id
+    //     this.selectVariation(this.$vehicle_variation_select.value);
+    //   }, 50);
+    // }
+  };
+
+  doChangeQuickSelect = (e) => {
+    if (this.debug) console.log('doChangeQuickSelect()', e.currentTarget.value);
+    if (e.currentTarget.value !== '') {
+      this.last_variation_id = e.currentTarget.value; // Sync immediately
+      this.selectVariation(e.currentTarget.value);
+    }
+  };
+
   // fires when user selects variation or variation is automatically selected
-  onChangeVariationId = async () => {
+  // onChangeVariationId_Timeout = null;
+
+  onChangeVariationId = async (instant) => {
+    // if (instant !== true) {
+    //   if (this.onChangeVariationId_Timeout) {
+    //     clearTimeout(this.onChangeVariationId_Timeout);
+    //   }
+    //   this.onChangeVariationId_Timeout = setTimeout(() => this.onChangeVariationId(true), 250);
+    //   return;
+    // }
+
     const variation_id = this.$variation_input.value;
     if (this.last_variation_id === variation_id) {
       return;
@@ -579,6 +735,7 @@ class Vehicles {
   };
 
   onSubmitVehicleSearch = (e) => {
+    console.log('onSubmitVehicleSearch()');
     if (this.vehicle.id) {
       const f = new FormData(e.currentTarget);
       const s = f.get('s');
@@ -651,6 +808,162 @@ class Vehicles {
       alert('Well... something broke. Try again later.');
       // throw new Error(error);
       return null;
+    }
+  };
+
+  selectVariation = (variation_id) => {
+    console.log('selectVariation(', variation_id, ')');
+    // Locate the variations form
+    const variationForm = document.querySelector('.variations_form');
+    if (!variationForm) {
+      console.error('Variation form not found.');
+      return;
+    }
+
+    // Retrieve variations data from the form's data attribute
+    let variations;
+    if (window?.woo_product_details?.variations) {
+      variations = window?.woo_product_details?.variations;
+    } else {
+      try {
+        variations = JSON.parse(variationForm.getAttribute('data-product_variations'));
+      } catch (e) {
+        console.error('Failed to parse variations data:', e);
+        return;
+      }
+    }
+
+    // Find the variation object that matches the given variation_id
+    const matchingVariation = variations.find((v) => v.variation_id == variation_id);
+    if (!matchingVariation) {
+      console.error(`No matching variation found for variation_id ${variation_id}.`);
+      return;
+    }
+
+    // Loop through each attribute in the matching variation and update the corresponding select element
+    Object.keys(matchingVariation.attributes).forEach((attributeName) => {
+      const attributeValue = matchingVariation.attributes[attributeName];
+      const selectElem = document.querySelector(`select[name="${attributeName}"]`);
+      if (!selectElem) {
+        console.warn(`Select element for attribute ${attributeName} not found.`);
+        return;
+      }
+      // Set the attribute value
+      selectElem.value = attributeValue;
+      // Trigger change event to let WooCommerce know about the update
+      selectElem.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    // Optionally, update the hidden variation_id input so that WooCommerce knows which variation is selected
+    const variationIdInput = document.querySelector('input[name="variation_id"]');
+    if (variationIdInput) {
+      variationIdInput.value = matchingVariation.variation_id;
+      variationIdInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // Finally, enable the shop (add-to-cart) button if it's disabled
+    const addToCartBtn = document.querySelector('.single_add_to_cart_button');
+    if (addToCartBtn) {
+      addToCartBtn.disabled = false;
+      addToCartBtn.classList.remove('disabled');
+    }
+  };
+
+  disableInvalidOptions = () => {
+    console.log('disableInvalidOptions()'); //, { quick_selecting: window.quick_selecting });
+
+    if ((woo_product_details?.variations?.length ?? 0) == 0) {
+      return;
+    }
+
+    // if (window.quick_selecting === true) return;
+    // if (instant !== true) {
+    //   clearTimeout(debounce_disableInvalidOptions);
+    //   debounce_disableInvalidOptions = setTimeout(() => disableInvalidOptions(true), 1000);
+    //   return;
+    // }
+    let selectedAttributes = {};
+
+    // Capture currently selected attributes
+    this.attributeSelects.forEach((select) => {
+      if (select.value) {
+        selectedAttributes[select.name] = select.value;
+      }
+    });
+
+    console.log({ selectedAttributes });
+
+    this.attributeSelects.forEach((select) => {
+      const attributeName = select.name;
+      let validOptions = [];
+
+      select.querySelectorAll('option').forEach((option) => {
+        if (!option.value) return; // Skip empty option
+
+        let isValid = false;
+
+        // Check if any variation allows this option
+        woo_product_details.variations.forEach((variation) => {
+          if (!variation.is_in_stock) return;
+
+          let matchesAll = true;
+
+          for (let key in selectedAttributes) {
+            if (selectedAttributes[key] && key !== attributeName) {
+              if (variation.attributes[key] !== selectedAttributes[key]) {
+                matchesAll = false;
+                break;
+              }
+            }
+          }
+
+          if (matchesAll && variation.attributes[attributeName] === option.value) {
+            isValid = true;
+            validOptions.push(option.value);
+          }
+        });
+
+        // Disable or show/hide the option
+        option.disabled = !isValid;
+        option.style.display = isValid ? 'block' : 'none';
+      });
+
+      // ✅ FIX: Prevent infinite loop by only changing value if necessary
+      if (validOptions.length === 1 && select.value !== validOptions[0]) {
+        select.value = validOptions[0];
+        setTimeout(() => select.dispatchEvent(new Event('change')), 10); // Small delay to avoid recursion
+      }
+    });
+  };
+
+  // ✅ Reset all attributes when clicking the "Clear" button
+  resetAttributes = () => {
+    if (this.debug) console.log('resetAttributes()');
+    this.attributeSelects.forEach((select) => {
+      select.selectedIndex = 0; // Reset to default option
+      select.querySelectorAll('option').forEach((option) => {
+        option.disabled = false;
+        option.style.display = 'block';
+      });
+    });
+
+    setTimeout(() => {
+      this.disableInvalidOptions(); // Re-run validation
+    }, 10);
+  };
+
+  initAutoOptions = () => {
+    if (this.debug) console.log('initAutoOptions()');
+    this.attributeSelects.forEach((select) => {
+      select.addEventListener('change', this.disableInvalidOptions);
+    });
+
+    // ✅ Event Listener: Reset when clicking the "Clear" button
+    if (this.clearButton) {
+      this.clearButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        this.resetAttributes();
+      });
     }
   };
 }
