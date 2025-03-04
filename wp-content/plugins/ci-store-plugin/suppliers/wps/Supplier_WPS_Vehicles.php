@@ -355,13 +355,14 @@ trait Supplier_WPS_Vehicles
         ];
     }
 
-    public function import_vehicles_page($cursor)
+    public function import_vehicles_page($cursor, $updated)
     {
         $timer = new Timer();
         $page  = $this->get_api('vehicles', [
-            'page'    => ['cursor' => $cursor, 'size' => 1000],
-            'include' => 'vehiclemodel.vehiclemake,vehicleyear',
-            'fields'  => [
+            'page'                   => ['cursor' => $cursor, 'size' => 1000],
+            'filter[updated_at][gt]' => $updated,
+            'include'                => 'vehiclemodel.vehiclemake,vehicleyear',
+            'fields'                 => [
                 'vehicles'      => 'id',
                 'vehiclemodels' => 'name',
                 'vehiclemakes'  => 'name',
@@ -514,7 +515,7 @@ trait Supplier_WPS_Vehicles
     //     return $report;
     // }
 
-    public function import_product_vehicles_page($cursor, $use_cache = true)
+    public function import_product_vehicles_page($cursor, $updated_at = '', $use_cache = true)
     {
         /** @var Supplier_WPS $this */
 
@@ -525,7 +526,7 @@ trait Supplier_WPS_Vehicles
         // $page = $this->get_api('/products', $params);
 
         $timer = new Timer();
-        $page  = $this->get_products_page($cursor, 'id', '', [1, 5, 10]);
+        $page  = $this->get_products_page($cursor, 'id', $updated_at, [1, 5, 10]);
 
         if (isset($page['data']) && ! empty($page['data'])) {
             foreach ($page['data'] as $product) {

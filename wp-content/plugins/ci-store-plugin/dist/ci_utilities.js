@@ -11602,7 +11602,7 @@ const ProductsPage = () => {
             react.createElement(SelectSupplier, null),
             react.createElement(TextInput, { name: 'func', defaultValue: 'import_product_vehicles', hidden: true }),
             react.createElement(TextInput, { name: 'args[0]', defaultValue: '', placeholder: 'Supplier Product ID...' })),
-        react.createElement(AdminForm, { name: 'Verify Product Vehicle', cmd: 'supplier_action' },
+        react.createElement(AdminForm, { name: 'Match Product Vehicle', cmd: 'supplier_action' },
             react.createElement(SelectSupplier, null),
             react.createElement(TextInput, { name: 'func', defaultValue: 'match_product_vehicle', hidden: true }),
             react.createElement(TextInput, { name: 'args[0]', defaultValue: '', placeholder: 'Supplier Product ID...' }),

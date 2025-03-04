@@ -116,6 +116,7 @@ function test_action()
     /** @var Supplier_WPS $supplier */
     $supplier = \CIStore\Suppliers\get_supplier('wps');
 
+    // return wc_get_product_id_by_sku('MASTER_WPS_31533_VARIATION_37584');
     // 409207
 
     $woo_product = wc_get_product(409207);

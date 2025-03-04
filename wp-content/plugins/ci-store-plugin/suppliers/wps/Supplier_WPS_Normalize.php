@@ -544,7 +544,6 @@ trait Supplier_WPS_Normalize
         // $meta['sku_lookup'] = $sku_lookup;
 
         foreach ($products as &$product) {
-            $orphan_variations           = [];
             $product['total_variations'] = count($product['variations']);
 
             if (isset($sku_lookup[$product['sku']])) {
@@ -555,12 +554,14 @@ trait Supplier_WPS_Normalize
 
             foreach ($product['variations'] as &$variation) {
                 if (isset($sku_lookup[$variation['sku']])) {
-                    $post = $sku_lookup[$variation['sku']];
-                    if ($post['post_parent'] == $product['woo_id']) {
-                        $variation['woo_id'] = $post['post_id'];
-                    } else {
-                        $orphan_variations[]         = $post['post_id'];
+                    $post                = $sku_lookup[$variation['sku']];
+                    $variation['woo_id'] = $post['post_id'];
+
+                    if ($post['post_parent'] != $product['woo_id']) {
+                        // orphaned variation
+                        wp_update_post(['ID' => $post['post_id'], 'post_parent' => $product['woo_id']]);
                         $product['needs_assignment'] = true;
+
                     }
                 } else {
                     $product['needs_assignment'] = true;
@@ -575,7 +576,6 @@ trait Supplier_WPS_Normalize
             // $master_created     = '';
             $variations_created = [];
             if (! $product['needs_assignment']) {
-
                 continue;
             }
             $woo_id = wc_get_product_id_by_sku($product['sku']);
@@ -899,7 +899,6 @@ trait Supplier_WPS_Normalize
             }
         }
 
-
         // save categories
         foreach ($products as $product) {
             $product_categories[$product['woo_id']] = $product['category_ids'];
@@ -1159,30 +1158,30 @@ trait Supplier_WPS_Normalize
      * @param array $sku_list An array of full SKUs to search for.
      * @return array An array of matching products with product_id and sku.
      */
-    public function get_products_by_sku(array $sku_list)
-    {
-        global $wpdb;
+    // public function get_products_by_sku(array $sku_list)
+    // {
+    //     global $wpdb;
 
-        if (empty($sku_list)) {
-            return [];
-        }
+    //     if (empty($sku_list)) {
+    //         return [];
+    //     }
 
-        // Create placeholders for each SKU in the array
-        $placeholders = implode(',', array_fill(0, count($sku_list), '%s'));
+    //     // Create placeholders for each SKU in the array
+    //     $placeholders = implode(',', array_fill(0, count($sku_list), '%s'));
 
-        // Construct the SQL query using `IN`
-        // Query all SKUs, including trashed products
-        $query = $wpdb->prepare("
-            SELECT p.ID AS product_id, pm.meta_value AS sku, p.post_status, p.post_type
-            FROM {$wpdb->posts} p
-            INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-            WHERE pm.meta_key = '_sku'
-            AND pm.meta_value IN ($placeholders)
-        ", $sku_list);
-        // Execute the query
-        $results = $wpdb->get_results($query, ARRAY_A);
-        return $results ? $results : []; // Return empty array if no results
-    }
+    //     // Construct the SQL query using `IN`
+    //     // Query all SKUs, including trashed products
+    //     $query = $wpdb->prepare("
+    //         SELECT p.ID AS product_id, pm.meta_value AS sku, p.post_status, p.post_type, p.post_parent
+    //         FROM {$wpdb->posts} p
+    //         INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+    //         WHERE pm.meta_key = '_sku'
+    //         AND pm.meta_value IN ($placeholders)
+    //     ", $sku_list);
+    //     // Execute the query
+    //     $results = $wpdb->get_results($query, ARRAY_A);
+    //     return $results ? $results : []; // Return empty array if no results
+    // }
 
     /**
      * Get WooCommerce product types for multiple product IDs.

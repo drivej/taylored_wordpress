@@ -1,15 +1,23 @@
-<?php 
-add_action( 'wp_enqueue_scripts', 'my_theme_enqueue_styles' );
-function my_theme_enqueue_styles() {
+<?php
+add_action('wp_enqueue_scripts', 'my_theme_enqueue_styles');
+
+function my_theme_enqueue_styles()
+{
     $parenthandle = 'storefront-style'; // This is 'storefront-style' for the Storefront theme.
-    $theme = wp_get_theme();
-    wp_enqueue_style( $parenthandle, get_template_directory_uri() . '/style.css', 
-        array(), // if the parent theme code has a dependency, copy it to here
+    $theme        = wp_get_theme();
+
+    wp_enqueue_style($parenthandle, get_template_directory_uri() . '/style.css',
+        [], // if the parent theme code has a dependency, copy it to here
         $theme->parent()->get('Version')
     );
-    wp_enqueue_style( 'custom-style', get_stylesheet_uri(),
-        array( $parenthandle ),
+    wp_enqueue_style('custom-style', get_stylesheet_uri(),
+        [$parenthandle],
         $theme->get('Version') // this only works if you have Version in the style header
+    );
+    
+    wp_enqueue_style('bootless', get_stylesheet_directory_uri() . '/bootless.css',
+        [], // if the parent theme code has a dependency, copy it to here
+        $theme->parent()->get('Version')
     );
 }
 
@@ -27,8 +35,6 @@ function custom_content_below_title() {
 add_action('woocommerce_archive_description', 'custom_content_below_title', 15);
 
 */
-
-
 
 /* kriss added to see about using custom attributes in facetwp plugin or search bar 
 function custom_searchable_attributes( $query ) {
@@ -54,4 +60,3 @@ function custom_product_search( $search, $query ) {
 
     return $search;
 }*/
-?>

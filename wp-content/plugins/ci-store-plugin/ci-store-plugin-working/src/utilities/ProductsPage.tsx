@@ -23,7 +23,7 @@ export const ProductsPage = () => {
         <TextInput name='args[0]' defaultValue='' placeholder='Supplier Product ID...' />
       </AdminForm>
 
-      <AdminForm name='Verify Product Vehicle' cmd='supplier_action'>
+      <AdminForm name='Match Product Vehicle' cmd='supplier_action'>
         <SelectSupplier />
         <TextInput name='func' defaultValue='match_product_vehicle' hidden={true} />
         <TextInput name='args[0]' defaultValue='' placeholder='Supplier Product ID...' />

@@ -244,35 +244,35 @@ trait Supplier_WPS_Data
         return $items;
     }
 
-    public function get_items_page($cursor = '', $updated = null)
-    {
-                                // $this->log("get_products_page('$cursor', '$flag', '$updated')");
-                                // attempt to load the max, then step down in count until response is valid
-        $page_sizes      = [1]; //, 5, 10];
-        $page_size       = end($page_sizes);
-        $page_size_index = count($page_sizes) - 1;
-        $items           = [];
-        // $fails           = 0;
-        $params = [
-            'include'               => [
-                'vehicles',
-            ],
-            'filter[status_id][ne]' => 'NLA',
-            'fields'                => [
-                'items'    => 'id,sku,status_id',
-                'vehicles' => 'id',
-            ],
-        ];
+    // public function get_items_page($cursor = '', $updated = null)
+    // {
+    //                             // $this->log("get_products_page('$cursor', '$flag', '$updated')");
+    //                             // attempt to load the max, then step down in count until response is valid
+    //     $page_sizes      = [1]; //, 5, 10];
+    //     $page_size       = end($page_sizes);
+    //     $page_size_index = count($page_sizes) - 1;
+    //     $items           = [];
+    //     // $fails           = 0;
+    //     $params = [
+    //         'include'               => [
+    //             'vehicles',
+    //         ],
+    //         'filter[status_id][ne]' => 'NLA',
+    //         'fields'                => [
+    //             'items'    => 'id,sku,status_id',
+    //             'vehicles' => 'id',
+    //         ],
+    //     ];
 
-        if ($updated) {
-            $params['filter[updated_at][gt]'] = $updated;
-        }
+    //     if ($updated) {
+    //         $params['filter[updated_at][gt]'] = $updated;
+    //     }
 
-        $page_size      = $page_sizes[$page_size_index];
-        $params['page'] = ['cursor' => $cursor, 'size' => $page_size];
-        $items          = $this->get_api('/items', $params);
-        return $items;
-    }
+    //     $page_size      = $page_sizes[$page_size_index];
+    //     $params['page'] = ['cursor' => $cursor, 'size' => $page_size];
+    //     $items          = $this->get_api('/items', $params);
+    //     return $items;
+    // }
 
     public function get_total_remote_products($updated_at = null)
     {

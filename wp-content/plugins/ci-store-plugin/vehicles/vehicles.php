@@ -144,9 +144,9 @@ function vehicles_handler()
                 break;
 
             case 'fitment':
-                $vehicle_id   = $_POST['vehicle_id'];
-                $product_id   = $_POST['product_id'];
-                $variation_id = $_POST['variation_id'];
+                $vehicle_id   = isset($_POST['vehicle_id']) ? $_POST['vehicle_id'] : 0;
+                $product_id   = isset($_POST['product_id']) ? $_POST['product_id'] : 0;
+                $variation_id = isset($_POST['variation_id']) ? $_POST['variation_id'] : 0;
 
                 $data = [
                     'vehicle_id'     => $vehicle_id,
@@ -227,8 +227,8 @@ function woocommerce_single_product_summary()
 {
     echo '<div id="vehicle-fitment-react"></div>';
     echo '
-    <div id="vehicle_variation_select_container" class="alert-success p-2 rounded">
-        <h3 class="mb-1 text-white">Quick Select</h3>
+    <div id="vehicle_variation_select_container" class="alert-success p-2 mb-2 rounded">
+        <h3 class="mb-1 text-white fw-bold">Quick Select</h3>
         <p class="mb-1">Choose one of the multiple options that fit your vehicle.</p>
         <select class="form-control" id="vehicle_variation_select" placeholder="Select..."></select>
     </div>';

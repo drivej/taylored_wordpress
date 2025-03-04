@@ -81,6 +81,7 @@ class Vehicles {
     }
     // injected in product details
     this.$message = document.getElementById('fitment_message');
+    this.$message_info = document.querySelector('#fitment_message [data-fitmentmode="info"]');
     this.$vehicle = document.getElementById('vehicle_select');
     this.$remove_button = document.getElementById('vehicle_remove_button');
 
@@ -94,8 +95,8 @@ class Vehicles {
     this.$remove_button.addEventListener('click', this.onClickRemove);
     this.$vehicle.addEventListener('change', this.onChangeVehicle);
 
-    if (this.$message) {
-      this.$message.addEventListener('click', this.onClickMessage);
+    if (this.$message_info) {
+      this.$message_info.addEventListener('click', this.onClickMessage);
     }
 
     if (this.$variation_input) {
@@ -487,7 +488,7 @@ class Vehicles {
         const options = matching_variations.map((v) => {
           $div.innerHTML = v.variation_description;
           const sku = v?._ci_product_sku ? v._ci_product_sku : null;
-          const name = `${$div.innerText} ${sku ? `(${v._ci_product_sku}) ${v.variation_id}` : ''}`;
+          const name = `${$div.innerText} ${sku ? `(${v._ci_product_sku})` : ''}`;
           return { name, id: v.variation_id };
         });
 
@@ -681,64 +682,6 @@ class Vehicles {
     }
   };
 
-  // selectVariation = (variation_id) => {
-  //   if (this.debug) console.log('selectVariation(', variation_id, ')');
-  //   // Locate the variations form
-  //   const variationForm = document.querySelector('.variations_form');
-  //   if (!variationForm) {
-  //     console.error('Variation form not found.');
-  //     return;
-  //   }
-
-  //   // Retrieve variations data from the form's data attribute
-  //   let variations;
-  //   if (window?.woo_product_details?.variations) {
-  //     variations = window?.woo_product_details?.variations;
-  //   } else {
-  //     try {
-  //       variations = JSON.parse(variationForm.getAttribute('data-product_variations'));
-  //     } catch (e) {
-  //       console.error('Failed to parse variations data:', e);
-  //       return;
-  //     }
-  //   }
-
-  //   // Find the variation object that matches the given variation_id
-  //   const matchingVariation = variations.find((v) => v.variation_id == variation_id);
-  //   if (!matchingVariation) {
-  //     console.error(`No matching variation found for variation_id ${variation_id}.`);
-  //     return;
-  //   }
-
-  //   // Loop through each attribute in the matching variation and update the corresponding select element
-  //   Object.keys(matchingVariation.attributes).forEach((attributeName) => {
-  //     const attributeValue = matchingVariation.attributes[attributeName];
-  //     const selectElem = document.querySelector(`select[name="${attributeName}"]`);
-  //     if (!selectElem) {
-  //       console.warn(`Select element for attribute ${attributeName} not found.`);
-  //       return;
-  //     }
-  //     // Set the attribute value
-  //     selectElem.value = attributeValue;
-  //     // Trigger change event to let WooCommerce know about the update
-  //     selectElem.dispatchEvent(new Event('change', { bubbles: true }));
-  //   });
-
-  //   // Optionally, update the hidden variation_id input so that WooCommerce knows which variation is selected
-  //   const variationIdInput = document.querySelector('input[name="variation_id"]');
-  //   if (variationIdInput) {
-  //     variationIdInput.value = matchingVariation.variation_id;
-  //     variationIdInput.dispatchEvent(new Event('change', { bubbles: true }));
-  //   }
-
-  //   // Finally, enable the shop (add-to-cart) button if it's disabled
-  //   const addToCartBtn = document.querySelector('.single_add_to_cart_button');
-  //   if (addToCartBtn) {
-  //     addToCartBtn.disabled = false;
-  //     addToCartBtn.classList.remove('disabled');
-  //   }
-  // };
-
   disableInvalidOptions = () => {
     if (this.debug) console.log('disableInvalidOptions()');
 
@@ -789,6 +732,30 @@ class Vehicles {
         option.disabled = !isValid;
         // option.style.display = isValid ? 'block' : 'none';
       });
+
+      const options = Array.from(select.options);
+
+      options.sort((a, b) => {
+        if(a.value==''){
+          return -1;
+        }
+        if(b.value==''){
+          return 1;
+        }
+        if (a == b) {
+          return 0;
+        }
+        if (a.disabled && !b.disabled) {
+          return 1;
+        }
+        if (!a.disabled && b.disabled) {
+          return -1;
+        }
+        return a.text.localeCompare(b.text);
+      });
+
+      select.innerHTML = ''; // Clear the select
+      options.forEach((option) => select.appendChild(option)); // Append sorted options
 
       // ✅ FIX: Prevent infinite loop by only changing value if necessary
       if (validOptions.length === 1 && select.value !== validOptions[0]) {

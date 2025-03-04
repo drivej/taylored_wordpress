@@ -66,6 +66,10 @@
 - Attempt to optimize vehicle import
 - Added vehicles list to PDP for SEO
 - raised vehicle import page to 1000 items. import time < 3s
+#### 2025-03-03
+- added select for available variations for vehicle match
+- fixed zoomed image issue
+- sort available attributes to top of select list but show all options
 <!-- ## Quirks and Features
 
 ### Where are the Hooks?

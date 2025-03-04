@@ -59,14 +59,10 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager
 
         switch ($import_type) {
             case 'vehicles':
-                $result = $supplier->get_api('vehicles', ['countOnly' => 'true']);
-                $total  = $result['data']['count'] ?? -1;
+                $updated_at = $info['args']['updated_at'] ?? $this->get_default_args()['updated_at'];
+                $result     = $supplier->get_api('vehicles', ['countOnly' => 'true', 'filter[updated_at][gt]' => $updated_at]);
+                $total      = $result['data']['count'] ?? -1;
                 break;
-
-            // case 'item_vehicles':
-            //     $result = $supplier->get_api('items', ['countOnly' => 'true']);
-            //     $total  = $result['data']['count'] ?? -1;
-            //     break;
 
             case 'patch':
             case 'product_vehicles':
@@ -114,18 +110,13 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager
                     break;
 
                 case 'vehicles':
-                    $items = $supplier->import_vehicles_page($cursor);
+                    $items = $supplier->import_vehicles_page($cursor, $updated_at);
                     $ids   = $items['data'];
                     break;
 
                 case 'product_vehicles':
-                    $items = $supplier->import_product_vehicles_page($cursor);
+                    $items = $supplier->import_product_vehicles_page($cursor, $updated_at);
                     break;
-
-                // case 'item_vehicles':
-                //     $page  = $supplier->get_items_page($cursor, $updated_at);
-                //     $items = $supplier->import_item_vehicles($page);
-                //     break;
 
                 case 'product_plp':
                     $items = $supplier->import_products_page($cursor, $updated_at);
