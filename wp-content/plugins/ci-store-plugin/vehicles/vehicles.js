@@ -21,24 +21,27 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function debounce(fn, delay) {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn(...args), delay);
+  };
+}
+
 class Vehicles {
   debug = false;
   storage_key = 'user_vehicle_data';
-  year = '';
-  make = '';
-  model = '';
   $year;
   $make;
   $model;
   $form;
-  $name;
   $message;
-  $shop_link;
+  $shop_links;
   $variation_input;
   vehicle = { ...default_vehicle };
   vehicles = {};
   fitment = { ...default_fitment };
-  initialized_fitment = false;
   hydrated = false;
   messageTimeout = null;
   fitment_cache = {};
@@ -54,16 +57,13 @@ class Vehicles {
 
     this.attributeSelects = document.querySelectorAll("select[name^='attribute_']");
     this.clearButton = document.querySelector('.variations_form .reset_variations');
-
     this.$form = this.$container.querySelector('#vehicle_input_form');
     this.$clear_button = this.$container.querySelector('#vehicle_clear_button'); // TODO: rename to cancel
     this.$year = this.$container.querySelector('#vehicle_year');
     this.$make = this.$container.querySelector('#vehicle_make');
     this.$model = this.$container.querySelector('#vehicle_model');
-    this.$name = this.$container.querySelector('#vehicle_name');
     this.$start_button = this.$container.querySelector('#vehicle_start_button');
     this.$change_button = this.$container.querySelector('#vehicle_change_button');
-    this.$label = this.$container.querySelector('#vehicle_label');
     this.$shop_links = document.querySelectorAll('a.shop_vehicle_link');
     this.$variation_input = document.querySelector('input[name="variation_id"]');
     this.$vehicle_variation_select_container = document.getElementById('vehicle_variation_select_container');
@@ -81,7 +81,6 @@ class Vehicles {
     }
     // injected in product details
     this.$message = document.getElementById('fitment_message');
-    this.$modal_container = document.getElementById('user_vehicles_modal_container');
     this.$vehicle = document.getElementById('vehicle_select');
     this.$remove_button = document.getElementById('vehicle_remove_button');
 
@@ -225,36 +224,6 @@ class Vehicles {
     if (this.fitment?.variation_ids?.length > 0) {
       this.selectVariationId(this.fitment.variation_ids[0]);
     }
-  };
-
-  selectAvailableSku = () => {
-    if (this.debug) console.log('selectAvailableSku()');
-    if (this.fitment.variation_skus?.length > 0) {
-      const $sku_select = document.querySelector('select[name="attribute_sku"]');
-
-      if ($sku_select) {
-        const skus = this.fitment.variation_skus.map((s) => String(s).toLowerCase());
-        let i = $sku_select.options.length;
-        let found = '';
-
-        while (i--) {
-          const val = $sku_select.options[i].value.toLowerCase();
-          if (skus.includes(val)) {
-            found = val;
-            break;
-          }
-        }
-        if (found) {
-          $sku_select.value = found;
-          $sku_select.dispatchEvent(new Event('change', { bubbles: true }));
-          this.setMessage('success');
-        } else {
-          this.setMessage('');
-        }
-        return true;
-      }
-    }
-    return false;
   };
 
   onClickStart = async (e) => {
@@ -555,6 +524,7 @@ class Vehicles {
   };
 
   selectVariationId = async (variation_id) => {
+    // TODO: AI thinks this is brittle
     const sleepTime = 10;
 
     this.clickClear();
@@ -600,16 +570,8 @@ class Vehicles {
     }
   };
 
-  doChangeQuickSelect = (e) => {
-    if (this.debug) console.log('doChangeQuickSelect()', e.currentTarget.value);
-    if (e.currentTarget.value !== '') {
-      this.last_variation_id = e.currentTarget.value; // Sync immediately
-      this.selectVariation(e.currentTarget.value);
-    }
-  };
-
   // fires when user selects variation or variation is automatically selected
-  onChangeVariationId = async () => {
+  onChangeVariationId = debounce(async () => {
     const variation_id = this.$variation_input.value;
     if (this.last_variation_id === variation_id) {
       return;
@@ -618,7 +580,7 @@ class Vehicles {
     this.last_variation_id = variation_id;
     await this.refreshFitment();
     this.updateFitmentMessage();
-  };
+  }, 250);
 
   onClickMessage = () => {
     this.selectAvailableVariation();
@@ -656,8 +618,8 @@ class Vehicles {
 
   load = async (query) => {
     const CACHE_KEY_PREFIX = 'vehicles_cache_';
-    const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-    const USE_CACHE = false;
+    const CACHE_MAX_AGE_MS = 60 * 60 * 1000;
+    const USE_CACHE = true;
 
     // Append the action to the query.
     query.action = vehicles_ajax.action;
@@ -706,7 +668,7 @@ class Vehicles {
         // Cache the response with an expiry of one week.
         const cacheData = {
           data,
-          expiry: Date.now() + ONE_WEEK_MS
+          expiry: Date.now() + CACHE_MAX_AGE_MS
         };
         localStorage.setItem(cacheKey, JSON.stringify(cacheData));
       }
@@ -719,63 +681,63 @@ class Vehicles {
     }
   };
 
-  selectVariation = (variation_id) => {
-    if (this.debug) console.log('selectVariation(', variation_id, ')');
-    // Locate the variations form
-    const variationForm = document.querySelector('.variations_form');
-    if (!variationForm) {
-      console.error('Variation form not found.');
-      return;
-    }
+  // selectVariation = (variation_id) => {
+  //   if (this.debug) console.log('selectVariation(', variation_id, ')');
+  //   // Locate the variations form
+  //   const variationForm = document.querySelector('.variations_form');
+  //   if (!variationForm) {
+  //     console.error('Variation form not found.');
+  //     return;
+  //   }
 
-    // Retrieve variations data from the form's data attribute
-    let variations;
-    if (window?.woo_product_details?.variations) {
-      variations = window?.woo_product_details?.variations;
-    } else {
-      try {
-        variations = JSON.parse(variationForm.getAttribute('data-product_variations'));
-      } catch (e) {
-        console.error('Failed to parse variations data:', e);
-        return;
-      }
-    }
+  //   // Retrieve variations data from the form's data attribute
+  //   let variations;
+  //   if (window?.woo_product_details?.variations) {
+  //     variations = window?.woo_product_details?.variations;
+  //   } else {
+  //     try {
+  //       variations = JSON.parse(variationForm.getAttribute('data-product_variations'));
+  //     } catch (e) {
+  //       console.error('Failed to parse variations data:', e);
+  //       return;
+  //     }
+  //   }
 
-    // Find the variation object that matches the given variation_id
-    const matchingVariation = variations.find((v) => v.variation_id == variation_id);
-    if (!matchingVariation) {
-      console.error(`No matching variation found for variation_id ${variation_id}.`);
-      return;
-    }
+  //   // Find the variation object that matches the given variation_id
+  //   const matchingVariation = variations.find((v) => v.variation_id == variation_id);
+  //   if (!matchingVariation) {
+  //     console.error(`No matching variation found for variation_id ${variation_id}.`);
+  //     return;
+  //   }
 
-    // Loop through each attribute in the matching variation and update the corresponding select element
-    Object.keys(matchingVariation.attributes).forEach((attributeName) => {
-      const attributeValue = matchingVariation.attributes[attributeName];
-      const selectElem = document.querySelector(`select[name="${attributeName}"]`);
-      if (!selectElem) {
-        console.warn(`Select element for attribute ${attributeName} not found.`);
-        return;
-      }
-      // Set the attribute value
-      selectElem.value = attributeValue;
-      // Trigger change event to let WooCommerce know about the update
-      selectElem.dispatchEvent(new Event('change', { bubbles: true }));
-    });
+  //   // Loop through each attribute in the matching variation and update the corresponding select element
+  //   Object.keys(matchingVariation.attributes).forEach((attributeName) => {
+  //     const attributeValue = matchingVariation.attributes[attributeName];
+  //     const selectElem = document.querySelector(`select[name="${attributeName}"]`);
+  //     if (!selectElem) {
+  //       console.warn(`Select element for attribute ${attributeName} not found.`);
+  //       return;
+  //     }
+  //     // Set the attribute value
+  //     selectElem.value = attributeValue;
+  //     // Trigger change event to let WooCommerce know about the update
+  //     selectElem.dispatchEvent(new Event('change', { bubbles: true }));
+  //   });
 
-    // Optionally, update the hidden variation_id input so that WooCommerce knows which variation is selected
-    const variationIdInput = document.querySelector('input[name="variation_id"]');
-    if (variationIdInput) {
-      variationIdInput.value = matchingVariation.variation_id;
-      variationIdInput.dispatchEvent(new Event('change', { bubbles: true }));
-    }
+  //   // Optionally, update the hidden variation_id input so that WooCommerce knows which variation is selected
+  //   const variationIdInput = document.querySelector('input[name="variation_id"]');
+  //   if (variationIdInput) {
+  //     variationIdInput.value = matchingVariation.variation_id;
+  //     variationIdInput.dispatchEvent(new Event('change', { bubbles: true }));
+  //   }
 
-    // Finally, enable the shop (add-to-cart) button if it's disabled
-    const addToCartBtn = document.querySelector('.single_add_to_cart_button');
-    if (addToCartBtn) {
-      addToCartBtn.disabled = false;
-      addToCartBtn.classList.remove('disabled');
-    }
-  };
+  //   // Finally, enable the shop (add-to-cart) button if it's disabled
+  //   const addToCartBtn = document.querySelector('.single_add_to_cart_button');
+  //   if (addToCartBtn) {
+  //     addToCartBtn.disabled = false;
+  //     addToCartBtn.classList.remove('disabled');
+  //   }
+  // };
 
   disableInvalidOptions = () => {
     if (this.debug) console.log('disableInvalidOptions()');
