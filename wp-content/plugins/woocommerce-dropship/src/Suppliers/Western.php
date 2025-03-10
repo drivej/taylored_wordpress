@@ -33,6 +33,7 @@ class Western extends Supplier implements Contract
 
     public function priceCheck(array $items)
     {
+        // TODO: why is this not operational?
         error_log('priceCheck() ' . json_encode(['items' => $items]));
         return $items;
         return $this->request->priceCheck([
@@ -42,7 +43,7 @@ class Western extends Supplier implements Contract
 
     public function submitOrder(array $items, array $data): string
     {
-        error_log('XX submitOrder() ' . json_encode(['items' => $items]));
+        error_log('submitOrder() ' . json_encode(['items' => $items]));
 
         $this->action('pre_submit_order', $items, $data, $this);
 

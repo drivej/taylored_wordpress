@@ -86,7 +86,7 @@ trait Supplier_WPS_Data
 
         if ($flag === 'pdp_count') {
             $includes = [
-                'items',
+                'items:count',
             ];
             $fields['products'] = 'id';
             $fields['items']    = 'id';
@@ -160,119 +160,67 @@ trait Supplier_WPS_Data
         return $products;
     }
 
-    public function get_products_page($cursor = '', $flag = 'pdp', $updated = null, $page_sizes = [1, 5, 10], $item_limit = 500)
+    public function get_products_page($cursor = '', $flag = 'pdp', $updated = null, $page_sizes = [1, 5, 10], $item_limit = -1, $use_cache = true)
     {
-        // $this->log("get_products_page('$cursor', '$flag', '$updated')");
-        // attempt to load the max, then step down in count until response is valid
-        // $page_sizes      = [1, 5, 10]; //[1, 4, 16, 32]; // with vehical data it takes much longer
-        $page_size       = end($page_sizes);
-        $page_size_index = count($page_sizes) - 1;
+        //
+        // START: items limit
+        //
+        if ($item_limit > 0) {
+            $test_params = $this->get_params_for_query('pdp_count');
+
+            if ($updated) {
+                $test_params['filter[updated_at][gt]'] = $updated;
+            }
+
+            $test_params['page'] = ['cursor' => $cursor, 'size' => end($page_sizes)];
+            $test                = $this->get_api('/products', $test_params, $use_cache);
+            $total_items         = 0;
+            $max_page_size       = end($page_sizes);
+
+            foreach ($test['data'] as $i => $item) {
+                if (isset($item['items_count'])) {
+                    if (($total_items + $item['items_count']) >= $item_limit) {
+                        $max_page_size = $i + 1;
+                        break;
+                    }
+                    $total_items += $item['items_count'];
+                }
+            }
+
+            if ($max_page_size > end($page_sizes)) {
+                $max_page_size = end($page_sizes);
+            }
+
+            $page_sizes = [1, $max_page_size];
+        }
+        //
+        // END: items limit
+        //
         $items           = [];
-        $fails           = 0;
+        $page_size_index = count($page_sizes) - 1;
         $params          = $this->get_params_for_query($flag);
-        if ($updated) {
+
+        if (isset($updated)) {
             $params['filter[updated_at][gt]'] = $updated;
         }
 
-        while (is_string($cursor) && $page_size >= 1) {
+        while ($page_size_index >= 0) {
             $page_size      = $page_sizes[$page_size_index];
             $params['page'] = ['cursor' => $cursor, 'size' => $page_size];
-            $items          = $this->get_api('/products', $params);
+            $items          = $this->get_api('/products', $params, $use_cache);
 
-            // timeout indicates that the response is probably too large
-            $timeout = isset($items['status_code']) && $items['status_code'] === 408;
-
-            if ($timeout) {
-                $this->log(__FUNCTION__, 'timeout', $items);
-            }
-
-            // validate data
-            if (! $timeout && (! isset($items['data']) || ! is_countable($items['data']))) {
-                $this->log(__FUNCTION__, 'WHAT IS THIS ERROR? API throttled' . json_encode($items));
-            }
-
-            if (isset($items['error']) && $page_size > 1) {
-                $fails++;
-                $sleep_time      = $fails * 5;
-                $page_size_index = max(0, $page_size_index - $fails);
-                if ($page_size_index < 3) {
-                    $this->log('---------- throttled (' . $sleep_time . 's sleep) ---------- page_size=' . $page_size);
-                    // maybe we're being throttled
-                    sleep($sleep_time);
-                }
+            if (isset($items['error']) || ! isset($items['data'])) {
+                $page_size_index--;
             } else {
-                // what is this steaming pile of fun? It limit the number of variations that are to be processed - Woo is a memory hog
-                $total_items    = 0;
-                $new_page_size  = 0;
-                $new_page_index = 0;
-
-                if (isset($items['data'])) {
-                    foreach ($items['data'] as $i => $product) {
-                        if (isset($product['items']['data'])) {
-                            $total_items += count($product['items']['data']);
-                        }
-                        if (($total_items > $item_limit) && $new_page_size === 0) {
-                            $new_page_size  = $i;
-                            $new_page_index = count($page_sizes) - 1;
-                            while ($new_page_index > 0 && ($page_sizes[$new_page_index] > $new_page_size)) {
-                                $new_page_index--;
-                            }
-                        }
-                    }
-                    unset($product);
-                }
-
-                // $items['meta']['total_items']   = $total_items;
-                // $items['meta']['new_page_size'] = $new_page_size;
-
-                if ($page_size > 1) {
-                    // data success, count items for limit
-                    if ($new_page_size) {
-                        $page_size_index = $new_page_index;
-                    } else {
-                        break;
-                    }
-                } else {
-                    break;
-                }
+                break;
             }
         }
 
         if (isset($items['error'])) {
-            $this->log(json_encode(['cursor' => $cursor, 'size' => $page_size, 'fails' => $fails]));
+            $this->log(json_encode(['cursor' => $cursor, 'size' => $page_size]));
         }
         return $items;
     }
-
-    // public function get_items_page($cursor = '', $updated = null)
-    // {
-    //                             // $this->log("get_products_page('$cursor', '$flag', '$updated')");
-    //                             // attempt to load the max, then step down in count until response is valid
-    //     $page_sizes      = [1]; //, 5, 10];
-    //     $page_size       = end($page_sizes);
-    //     $page_size_index = count($page_sizes) - 1;
-    //     $items           = [];
-    //     // $fails           = 0;
-    //     $params = [
-    //         'include'               => [
-    //             'vehicles',
-    //         ],
-    //         'filter[status_id][ne]' => 'NLA',
-    //         'fields'                => [
-    //             'items'    => 'id,sku,status_id',
-    //             'vehicles' => 'id',
-    //         ],
-    //     ];
-
-    //     if ($updated) {
-    //         $params['filter[updated_at][gt]'] = $updated;
-    //     }
-
-    //     $page_size      = $page_sizes[$page_size_index];
-    //     $params['page'] = ['cursor' => $cursor, 'size' => $page_size];
-    //     $items          = $this->get_api('/items', $params);
-    //     return $items;
-    // }
 
     public function get_total_remote_products($updated_at = null)
     {
@@ -283,17 +231,6 @@ trait Supplier_WPS_Data
         ]);
         return $result['data']['count'] ?? -1;
     }
-
-    // public function get_attributekeys($ids)
-    // {
-    //     // normalize the response to always return an array
-    //     $ids = array_unique($ids);
-    //     $res = $this->get_api('attributekeys/' . implode(',', $ids));
-    //     if (isset($res['data']) && ! array_is_list($res['data'])) {
-    //         $res['data'] = [$res['data']];
-    //     }
-    //     return $res;
-    // }
 
     public function get_attributekeys($ids, $chunk_size = 10)
     {
@@ -320,5 +257,4 @@ trait Supplier_WPS_Data
 
         return $all_results;
     }
-
 }

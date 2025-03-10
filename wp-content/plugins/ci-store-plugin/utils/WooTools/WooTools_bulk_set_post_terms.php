@@ -79,7 +79,7 @@ function bulk_set_post_terms($post_term_map, $taxonomy, $append = false)
         return true;
     } catch (Exception $e) {
         $wpdb->query('ROLLBACK');
-        error_log("ERROR: " . $e->getMessage());
+        // error_log("ERROR: " . $e->getMessage());
         return false;
     }
 }

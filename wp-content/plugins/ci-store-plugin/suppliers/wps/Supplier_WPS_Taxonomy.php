@@ -263,7 +263,7 @@ trait Supplier_WPS_Taxonomy
                 $parent_term           = $lookup_term_by_id[$term['parent_id']];
                 $term['parent_woo_id'] = $parent_term['woo_id'];
 
-                if ($lookup_term_by_slug[$term['slug']]) {
+                if (isset($lookup_term_by_slug[$term['slug']])) {
                     $parent = $lookup_term_by_slug[$term['slug']]->parent;
                     if ($parent != $parent_term['woo_id']) {
                         $update = wp_update_term($term['woo_id'], 'product_cat', ['parent' => $term['parent_woo_id']]);

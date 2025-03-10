@@ -58,7 +58,18 @@ interface IImportStatus {
     updated_at: string;
     cursor: string;
     import_type: string;
-  }; //Record<string, string | boolean>;
+  };
+  initial_args: {
+    updated_at: string;
+    cursor: string;
+    import_type: string;
+  };
+}
+
+function yesterday() {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
@@ -105,7 +116,7 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
   };
 
   const startImport = () => {
-    supplierAction.mutate({ func: 'custom_start', args: ['', '', importType] }, { onSettled: setImportInfo });
+    supplierAction.mutate({ func: 'custom_start', args: [updatedAt, cursor, importType] }, { onSettled: setImportInfo });
   };
 
   const stopImport = () => {
@@ -234,10 +245,10 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
   }, [importInfo]);
 
   const $cursorInput = useRef<HTMLInputElement>();
-  const [cursor, setCursor] = useState('g9akM2pNYlKO');
+  const [cursor, setCursor] = useState('');
   const [importType, setImportType] = useState(supplier.import_options[0]);
   const $updatedAtInput = useRef<HTMLInputElement>();
-  const [updatedAt, setUpdatedAt] = useState('2023-01-01');
+  const [updatedAt, setUpdatedAt] = useState(yesterday());
   const $importTypeInput = useRef<HTMLSelectElement>();
 
   const customCursor = () => {
@@ -274,7 +285,7 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
               <div className={progressBarClasses.join(' ')} style={{ width: `${progress}%` }}></div>
             </div>
 
-            <div>
+            <div id='test'>
               {message}{' '}
               {active ? (
                 <>
@@ -285,51 +296,66 @@ export const SupplierImportStatus = ({ supplier }: { supplier: ISupplier }) => {
 
             <div className='d-flex gap-2 justify-content-between'>
               <div className='d-flex gap-2 align-items-center'>
-                <label className='form-label m-0'>Type</label>
-                <select disabled={!canStart} className='form-select' value={importType} onChange={(e) => setImportType(e.currentTarget.value)} ref={$importTypeInput}>
-                  {supplier.import_options.map((o) => (
-                    <option value={o}>{o}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <div className='btn-group' style={{ width: 'min-content' }}>
-                  <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={startImport}>
-                    Start
-                  </button>
-                  <button disabled={!canStop} className='btn btn-sm btn-secondary' onClick={stopImport}>
-                    Stop
-                  </button>
-                  <button disabled={!canReset} className='btn btn-sm btn-secondary' onClick={resetImport}>
-                    Reset
-                  </button>
-                  <button disabled={!canContinue} className='btn btn-sm btn-secondary' onClick={resumeImport}>
-                    Resume
-                  </button>
-                  <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={rerunImport}>
-                    Rerun
-                  </button>
-                  <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={updateImport}>
-                    Update
-                  </button>
-                  {/* <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={autoImportImport}>
-                  Auto&nbsp;Import
-                </button> */}
+                <div>
+                  <label className='form-label'>Type</label>
+                  <select disabled={!canStart} className='form-select form-select-sm' value={importType} onChange={(e) => setImportType(e.currentTarget.value)} ref={$importTypeInput}>
+                    {supplier.import_options.map((o) => (
+                      <option value={o}>{o}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className='form-label fs-6'>Cursor</label>
+                  <input type='text' className='form-control form-control-sm' value={cursor} onChange={(e) => setCursor(e.currentTarget.value)} ref={$cursorInput} />
+                </div>
+                <div>
+                  <label className='form-label'>Updated</label>
+                  <input type='text' className='form-control form-control-sm' placeholder='YYYY-MM-DD' value={updatedAt} onChange={(e) => setUpdatedAt(e.currentTarget.value)} ref={$updatedAtInput} />
                 </div>
               </div>
 
-              <div className='btn-group' style={{ width: 'min-content' }}>
-                {canKill ? (
-                  <button disabled={!canKill} className='btn btn-sm btn-secondary' onClick={killImport}>
-                    Kill
-                  </button>
-                ) : null}
+              <div>
+                <label className='form-label'>&nbsp;</label>
+                <div>
+                  <div className='btn-group' style={{ width: 'min-content' }}>
+                    <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={startImport}>
+                      Start
+                    </button>
+                    <button disabled={!canStop} className='btn btn-sm btn-secondary' onClick={stopImport}>
+                      Stop
+                    </button>
+                    <button disabled={!canReset} className='btn btn-sm btn-secondary' onClick={resetImport}>
+                      Reset
+                    </button>
+                    <button disabled={!canContinue} className='btn btn-sm btn-secondary' onClick={resumeImport}>
+                      Resume
+                    </button>
+                    <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={rerunImport}>
+                      Rerun
+                    </button>
+                    <button disabled={!canStart} className='btn btn-sm btn-secondary' onClick={updateImport}>
+                      Update
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <div>
-                <button className='btn btn-sm btn-secondary' onClick={refresh}>
-                  Refresh
-                </button>
+                <label className='form-label'>&nbsp;</label>
+                <div>
+                  <button disabled={!canKill} className='btn btn-sm btn-secondary' onClick={killImport}>
+                    Kill
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className='form-label'>&nbsp;</label>
+                <div>
+                  <button className='btn btn-sm btn-secondary' onClick={refresh}>
+                    Refresh
+                  </button>
+                </div>
               </div>
             </div>
 

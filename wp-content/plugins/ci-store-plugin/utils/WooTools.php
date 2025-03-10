@@ -336,7 +336,7 @@ class WooTools
     public static function should_update_product($product, $flag)
     {
         if (! $product instanceof WC_Product) {
-            error_log('The provided object is not an instance of WC_Product.');
+            // error_log('The provided object is not an instance of WC_Product.');
             return false;
         }
         // error_log(__FUNCTION__ . ' ' . json_encode(['id' => $product->get_id()]));
@@ -348,7 +348,7 @@ class WooTools
 
         // If no valid update timestamp, assume update is needed
         if (empty($update)) {
-            error_log("No update timestamp found for product ID {$product->get_id()}.");
+            // error_log("No update timestamp found for product ID {$product->get_id()}.");
             return true;
         }
 
@@ -357,7 +357,7 @@ class WooTools
         $expiry_date = $last_update->add($max_age);
 
         if ($expiry_date < new DateTime()) {
-            error_log(__FUNCTION__ . ' ' . json_encode(['id' => $product->get_id(), 'update' => $update]));
+            // error_log(__FUNCTION__ . ' ' . json_encode(['id' => $product->get_id(), 'update' => $update]));
             return true;
         }
         //
@@ -365,7 +365,7 @@ class WooTools
         //
         $price = $product->get_price();
         if (! is_numeric($price)) {
-            error_log(__FUNCTION__ . ' ' . json_encode(['id' => $product->get_id(), 'price' => $price]));
+            // error_log(__FUNCTION__ . ' ' . json_encode(['id' => $product->get_id(), 'price' => $price]));
             return true;
         }
 
@@ -375,7 +375,7 @@ class WooTools
         //
         $import_version = $product->get_meta("_ci_import_version");
         if ($import_version !== $supplier->import_version) {
-            error_log(__FUNCTION__ . ' ' . json_encode(['id' => $product->get_id(), 'import_version' => $import_version]));
+            // error_log(__FUNCTION__ . ' ' . json_encode(['id' => $product->get_id(), 'import_version' => $import_version]));
             return true;
         }
 
@@ -384,7 +384,7 @@ class WooTools
         // Check if the product is deprecated
         $is_deprecated = $flag === 'pdp' && $supplier && $supplier->is_deprecated($product->get_id());
         if ($is_deprecated) {
-            error_log("Product is deprecated for flag: $flag");
+            // error_log("Product is deprecated for flag: $flag");
             return true;
         }
 
@@ -408,7 +408,7 @@ class WooTools
 
         // If no valid update timestamp, assume update is needed
         if (empty($update)) {
-            error_log("No update timestamp found for product ID {$product->get_id()}.");
+            // error_log("No update timestamp found for product ID {$product->get_id()}.");
             return true;
         }
 
@@ -715,7 +715,7 @@ class WooTools
         $post_ids_placeholder = implode(',', array_fill(0, count($post_ids), '%d'));
         $sql                  = $wpdb->prepare("UPDATE {$wpdb->posts} SET post_status = 'draft' WHERE ID IN ($post_ids_placeholder)", $post_ids);
         $wpdb->query($sql);
-        error_log('WooTools::unpublish() ' . count($post_ids));
+        // error_log('WooTools::unpublish() ' . count($post_ids));
     }
 
     public static function get_metas($post_ids, $meta_keys)
@@ -1140,7 +1140,7 @@ class WooTools
 
         $result = $wpdb->query($sql);
         if ($result === false) {
-            error_log("Error deleting orphaned attachments: " . $wpdb->last_error);
+            // error_log("Error deleting orphaned attachments: " . $wpdb->last_error);
         }
         return $result;
     }

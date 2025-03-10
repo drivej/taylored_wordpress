@@ -541,11 +541,11 @@ class Vehicles {
           $select.dispatchEvent(new Event('change', { bubbles: true }));
           await sleep(sleepTime);
         } else {
-          if (debug) console.log('FAIL', `select[name="${attr}"]`);
+          if (this.debug) console.log('FAIL', `select[name="${attr}"]`);
         }
       }
     } else {
-      if (debug) console.log('variation not found', variation_id);
+      if (this.debug) console.log('variation not found', variation_id);
     }
 
     this.$variation_input.value = variation_id;

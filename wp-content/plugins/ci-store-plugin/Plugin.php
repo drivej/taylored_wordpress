@@ -101,7 +101,7 @@ class Plugin
 
     public function activation()
     {
-        error_log('activation()');
+        // error_log('activation()');
         include_once CI_STORE_PLUGIN . 'Activation.php';
         \CIStore\Activation\create_t14_table();
     }

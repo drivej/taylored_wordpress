@@ -526,7 +526,7 @@ trait Supplier_WPS_Vehicles
         // $page = $this->get_api('/products', $params);
 
         $timer = new Timer();
-        $page  = $this->get_products_page($cursor, 'id', $updated_at, [1, 5, 10]);
+        $page  = $this->get_products_page($cursor, 'id', $updated_at, [1, 5, 10], 1000);
 
         if (isset($page['data']) && ! empty($page['data'])) {
             foreach ($page['data'] as $product) {

@@ -7,7 +7,7 @@ function custom_wp_get_attachment_image_src($image, $attachment_id, $size, $icon
 {
     debug_filter('wp_get_attachment_image_src');
 
-    error_log(json_encode(['image' => $image]));
+    // error_log(json_encode(['image' => $image]));
 
     // Get the post_name and URL
     $post_name = get_post_field('post_name', $attachment_id);

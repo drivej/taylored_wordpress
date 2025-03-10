@@ -1,7 +1,7 @@
 <?php
 namespace CIStore\Ajax;
 
-use Timer;
+use Exception;
 
 include_once CI_STORE_PLUGIN . 'utils/WooTools.php';
 include_once CI_STORE_PLUGIN . 'suppliers/Suppliers.php';
@@ -116,6 +116,12 @@ function test_action()
     /** @var Supplier_WPS $supplier */
     $supplier = \CIStore\Suppliers\get_supplier('wps');
 
+        $res = $supplier->get_products_page('', 'id', '2025-03-07', [30], 5000, true);
+
+        return $res;
+
+    $params = json_decode('{"include":"features,tags,blocks,taxonomyterms,attributekeys,attributevalues,items.images,items.attributevalues,items.taxonomyterms","fields":{"products":"name,description,updated_at","items":"updated_at,brand_id,sku,name,list_price,length,width,height,weight,status_id,product_type","attributevalues":"attributekey_id,name","taxonomyterms":"name,slug","images":"domain,path,filename,mime,width,height,size","features":"name"},"filter[updated_at][gt]":"2025-02-01","page":{"cursor":"VbjlYA6jewNO","size":30}}');
+    return $supplier->get_api('products', $params, false);
     // return wc_get_product_id_by_sku('MASTER_WPS_31533_VARIATION_37584');
     // 409207
 

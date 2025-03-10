@@ -42,7 +42,7 @@ function upsert_attributes($attributes)
 
         // not sure how this happens
         if (empty($attribute_name)) {
-            error_log(__FUNCTION__ . ' Error attribute empty: ' . json_encode(['attributes' => $attributes, 'attribute_slug' => $attribute_slug]));
+            // error_log(__FUNCTION__ . ' Error attribute empty: ' . json_encode(['attributes' => $attributes, 'attribute_slug' => $attribute_slug]));
             continue;
         }
         $new_options = $attribute_data['options'];
@@ -62,7 +62,7 @@ function upsert_attributes($attributes)
             ]);
 
             if (is_wp_error($attribute_id)) {
-                error_log(__FUNCTION__ . ' Error creating attribute: ' . $attribute_name . ' - ' . $attribute_id->get_error_message());
+                // error_log(__FUNCTION__ . ' Error creating attribute: ' . $attribute_name . ' - ' . $attribute_id->get_error_message());
                 continue;
             }
         }
@@ -111,10 +111,10 @@ function upsert_attributes($attributes)
                             ];
                         }
                     } else {
-                        error_log(__FUNCTION__ . ' Error inserting term: ' . $term_name . ' tax=' . $taxonomy . ' - ' . $inserted_term->get_error_message());
-                        error_log(__FUNCTION__ . ' wp_insert_term(' . $term_name . ', ' . $taxonomy . ')');
-                        error_log(__FUNCTION__ . ' ' . json_encode(['attributes' => $attributes], JSON_PRETTY_PRINT));
-                        error_log(__FUNCTION__ . ' ' . json_encode(['term_data' => $term_data], JSON_PRETTY_PRINT));
+                        // error_log(__FUNCTION__ . ' Error inserting term: ' . $term_name . ' tax=' . $taxonomy . ' - ' . $inserted_term->get_error_message());
+                        // error_log(__FUNCTION__ . ' wp_insert_term(' . $term_name . ', ' . $taxonomy . ')');
+                        // error_log(__FUNCTION__ . ' ' . json_encode(['attributes' => $attributes], JSON_PRETTY_PRINT));
+                        // error_log(__FUNCTION__ . ' ' . json_encode(['term_data' => $term_data], JSON_PRETTY_PRINT));
                     }
                 }
             }

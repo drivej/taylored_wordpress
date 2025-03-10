@@ -11,7 +11,7 @@ trait Supplier_WPS_Brands
         if (! $response) {
             $res = $this->get_api("/brands/{$brand_id}");
             if (isset($res['data'])) {
-                $response            = $res['data'];
+                $response = $res['data'];
                 // $response['term_id'] = WooTools::get_or_create_global_attribute_term('brand', $response['name']);
             } else {
                 $response = false;
@@ -73,7 +73,11 @@ trait Supplier_WPS_Brands
         $allowed = $this->get_allowed_brand_ids();
         $output  = [];
         foreach ($brands as &$brand) {
-            $output[] = ['id' => (string) $brand['id'], 'name' => $brand['name'], 'allowed' => (bool) $allowed[$brand['id']]];
+            $output[] = [
+                'id'      => (string) $brand['id'],
+                'name'    => $brand['name'],
+                'allowed' => (bool) isset($allowed[$brand['id']]) && $allowed[$brand['id']],
+            ];
         }
         usort($output, function ($a, $b) {
             return strcmp(strtolower($a['name']), strtolower($b['name']));

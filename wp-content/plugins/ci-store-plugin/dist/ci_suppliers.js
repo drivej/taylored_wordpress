@@ -11933,6 +11933,11 @@ const SupplierImportStatusPage = ({ supplier_key }) => {
     }
     return react.createElement(LoadingPage, null);
 };
+function yesterday() {
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 const SupplierImportStatus = ({ supplier }) => {
     var _a, _b, _c, _d, _e;
     const totalProducts = useTotalProducts(supplier.key);
@@ -11974,7 +11979,7 @@ const SupplierImportStatus = ({ supplier }) => {
         supplierAction.mutate({ func: 'get_import_info', args: [] }, { onSettled: setImportInfo });
     };
     const startImport = () => {
-        supplierAction.mutate({ func: 'custom_start', args: ['', '', importType] }, { onSettled: setImportInfo });
+        supplierAction.mutate({ func: 'custom_start', args: [updatedAt, cursor, importType] }, { onSettled: setImportInfo });
     };
     const stopImport = () => {
         supplierAction.mutate({ func: 'stop' }, { onSettled: setImportInfo });
@@ -12090,10 +12095,10 @@ const SupplierImportStatus = ({ supplier }) => {
         setProgressBarClasses(c);
     }, [importInfo]);
     const $cursorInput = (0,react.useRef)();
-    const [cursor, setCursor] = (0,react.useState)('g9akM2pNYlKO');
+    const [cursor, setCursor] = (0,react.useState)('');
     const [importType, setImportType] = (0,react.useState)(supplier.import_options[0]);
     const $updatedAtInput = (0,react.useRef)();
-    const [updatedAt, setUpdatedAt] = (0,react.useState)('2023-01-01');
+    const [updatedAt, setUpdatedAt] = (0,react.useState)(yesterday());
     const $importTypeInput = (0,react.useRef)();
     const customCursor = () => {
         const cursor = $cursorInput.current.value;
@@ -12110,7 +12115,7 @@ const SupplierImportStatus = ({ supplier }) => {
                     react.createElement("h5", null, "Import Status "),
                     react.createElement("div", { className: 'progress', role: 'progressbar' },
                         react.createElement("div", { className: progressBarClasses.join(' '), style: { width: `${progress}%` } })),
-                    react.createElement("div", null,
+                    react.createElement("div", { id: 'test' },
                         message,
                         ' ',
                         active ? (react.createElement(react.Fragment, null,
@@ -12120,19 +12125,33 @@ const SupplierImportStatus = ({ supplier }) => {
                             ")")) : null),
                     react.createElement("div", { className: 'd-flex gap-2 justify-content-between' },
                         react.createElement("div", { className: 'd-flex gap-2 align-items-center' },
-                            react.createElement("label", { className: 'form-label m-0' }, "Type"),
-                            react.createElement("select", { disabled: !canStart, className: 'form-select', value: importType, onChange: (e) => setImportType(e.currentTarget.value), ref: $importTypeInput }, supplier.import_options.map((o) => (react.createElement("option", { value: o }, o))))),
+                            react.createElement("div", null,
+                                react.createElement("label", { className: 'form-label' }, "Type"),
+                                react.createElement("select", { disabled: !canStart, className: 'form-select form-select-sm', value: importType, onChange: (e) => setImportType(e.currentTarget.value), ref: $importTypeInput }, supplier.import_options.map((o) => (react.createElement("option", { value: o }, o))))),
+                            react.createElement("div", null,
+                                react.createElement("label", { className: 'form-label fs-6' }, "Cursor"),
+                                react.createElement("input", { type: 'text', className: 'form-control form-control-sm', value: cursor, onChange: (e) => setCursor(e.currentTarget.value), ref: $cursorInput })),
+                            react.createElement("div", null,
+                                react.createElement("label", { className: 'form-label' }, "Updated"),
+                                react.createElement("input", { type: 'text', className: 'form-control form-control-sm', placeholder: 'YYYY-MM-DD', value: updatedAt, onChange: (e) => setUpdatedAt(e.currentTarget.value), ref: $updatedAtInput }))),
                         react.createElement("div", null,
-                            react.createElement("div", { className: 'btn-group', style: { width: 'min-content' } },
-                                react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: startImport }, "Start"),
-                                react.createElement("button", { disabled: !canStop, className: 'btn btn-sm btn-secondary', onClick: stopImport }, "Stop"),
-                                react.createElement("button", { disabled: !canReset, className: 'btn btn-sm btn-secondary', onClick: resetImport }, "Reset"),
-                                react.createElement("button", { disabled: !canContinue, className: 'btn btn-sm btn-secondary', onClick: resumeImport }, "Resume"),
-                                react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: rerunImport }, "Rerun"),
-                                react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: updateImport }, "Update"))),
-                        react.createElement("div", { className: 'btn-group', style: { width: 'min-content' } }, canKill ? (react.createElement("button", { disabled: !canKill, className: 'btn btn-sm btn-secondary', onClick: killImport }, "Kill")) : null),
+                            react.createElement("label", { className: 'form-label' }, "\u00A0"),
+                            react.createElement("div", null,
+                                react.createElement("div", { className: 'btn-group', style: { width: 'min-content' } },
+                                    react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: startImport }, "Start"),
+                                    react.createElement("button", { disabled: !canStop, className: 'btn btn-sm btn-secondary', onClick: stopImport }, "Stop"),
+                                    react.createElement("button", { disabled: !canReset, className: 'btn btn-sm btn-secondary', onClick: resetImport }, "Reset"),
+                                    react.createElement("button", { disabled: !canContinue, className: 'btn btn-sm btn-secondary', onClick: resumeImport }, "Resume"),
+                                    react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: rerunImport }, "Rerun"),
+                                    react.createElement("button", { disabled: !canStart, className: 'btn btn-sm btn-secondary', onClick: updateImport }, "Update")))),
                         react.createElement("div", null,
-                            react.createElement("button", { className: 'btn btn-sm btn-secondary', onClick: refresh }, "Refresh"))),
+                            react.createElement("label", { className: 'form-label' }, "\u00A0"),
+                            react.createElement("div", null,
+                                react.createElement("button", { disabled: !canKill, className: 'btn btn-sm btn-secondary', onClick: killImport }, "Kill"))),
+                        react.createElement("div", null,
+                            react.createElement("label", { className: 'form-label' }, "\u00A0"),
+                            react.createElement("div", null,
+                                react.createElement("button", { className: 'btn btn-sm btn-secondary', onClick: refresh }, "Refresh")))),
                     react.createElement("div", { className: 'd-flex justify-content-between' },
                         react.createElement("div", null, (totalProducts === null || totalProducts === void 0 ? void 0 : totalProducts.data) ? (react.createElement(react.Fragment, null,
                             "Imported: ",

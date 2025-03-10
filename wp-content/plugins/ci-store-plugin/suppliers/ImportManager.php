@@ -206,13 +206,14 @@ class ImportManager
         $args = [ ...$this->get_default_args(), ...$args];
 
         $info = $this->update_info([
-            'started'   => gmdate("c"),
-            'processed' => 0,
-            'total'     => 0,
-            'progress'  => 0,
-            'complete'  => false,
-            'completed' => false,
-            'args'      => $args,
+            'started'      => gmdate("c"),
+            'processed'    => 0,
+            'total'        => 0,
+            'progress'     => 0,
+            'complete'     => false,
+            'completed'    => false,
+            'args'         => $args,
+            'initial_args' => $args,
         ]);
 
         $info      = $this->update_info($this->before_start($info));
@@ -240,7 +241,7 @@ class ImportManager
         // $this->log(__FUNCTION__ . ' ' . WooTools\check_mem());
         $capacity = WooTools\memory_capacity();
         if ($capacity > 0.5) {
-            error_log(__FUNCTION__ . ': memory low: delay process');
+            // error_log(__FUNCTION__ . ': memory low: delay process');
             $this->schedule($this->import_loop_hook, 60);
         }
 
@@ -257,7 +258,7 @@ class ImportManager
             $delta = $this->do_process($info);
             $info  = $this->update_info($delta);
         } catch (Exception $e) {
-            error_log($e->getMessage());
+            // error_log($e->getMessage());
             $this->stop();
         }
         gc_collect_cycles();
@@ -386,14 +387,15 @@ class ImportManager
         } else {
             $this->clear_stop();
             $info = $this->update_info([
-                'status'    => 0,
-                'started'   => false,
-                'processed' => 0,
-                'total'     => 0,
-                'progress'  => 0,
-                'complete'  => false,
-                'completed' => false,
-                'args'      => $this->get_default_args(),
+                'status'       => 0,
+                'started'      => false,
+                'processed'    => 0,
+                'total'        => 0,
+                'progress'     => 0,
+                'complete'     => false,
+                'completed'    => false,
+                'args'         => $this->get_default_args(),
+                'initial_args' => $this->get_default_args(),
             ]);
         }
         return array_merge($info, $this->get_report());

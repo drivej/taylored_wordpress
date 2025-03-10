@@ -19,20 +19,24 @@ trait Supplier_WPS_API
         $response       = $use_cache ? get_transient($transient_name) : false;
 
         if (false === $response) {
+            $timer        = new Timer();
             $should_cache = true;
             $remote_url   = untrailingslashit($this->api_url) . '/' . ltrim($path, '/') . '?' . $query_string;
             $data         = [];
+            // $this->log(__FUNCTION__, $path, $params);
 
             $response = wp_safe_remote_request($remote_url, [
-                'headers' => [
+                'headers'   => [
                     'Authorization' => "Bearer {$this->bearer_token}",
                     'Content-Type'  => 'application/json',
                 ],
-                'timeout' => $timeout,
+                'timeout'   => $timeout,
+                'sslverify' => false,
             ]);
 
             // request failed
             if (is_wp_error($response)) {
+                // $this->log(__FUNCTION__, 'err1');
                 $should_cache  = false;
                 $error_code    = $response->get_error_code();
                 $error_message = $response->get_error_message();
@@ -49,12 +53,25 @@ trait Supplier_WPS_API
                 return $data;
             }
 
-            $response_body = wp_remote_retrieve_body($response);
+            if (is_null($response) || $response === false) {
+                // $this->log(__FUNCTION__, 'response is null/false');
+                $data['error'] = 'response is null/false';
+                $data['url']   = $remote_url;
+                return $data;
+            }
+
+            try {
+                $response_body = wp_remote_retrieve_body($response);
+            } catch (Exception $e) {
+                // $this->log('failed wp_remote_retrieve_body');
+                $response_body = '';
+            }
 
             // bad status
             $status_code = wp_remote_retrieve_response_code($response);
 
             if ($status_code !== 200) {
+                // $this->log(__FUNCTION__, 'err2');
                 $data['error']         = 'HTTP error occurred';
                 $data['url']           = $remote_url;
                 $data['response_body'] = $response_body;
@@ -66,6 +83,7 @@ trait Supplier_WPS_API
 
             // json parse failed
             if (json_last_error() !== JSON_ERROR_NONE) {
+                // $this->log(__FUNCTION__, 'err3');
                 $data['error']         = 'Failed to parse JSON response: ' . json_last_error_msg();
                 $data['url']           = $remote_url;
                 $data['response_body'] = $response_body;
@@ -74,20 +92,33 @@ trait Supplier_WPS_API
 
             // message indicates error
             if (isset($data['message'])) {
+                // $this->log(__FUNCTION__, 'err4');
                 $should_cache  = false;
                 $data['error'] = $data['message'];
                 $data['url']   = $remote_url;
+                return $data;
+            }
+
+            if ($data == '') {
+                // $this->log(__FUNCTION__, 'err5');
+                $should_cache  = false;
+                $data['error'] = 'empty response';
+                $data['url']   = $remote_url;
+                return $data;
             }
 
             $data['meta']['transient_name'] = $transient_name;
             $data['meta']['fetched']        = gmdate("c");
             $data['meta']['remote_url']     = $remote_url;
+            $data['meta']['time']           = $timer->total();
 
             $response = $data;
 
             if ($should_cache) {
                 set_transient($transient_name, $response, WEEK_IN_SECONDS);
             }
+        } else {
+            // $this->log(__FUNCTION__, 'CACHE', $pathKey);
         }
         return $response;
     }

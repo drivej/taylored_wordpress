@@ -132,7 +132,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
     {
         // $timer      = new Timer();
         $updated_at = $updated_at ?? $this->default_updated_at;
-        $items      = $this->get_products_page($cursor, 'pdp', $updated_at, [1, 10, 30]);
+        $items      = $this->get_products_page($cursor, 'pdp', $updated_at, [1, 10, 30], 1000);
 
         if (isset($items['data']) && ! empty($items['data'])) {
             $is_valid = is_countable($items['data']) && count($items['data']);
@@ -169,7 +169,7 @@ class Supplier_WPS extends CIStore\Suppliers\Supplier
     {
         $timer      = new Timer();
         $updated_at = $updated_at ?? $this->default_updated_at;
-        $items      = $this->get_products_page($cursor, 'pdp', $updated_at);
+        $items      = $this->get_products_page($cursor, 'pdp', $updated_at, [1, 10, 20], 500);
         $is_valid   = isset($items['data']) && is_countable($items['data']) && count($items['data']);
         $count      = $is_valid ? count($items['data']) : 0;
         $timer_api  = $timer->lap();

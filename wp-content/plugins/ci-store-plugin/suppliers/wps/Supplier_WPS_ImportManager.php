@@ -81,7 +81,7 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager
 
     public function do_process($info)
     {
-        // $this->log(__FUNCTION__, 'start');
+        // $this->log(__CLASS__, __FUNCTION__, 'start');
         // $this->log('WPSImportManager::do_process() ' . json_encode($info['args']));
         $cursor      = $info['args']['cursor'] ?? '';
         $import_type = $info['args']['import_type'] ?? 'default';
@@ -101,17 +101,17 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager
             switch ($import_type) {
                 case 'products':
                     $items = $supplier->import_products_page($cursor, $updated_at);
-                    $ids   = $items['data'];
+                    $ids   = isset($items['data']) ? $items['data'] : [];
                     break;
 
                 case 'patch':
                     $items = $supplier->patch_products_page($cursor, $updated_at);
-                    $ids   = array_map(fn($item) => $item['id'], $items['data'] ?? []);
+                    $ids   = array_map(fn($item) => $item['id'], isset($items['data']) ? $items['data'] : []);
                     break;
 
                 case 'vehicles':
                     $items = $supplier->import_vehicles_page($cursor, $updated_at);
-                    $ids   = $items['data'];
+                    $ids   = isset($items['data']) ? $items['data'] : [];
                     break;
 
                 case 'product_vehicles':
@@ -120,12 +120,12 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager
 
                 case 'product_plp':
                     $items = $supplier->import_products_page($cursor, $updated_at);
-                    $ids   = array_map(fn($item) => $item['id'], $items['data'] ?? []);
+                    $ids   = array_map(fn($item) => $item['id'], isset($items['data']) ? $items['data'] : []);
                     break;
 
                 case 'taxonomy':
                     $items = $supplier->import_taxonomy_page($cursor, $updated_at);
-                    $ids   = $items['data'];
+                    $ids   = isset($items['data']) ? $items['data'] : [];
                     break;
             }
 
@@ -135,16 +135,16 @@ class WPSImportManager extends CIStore\Suppliers\ImportManager
             $progress        = $info['total'] > 0 ? ($processed / $info['total']) : 0;
             // $time            = $timer->lap();
 
-            // $this->log(__FUNCTION__, json_encode([
-            //     'rate'        => $processed_delta > 0 ? number_format($time / $processed_delta, 2) : 0,
-            //     'time'        => number_format($time, 2),
-            //     'total'       => $processed_delta,
-            //     'type'        => $import_type,
-            //     'cursor'      => $cursor,
-            //     'next_cursor' => $next_cursor,
-            //     'date'        => $updated_at,
-            //     'ids'         => $ids,
-            // ]));
+            $this->log(__FUNCTION__, 'end', json_encode([
+                // 'rate'        => $processed_delta > 0 ? number_format($time / $processed_delta, 2) : 0,
+                // 'time'        => number_format($time, 2),
+                'total'       => $processed_delta,
+                'type'        => $import_type,
+                'cursor'      => $cursor,
+                'next_cursor' => $next_cursor,
+                'date'        => $updated_at,
+                'ids'         => $ids,
+            ]));
 
             unset($items, $ids);
             gc_collect_cycles();
